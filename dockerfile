@@ -1,0 +1,69 @@
+# syntax=docker/dockerfile:1.4
+FROM node:22-alpine AS builder
+WORKDIR /app
+
+COPY package*.json ./
+RUN --mount=type=cache,target=/root/.npm \
+    if [ -f package-lock.json ]; then npm ci --legacy-peer-deps; else npm install --legacy-peer-deps; fi
+
+COPY . .
+
+ARG NEXT_PUBLIC_ACCOUNT_API_BASE_URL
+ARG NEXT_PUBLIC_RESUME_API_BASE_URL
+ARG NEXT_PUBLIC_AI_API_BASE_URL
+ARG NEXT_PUBLIC_JOB_API_BASE_URL
+ARG NEXT_PUBLIC_EMAIL_API_BASE_URL
+ARG NEXT_PUBLIC_TRACKER_API_BASE_URL
+ARG NEXT_PUBLIC_NOTIFICATION_API_BASE_URL
+ARG NEXT_PUBLIC_CHAT_API_BASE_URL
+ARG NEXT_PUBLIC_PAYMENTS_API_BASE_URL
+ARG NEXT_PUBLIC_STATISTICS_API_BASE_URL
+ARG NEXT_PUBLIC_SCHEDULE_API_BASE_URL
+ARG NEXT_PUBLIC_USE_PROXY
+ARG NEXT_PUBLIC_ABLY_KEY
+ARG NEXTAUTH_URL
+
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1 \
+    NEXT_PUBLIC_ACCOUNT_API_BASE_URL=$NEXT_PUBLIC_ACCOUNT_API_BASE_URL \
+    NEXT_PUBLIC_RESUME_API_BASE_URL=$NEXT_PUBLIC_RESUME_API_BASE_URL \
+    NEXT_PUBLIC_AI_API_BASE_URL=$NEXT_PUBLIC_AI_API_BASE_URL \
+    NEXT_PUBLIC_JOB_API_BASE_URL=$NEXT_PUBLIC_JOB_API_BASE_URL \
+    NEXT_PUBLIC_EMAIL_API_BASE_URL=$NEXT_PUBLIC_EMAIL_API_BASE_URL \
+    NEXT_PUBLIC_TRACKER_API_BASE_URL=$NEXT_PUBLIC_TRACKER_API_BASE_URL \
+    NEXT_PUBLIC_NOTIFICATION_API_BASE_URL=$NEXT_PUBLIC_NOTIFICATION_API_BASE_URL \
+    NEXT_PUBLIC_CHAT_API_BASE_URL=$NEXT_PUBLIC_CHAT_API_BASE_URL \
+    NEXT_PUBLIC_PAYMENTS_API_BASE_URL=$NEXT_PUBLIC_PAYMENTS_API_BASE_URL \
+    NEXT_PUBLIC_STATISTICS_API_BASE_URL=$NEXT_PUBLIC_STATISTICS_API_BASE_URL \
+    NEXT_PUBLIC_SCHEDULE_API_BASE_URL=$NEXT_PUBLIC_SCHEDULE_API_BASE_URL \
+    NEXT_PUBLIC_USE_PROXY=${NEXT_PUBLIC_USE_PROXY:-false} \
+    NEXT_PUBLIC_ABLY_KEY=$NEXT_PUBLIC_ABLY_KEY \
+    NEXTAUTH_URL=$NEXTAUTH_URL
+
+RUN npm run build
+
+# ===========================================
+# Runtime stage
+# ===========================================
+FROM node:22-alpine AS runtime
+ENV NODE_ENV=production \
+    NEXT_TELEMETRY_DISABLED=1
+WORKDIR /app
+
+RUN apk add --no-cache dumb-init curl && \
+    addgroup --system --gid 1001 nodejs && \
+    adduser --system --uid 1001 nextjs
+
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+COPY --from=builder --chown=nextjs:nodejs /app/public ./public
+
+USER nextjs
+EXPOSE 3000
+ENV HOSTNAME="0.0.0.0" PORT=3000
+
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+    CMD curl -f http://localhost:3000 || exit 1
+
+ENTRYPOINT ["dumb-init", "--"]
+CMD ["node", "server.js"]
