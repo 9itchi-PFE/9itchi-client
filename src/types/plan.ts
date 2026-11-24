@@ -16,9 +16,16 @@ export type PromoCode = {
     value: number
     valid_from: string
     valid_until: string
+    // usage_limit 0: no limit. used_count: how many payments used the code.
     usage_limit: number
+    used_count: number
     plan_ids: string[]
 }
+
+// PlanInput and PromoInput are what the admin saves (payments-api replaces the whole row).
+export type PlanInput = Pick<Plan, 'name' | 'price' | 'duration_days' | 'quotas' | 'active'> & { regular_price?: number }
+export type PromoInput = Omit<PromoCode, 'id' | 'used_count'>
+export type ReceiptIssuerInput = Omit<ReceiptIssuer, 'complete'>
 
 // renews: a new payment is asked when the period ends, until the student stops the subscription (nothing is charged
 // automatically). stopped_at: when they stopped it; access still lasts until ends_at.

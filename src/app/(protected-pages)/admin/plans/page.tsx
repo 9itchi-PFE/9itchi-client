@@ -1,5 +1,5 @@
-import PagePlaceholder from '@/components/ui/PagePlaceholder'
+import PlansScreen from '@/components/admin/PlansScreen'
 
 export default function Page() {
-    return <PagePlaceholder title="Subscription plans" description="Create, edit, deactivate." />
+    return <PlansScreen />
 }
