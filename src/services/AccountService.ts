@@ -1,4 +1,4 @@
-import type { AdminUser, UserList, UserQuery } from '@/types/user'
+import type { AdminUser, UserList, UserNote, UserQuery } from '@/types/user'
 import { api } from './ApiService'
 
 const AccountService = {
@@ -20,6 +20,9 @@ const AccountService = {
     getUser: (id: string) => api('account').get<AdminUser>(`/admin/users/${id}`),
     // suspendUser blocks the sign-in of an account (suspended true) or lets it in again (false).
     suspendUser: (id: string, suspended: boolean) => api('account').put<AdminUser>(`/admin/users/${id}/suspend`, { suspended }),
+    // The internal note of the team about a user: never shown to the user.
+    getUserNote: (id: string) => api('account').get<UserNote>(`/admin/users/${id}/note`),
+    setUserNote: (id: string, note: string) => api('account').put<UserNote>(`/admin/users/${id}/note`, { note }),
     deleteUser: (id: string) => api('account').delete(`/admin/users/${id}`),
 }
 

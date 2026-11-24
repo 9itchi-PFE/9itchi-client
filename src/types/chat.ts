@@ -11,6 +11,8 @@ export type Conversation = {
     last_message: MessagePreview | null
     updated_at: string
     created_at: string
+    // resolved_at: when the team marked it as resolved; null while open. Any new message opens it again.
+    resolved_at: string | null
 }
 
 export type ConversationList = { items: Conversation[]; total: number; page: number; page_size: number }

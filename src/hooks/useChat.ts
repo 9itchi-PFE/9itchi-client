@@ -68,3 +68,15 @@ export function useStartConversation() {
         onSuccess: () => qc.invalidateQueries({ queryKey: chatKeys.conversations }),
     })
 }
+
+// useSetResolved marks a conversation as resolved or open again, in the inbox at once.
+export function useSetResolved() {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: async ({ id, resolved }: { id: string; resolved: boolean }) => (await ChatService.setResolved(id, resolved)).data,
+        onSuccess: (conversation) =>
+            qc.setQueryData<ConversationList>(chatKeys.conversations, (old) =>
+                old ? { ...old, items: old.items.map((c) => (c.id === conversation.id ? { ...c, resolved_at: conversation.resolved_at } : c)) } : old,
+            ),
+    })
+}

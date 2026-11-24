@@ -8,12 +8,16 @@ import { useFormatter, useLocale, useTranslations } from 'next-intl'
 import { tnd } from '@/components/billing/billing'
 import { initials } from '@/components/layouts/StudentLayout/AccountMenu'
 import { Button } from '@/components/ui/Button'
+import { TextArea } from '@/components/ui/Field'
 import { useToast } from '@/components/ui/Toast'
 import {
     useAdminUser,
     useDeleteUser,
+    useSaveStudentNote,
     useStudentApplications,
+    useStudentCV,
     useStudentGmail,
+    useStudentNote,
     useStudentPayments,
     useStudentSubscription,
     useSuspendUser,
@@ -93,6 +97,53 @@ function Applications({ id }: { id: string }) {
     )
 }
 
+// Note is what the team writes about the student for itself. The student never sees it.
+function Note({ id }: { id: string }) {
+    const t = useTranslations('admin')
+    const toast = useToast()
+    const { data, isLoading, isError } = useStudentNote(id)
+    const save = useSaveStudentNote(id)
+    const [failed, setFailed] = useState(false)
+    return (
+        <section aria-labelledby="note-h" className={panel}>
+            <h2 id="note-h" className="m-0 text-xl font-extrabold">
+                {t('sNote')}
+            </h2>
+            {isLoading ? <div className="sk h-24 rounded-lg" /> : null}
+            {isError ? <p className="m-0 text-sm text-[#B42318]">{t('sPartError')}</p> : null}
+            {data ? (
+                <form
+                    key={data.updated_at ?? 'new'}
+                    className="flex flex-col gap-3"
+                    onSubmit={(e) => {
+                        e.preventDefault()
+                        setFailed(false)
+                        save.mutate(String(new FormData(e.currentTarget).get('note') ?? ''), {
+                            onSuccess: () => toast(t('sNoteSaved')),
+                            onError: () => setFailed(true),
+                        })
+                    }}
+                >
+                    <label className="flex flex-col gap-1.5">
+                        <span className="sr-only">{t('sNote')}</span>
+                        <TextArea name="note" rows={3} maxLength={2000} defaultValue={data.note} placeholder={t('sNoteHint')} />
+                    </label>
+                    {failed ? (
+                        <p role="alert" className="m-0 text-sm text-[#B42318]">
+                            {t('stateError')}
+                        </p>
+                    ) : null}
+                    <div>
+                        <Button type="submit" variant="secondary" disabled={save.isPending}>
+                            {t('save')}
+                        </Button>
+                    </div>
+                </form>
+            ) : null}
+        </section>
+    )
+}
+
 function Payments({ id }: { id: string }) {
     const t = useTranslations('admin')
     const format = useFormatter()
@@ -144,6 +195,7 @@ export default function StudentScreen({ id }: { id: string }) {
     const { data: user, isLoading, error } = useAdminUser(studentId(id))
     const sub = useStudentSubscription(user?.id ?? '')
     const gmail = useStudentGmail(user?.id ?? '')
+    const cv = useStudentCV(user?.id ?? '')
     const suspend = useSuspendUser()
     const write = useStartConversation()
     const tc = useTranslations('chat')
@@ -226,6 +278,15 @@ export default function StudentScreen({ id }: { id: string }) {
                                         ? t('sPlanFree')
                                         : t(paid.renews ? 'sPlanPaid' : 'sPlanStopped', { name: sub.data.plan.name, day: new Date(paid.ends_at) })}
                             </Row>
+                            <Row label={t('sCv')}>
+                                {cv.isLoading
+                                    ? '…'
+                                    : cv.isError
+                                      ? t('sUnknown')
+                                      : cv.data
+                                        ? t('sCvScore', { passed: cv.data.passed, total: cv.data.total, count: cv.data.resumes })
+                                        : t('sCvNone')}
+                            </Row>
                             <Row label={t('sGmail')}>
                                 {gmail.isLoading ? '…' : !gmail.data ? t('sUnknown') : gmail.data.connected ? t('sGmailOn') : t('sGmailOff')}
                             </Row>
@@ -276,6 +337,7 @@ export default function StudentScreen({ id }: { id: string }) {
                     <div className="flex min-w-0 flex-col gap-5">
                         <Applications id={user.id} />
                         <Payments id={user.id} />
+                        <Note id={user.id} />
                     </div>
                 </div>
             ) : null}

@@ -6,9 +6,10 @@ import { useTranslations } from 'next-intl'
 import { picked } from '@/components/chat/chat'
 import { Thread } from '@/components/chat/Thread'
 import { useLiveChat } from '@/components/chat/useLiveChat'
+import { Button } from '@/components/ui/Button'
 import { initials } from '@/components/layouts/StudentLayout/AccountMenu'
 import { useAdminUser } from '@/hooks/useAdminUsers'
-import { useConversations } from '@/hooks/useChat'
+import { useConversations, useSetResolved } from '@/hooks/useChat'
 import { cn } from '@/lib/cn'
 import type { Conversation } from '@/types/chat'
 
@@ -43,6 +44,9 @@ function InboxRow({ conversation, active, onPick }: { conversation: Conversation
                     <bdi className={cn('truncate text-[14.5px]', unread ? 'font-extrabold' : 'font-bold')}>{who.name || t('student')}</bdi>
                     <bdi className="truncate text-[13px] text-ink-3">{conversation.last_message?.content ?? t('noMessage')}</bdi>
                 </span>
+                {conversation.resolved_at && !unread ? (
+                    <span className="flex-none rounded-full bg-fill px-2 py-[2px] text-[11.5px] font-semibold text-ink-3">{t('resolved')}</span>
+                ) : null}
                 {unread ? (
                     <span className="flex-none">
                         <span aria-hidden className="block h-2.5 w-2.5 rounded-full bg-violet" />
@@ -57,15 +61,27 @@ function InboxRow({ conversation, active, onPick }: { conversation: Conversation
 function Open({ conversation }: { conversation: Conversation }) {
     const t = useTranslations('chat')
     const who = useWho(conversation.user_id)
+    const resolve = useSetResolved()
     return (
         <>
             <section
                 aria-label={who.name || t('student')}
                 className="flex h-[640px] min-w-0 flex-col overflow-hidden rounded-[22px] border-[1.5px] border-ink bg-white shadow-card"
             >
-                <h2 className="m-0 border-b border-line-soft px-5 py-4 text-[17px] font-extrabold">
-                    <bdi>{who.name || t('student')}</bdi>
-                </h2>
+                <div className="flex items-center justify-between gap-3 border-b border-line-soft px-5 py-3">
+                    <h2 className="m-0 min-w-0 truncate text-[17px] font-extrabold">
+                        <bdi>{who.name || t('student')}</bdi>
+                    </h2>
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        className="flex-none"
+                        disabled={resolve.isPending}
+                        onClick={() => resolve.mutate({ id: conversation.id, resolved: !conversation.resolved_at })}
+                    >
+                        {conversation.resolved_at ? t('reopen') : t('markResolved')}
+                    </Button>
+                </div>
                 <Thread key={conversation.id} conversation={conversation} viewer="team" className="flex-1" />
             </section>
             <aside className="flex flex-col gap-2 rounded-[22px] border border-line bg-white p-5">

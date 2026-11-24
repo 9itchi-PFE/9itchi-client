@@ -17,3 +17,9 @@ export type UserStatus = '' | 'active' | 'suspended'
 export type UserQuery = { q?: string; status?: UserStatus; role?: 'candidate' | 'admin'; page: number; page_size: number }
 
 export type UserList = { items: AdminUser[]; total: number; page: number; page_size: number }
+
+// UserNote is the team's internal note about a student. updated_at is null when nothing was ever written.
+export type UserNote = { user_id: string; note: string; updated_at: string | null }
+
+// UserCV is where a student's CV stands for the team: counts only (resume-api).
+export type UserCV = { resume_id: string; title: string; resumes: number; version: number; passed: number; total: number; to_fix: number; updated_at: string }
