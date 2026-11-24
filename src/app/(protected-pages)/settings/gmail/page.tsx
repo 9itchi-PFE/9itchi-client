@@ -1,5 +1,10 @@
-import PagePlaceholder from '@/components/ui/PagePlaceholder'
+import { Suspense } from 'react'
+import GmailScreen from '@/components/applications/GmailScreen'
 
 export default function Page() {
-    return <PagePlaceholder title="Gmail connection" description="Connect or revoke Gmail (OAuth 2.0)." />
+    return (
+        <Suspense>
+            <GmailScreen />
+        </Suspense>
+    )
 }

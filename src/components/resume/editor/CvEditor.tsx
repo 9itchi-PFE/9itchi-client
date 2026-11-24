@@ -203,7 +203,8 @@ function Editor({ resume: initial }: { resume: Resume }) {
                                 photoUrl={photo}
                                 shown={content.style?.show_photo !== false}
                                 onShown={(on) => {
-                                    const { show_photo: _drop, ...rest } = content.style ?? {}
+                                    const rest = { ...content.style }
+                                    delete rest.show_photo
                                     const style = on ? rest : { ...rest, show_photo: false }
                                     change({ ...content, style: Object.keys(style).length ? style : undefined })
                                 }}
