@@ -60,12 +60,36 @@ export default function Page() {
                             <LegalList
                                 items={[
                                     'Google and LinkedIn sign-in are used only to identify you (name and verified email).',
-                                    'If you connect Gmail, you authorize us to send emails on your behalf with the send-only permission. We cannot read, list or delete your mailbox.',
-                                    'You can disconnect Gmail in the app at any time, or revoke access from your Google Account permissions page. Scheduled emails will then not be sent.',
-                                    'You are the sender of every email sent from your account and are responsible for its content and recipients.',
+                                    'Gmail sending is a separate, optional authorization described in the next section.',
                                 ]}
                             />
                             <p>Our use of data received from Google APIs follows the {link('https://developers.google.com/terms/api-services-user-data-policy', 'Google API Services User Data Policy')}, including the Limited Use requirements.</p>
+                        </>
+                    ),
+                },
+                {
+                    title: 'Authorization to send emails on your behalf',
+                    body: (
+                        <>
+                            <p>Sending applications from your Gmail address is an optional feature that is off by default. It is activated only when you choose "Connect Gmail" in Settings and approve Google's consent screen. Signing in with Google alone does not grant it.</p>
+                            <p>By connecting Gmail you expressly authorize {LEGAL.company} to:</p>
+                            <LegalList
+                                items={[
+                                    'send, from your Gmail address and in your name, the emails you create or approve in the app, including applications and follow-ups to recruiters and employers you select;',
+                                    'send them at the time you choose, including scheduled emails sent later without you being signed in;',
+                                    'attach the resume and documents you select, and include a tracking image to report opens to you.',
+                                ]}
+                            />
+                            <p>You acknowledge that:</p>
+                            <LegalList
+                                items={[
+                                    'we only send what you have composed or approved, to recipients you chose; we never send emails you have not requested and never contact recruiters on our own initiative;',
+                                    'the permission is send-only: we cannot read, search or delete your mailbox, and sent messages appear in your Gmail "Sent" folder;',
+                                    'you are the sender and are solely responsible for the content, accuracy, recipients and lawfulness of each email, including anti-spam and data-protection rules; AI-drafted text must be reviewed by you before sending;',
+                                    'we apply daily sending limits and may pause sending to protect your Gmail account, recipients and the service; Google may also apply its own limits;',
+                                    'you can withdraw this authorization at any time by choosing "Disconnect" in Settings or by revoking access in your Google Account; pending scheduled emails are then not sent, and emails already sent cannot be recalled.',
+                                ]}
+                            />
                         </>
                     ),
                 },
