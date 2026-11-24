@@ -1,5 +1,10 @@
-import PagePlaceholder from '@/components/ui/PagePlaceholder'
+import { Suspense } from 'react'
+import SupportScreen from '@/components/admin/SupportScreen'
 
 export default function Page() {
-    return <PagePlaceholder title="Live chat (admin)" description="Start a conversation with any user." />
+    return (
+        <Suspense>
+            <SupportScreen />
+        </Suspense>
+    )
 }

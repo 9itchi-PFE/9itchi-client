@@ -1550,5 +1550,30 @@
                 "desc": "Once a week at most"
             }
         }
+    },
+    "chat": {
+        "helpTitle": "Help",
+        "helpSubtitle": "Write to the 9itchi team. We answer here, usually within the day.",
+        "helpError": "The conversation could not be opened. Reload the page.",
+        "inboxTitle": "Support",
+        "inboxSubtitle": "The conversations with students. The whole team sees them and can answer.",
+        "inboxError": "The conversations could not be read. Reload the page.",
+        "inboxEmpty": "No conversation yet.",
+        "conversations": "Conversations",
+        "student": "Student",
+        "noMessage": "No message yet",
+        "unread": "{count, plural, one {# unread message} other {# unread messages}}",
+        "openFile": "Open the file",
+        "messages": "Messages",
+        "loadError": "The messages could not be read.",
+        "emptyStudent": "Ask your question: a problem with your CV, an application, a payment… We answer here.",
+        "emptyTeam": "No message yet. Write the first one.",
+        "fromMe": "You:",
+        "fromTeam": "The 9itchi team:",
+        "fromStudent": "The student:",
+        "write": "Write a message",
+        "send": "Send",
+        "sendError": "The message was not sent. Try again.",
+        "writeTo": "Write to {name}"
     }
 }

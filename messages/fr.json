@@ -1550,5 +1550,30 @@
                 "desc": "Une fois par semaine au plus"
             }
         }
+    },
+    "chat": {
+        "helpTitle": "Aide",
+        "helpSubtitle": "Écris à l’équipe 9itchi. On te répond ici, en général dans la journée.",
+        "helpError": "La conversation n’a pas pu être ouverte. Recharge la page.",
+        "inboxTitle": "Support",
+        "inboxSubtitle": "Les conversations avec les étudiants. Toute l’équipe les voit et peut répondre.",
+        "inboxError": "Les conversations n’ont pas pu être lues. Recharge la page.",
+        "inboxEmpty": "Aucune conversation pour l’instant.",
+        "conversations": "Conversations",
+        "student": "Étudiant",
+        "noMessage": "Pas encore de message",
+        "unread": "{count, plural, one {# message non lu} other {# messages non lus}}",
+        "openFile": "Ouvrir la fiche",
+        "messages": "Messages",
+        "loadError": "Les messages n’ont pas pu être lus.",
+        "emptyStudent": "Pose ta question : un problème avec ton CV, une candidature, un paiement… On te répond ici.",
+        "emptyTeam": "Aucun message pour l’instant. Écris le premier.",
+        "fromMe": "Toi :",
+        "fromTeam": "L’équipe 9itchi :",
+        "fromStudent": "L’étudiant :",
+        "write": "Écrire un message",
+        "send": "Envoyer",
+        "sendError": "Le message n’est pas parti. Réessaie.",
+        "writeTo": "Écrire à {name}"
     }
 }

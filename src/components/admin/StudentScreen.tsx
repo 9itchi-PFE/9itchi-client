@@ -18,6 +18,7 @@ import {
     useStudentSubscription,
     useSuspendUser,
 } from '@/hooks/useAdminUsers'
+import { useStartConversation } from '@/hooks/useChat'
 import { cn } from '@/lib/cn'
 import type { Application, ApplicationStatus } from '@/types/application'
 import { apiError } from './SourcesScreen'
@@ -144,6 +145,8 @@ export default function StudentScreen({ id }: { id: string }) {
     const sub = useStudentSubscription(user?.id ?? '')
     const gmail = useStudentGmail(user?.id ?? '')
     const suspend = useSuspendUser()
+    const write = useStartConversation()
+    const tc = useTranslations('chat')
     const remove = useDeleteUser()
     const [problem, setProblem] = useState('')
     const missing = !studentId(id) || (isAxiosError(error) && error.response?.status === 404)
@@ -234,6 +237,18 @@ export default function StudentScreen({ id }: { id: string }) {
                             </p>
                         ) : null}
                         <div className="flex flex-col gap-2.5">
+                            <Button
+                                variant="secondary"
+                                disabled={write.isPending}
+                                onClick={() =>
+                                    write.mutate(user.id, {
+                                        onSuccess: (c) => router.push(`/admin/support?c=${c.id}`),
+                                        onError: (e) => setProblem(apiError(e) ?? t('stateError')),
+                                    })
+                                }
+                            >
+                                {tc('writeTo', { name: (user.name || user.email).split(' ')[0] })}
+                            </Button>
                             {user.status === 'active' ? (
                                 <Button
                                     variant="secondary"
