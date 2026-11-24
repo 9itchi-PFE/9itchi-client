@@ -49,7 +49,7 @@ export const KNOWN_PLACES = ['Sfax', 'Tunis', 'Sousse', 'remote', 'France', 'any
 export type Guess = { prefs: Preferences; fromCv: Set<keyof Preferences> }
 
 export function guessFromCv(c: ResumeContent | undefined): Guess {
-    const prefs: Preferences = { topics: [], skills: [], places: [], work_mode: null, start_month: null, duration_months: null, paid_only: null, team: null }
+    const prefs: Preferences = { topics: [], skills: [], places: [], work_modes: [], start_month: null, durations: [] }
     const fromCv = new Set<keyof Preferences>()
     if (!c) return { prefs, fromCv }
     const skills = [...c.skills, ...(c.skill_groups ?? []).flatMap((g) => g.items)].filter((s, i, a) => s && a.indexOf(s) === i)
@@ -72,8 +72,8 @@ export function guessFromCv(c: ResumeContent | undefined): Guess {
     const headline = (c.contact.headline ?? '').toLowerCase()
     const months = headline.match(/(\d{1,2})\s*(mois|months?)/)
     if (months && Number(months[1]) >= 1 && Number(months[1]) <= 12) {
-        prefs.duration_months = Number(months[1])
-        fromCv.add('duration_months')
+        prefs.durations = [Number(months[1])]
+        fromCv.add('durations')
     }
     const start = headline.match(
         /(janvier|février|fevrier|mars|avril|mai|juin|juillet|août|aout|septembre|octobre|novembre|décembre|decembre|january|february|march|april|may|june|july|august|september|october|november|december)\s+(20\d{2})/,

@@ -15,6 +15,30 @@ export type SkillGroup = { label: string; items: string[] }
 export type Certification = { name: string; issuer: string; year: string }
 export type ExtraSection = { title: string; items: string[] }
 
+export type CVStyle = {
+    base_size?: number
+    name_delta?: number
+    title_delta?: number
+    heading_delta?: number
+    entry_delta?: number
+    line_height?: number
+    gap?: number
+    margin_x?: number
+    margin_y?: number
+    name_font?: 'sans' | 'serif'
+    heading_case?: 'capitalize' | 'uppercase'
+    date_position?: 'right' | 'below'
+    align?: 'left' | 'center'
+    separator?: 'bullet' | 'bar'
+    color_mode?: 'single' | 'multi'
+    accent?: string
+    text?: string
+    background?: string
+    accent_on?: AccentTarget[]
+    show_photo?: boolean
+}
+export type AccentTarget = 'name' | 'title' | 'headings' | 'rules' | 'dates' | 'entry_title' | 'links'
+
 export type ResumeContent = {
     contact: Contact
     summary: string
@@ -26,6 +50,20 @@ export type ResumeContent = {
     languages: string[]
     certifications: Certification[]
     extra?: ExtraSection[]
+    section_order?: string[]
+    style?: CVStyle
+}
+
+export const DEFAULT_ORDER = ['summary', 'education', 'experience', 'projects', 'skills', 'certifications', 'languages'] as const
+
+// sectionOrder mirrors resume-api's SectionOrder: chosen keys first (unknown/repeated dropped), the rest by default order.
+export function sectionOrder(c: Pick<ResumeContent, 'extra' | 'section_order'>): string[] {
+    const all: string[] = [...DEFAULT_ORDER, ...(c.extra ?? []).map((_, i) => `extra:${i}`)]
+    const known = new Set(all)
+    const out: string[] = []
+    for (const k of c.section_order ?? []) if (known.has(k) && !out.includes(k)) out.push(k)
+    for (const k of all) if (!out.includes(k)) out.push(k)
+    return out
 }
 
 export type ParseStatus = 'none' | 'pending' | 'done' | 'failed'

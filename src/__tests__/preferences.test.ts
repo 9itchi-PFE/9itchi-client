@@ -21,9 +21,9 @@ describe('guessFromCv', () => {
         expect(g.prefs.skills).toEqual(['C++', 'Linux', 'React', 'Python'])
         expect(g.prefs.places).toEqual(['Sfax'])
         expect(g.prefs.start_month).toBe('2027-02')
-        expect(g.prefs.duration_months).toBe(6)
-        expect([...g.fromCv].sort()).toEqual(['duration_months', 'places', 'skills', 'start_month', 'topics'])
-        expect(g.prefs.paid_only).toBeNull()
+        expect(g.prefs.durations).toEqual([6])
+        expect([...g.fromCv].sort()).toEqual(['durations', 'places', 'skills', 'start_month', 'topics'])
+        expect(g.prefs.work_modes).toEqual([])
     })
     it('asks everything without a CV', () => {
         expect(guessFromCv(undefined).fromCv.size).toBe(0)

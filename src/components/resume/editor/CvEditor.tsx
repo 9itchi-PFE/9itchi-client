@@ -16,8 +16,9 @@ import { useTemplates } from '@/hooks/useTemplates'
 import { cn } from '@/lib/cn'
 import { errorStatus } from '@/services/ApiService'
 import ResumeService from '@/services/ResumeService'
-import { normalize, type Resume, type ResumeContent } from '@/types/resume'
+import { normalize, sectionOrder, type Resume, type ResumeContent } from '@/types/resume'
 import CvPreview, { type SectionKey } from '../CvPreview'
+import StylePanel from './StylePanel'
 import { phonePlaceholder } from '../cvText'
 import DownloadDialogs, { type DownloadMode } from './DownloadDialogs'
 import PhotoControl from './PhotoControl'
@@ -34,7 +35,7 @@ import {
     SummaryEditor,
     sectionTitle,
 } from './SectionEditors'
-import { SECTIONS, sectionsToFix, type Section } from './sections'
+import { sectionsToFix, type Section } from './sections'
 import VersionsDrawer from './VersionsDrawer'
 
 const SAVE_DELAY = 800
@@ -164,7 +165,18 @@ function Editor({ resume: initial }: { resume: Resume }) {
         toast(t('toastExtraAdded'))
     }
 
-    const navItems: Section[] = [...SECTIONS, ...(content.extra ?? []).map((_, i) => `extra:${i}` as Section)]
+    const order = sectionOrder(content)
+    const navItems: Section[] = ['contact', ...(order as Section[])]
+    const [dragKey, setDragKey] = useState<Section | null>(null)
+    const [styleOpen, setStyleOpen] = useState(false)
+    const move = (key: Section, to: number) => {
+        const from = order.indexOf(key)
+        if (from < 0 || to < 0 || to >= order.length || to === from) return
+        const next = [...order]
+        next.splice(from, 1)
+        next.splice(to, 0, key)
+        change({ ...content, section_order: next })
+    }
     const highlight: SectionKey = section.startsWith('extra:') ? 'extra' : (section as SectionKey)
     const props = { content, onChange: change, language: resume.language, item, setItem, focusLine }
 
@@ -264,19 +276,50 @@ function Editor({ resume: initial }: { resume: Resume }) {
                         >
                             {navItems.map((s) => {
                                 const on = s === section
+                                const pinned = s === 'contact'
+                                const idx = order.indexOf(s)
                                 return (
                                     <button
                                         key={s}
                                         type="button"
                                         aria-current={on ? 'true' : undefined}
+                                        aria-keyshortcuts={pinned ? undefined : 'Alt+ArrowUp Alt+ArrowDown'}
+                                        draggable={!pinned}
+                                        onDragStart={(e) => {
+                                            if (pinned) return
+                                            e.dataTransfer.effectAllowed = 'move'
+                                            e.dataTransfer.setData('text/plain', s)
+                                            setDragKey(s)
+                                        }}
+                                        onDragOver={(e) => {
+                                            if (dragKey && !pinned) e.preventDefault()
+                                        }}
+                                        onDrop={(e) => {
+                                            e.preventDefault()
+                                            if (dragKey && !pinned) move(dragKey, idx)
+                                            setDragKey(null)
+                                        }}
+                                        onDragEnd={() => setDragKey(null)}
+                                        onKeyDown={(e) => {
+                                            if (pinned || !e.altKey || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return
+                                            e.preventDefault()
+                                            move(s, idx + (e.key === 'ArrowUp' ? -1 : 1))
+                                        }}
                                         onClick={() => go(s)}
                                         className={cn(
-                                            'flex h-11 w-full cursor-pointer items-center gap-2.5 rounded-[10px] border-0 px-3 text-start text-[14.5px]',
+                                            'flex h-11 w-full items-center gap-2.5 rounded-[10px] border-0 px-3 text-start text-[14.5px]',
+                                            pinned ? 'cursor-pointer' : 'cursor-grab active:cursor-grabbing',
+                                            dragKey === s && 'opacity-40',
                                             on ? 'bg-fill font-semibold text-ink' : 'bg-transparent font-medium text-ink-2 hover:bg-fill-3',
                                         )}
                                     >
                                         <span className={cn('h-2 w-2 flex-none rounded-full', toFix.has(s) ? 'bg-warn-dot' : 'bg-ok-dot')} />
-                                        <span className="truncate">{sectionTitle(s, content, t)}</span>
+                                        <span className="min-w-0 flex-1 truncate">{sectionTitle(s, content, t)}</span>
+                                        {pinned ? null : (
+                                            <span aria-hidden className="flex-none text-ink-3">
+                                                ⋮⋮
+                                            </span>
+                                        )}
                                     </button>
                                 )
                             })}
@@ -295,16 +338,25 @@ function Editor({ resume: initial }: { resume: Resume }) {
                 <section aria-label={t('previewAria')} className="sticky top-[92px] flex min-w-0 flex-[1_1_540px] flex-col gap-2.5">
                     <div className="flex items-center justify-between text-[13px] text-ink-3">
                         <span>{t('previewLabel', { pages })}</span>
+                        <button
+                            type="button"
+                            aria-expanded={styleOpen}
+                            onClick={() => setStyleOpen(!styleOpen)}
+                            className="h-8 cursor-pointer rounded-[10px] border border-line-strong bg-white px-3 text-[13px] font-semibold text-ink hover:bg-fill-3"
+                        >
+                            {t('style.open')}
+                        </button>
                         <span className="inline-flex items-center gap-1.5">
                             <span className="h-2.5 w-2.5 rounded-sm border-[1.5px] border-violet" />
                             {t('previewCurrent')}
                         </span>
                     </div>
+                    {styleOpen ? <StylePanel style={content.style} layout={layout} onChange={(style) => change({ ...content, style })} /> : null}
                     <CvPreview
                         content={content}
                         layout={layout}
                         language={cvLang}
-                        photoUrl={layout === 'compact' ? null : photo}
+                        photoUrl={photo}
                         highlight={highlight}
                         phonePlaceholder={phonePlaceholder[cvLang]}
                         onPages={setPages}

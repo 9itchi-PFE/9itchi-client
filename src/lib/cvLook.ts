@@ -1,0 +1,94 @@
+import type { CVStyle, Layout } from '@/types/resume'
+
+// Mirrors resume-api core/pdf_style.go (layoutLooks + newLook): the preview and the exports resolve a style the same way.
+type LayoutLook = { base: number; name: number; title: number; head: number; mx: number; my: number; upper: boolean; nameSerif: boolean; center: boolean }
+
+export const layoutLooks: Record<Layout, LayoutLook> = {
+    classic: { base: 10.5, name: 23, title: 12, head: 13, mx: 14, my: 12, upper: true, nameSerif: false, center: false },
+    modern: { base: 10, name: 22, title: 10.5, head: 13, mx: 9, my: 12, upper: false, nameSerif: true, center: false },
+    compact: { base: 10, name: 17, title: 10, head: 11, mx: 15, my: 12, upper: true, nameSerif: false, center: true },
+}
+
+export const DEFAULT_ACCENT_TARGETS = ['title', 'headings', 'rules', 'entry_title', 'links'] as const
+
+export type Look = {
+    base: number
+    name: number
+    title: number
+    head: number
+    entry: number
+    lineHeight: number
+    gap: number | null
+    mx: number
+    my: number
+    nameSerif: boolean
+    upper: boolean
+    dateBelow: boolean
+    center: boolean
+    sep: string
+    showPhoto: boolean
+    accent?: string
+    text?: string
+    bg?: string
+    accents: (target: string) => boolean
+}
+
+const PX_PER_MM = 624 / 210
+export const mmToPx = (mm: number) => mm * PX_PER_MM
+
+const hex = (s?: string) => (s && /^#[0-9a-fA-F]{6}$/.test(s) ? s : undefined)
+
+export function resolveLook(layout: Layout, s: CVStyle = {}): Look {
+    const d = layoutLooks[layout] ?? layoutLooks.classic
+    const base = s.base_size ?? d.base
+    const accent = hex(s.accent)
+    const targets: readonly string[] = s.accent_on?.length ? s.accent_on : DEFAULT_ACCENT_TARGETS
+    const multi = s.color_mode === 'multi'
+    return {
+        base,
+        name: base + (s.name_delta ?? d.name - d.base),
+        title: base + (s.title_delta ?? d.title - d.base),
+        head: base + (s.heading_delta ?? d.head - d.base),
+        entry: base + (s.entry_delta ?? 0),
+        lineHeight: s.line_height ?? 1.38,
+        gap: s.gap ?? null,
+        mx: s.margin_x ?? d.mx,
+        my: s.margin_y ?? d.my,
+        nameSerif: s.name_font ? s.name_font === 'serif' : d.nameSerif,
+        upper: s.heading_case ? s.heading_case === 'uppercase' : d.upper,
+        dateBelow: s.date_position === 'below',
+        center: s.align ? s.align === 'center' : d.center,
+        sep: s.separator === 'bar' ? ' | ' : ' · ',
+        showPhoto: s.show_photo !== false,
+        accent,
+        text: multi ? hex(s.text) : undefined,
+        bg: multi ? hex(s.background) : undefined,
+        accents: (t) => !!accent && targets.includes(t),
+    }
+}
+
+// lookCss turns a Look into rules scoped to .cvx; only what the user changed is colored, so untouched CVs keep their template colors.
+export function lookCss(l: Look, explicit: CVStyle = {}): string {
+    const r: string[] = []
+    const rule = (sel: string, body: string) => body && r.push(`.cvx ${sel}{${body}}`)
+    rule('[data-cv=body]', `font-size:${l.base}px;line-height:${l.lineHeight};`)
+    rule('[data-cv=name]', `font-size:${l.name}px;${l.accents('name') ? `color:${l.accent};` : ''}`)
+    rule('[data-cv=title]', `font-size:${l.title}px;${explicit.accent ? `color:${l.accents('title') ? l.accent : 'inherit'};` : ''}`)
+    rule(
+        '[data-cv=heading]',
+        `font-size:${l.head}px;${explicit.heading_case ? `text-transform:${l.upper ? 'uppercase' : 'none'};` : ''}` +
+            (explicit.accent ? `color:${l.accents('headings') ? l.accent : 'inherit'};border-color:${l.accents('rules') ? l.accent : 'currentColor'};` : '')
+    )
+    rule('[data-cv=row]', `font-size:${l.entry}px;`)
+    if (l.dateBelow) rule('[data-cv=row]', 'flex-direction:column;gap:0;')
+    if (l.dateBelow) rule('[data-cv=row] > span:last-child', 'text-align:start;')
+    if (l.accents('dates')) rule('[data-cv=row] > span:last-child', `color:${l.accent};`)
+    if (l.accents('entry_title')) rule('[data-sec] strong', `color:${l.accent};`)
+    if (l.accents('links')) rule('[data-cv=link]', `color:${l.accent};`)
+    if (explicit.align) {
+        rule('[data-cv=head]', `text-align:${l.center ? 'center' : 'start'};align-items:${l.center ? 'center' : 'flex-start'};`)
+        rule('[data-cv=head] span', `text-align:${l.center ? 'center' : 'start'};`)
+    }
+    if (l.gap !== null) rule('[data-sec] > div + div', `margin-top:${mmToPx(l.gap)}px;`)
+    return r.join('')
+}

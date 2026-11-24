@@ -7,7 +7,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useResume, useResumes } from '@/hooks/useResumes'
 import { cn } from '@/lib/cn'
 import JobService from '@/services/JobService'
-import { TOPICS, emptyPreferences, type Preferences, type Team, type WorkMode } from '@/types/preferences'
+import { TOPICS, emptyPreferences, type Preferences, type WorkMode } from '@/types/preferences'
 import { normalize } from '@/types/resume'
 import { KNOWN_PLACES, guessFromCv, monthOptions } from './guess'
 
@@ -41,15 +41,13 @@ export default function PreferencesFlow() {
                 topics: d.topics,
                 skills: d.skills,
                 places: d.places,
-                work_mode: d.work_mode,
+                work_modes: d.work_modes,
                 start_month: d.start_month,
-                duration_months: d.duration_months,
-                paid_only: d.paid_only,
-                team: d.team,
+                durations: d.durations,
             })
         } else if (guess.fromCv.size) {
             // No answer saved yet: start from the CV, and guess hybrid work, flagged « Deviné, vérifie ».
-            setPrefs({ ...guess.prefs, work_mode: 'hybrid' })
+            setPrefs({ ...guess.prefs, work_modes: ['hybrid'] })
             setGuessedMode(true)
         } else setPrefs(emptyPreferences())
     }, [ready, prefs, saved.data, guess])
@@ -73,7 +71,11 @@ export default function PreferencesFlow() {
 
     const set = <K extends Key>(k: K, v: Preferences[K]) => {
         setPrefs({ ...prefs, [k]: v })
-        if (k === 'work_mode') setGuessedMode(false)
+        if (k === 'work_modes') setGuessedMode(false)
+    }
+    const toggleIn = <T extends string | number>(k: 'work_modes' | 'durations', v: T) => {
+        const cur = prefs[k] as T[]
+        set(k, (cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v]) as Preferences[typeof k])
     }
     const toggle = (k: 'topics' | 'skills' | 'places', v: string) => {
         const cur = prefs[k] as string[]
@@ -96,14 +98,13 @@ export default function PreferencesFlow() {
 
     const empty = (k: Key) => (Array.isArray(prefs[k]) ? (prefs[k] as unknown[]).length === 0 : prefs[k] === null)
     const badge = (k: Key): Badge => {
-        if (k === 'paid_only' || k === 'team') return fromCv ? 'ask' : empty(k) ? 'required' : null
-        if (k === 'work_mode' && guessedMode) return 'guess'
+        if (k === 'work_modes' && guessedMode) return 'guess'
         if (fromCv && guess.fromCv.has(k)) return 'cv'
         return empty(k) ? 'required' : null
     }
     const left = (Object.keys(prefs) as Key[]).filter(empty).length
     // notInCv counts the questions the CV could not answer, for the subtitle; it does not change as the student answers.
-    const notInCv = (Object.keys(prefs) as Key[]).filter((k) => !guess.fromCv.has(k) && !(k === 'work_mode' && guessedMode)).length
+    const notInCv = (Object.keys(prefs) as Key[]).filter((k) => !guess.fromCv.has(k) && !(k === 'work_modes' && guessedMode)).length
 
     type Q = { key: Key; title: string; why: string; options: { label: string; on: boolean; pick: () => void }[] }
     const questions: Q[] = [
@@ -126,13 +127,13 @@ export default function PreferencesFlow() {
             options: placeOptions.map((x) => ({ label: placeLabel(x), on: prefs.places.includes(x), pick: () => toggle('places', x) })),
         },
         {
-            key: 'work_mode',
+            key: 'work_modes',
             title: t('qMode'),
             why: t('whyGuess'),
             options: (['on_site', 'hybrid', 'remote'] as WorkMode[]).map((x) => ({
                 label: t(`modes.${x}`),
-                on: prefs.work_mode === x,
-                pick: () => set('work_mode', prefs.work_mode === x ? null : x),
+                on: prefs.work_modes.includes(x),
+                pick: () => toggleIn('work_modes', x),
             })),
         },
         {
@@ -146,34 +147,16 @@ export default function PreferencesFlow() {
             })),
         },
         {
-            key: 'duration_months',
+            key: 'durations',
             title: t('qLength'),
             why: t('whyLength'),
-            options: [4, 5, 6].map((n) => ({
-                label: t('months', { count: n }),
-                on: prefs.duration_months === n,
-                pick: () => set('duration_months', prefs.duration_months === n ? null : n),
-            })),
-        },
-        {
-            key: 'paid_only',
-            title: t('qPaid'),
-            why: t('whyAsk'),
-            options: [true, false].map((v) => ({
-                label: v ? t('paidOnly') : t('paidAny'),
-                on: prefs.paid_only === v,
-                pick: () => set('paid_only', prefs.paid_only === v ? null : v),
-            })),
-        },
-        {
-            key: 'team',
-            title: t('qTeam'),
-            why: t('whyAsk'),
-            options: (['solo', 'pair', 'both'] as Team[]).map((x) => ({
-                label: t(`teams.${x}`),
-                on: prefs.team === x,
-                pick: () => set('team', prefs.team === x ? null : x),
-            })),
+            options: [...new Set([2, 3, 4, 5, 6, ...prefs.durations])]
+                .sort((a, b) => a - b)
+                .map((n) => ({
+                    label: t('months', { count: n }),
+                    on: prefs.durations.includes(n),
+                    pick: () => toggleIn('durations', n),
+                })),
         },
     ]
 
@@ -196,7 +179,8 @@ export default function PreferencesFlow() {
         [t('sumSkills'), join(prefs.skills)],
         [t('sumPlaces'), join(prefs.places.map(placeLabel))],
         [t('sumStart'), prefs.start_month ? monthLabel(prefs.start_month) : '—'],
-        [t('sumLength'), prefs.duration_months ? t('months', { count: prefs.duration_months }) : '—'],
+        [t('sumMode'), join(prefs.work_modes.map((x) => t(`modes.${x}`)))],
+        [t('sumLength'), join(prefs.durations.map((n) => t('months', { count: n })))],
     ]
 
     return (
