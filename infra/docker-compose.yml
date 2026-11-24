@@ -150,6 +150,9 @@ services:
         NEXTAUTH_URL: http://localhost:3000
     restart: unless-stopped
     env_file: .env
+    environment:
+      AUTH_TRUST_HOST: "true"
+      NEXTAUTH_URL: http://localhost:3000
     ports: ["3000:3000"]
     depends_on:
       - 9itchi-account-api
