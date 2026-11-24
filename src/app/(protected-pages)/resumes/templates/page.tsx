@@ -1,5 +1,11 @@
-import PagePlaceholder from '@/components/ui/PagePlaceholder'
+import { Suspense } from 'react'
+import TemplatePicker from '@/components/resume/TemplatePicker'
 
+// Screen 4.3: choose one of the three CV templates.
 export default function Page() {
-    return <PagePlaceholder title="Template gallery" description="ATS-friendly templates." />
+    return (
+        <Suspense>
+            <TemplatePicker />
+        </Suspense>
+    )
 }

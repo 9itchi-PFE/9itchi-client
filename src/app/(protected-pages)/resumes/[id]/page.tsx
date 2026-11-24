@@ -1,5 +1,7 @@
-import PagePlaceholder from '@/components/ui/PagePlaceholder'
+import CvEditor from '@/components/resume/editor/CvEditor'
 
-export default function Page() {
-    return <PagePlaceholder title="Resume editor" description="Edit every section with live preview, export PDF/DOCX." />
+// Screen 4.1 Mon CV: sections, live checks, A4 preview, versions and downloads.
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params
+    return <CvEditor id={id} />
 }
