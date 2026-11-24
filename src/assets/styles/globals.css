@@ -91,3 +91,11 @@
         animation: none !important;
     }
 }
+
+/* Arabic letters join: a fixed-width font and spaced letters break the words. In a right-to-left page the small
+   capital labels (font-mono uppercase tracking-…) are written like the rest of the text, unless the label itself
+   reads left to right (a receipt number). */
+[dir='rtl'] .uppercase:not([dir='ltr']) {
+    letter-spacing: normal;
+    font-family: inherit;
+}
