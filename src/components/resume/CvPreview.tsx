@@ -355,7 +355,7 @@ function Classic({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
     extraSections(c, head, s)
     return (
         <div data-cv="body" className="flex flex-col gap-[7px]" style={{ padding: `${mmToPx(look.my)}px ${mmToPx(look.mx)}px`, fontSize: look.base }}>
-            <Mark k="contact" head className={cn('flex items-center gap-4', look.photoRight && 'flex-row-reverse')}>
+            <Mark k="contact" head className={cn('flex gap-4', look.valign === 'top' ? 'items-start' : look.valign === 'bottom' ? 'items-end' : 'items-center', look.photoRight && 'flex-row-reverse')}>
                 {photoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={photoUrl} alt="" className="h-[70px] w-[70px] flex-none rounded-full border-[1.5px] border-cv-blue object-cover" />
@@ -649,7 +649,7 @@ function Compact({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
     extraSections(c, head, s)
     return (
         <div data-cv="body" className="flex flex-col gap-[3px] text-[#111]" style={{ padding: `${mmToPx(look.my)}px ${mmToPx(look.mx)}px`, fontSize: look.base }}>
-            <Mark k="contact" head className={cn('flex items-center gap-4', look.photoRight && 'flex-row-reverse')}>
+            <Mark k="contact" head className={cn('flex gap-4', look.valign === 'top' ? 'items-start' : look.valign === 'bottom' ? 'items-end' : 'items-center', look.photoRight && 'flex-row-reverse')}>
                 {photoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={photoUrl} alt="" className="h-[62px] w-[62px] flex-none rounded-full object-cover" />

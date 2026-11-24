@@ -187,7 +187,7 @@ function Editor({ resume: initial }: { resume: Resume }) {
         next.splice(to, 0, key)
         change({ ...content, section_order: next })
     }
-    const highlight: SectionKey = section.startsWith('extra:') ? 'extra' : (section as SectionKey)
+    const highlight: SectionKey | undefined = !expanded ? undefined : section.startsWith('extra:') ? 'extra' : (section as SectionKey)
     const props = { content, onChange: change, language: resume.language, item, setItem, focusLine }
 
     const editor = (() => {

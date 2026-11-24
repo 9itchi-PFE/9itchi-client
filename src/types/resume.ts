@@ -31,6 +31,7 @@ export type CVStyle = {
     heading_case?: 'capitalize' | 'uppercase'
     date_position?: 'right' | 'below'
     header_layout?: 'stacked' | 'inline'
+    header_valign?: 'top' | 'middle' | 'bottom'
     photo_position?: 'left' | 'right'
     location_position?: 'line' | 'date'
     meta_order?: 'date_first' | 'location_first'

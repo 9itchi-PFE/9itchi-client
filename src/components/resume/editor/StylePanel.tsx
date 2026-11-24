@@ -197,6 +197,19 @@ export default function StylePanel({ style, layout, onChange }: Props) {
                         ]}
                     />
                 </Field>
+                <Field label={t('headerValign')}>
+                    <Segmented
+                        role="radiogroup"
+                        label={t('headerValign')}
+                        value={look.valign}
+                        onChange={(v) => set({ header_valign: v })}
+                        options={[
+                            { value: 'top', label: t('alignTop') },
+                            { value: 'middle', label: t('alignMiddle') },
+                            { value: 'bottom', label: t('alignBottom') },
+                        ]}
+                    />
+                </Field>
                 <Field label={t('headerLayout')}>
                     <Segmented
                         role="radiogroup"
