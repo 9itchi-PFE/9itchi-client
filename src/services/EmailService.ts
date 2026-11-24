@@ -1,18 +1,24 @@
+import type { Application, ApplicationList, ApplyInput, Draft, DraftInput, Email, GmailStatus } from '@/types/application'
 import { api } from './ApiService'
 
+const e = () => api('email')
+
 const EmailService = {
-    connectGmail: () => api('email').get(`/gmail/connect`),
-    gmailCallback: () => api('email').get(`/gmail/callback`),
-    gmailStatus: () => api('email').get(`/gmail/status`),
-    revokeGmail: () => api('email').delete(`/gmail/connection`),
-    draftEmail: (data?: unknown) => api('email').post(`/emails/draft`, data),
-    sendEmail: (data?: unknown) => api('email').post(`/emails`, data),
-    scheduleEmail: (data?: unknown) => api('email').post(`/emails/schedule`, data),
-    listEmails: () => api('email').get(`/emails`),
-    getEmail: (id: string) => api('email').get(`/emails/${id}`),
-    cancelEmail: (id: string) => api('email').delete(`/emails/${id}`),
-    apply: (data?: unknown) => api('email').post(`/applications`, data),
-    listApplications: () => api('email').get(`/applications`),
+    // connectGmail returns the Google consent page to send the browser to; Google comes back to /settings/gmail.
+    connectGmail: () => e().get<{ url: string }>(`/gmail/connect`),
+    gmailStatus: () => e().get<GmailStatus>(`/gmail/status`),
+    revokeGmail: () => e().delete<GmailStatus>(`/gmail/connection`),
+    // The AI can take a while to write: this call waits longer than the others.
+    draftEmail: (data: DraftInput) => e().post<Draft>(`/emails/draft`, data, { timeout: 60_000 }),
+    sendEmail: (data?: unknown) => e().post(`/emails`, data),
+    scheduleEmail: (data?: unknown) => e().post(`/emails/schedule`, data),
+    listEmails: () => e().get<Email[]>(`/emails`),
+    getEmail: (id: string) => e().get<Email>(`/emails/${id}`),
+    cancelEmail: (id: string) => e().delete(`/emails/${id}`),
+    apply: (data: ApplyInput) => e().post<Application>(`/applications`, data),
+    listApplications: () => e().get<ApplicationList>(`/applications`),
+    updateApplication: (id: string, status: 'sent' | 'replied' | 'withdrawn' | 'closed') => e().patch<Application>(`/applications/${id}`, { status }),
+    sendApplicationNow: (id: string) => e().post<Application>(`/applications/${id}/send`),
 }
 
 export default EmailService
