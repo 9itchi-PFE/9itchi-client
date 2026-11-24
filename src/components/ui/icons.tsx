@@ -67,9 +67,47 @@ const paths = {
     ),
     check: <path d="m5 12 5 5 9-10" />,
     arrow: <path d="M5 12h14m-6-6 6 6-6 6" />,
+    bookmark: <path d="M6 3h12v18l-6-4-6 4z" />,
+    search: (
+        <>
+            <circle cx="11" cy="11" r="7" />
+            <path d="m20 20-3.5-3.5" />
+        </>
+    ),
+    pin: (
+        <>
+            <path d="M12 21s-7-6.2-7-11.5A7 7 0 0 1 19 9.5C19 14.8 12 21 12 21z" />
+            <circle cx="12" cy="9.5" r="2.5" />
+        </>
+    ),
+    money: (
+        <>
+            <rect x="3" y="6" width="18" height="13" rx="2" />
+            <circle cx="12" cy="12.5" r="2.5" />
+        </>
+    ),
+    clock: (
+        <>
+            <circle cx="12" cy="12" r="9" />
+            <path d="M12 7v5l3 2" />
+        </>
+    ),
+    place: <path d="M4 21V9l8-6 8 6v12" />,
+    filter: <path d="M4 6h16M7 12h10M10 18h4" />,
+    left: <path d="m15 18-6-6 6-6" />,
+    right: <path d="m9 18 6-6-6-6" />,
 }
 
 export type IconName = keyof typeof paths
+
+// Bolt is the filled lime lightning of « Postuler en 1 clic ».
+export function Bolt({ size = 17, className }: { size?: number; className?: string }) {
+    return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="#D6F25E" aria-hidden="true" className={className}>
+            <path d="M13 2 4 14h7l-1 8 9-12h-7z" />
+        </svg>
+    )
+}
 
 export function Icon({ name, size = 17, ...rest }: IconProps & { name: IconName }) {
     return (

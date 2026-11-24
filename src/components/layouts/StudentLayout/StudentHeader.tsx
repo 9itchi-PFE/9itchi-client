@@ -12,8 +12,9 @@ import { cn } from '@/lib/cn'
 import AccountMenu from './AccountMenu'
 import LanguageSelect from './LanguageSelect'
 
-const nav: { key: 'jobs' | 'cv' | 'applications'; href: string; icon: IconName }[] = [
-    { key: 'jobs', href: '/jobs', icon: 'briefcase' },
+// also lists other sections a nav item stays active on (PFE books belong to Offres).
+const nav: { key: 'jobs' | 'cv' | 'applications'; href: string; icon: IconName; also?: string[] }[] = [
+    { key: 'jobs', href: '/jobs', icon: 'briefcase', also: ['/books'] },
     { key: 'cv', href: '/resumes', icon: 'file' },
     { key: 'applications', href: '/applications', icon: 'send' },
 ]
@@ -38,7 +39,7 @@ export default function StudentHeader() {
                 </Link>
                 <nav aria-label={t('mainNav')} className="flex gap-0.5 rounded-full border border-line bg-white p-[5px] shadow-nav">
                     {nav.map((n) => {
-                        const on = path === n.href || path.startsWith(n.href + '/')
+                        const on = [n.href, ...(n.also ?? [])].some((h) => path === h || path.startsWith(h + '/'))
                         return (
                             <Link
                                 key={n.key}

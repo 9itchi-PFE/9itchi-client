@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import ResumeService from '@/services/ResumeService'
-import type { Resume } from '@/types/resume'
+import { allSkills } from '@/components/resume/cvText'
+import { normalize, type Resume } from '@/types/resume'
 
 export const resumeKeys = {
     list: ['resumes'] as const,
@@ -59,4 +60,19 @@ export function useSaveVersion(id: string) {
         mutationFn: (label: string) => ResumeService.createVersion(id, label),
         onSuccess: () => qc.invalidateQueries({ queryKey: resumeKeys.versions(id) }),
     })
+}
+
+// useMyCv is the student's most recent CV as the offers screens use it: its skills, and how many checks it still fails.
+export function useMyCv() {
+    const list = useResumes()
+    const latest = [...(list.data?.items ?? [])].sort((a, b) => b.updated_at.localeCompare(a.updated_at))[0]
+    const resume = useResume(latest?.id ?? '')
+    const check = useAtsCheck(latest?.id ?? '')
+    const content = resume.data ? normalize(resume.data.content) : undefined
+    return {
+        id: latest?.id,
+        ready: list.isFetched && (!latest || resume.isFetched),
+        skills: content ? allSkills(content) : [],
+        toFix: check.data?.to_fix ?? 0,
+    }
 }
