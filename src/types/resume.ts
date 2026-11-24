@@ -36,7 +36,9 @@ export type CVStyle = {
     background?: string
     accent_on?: AccentTarget[]
     show_photo?: boolean
+    body_font?: BodyFont
 }
+export type BodyFont = 'sourcesans' | 'lato' | 'carlito' | 'tinos'
 export type AccentTarget = 'name' | 'title' | 'headings' | 'rules' | 'dates' | 'entry_title' | 'links'
 
 export type ResumeContent = {
@@ -51,6 +53,7 @@ export type ResumeContent = {
     certifications: Certification[]
     extra?: ExtraSection[]
     section_order?: string[]
+    hidden_sections?: string[]
     style?: CVStyle
 }
 
@@ -64,6 +67,12 @@ export function sectionOrder(c: Pick<ResumeContent, 'extra' | 'section_order'>):
     for (const k of c.section_order ?? []) if (known.has(k) && !out.includes(k)) out.push(k)
     for (const k of all) if (!out.includes(k)) out.push(k)
     return out
+}
+
+// visibleSections mirrors Go SectionOrder: the order without hidden sections.
+export function visibleSections(c: Pick<ResumeContent, 'extra' | 'section_order' | 'hidden_sections'>): string[] {
+    const hidden = new Set(c.hidden_sections ?? [])
+    return sectionOrder(c).filter((k) => !hidden.has(k))
 }
 
 export type ParseStatus = 'none' | 'pending' | 'done' | 'failed'

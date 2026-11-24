@@ -3,8 +3,8 @@
 import { useState, type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
 import { Segmented } from '@/components/ui/Segmented'
-import { resolveLook } from '@/lib/cvLook'
-import type { AccentTarget, CVStyle, Layout } from '@/types/resume'
+import { BODY_FONTS, resolveLook } from '@/lib/cvLook'
+import type { AccentTarget, BodyFont, CVStyle, Layout } from '@/types/resume'
 
 const TARGETS: AccentTarget[] = ['name', 'title', 'headings', 'rules', 'dates', 'entry_title', 'links']
 const DEFAULT_TARGETS: AccentTarget[] = ['title', 'headings', 'rules', 'entry_title', 'links']
@@ -17,9 +17,13 @@ const clean = (s: CVStyle): CVStyle | undefined => {
     return Object.keys(out).length ? out : undefined
 }
 
+type Cat = 'typography' | 'spacing' | 'colors' | 'header'
+const CATS: Cat[] = ['typography', 'spacing', 'colors', 'header']
+
 // StylePanel edits content.style. Every control writes one optional field, so an untouched CV keeps its template's look.
 export default function StylePanel({ style, layout, onChange }: Props) {
     const t = useTranslations('cv.style')
+    const [cat, setCat] = useState<Cat>('typography')
     const s = style ?? {}
     const look = resolveLook(layout, s)
     const set = (patch: Partial<CVStyle>) => onChange(clean({ ...s, ...patch }))
@@ -27,21 +31,38 @@ export default function StylePanel({ style, layout, onChange }: Props) {
     const multi = s.color_mode === 'multi'
 
     return (
-        <div className="flex flex-col gap-2 rounded-[14px] border border-line-soft bg-white p-3 text-[13.5px]" data-testid="style-panel">
-            <Group title={t('fontSize')} defaultOpen>
+        <div className="flex flex-col gap-3.5 text-[13.5px]" data-testid="style-panel">
+            <div role="tablist" aria-label={t('categories')} className="grid grid-cols-4 gap-1 rounded-xl bg-fill-3 p-1">
+                {CATS.map((k) => (
+                    <button
+                        key={k}
+                        type="button"
+                        role="tab"
+                        aria-selected={cat === k}
+                        onClick={() => setCat(k)}
+                        className={`h-9 cursor-pointer rounded-[9px] border-0 text-[13px] font-semibold ${cat === k ? 'bg-white text-ink shadow-sm' : 'bg-transparent text-ink-3 hover:text-ink'}`}
+                    >
+                        {t(`cat.${k}`)}
+                    </button>
+                ))}
+            </div>
+            <Group id="typography" cat={cat}>
+                <Field label={t('bodyFont')}>
+                    <FontPicker value={look.bodyFont} onChange={(v) => set({ body_font: v === 'sourcesans' ? undefined : v })} />
+                </Field>
                 <Range label={t('base')} unit="pt" min={7} max={14} step={0.5} value={look.base} onChange={(v) => set({ base_size: v })} />
                 <Range label={t('name')} unit="pt" prefix="+" min={-3} max={20} step={0.5} value={look.name - look.base} onChange={(v) => set({ name_delta: v })} />
                 <Range label={t('jobTitle')} unit="pt" prefix="+" min={-3} max={20} step={0.5} value={look.title - look.base} onChange={(v) => set({ title_delta: v })} />
                 <Range label={t('headings')} unit="pt" prefix="+" min={-3} max={20} step={0.5} value={look.head - look.base} onChange={(v) => set({ heading_delta: v })} />
                 <Range label={t('entry')} unit="pt" prefix="+" min={-3} max={10} step={0.5} value={look.entry - look.base} onChange={(v) => set({ entry_delta: v })} />
             </Group>
-            <Group title={t('spacing')}>
+            <Group id="spacing" cat={cat}>
                 <Range label={t('lineHeight')} min={1} max={2} step={0.05} value={look.lineHeight} onChange={(v) => set({ line_height: v })} />
                 <Range label={t('gap')} unit="mm" min={0} max={10} step={0.5} value={look.gap ?? 1} onChange={(v) => set({ gap: v })} />
                 <Range label={t('marginX')} unit="mm" min={5} max={30} step={1} value={look.mx} onChange={(v) => set({ margin_x: v })} />
                 <Range label={t('marginY')} unit="mm" min={5} max={30} step={1} value={look.my} onChange={(v) => set({ margin_y: v })} />
             </Group>
-            <Group title={t('entryLayout')}>
+            <Group id="spacing" cat={cat}>
                 <Field label={t('datePosition')}>
                     <Segmented
                         role="radiogroup"
@@ -55,7 +76,7 @@ export default function StylePanel({ style, layout, onChange }: Props) {
                     />
                 </Field>
             </Group>
-            <Group title={t('headingsGroup')}>
+            <Group id="typography" cat={cat}>
                 <Field label={t('capitalization')}>
                     <Segmented
                         role="radiogroup"
@@ -81,7 +102,7 @@ export default function StylePanel({ style, layout, onChange }: Props) {
                     />
                 </Field>
             </Group>
-            <Group title={t('colors')}>
+            <Group id="colors" cat={cat}>
                 <Field label={t('colorMode')}>
                     <Segmented
                         role="radiogroup"
@@ -116,7 +137,7 @@ export default function StylePanel({ style, layout, onChange }: Props) {
                     ))}
                 </fieldset>
             </Group>
-            <Group title={t('header')}>
+            <Group id="header" cat={cat}>
                 <Field label={t('align')}>
                     <Segmented
                         role="radiogroup"
@@ -160,23 +181,28 @@ export default function StylePanel({ style, layout, onChange }: Props) {
     )
 }
 
-function Group({ title, children, defaultOpen }: { title: string; children: ReactNode; defaultOpen?: boolean }) {
-    const [open, setOpen] = useState(!!defaultOpen)
+function Group({ id, cat, children }: { id: Cat; cat: Cat; children: ReactNode }) {
+    if (id !== cat) return null
+    return <div className="flex flex-col gap-3.5">{children}</div>
+}
+
+function FontPicker({ value, onChange }: { value: BodyFont; onChange: (v: BodyFont) => void }) {
     return (
-        <section className="flex flex-col gap-2 border-b border-line-soft pb-2 last:border-b-0">
-            <button
-                type="button"
-                aria-expanded={open}
-                onClick={() => setOpen(!open)}
-                className="flex h-8 cursor-pointer items-center justify-between border-0 bg-transparent p-0 text-start text-[14px] font-semibold text-ink"
-            >
-                {title}
-                <span aria-hidden className="text-ink-3">
-                    {open ? '−' : '+'}
-                </span>
-            </button>
-            {open ? <div className="flex flex-col gap-2.5">{children}</div> : null}
-        </section>
+        <div role="radiogroup" aria-label="Font" className="grid grid-cols-2 gap-1.5">
+            {(Object.keys(BODY_FONTS) as BodyFont[]).map((k) => (
+                <button
+                    key={k}
+                    type="button"
+                    role="radio"
+                    aria-checked={value === k}
+                    onClick={() => onChange(k)}
+                    style={{ fontFamily: BODY_FONTS[k].stack || '"Source Sans 3 Variable",sans-serif' }}
+                    className={`h-10 cursor-pointer rounded-[10px] border px-2 text-[14px] ${value === k ? 'border-violet bg-violet-tint font-semibold text-ink' : 'border-line-strong bg-white text-ink-2 hover:bg-fill-3'}`}
+                >
+                    {BODY_FONTS[k].label}
+                </button>
+            ))}
+        </div>
     )
 }
 
@@ -214,12 +240,28 @@ function Range({ label, value, min, max, step, unit = '', prefix = '', onChange 
 
 function ColorField({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
     return (
-        <label className="flex items-center justify-between gap-3">
-            <span className="font-medium">{label}</span>
-            <span className="flex items-center gap-2">
-                <span className="font-mono text-[12px] text-ink-3">{value.toUpperCase()}</span>
-                <input type="color" aria-label={label} value={value} onChange={(e) => onChange(e.target.value)} className="h-8 w-10 cursor-pointer rounded border border-line-strong bg-white p-0.5" />
-            </span>
-        </label>
+        <div className="flex flex-col gap-1.5">
+            <label className="flex items-center justify-between gap-3">
+                <span className="font-medium">{label}</span>
+                <span className="flex items-center gap-2">
+                    <span className="font-mono text-[12px] text-ink-3">{value.toUpperCase()}</span>
+                    <input type="color" aria-label={label} value={value} onChange={(e) => onChange(e.target.value)} className="h-8 w-10 cursor-pointer rounded border border-line-strong bg-white p-0.5" />
+                </span>
+            </label>
+            <div className="flex flex-wrap gap-1.5">
+                {SWATCHES.map((c) => (
+                    <button
+                        key={c}
+                        type="button"
+                        aria-label={c}
+                        onClick={() => onChange(c)}
+                        style={{ background: c }}
+                        className={`h-6 w-6 cursor-pointer rounded-full border-2 ${value.toLowerCase() === c.toLowerCase() ? 'border-ink' : 'border-white shadow-[0_0_0_1px_#d0d0d0]'}`}
+                    />
+                ))}
+            </div>
+        </div>
     )
 }
+
+const SWATCHES = ['#111111', '#2F5597', '#1F2A44', '#0F766E', '#15803D', '#B45309', '#B91C1C', '#7C3AED', '#BE185D']

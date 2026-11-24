@@ -1,4 +1,12 @@
-import type { CVStyle, Layout } from '@/types/resume'
+import type { BodyFont, CVStyle, Layout } from '@/types/resume'
+
+// Typefaces offered for the whole CV; the PDF embeds the same families (Carlito and Tinos are metric twins of Calibri and Times New Roman).
+export const BODY_FONTS: Record<BodyFont, { label: string; stack: string }> = {
+    sourcesans: { label: 'Source Sans 3', stack: '' },
+    lato: { label: 'Lato', stack: '"Lato","Noto Sans Arabic Variable",sans-serif' },
+    carlito: { label: 'Calibri', stack: '"Carlito","Noto Sans Arabic Variable",sans-serif' },
+    tinos: { label: 'Times New Roman', stack: '"Tinos","Times New Roman",serif' },
+}
 
 // Mirrors resume-api core/pdf_style.go (layoutLooks + newLook): the preview and the exports resolve a style the same way.
 type LayoutLook = { base: number; name: number; title: number; head: number; mx: number; my: number; upper: boolean; nameSerif: boolean; center: boolean }
@@ -27,6 +35,7 @@ export type Look = {
     center: boolean
     sep: string
     showPhoto: boolean
+    bodyFont: BodyFont
     accent?: string
     text?: string
     bg?: string
@@ -60,6 +69,7 @@ export function resolveLook(layout: Layout, s: CVStyle = {}): Look {
         center: s.align ? s.align === 'center' : d.center,
         sep: s.separator === 'bar' ? ' | ' : ' · ',
         showPhoto: s.show_photo !== false,
+        bodyFont: s.body_font && BODY_FONTS[s.body_font] ? s.body_font : 'sourcesans',
         accent,
         text: multi ? hex(s.text) : undefined,
         bg: multi ? hex(s.background) : undefined,
@@ -71,6 +81,8 @@ export function resolveLook(layout: Layout, s: CVStyle = {}): Look {
 export function lookCss(l: Look, explicit: CVStyle = {}): string {
     const r: string[] = []
     const rule = (sel: string, body: string) => body && r.push(`.cvx ${sel}{${body}}`)
+    const stack = BODY_FONTS[l.bodyFont].stack
+    if (stack) r.push(`.cvx,.cvx .font-cv{font-family:${stack};}`)
     rule('[data-cv=body]', `font-size:${l.base}px;line-height:${l.lineHeight};`)
     rule('[data-cv=name]', `font-size:${l.name}px;${l.accents('name') ? `color:${l.accent};` : ''}`)
     rule('[data-cv=title]', `font-size:${l.title}px;${explicit.accent ? `color:${l.accents('title') ? l.accent : 'inherit'};` : ''}`)

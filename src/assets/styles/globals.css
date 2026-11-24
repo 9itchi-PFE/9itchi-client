@@ -5,6 +5,15 @@
 @import '@fontsource-variable/source-sans-3';
 @import '@fontsource-variable/noto-sans-arabic';
 @import '@fontsource-variable/source-serif-4';
+@import '@fontsource/lato/400.css';
+@import '@fontsource/lato/400-italic.css';
+@import '@fontsource/lato/700.css';
+@import '@fontsource/carlito/400.css';
+@import '@fontsource/carlito/400-italic.css';
+@import '@fontsource/carlito/700.css';
+@import '@fontsource/tinos/400.css';
+@import '@fontsource/tinos/400-italic.css';
+@import '@fontsource/tinos/700.css';
 
 @tailwind base;
 @tailwind components;

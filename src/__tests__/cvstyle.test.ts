@@ -1,6 +1,20 @@
 import { describe, expect, it } from 'vitest'
 import { resolveLook, lookCss } from '@/lib/cvLook'
-import { emptyContent, sectionOrder } from '@/types/resume'
+import { emptyContent, sectionOrder, visibleSections } from '@/types/resume'
+describe('visibleSections', () => {
+    it('drops hidden sections but keeps the order', () => {
+        const c = { ...emptyContent(), hidden_sections: ['education', 'extra:9'] }
+        expect(visibleSections(c)).not.toContain('education')
+        expect(sectionOrder(c)).toContain('education')
+    })
+})
+describe('body font', () => {
+    it('applies the chosen family to the whole CV and ignores unknown ones', () => {
+        expect(lookCss(resolveLook('classic', { body_font: 'lato' }))).toContain('font-family:"Lato"')
+        expect(lookCss(resolveLook('classic', {}))).not.toContain('font-family')
+        expect(resolveLook('classic', { body_font: 'x' as never }).bodyFont).toBe('sourcesans')
+    })
+})
 
 describe('sectionOrder', () => {
     it('defaults, then honours the chosen order and drops unknown or repeated keys', () => {

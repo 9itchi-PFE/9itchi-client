@@ -168,7 +168,12 @@ function Editor({ resume: initial }: { resume: Resume }) {
     const order = sectionOrder(content)
     const navItems: Section[] = ['contact', ...(order as Section[])]
     const [dragKey, setDragKey] = useState<Section | null>(null)
-    const [styleOpen, setStyleOpen] = useState(false)
+    const [tab, setTab] = useState<'content' | 'customize'>('content')
+    const hiddenSet = new Set(content.hidden_sections ?? [])
+    const toggleHidden = (key: Section) => {
+        const next = hiddenSet.has(key) ? (content.hidden_sections ?? []).filter((k) => k !== key) : [...(content.hidden_sections ?? []), key]
+        change({ ...content, hidden_sections: next.length ? next : undefined })
+    }
     const move = (key: Section, to: number) => {
         const from = order.indexOf(key)
         if (from < 0 || to < 0 || to >= order.length || to === from) return
@@ -187,6 +192,19 @@ function Editor({ resume: initial }: { resume: Resume }) {
                     <ContactEditor
                         {...props}
                         photo={
+                            <div className="flex flex-col gap-3">
+                                <label className="flex cursor-pointer items-center gap-2 text-[14px] font-medium">
+                                    <input
+                                        type="checkbox"
+                                        checked={content.style?.show_photo !== false}
+                                        onChange={(e) => {
+                                            const { show_photo: _drop, ...rest } = content.style ?? {}
+                                            const style = e.target.checked ? rest : { ...rest, show_photo: false }
+                                            change({ ...content, style: Object.keys(style).length ? style : undefined })
+                                        }}
+                                    />
+                                    {t('style.showPhoto')}
+                                </label>
                             <PhotoControl
                                 resumeId={id}
                                 hasPhoto={resume.has_photo}
@@ -196,6 +214,7 @@ function Editor({ resume: initial }: { resume: Resume }) {
                                     qc.invalidateQueries({ queryKey: resumeKeys.photo(id) })
                                 }}
                             />
+                            </div>
                         }
                     />
                 )
@@ -221,7 +240,7 @@ function Editor({ resume: initial }: { resume: Resume }) {
     const cvLang = resume.language === 'en' ? 'en' : 'fr'
 
     return (
-        <div className="mx-auto box-border flex w-full max-w-[1320px] flex-col gap-[22px] px-8 pb-[72px] pt-4">
+        <div className="mx-auto box-border flex w-full max-w-[1500px] flex-col gap-[22px] px-8 pb-[72px] pt-4">
             <div className="flex flex-wrap items-end justify-between gap-4">
                 <div className="flex flex-col gap-1.5">
                     <h1 className="m-0 text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
@@ -266,102 +285,135 @@ function Editor({ resume: initial }: { resume: Resume }) {
                 </div>
             </div>
 
-            <div className="flex flex-wrap items-start gap-7">
-                <div className="flex min-w-0 flex-[1_1_520px] flex-col gap-4">
-                    <ScoreBanner resumeId={id} check={check.data} />
-                    <div className="flex flex-wrap items-start gap-4">
-                        <nav
-                            aria-label={t('sectionsNav')}
-                            className="flex flex-[0_0_200px] flex-col gap-0.5 rounded-[14px] border border-line-soft bg-white p-1.5"
-                        >
-                            {navItems.map((s) => {
-                                const on = s === section
-                                const pinned = s === 'contact'
-                                const idx = order.indexOf(s)
-                                return (
-                                    <button
-                                        key={s}
-                                        type="button"
-                                        aria-current={on ? 'true' : undefined}
-                                        aria-keyshortcuts={pinned ? undefined : 'Alt+ArrowUp Alt+ArrowDown'}
-                                        draggable={!pinned}
-                                        onDragStart={(e) => {
-                                            if (pinned) return
-                                            e.dataTransfer.effectAllowed = 'move'
-                                            e.dataTransfer.setData('text/plain', s)
-                                            setDragKey(s)
-                                        }}
-                                        onDragOver={(e) => {
-                                            if (dragKey && !pinned) e.preventDefault()
-                                        }}
-                                        onDrop={(e) => {
-                                            e.preventDefault()
-                                            if (dragKey && !pinned) move(dragKey, idx)
-                                            setDragKey(null)
-                                        }}
-                                        onDragEnd={() => setDragKey(null)}
-                                        onKeyDown={(e) => {
-                                            if (pinned || !e.altKey || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return
-                                            e.preventDefault()
-                                            move(s, idx + (e.key === 'ArrowUp' ? -1 : 1))
-                                        }}
-                                        onClick={() => go(s)}
-                                        className={cn(
-                                            'flex h-11 w-full items-center gap-2.5 rounded-[10px] border-0 px-3 text-start text-[14.5px]',
-                                            pinned ? 'cursor-pointer' : 'cursor-grab active:cursor-grabbing',
-                                            dragKey === s && 'opacity-40',
-                                            on ? 'bg-fill font-semibold text-ink' : 'bg-transparent font-medium text-ink-2 hover:bg-fill-3',
-                                        )}
-                                    >
-                                        <span className={cn('h-2 w-2 flex-none rounded-full', toFix.has(s) ? 'bg-warn-dot' : 'bg-ok-dot')} />
-                                        <span className="min-w-0 flex-1 truncate">{sectionTitle(s, content, t)}</span>
-                                        {pinned ? null : (
-                                            <span aria-hidden className="flex-none text-ink-3">
-                                                ⋮⋮
-                                            </span>
-                                        )}
-                                    </button>
-                                )
-                            })}
-                            <button
-                                type="button"
-                                onClick={() => setAdding(true)}
-                                className="flex h-11 w-full cursor-pointer items-center rounded-[10px] border-0 bg-transparent px-3 text-start text-[14.5px] font-semibold text-violet hover:bg-violet-tint"
-                            >
-                                {t('addSection')}
-                            </button>
-                        </nav>
-                        {editor}
-                    </div>
+            <div role="tablist" aria-label={t('tabs.label')} className="flex gap-1 self-start rounded-xl bg-fill-3 p-1">
+                {(['content', 'customize'] as const).map((k) => (
+                    <button
+                        key={k}
+                        type="button"
+                        role="tab"
+                        aria-selected={tab === k}
+                        onClick={() => setTab(k)}
+                        className={cn(
+                            'h-10 cursor-pointer rounded-[9px] border-0 px-5 text-[14.5px] font-semibold',
+                            tab === k ? 'bg-white text-ink shadow-sm' : 'bg-transparent text-ink-3 hover:text-ink',
+                        )}
+                    >
+                        {t(`tabs.${k}`)}
+                    </button>
+                ))}
+            </div>
+
+            <div className="flex flex-wrap items-start gap-6">
+                <div className="flex min-w-0 flex-[1_1_380px] flex-col gap-3 lg:max-w-[460px]">
+                    {tab === 'customize' ? (
+                        <div className="rounded-[14px] border border-line-soft bg-white p-4">
+                            <StylePanel style={content.style} layout={layout} onChange={(style) => change({ ...content, style })} />
+                        </div>
+                    ) : (
+                        <>
+                            <ScoreBanner resumeId={id} check={check.data} />
+                            <nav aria-label={t('sectionsNav')} className="flex flex-col gap-2">
+                                {navItems.map((s) => {
+                                    const on = s === section
+                                    const pinned = s === 'contact'
+                                    const idx = order.indexOf(s)
+                                    const hidden = hiddenSet.has(s)
+                                    return (
+                                        <div
+                                            key={s}
+                                            draggable={!pinned}
+                                            onDragStart={(e) => {
+                                                if (pinned) return
+                                                e.dataTransfer.effectAllowed = 'move'
+                                                e.dataTransfer.setData('text/plain', s)
+                                                setDragKey(s)
+                                            }}
+                                            onDragOver={(e) => {
+                                                if (dragKey && !pinned) e.preventDefault()
+                                            }}
+                                            onDrop={(e) => {
+                                                e.preventDefault()
+                                                if (dragKey && !pinned) move(dragKey, idx)
+                                                setDragKey(null)
+                                            }}
+                                            onDragEnd={() => setDragKey(null)}
+                                            className={cn('rounded-[14px] border bg-white', on ? 'border-violet' : 'border-line-soft', dragKey === s && 'opacity-40')}
+                                        >
+                                            <div className="flex h-12 items-center gap-1 px-2">
+                                                <span aria-hidden className={cn('w-5 flex-none text-center text-ink-3', pinned ? 'invisible' : 'cursor-grab')}>
+                                                    ⋮⋮
+                                                </span>
+                                                <button
+                                                    type="button"
+                                                    aria-expanded={on}
+                                                    aria-keyshortcuts={pinned ? undefined : 'Alt+ArrowUp Alt+ArrowDown'}
+                                                    onKeyDown={(e) => {
+                                                        if (pinned || !e.altKey || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return
+                                                        e.preventDefault()
+                                                        move(s, idx + (e.key === 'ArrowUp' ? -1 : 1))
+                                                    }}
+                                                    onClick={() => go(s)}
+                                                    className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-2.5 border-0 bg-transparent p-0 text-start text-[15px] font-semibold text-ink"
+                                                >
+                                                    <span className={cn('h-2 w-2 flex-none rounded-full', toFix.has(s) ? 'bg-warn-dot' : 'bg-ok-dot')} />
+                                                    <span className={cn('min-w-0 flex-1 truncate', hidden && 'text-ink-3 line-through')}>{sectionTitle(s, content, t)}</span>
+                                                </button>
+                                                {pinned ? null : (
+                                                    <button
+                                                        type="button"
+                                                        role="switch"
+                                                        aria-checked={!hidden}
+                                                        aria-label={hidden ? t('showSection') : t('hideSection')}
+                                                        title={hidden ? t('showSection') : t('hideSection')}
+                                                        onClick={() => toggleHidden(s)}
+                                                        className={cn(
+                                                            'h-8 flex-none cursor-pointer rounded-lg border px-2.5 text-[12.5px] font-semibold',
+                                                            hidden ? 'border-line-strong bg-fill-3 text-ink-3' : 'border-line-strong bg-white text-ink-2 hover:bg-fill-3',
+                                                        )}
+                                                    >
+                                                        {hidden ? t('hiddenBadge') : t('visibleBadge')}
+                                                    </button>
+                                                )}
+                                                <span aria-hidden className="w-4 flex-none text-center text-ink-3">
+                                                    {on ? '▴' : '▾'}
+                                                </span>
+                                            </div>
+                                            {on ? <div className="border-t border-line-soft p-3">{editor}</div> : null}
+                                        </div>
+                                    )
+                                })}
+                                <button
+                                    type="button"
+                                    onClick={() => setAdding(true)}
+                                    className="flex h-12 w-full cursor-pointer items-center justify-center rounded-[14px] border border-dashed border-violet bg-transparent text-[14.5px] font-semibold text-violet hover:bg-violet-tint"
+                                >
+                                    {t('addSection')}
+                                </button>
+                            </nav>
+                        </>
+                    )}
                 </div>
 
-                <section aria-label={t('previewAria')} className="sticky top-[92px] flex min-w-0 flex-[1_1_540px] flex-col gap-2.5">
-                    <div className="flex items-center justify-between text-[13px] text-ink-3">
+                <section aria-label={t('previewAria')} className="sticky top-[92px] flex min-w-0 flex-[3_1_560px] flex-col items-center gap-2.5 rounded-[18px] bg-fill-3 p-5">
+                    <div className="flex w-full items-center justify-between text-[13px] text-ink-3">
                         <span>{t('previewLabel', { pages })}</span>
-                        <button
-                            type="button"
-                            aria-expanded={styleOpen}
-                            onClick={() => setStyleOpen(!styleOpen)}
-                            className="h-8 cursor-pointer rounded-[10px] border border-line-strong bg-white px-3 text-[13px] font-semibold text-ink hover:bg-fill-3"
-                        >
-                            {t('style.open')}
-                        </button>
                         <span className="inline-flex items-center gap-1.5">
                             <span className="h-2.5 w-2.5 rounded-sm border-[1.5px] border-violet" />
                             {t('previewCurrent')}
                         </span>
                     </div>
-                    {styleOpen ? <StylePanel style={content.style} layout={layout} onChange={(style) => change({ ...content, style })} /> : null}
-                    <CvPreview
-                        content={content}
-                        layout={layout}
-                        language={cvLang}
-                        photoUrl={photo}
-                        highlight={highlight}
-                        phonePlaceholder={phonePlaceholder[cvLang]}
-                        onPages={setPages}
-                        ariaLabel={t('previewAria')}
-                    />
+                    <div className="w-full max-w-[760px]">
+                        <CvPreview
+                            content={content}
+                            layout={layout}
+                            language={cvLang}
+                            photoUrl={photo}
+                            highlight={highlight}
+                            phonePlaceholder={phonePlaceholder[cvLang]}
+                            onPages={setPages}
+                            ariaLabel={t('previewAria')}
+                        />
+                    </div>
                 </section>
             </div>
 

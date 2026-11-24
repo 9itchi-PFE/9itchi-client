@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { cn } from '@/lib/cn'
 import { lookCss, mmToPx, resolveLook, type Look } from '@/lib/cvLook'
-import { sectionOrder, type Layout, type ResumeContent } from '@/types/resume'
+import { visibleSections, type Layout, type ResumeContent } from '@/types/resume'
 import { cvHeadings, dates, join, nonEmpty, shortLink, splitLanguage, type CvLanguage } from './cvText'
 
 export type SectionKey = 'contact' | 'summary' | 'education' | 'experience' | 'projects' | 'skills' | 'certifications' | 'languages' | 'extra'
@@ -185,7 +185,7 @@ function extraSections(c: ResumeContent, head: Heading, into: Sections) {
 }
 
 const inOrder = (c: ResumeContent, s: Sections, only?: (k: string) => boolean) =>
-    sectionOrder(c)
+    visibleSections(c)
         .filter((k) => (only ? only(k) : true))
         .map((k) => s[k])
         .filter(Boolean)
