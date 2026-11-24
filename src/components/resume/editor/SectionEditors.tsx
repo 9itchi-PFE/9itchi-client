@@ -8,7 +8,7 @@ import { Field, TextArea, inputClass } from '@/components/ui/Field'
 import { cn } from '@/lib/cn'
 import type { ResumeContent } from '@/types/resume'
 import { splitLanguage } from '../cvText'
-import { wrap } from '../RichText'
+import { strip, wrap } from '../RichText'
 import { checkLine } from './bulletChecks'
 import type { Section } from './sections'
 
@@ -254,7 +254,7 @@ function RowsEditor<T extends Rowish>({
     }
     const cur = item >= 0 && item < items.length ? items[item] : undefined
     if (cur) {
-        const name = label(cur).trim() || t('untitled')
+        const name = strip(label(cur)).trim() || t('untitled')
         return (
             <Card
                 title={t('editEntry')}
@@ -304,7 +304,7 @@ function RowsEditor<T extends Rowish>({
             {items.length ? <p className="m-0 text-[13px] text-ink-3">{t('rowsHint')}</p> : <p className="m-0 text-sm text-ink-3">{t('empty')}</p>}
             <ul className="m-0 flex list-none flex-col gap-2 p-0">
                 {items.map((x, i) => {
-                    const name = label(x).trim() || t('untitled')
+                    const name = strip(label(x)).trim() || t('untitled')
                     return (
                         <li
                             key={i}
@@ -499,8 +499,8 @@ export function EducationEditor(p: EditorProps) {
                     <Grid>
                         <Field label={t('fields.degree')} value={e.degree} onChange={(x) => set({ ...e, degree: x.target.value })} />
                         <Field label={t('fields.school')} value={e.school} onChange={(x) => set({ ...e, school: x.target.value })} />
-                        <Field label={t('fields.start')} value={e.start} onChange={(x) => set({ ...e, start: x.target.value })} />
-                        <Field label={t('fields.end')} value={e.end} onChange={(x) => set({ ...e, end: x.target.value })} />
+                        <Field label={t('fields.start')} placeholder="02/2023" value={e.start} onChange={(x) => set({ ...e, start: x.target.value })} />
+                        <Field label={t('fields.end')} placeholder="06/2023" value={e.end} onChange={(x) => set({ ...e, end: x.target.value })} />
                     </Grid>
                     <Field label={t('fields.place')} value={e.location ?? ''} onChange={(x) => set({ ...e, location: x.target.value })} />
                     <UrlField value={e.url} onChange={(url) => set({ ...e, url })} />
@@ -526,8 +526,8 @@ export function ExperienceEditor(p: EditorProps) {
                     <Grid>
                         <Field label={t('fields.title')} value={e.title} onChange={(x) => set({ ...e, title: x.target.value })} />
                         <Field label={t('fields.company')} value={e.company} onChange={(x) => set({ ...e, company: x.target.value })} />
-                        <Field label={t('fields.start')} value={e.start} onChange={(x) => set({ ...e, start: x.target.value })} />
-                        <Field label={t('fields.end')} value={e.end} onChange={(x) => set({ ...e, end: x.target.value })} />
+                        <Field label={t('fields.start')} placeholder="02/2023" value={e.start} onChange={(x) => set({ ...e, start: x.target.value })} />
+                        <Field label={t('fields.end')} placeholder="06/2023" value={e.end} onChange={(x) => set({ ...e, end: x.target.value })} />
                         <Field
                             label={t('fields.kind')}
                             placeholder={t('fields.kindHint')}
@@ -553,14 +553,16 @@ export function ProjectsEditor(p: EditorProps) {
             items={p.content.projects ?? []}
             item={p.item}
             setItem={p.setItem}
-            blank={{ name: '', tech: '', year: '', description: [''] }}
+            blank={{ name: '', tech: '', year: '', start: '', end: '', location: '', description: [''] }}
             onItems={(projects) => p.onChange({ ...p.content, projects })}
             render={(e, set) => (
                 <>
                     <Field label={t('fields.projectName')} value={e.name} onChange={(x) => set({ ...e, name: x.target.value })} />
                     <Grid>
                         <Field label={t('fields.tech')} value={e.tech} onChange={(x) => set({ ...e, tech: x.target.value })} />
-                        <Field label={t('fields.year')} value={e.year} onChange={(x) => set({ ...e, year: x.target.value })} />
+                        <Field label={t('fields.start')} placeholder="02/2023" value={e.start ?? e.year} onChange={(x) => set({ ...e, start: x.target.value })} />
+                        <Field label={t('fields.end')} placeholder="06/2023" value={e.end ?? ''} onChange={(x) => set({ ...e, end: x.target.value })} />
+                        <Field label={t('fields.place')} value={e.location ?? ''} onChange={(x) => set({ ...e, location: x.target.value })} />
                     </Grid>
                     <UrlField value={e.url} onChange={(url) => set({ ...e, url })} />
                     <Lines lines={e.description} language={p.language} focusLine={p.focusLine} onChange={(description) => set({ ...e, description })} />

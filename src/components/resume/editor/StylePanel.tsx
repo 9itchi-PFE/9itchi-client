@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { Segmented } from '@/components/ui/Segmented'
 import { BODY_FONTS, resolveLook } from '@/lib/cvLook'
 import type { AccentTarget, BodyFont, CVStyle, Layout, TextStyle as TextStyleT } from '@/types/resume'
+import ShowSwitch from './ShowSwitch'
 
 const TARGETS: AccentTarget[] = ['name', 'title', 'headings', 'rules', 'dates', 'entry_title', 'links']
 const DEFAULT_TARGETS: AccentTarget[] = ['title', 'headings', 'rules', 'entry_title', 'links']
@@ -72,6 +73,30 @@ export default function StylePanel({ style, layout, onChange }: Props) {
                         options={[
                             { value: 'right', label: t('right') },
                             { value: 'below', label: t('below') },
+                        ]}
+                    />
+                </Field>
+                <Field label={t('locationPosition')}>
+                    <Segmented
+                        role="radiogroup"
+                        label={t('locationPosition')}
+                        value={s.location_position ?? 'line'}
+                        onChange={(v) => set({ location_position: v })}
+                        options={[
+                            { value: 'line', label: t('ownLine') },
+                            { value: 'date', label: t('besideDate') },
+                        ]}
+                    />
+                </Field>
+                <Field label={t('metaOrder')}>
+                    <Segmented
+                        role="radiogroup"
+                        label={t('metaOrder')}
+                        value={s.meta_order ?? 'date_first'}
+                        onChange={(v) => set({ meta_order: v })}
+                        options={[
+                            { value: 'date_first', label: t('dateLocation') },
+                            { value: 'location_first', label: t('locationDate') },
                         ]}
                     />
                 </Field>
@@ -184,12 +209,23 @@ export default function StylePanel({ style, layout, onChange }: Props) {
                         ]}
                     />
                 </Field>
-                {layout !== 'compact' ? (
-                    <label className="flex cursor-pointer items-center gap-2">
-                        <input type="checkbox" checked={look.showPhoto} onChange={(e) => set({ show_photo: e.target.checked ? undefined : false })} />
-                        {t('showPhoto')}
-                    </label>
-                ) : null}
+                <Field label={t('photo')}>
+                    <div className="flex flex-wrap items-center gap-3">
+                        <ShowSwitch shown={look.showPhoto} label={t('showPhoto')} onChange={(on) => set({ show_photo: on ? undefined : false })} />
+                        {layout === 'modern' ? null : (
+                            <Segmented
+                                role="radiogroup"
+                                label={t('photoPosition')}
+                                value={s.photo_position ?? 'left'}
+                                onChange={(v) => set({ photo_position: v })}
+                                options={[
+                                    { value: 'left', label: t('photoLeft') },
+                                    { value: 'right', label: t('photoRight') },
+                                ]}
+                            />
+                        )}
+                    </div>
+                </Field>
             </Group>
             <button
                 type="button"

@@ -11,7 +11,7 @@ export type Contact = {
 export type Entry = { url?: string; hidden?: boolean }
 export type Experience = Entry & { company: string; title: string; kind?: string; location?: string; start: string; end: string; description: string[] }
 export type Education = Entry & { school: string; degree: string; location?: string; start: string; end: string }
-export type Project = Entry & { hide_tech?: boolean; name: string; tech: string; year: string; description: string[] }
+export type Project = Entry & { hide_tech?: boolean; name: string; tech: string; year: string; start?: string; end?: string; location?: string; description: string[] }
 export type SkillGroup = { label: string; items: string[] }
 export type Certification = Entry & { name: string; issuer: string; year: string }
 export type ExtraSection = { title: string; items: string[] }
@@ -30,6 +30,9 @@ export type CVStyle = {
     name_font?: 'sans' | 'serif'
     heading_case?: 'capitalize' | 'uppercase'
     date_position?: 'right' | 'below'
+    photo_position?: 'left' | 'right'
+    location_position?: 'line' | 'date'
+    meta_order?: 'date_first' | 'location_first'
     list_style?: 'bullet' | 'hyphen'
     indent_body?: boolean
     subtitle_style?: TextStyle
@@ -81,10 +84,29 @@ export function visibleSections(c: Pick<ResumeContent, 'extra' | 'section_order'
     return sectionOrder(c).filter((k) => !hidden.has(k))
 }
 
-// visibleEntries drops entries the user hid; mirrors Go visibleEntries.
-export function visibleEntries<T extends Pick<ResumeContent, 'experience' | 'education' | 'projects' | 'certifications'>>(c: T): T {
+// metaText is the right-hand text of an entry: its dates and, when the style asks for it, the location beside them.
+export function metaText(start: string | undefined, end: string | undefined, loc: string | undefined, style?: CVStyle): string {
+    const dates = [start, end].map((x) => (x ?? '').trim()).filter(Boolean).join(' — ')
+    const l = (loc ?? '').trim()
+    if (!l || style?.location_position !== 'date') return dates
+    return (style?.meta_order === 'location_first' ? [l, dates] : [dates, l]).filter(Boolean).join(' · ')
+}
+
+// visibleEntries drops entries the user hid and folds each entry's dates and location into what is printed; mirrors Go visibleEntries.
+export function visibleEntries<T extends Pick<ResumeContent, 'experience' | 'education' | 'projects' | 'certifications' | 'style'>>(c: T): T {
     const keep = <E extends Entry>(l: E[] = []) => l.filter((e) => !e.hidden)
-    return { ...c, experience: keep(c.experience), education: keep(c.education), projects: keep(c.projects), certifications: keep(c.certifications) }
+    const withDates = <E extends { start?: string; end?: string; location?: string }>(e: E): E =>
+        c.style?.location_position === 'date' && e.location?.trim() ? { ...e, start: metaText(e.start, e.end, e.location, c.style), end: '', location: '' } : e
+    return {
+        ...c,
+        experience: keep(c.experience).map(withDates),
+        education: keep(c.education).map(withDates),
+        projects: keep(c.projects).map((p) => {
+            const range = metaText(p.start, p.end, p.location, c.style)
+            return range ? { ...p, year: range } : p
+        }),
+        certifications: keep(c.certifications),
+    }
 }
 
 export type ParseStatus = 'none' | 'pending' | 'done' | 'failed'

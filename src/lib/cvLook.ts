@@ -37,6 +37,7 @@ export type Look = {
     center: boolean
     sep: string
     showPhoto: boolean
+    photoRight: boolean
     bodyFont: BodyFont
     accent?: string
     text?: string
@@ -73,6 +74,7 @@ export function resolveLook(layout: Layout, s: CVStyle = {}): Look {
         center: s.align ? s.align === 'center' : d.center,
         sep: s.separator === 'bar' ? ' | ' : ' · ',
         showPhoto: s.show_photo !== false,
+        photoRight: s.photo_position === 'right',
         bodyFont: s.body_font && BODY_FONTS[s.body_font] ? s.body_font : 'sourcesans',
         accent,
         text: multi ? hex(s.text) : undefined,

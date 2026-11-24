@@ -23,6 +23,9 @@ export function Rich({ text }: { text: string }): ReactNode {
     )
 }
 
+// strip drops the marks, for places that show plain text (lists, labels).
+export const strip = (s: string) => s.replace(/\[([^\]]+)\]\(https?:\/\/[^\s)]+\)/g, '$1').replace(/\*\*([^*]+)\*\*/g, '$1').replace(/__([^_]+)__/g, '$1').replace(/\*([^*]+)\*/g, '$1')
+
 // wrap puts marks around the selected text (or an empty pair when nothing is selected) and returns the new text and caret.
 export function wrap(value: string, start: number, end: number, open: string, close = open): { text: string; caret: number } {
     const text = value.slice(0, start) + open + value.slice(start, end) + close + value.slice(end)

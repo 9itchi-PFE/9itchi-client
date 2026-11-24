@@ -14,6 +14,7 @@ import { useMySubscription } from '@/hooks/usePlans'
 import { resumeKeys, useAtsCheck, useDownloads, usePhoto, useResume, useResumes, useSaveVersion } from '@/hooks/useResumes'
 import { useTemplates } from '@/hooks/useTemplates'
 import { cn } from '@/lib/cn'
+import ShowSwitch from './ShowSwitch'
 import { errorStatus } from '@/services/ApiService'
 import ResumeService from '@/services/ResumeService'
 import { normalize, sectionOrder, type Resume, type ResumeContent } from '@/types/resume'
@@ -197,22 +198,16 @@ function Editor({ resume: initial }: { resume: Resume }) {
                         {...props}
                         photo={
                             <div className="flex flex-col gap-3">
-                                <label className="flex cursor-pointer items-center gap-2 text-[14px] font-medium">
-                                    <input
-                                        type="checkbox"
-                                        checked={content.style?.show_photo !== false}
-                                        onChange={(e) => {
-                                            const { show_photo: _drop, ...rest } = content.style ?? {}
-                                            const style = e.target.checked ? rest : { ...rest, show_photo: false }
-                                            change({ ...content, style: Object.keys(style).length ? style : undefined })
-                                        }}
-                                    />
-                                    {t('style.showPhoto')}
-                                </label>
                             <PhotoControl
                                 resumeId={id}
                                 hasPhoto={resume.has_photo}
                                 photoUrl={photo}
+                                shown={content.style?.show_photo !== false}
+                                onShown={(on) => {
+                                    const { show_photo: _drop, ...rest } = content.style ?? {}
+                                    const style = on ? rest : { ...rest, show_photo: false }
+                                    change({ ...content, style: Object.keys(style).length ? style : undefined })
+                                }}
                                 onChanged={(has) => {
                                     setResume((r) => ({ ...r, has_photo: has }))
                                     qc.invalidateQueries({ queryKey: resumeKeys.photo(id) })
@@ -363,21 +358,7 @@ function Editor({ resume: initial }: { resume: Resume }) {
                                                     <span className={cn('min-w-0 flex-1 truncate', hidden && 'text-ink-3 line-through')}>{sectionTitle(s, content, t)}</span>
                                                 </button>
                                                 {pinned ? null : (
-                                                    <button
-                                                        type="button"
-                                                        role="switch"
-                                                        aria-checked={!hidden}
-                                                        aria-label={hidden ? t('showSection') : t('hideSection')}
-                                                        title={hidden ? t('showSection') : t('hideSection')}
-                                                        onClick={() => toggleHidden(s)}
-                                                        className={cn(
-                                                            'inline-flex h-10 flex-none cursor-pointer items-center gap-1.5 rounded-xl border px-3 text-[13.5px] font-semibold transition-colors',
-                                                            hidden ? 'border-line-strong bg-fill-3 text-ink-3 hover:bg-fill-2' : 'border-ok-dot bg-ok-bg text-ok-fg hover:brightness-95',
-                                                        )}
-                                                    >
-                                                        <Icon name={hidden ? 'eyeOff' : 'eye'} size={18} />
-                                                        {hidden ? t('hiddenBadge') : t('visibleBadge')}
-                                                    </button>
+                                                    <ShowSwitch shown={!hidden} label={hidden ? t('showSection') : t('hideSection')} onChange={() => toggleHidden(s)} />
                                                 )}
                                                 <span aria-hidden className="w-4 flex-none text-center text-ink-3">
                                                     {on ? '▴' : '▾'}

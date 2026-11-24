@@ -239,8 +239,8 @@ function Classic({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                 {head(h.education)}
                 {c.education.map((e, i) => (
                     <div key={i} className={cn(i > 0 && 'mt-[3px]')}>
-                        <Row left={<Lnk url={e.url}><strong>{e.degree}</strong></Lnk>} right={dates(e.start, e.end)} />
-                        <Row left={<span data-cv="sub">{e.school}</span>} right={e.location} />
+                        <Row left={<Lnk url={e.url}><strong><Rich text={e.degree} /></strong></Lnk>} right={dates(e.start, e.end)} />
+                        <Row left={<span data-cv="sub"><Rich text={e.school} /></span>} right={e.location} />
                     </div>
                 ))}
             </Mark>
@@ -251,11 +251,11 @@ function Classic({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                 {head(h.experience)}
                 {c.experience.map((e, i) => (
                     <div key={i} className={cn(i > 0 && 'mt-[3px]')}>
-                        <Row left={<strong>{e.title}</strong>} right={<strong>{dates(e.start, e.end)}</strong>} />
+                        <Row left={<strong><Rich text={e.title} /></strong>} right={<strong>{dates(e.start, e.end)}</strong>} />
                         <Row
                             left={
                                 <>
-                                    <Lnk url={e.url}><span data-cv="sub" className="text-cv-blue">{e.company}</span></Lnk>
+                                    <Lnk url={e.url}><span data-cv="sub" className="text-cv-blue"><Rich text={e.company} /></span></Lnk>
                                     {e.kind ? ` (${e.kind})` : ''}
                                 </>
                             }
@@ -272,7 +272,7 @@ function Classic({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                 {head(h.projects)}
                 {c.projects.map((p, i) => (
                     <div key={i}>
-                        <Row left={<Lnk url={p.url}><strong>{p.name}</strong></Lnk>} right={p.year} />
+                        <Row left={<Lnk url={p.url}><strong><Rich text={p.name} /></strong></Lnk>} right={p.year} />
                         <Bullets lines={p.description} /><Tech p={p} />
                     </div>
                 ))}
@@ -302,7 +302,7 @@ function Classic({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                         key={i}
                         left={
                             <>
-                                <Lnk url={x.url}><strong>{x.name}</strong></Lnk>
+                                <Lnk url={x.url}><strong><Rich text={x.name} /></strong></Lnk>
                                 {x.issuer ? `, ${x.issuer}` : ''}
                             </>
                         }
@@ -324,7 +324,7 @@ function Classic({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
     extraSections(c, head, s)
     return (
         <div data-cv="body" className="flex flex-col gap-[7px]" style={{ padding: `${mmToPx(look.my)}px ${mmToPx(look.mx)}px`, fontSize: look.base }}>
-            <Mark k="contact" head className="flex items-center gap-4">
+            <Mark k="contact" head className={cn('flex items-center gap-4', look.photoRight && 'flex-row-reverse')}>
                 {photoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={photoUrl} alt="" className="h-[70px] w-[70px] flex-none rounded-full border-[1.5px] border-cv-blue object-cover" />
@@ -404,7 +404,7 @@ function Modern({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                 {head(h.education)}
                 {c.education.map((e, i) => (
                     <div key={i} className="mb-0.5">
-                        <Row left={<Lnk url={e.url}><strong>{join(' — ', e.school, e.degree)}</strong></Lnk>} right={<span className="text-ink-3">{dates(e.start, e.end)}</span>} />
+                        <Row left={<Lnk url={e.url}><strong><Rich text={join(' — ', e.school, e.degree)} /></strong></Lnk>} right={<span className="text-ink-3">{dates(e.start, e.end)}</span>} />
                         {e.location ? <div data-cv="sub" className="text-ink-3">{e.location}</div> : null}
                     </div>
                 ))}
@@ -416,7 +416,7 @@ function Modern({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                 {head(h.experience)}
                 {c.experience.map((e, i) => (
                     <div key={i} className="mb-0.5">
-                        <Row left={<Lnk url={e.url}><strong>{join(' — ', e.title, e.company)}</strong></Lnk>} right={<span className="text-ink-3">{dates(e.start, e.end)}</span>} />
+                        <Row left={<Lnk url={e.url}><strong><Rich text={join(' — ', e.title, e.company)} /></strong></Lnk>} right={<span className="text-ink-3">{dates(e.start, e.end)}</span>} />
                         {join(' · ', e.kind, e.location) ? <div data-cv="sub" className="text-ink-3">{join(' · ', e.kind, e.location)}</div> : null}
                         <Bullets lines={e.description} />
                     </div>
@@ -429,7 +429,7 @@ function Modern({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                 {head(h.projects)}
                 {c.projects.map((p, i) => (
                     <div key={i} className="mb-0.5">
-                        <Row left={<Lnk url={p.url}><strong>{p.name}</strong></Lnk>} right={<span className="text-ink-3">{p.year}</span>} />
+                        <Row left={<Lnk url={p.url}><strong><Rich text={p.name} /></strong></Lnk>} right={<span className="text-ink-3">{p.year}</span>} />
                         <Bullets lines={p.description} /><Tech p={p} />
                     </div>
                 ))}
@@ -444,7 +444,7 @@ function Modern({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                         key={i}
                         left={
                             <>
-                                <Lnk url={x.url}><strong>{x.name}</strong></Lnk>
+                                <Lnk url={x.url}><strong><Rich text={x.name} /></strong></Lnk>
                                 <span className="text-ink-3">{x.issuer ? `, ${x.issuer}` : ''}</span>
                             </>
                         }
@@ -518,7 +518,7 @@ function Compact({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
             <Mark key="education" k="education">
                 {head(h.education)}
                 {c.education.map((e, i) => (
-                    <Row key={i} left={<Lnk url={e.url}><strong>{join(' — ', e.school, e.degree)}</strong></Lnk>} right={dates(e.start, e.end)} />
+                    <Row key={i} left={<Lnk url={e.url}><strong><Rich text={join(' — ', e.school, e.degree)} /></strong></Lnk>} right={dates(e.start, e.end)} />
                 ))}
             </Mark>
         )
@@ -531,7 +531,7 @@ function Compact({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                         <Row
                             left={
                                 <>
-                                    <Lnk url={e.url}><strong>{join(' : ', e.company, e.title)}</strong></Lnk>
+                                    <Lnk url={e.url}><strong><Rich text={join(' : ', e.company, e.title)} /></strong></Lnk>
                                     {e.location ? `, ${e.location}` : ''}
                                 </>
                             }
@@ -551,7 +551,7 @@ function Compact({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                         <Row
                             left={
                                 <>
-                                    <Lnk url={p.url}><strong>{p.name}</strong></Lnk>
+                                    <Lnk url={p.url}><strong><Rich text={p.name} /></strong></Lnk>
                                 </>
                             }
                             right={p.year}
@@ -586,7 +586,7 @@ function Compact({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                         key={i}
                         left={
                             <>
-                                <Lnk url={x.url}><strong>{x.name}</strong></Lnk>
+                                <Lnk url={x.url}><strong><Rich text={x.name} /></strong></Lnk>
                                 {x.issuer ? `, ${x.issuer}` : ''}
                             </>
                         }
@@ -612,20 +612,22 @@ function Compact({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
     extraSections(c, head, s)
     return (
         <div data-cv="body" className="flex flex-col gap-[3px] text-[#111]" style={{ padding: `${mmToPx(look.my)}px ${mmToPx(look.mx)}px`, fontSize: look.base }}>
-            <Mark k="contact" head className={cn('flex flex-col gap-0.5', look.center ? 'items-center text-center' : 'items-start text-start')}>
+            <Mark k="contact" head className={cn('flex items-center gap-4', look.photoRight && 'flex-row-reverse')}>
                 {photoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={photoUrl} alt="" className="mb-1 h-[62px] w-[62px] rounded-full object-cover" />
+                    <img src={photoUrl} alt="" className="h-[62px] w-[62px] flex-none rounded-full object-cover" />
                 ) : null}
-                <span data-cv="name" className={cn('font-bold uppercase tracking-[.06em]', look.nameSerif && 'font-cvserif')} style={{ fontSize: look.name }}>
-                    {c.contact.name}
-                </span>
-                {c.contact.headline ? (
-                    <span data-cv="title" className="text-[#444]" style={{ fontSize: look.title }}>
-                        {c.contact.headline}
+                <div className={cn('flex min-w-0 flex-1 flex-col gap-0.5', look.center ? 'items-center text-center' : 'items-start text-start')}>
+                    <span data-cv="name" className={cn('font-bold uppercase tracking-[.06em]', look.nameSerif && 'font-cvserif')} style={{ fontSize: look.name }}>
+                        {c.contact.name}
                     </span>
-                ) : null}
-                <ContactLine c={c} phonePlaceholder={phonePlaceholder} className="text-[9.5px] text-[#444]" />
+                    {c.contact.headline ? (
+                        <span data-cv="title" className="text-[#444]" style={{ fontSize: look.title }}>
+                            {c.contact.headline}
+                        </span>
+                    ) : null}
+                    <ContactLine c={c} phonePlaceholder={phonePlaceholder} className="text-[9.5px] text-[#444]" />
+                </div>
             </Mark>
             {inOrder(c, s)}
         </div>

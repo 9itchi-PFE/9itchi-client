@@ -7,6 +7,7 @@ import { useToast } from '@/components/ui/Toast'
 import { useSaveVersion } from '@/hooks/useResumes'
 import { errorStatus } from '@/services/ApiService'
 import ResumeService from '@/services/ResumeService'
+import ShowSwitch from './ShowSwitch'
 
 const MAX_PHOTO = 2 * 1024 * 1024
 
@@ -16,11 +17,15 @@ export default function PhotoControl({
     hasPhoto,
     photoUrl,
     onChanged,
+    shown,
+    onShown,
 }: {
     resumeId: string
     hasPhoto: boolean
     photoUrl?: string | null
     onChanged: (has: boolean) => void
+    shown: boolean
+    onShown: (shown: boolean) => void
 }) {
     const t = useTranslations('cv')
     const tc = useTranslations('common')
@@ -47,7 +52,7 @@ export default function PhotoControl({
     return (
         <div className="flex flex-col gap-1.5">
             <span className="text-[13.5px] font-medium text-ink-2">{t('fields.photo')}</span>
-            <div className="flex items-center gap-3">
+            <div className="flex flex-wrap items-center gap-3">
                 {photoUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img src={photoUrl} alt="" className="h-14 w-14 rounded-full border-[1.5px] border-cv-blue object-cover" />
@@ -72,6 +77,7 @@ export default function PhotoControl({
                         {t('fields.photoRemove')}
                     </Button>
                 ) : null}
+                <ShowSwitch shown={shown} label={t('style.showPhoto')} onChange={onShown} />
             </div>
             <span className="text-[13px] text-ink-3">{t('fields.photoHint')}</span>
             <input
