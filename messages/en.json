@@ -273,7 +273,9 @@
         "untitled": "Untitled",
         "showEntry": "Show {name}",
         "hideEntry": "Hide {name}",
-        "addEntry": "+ Add entry"
+        "addEntry": "+ Add entry",
+        "editEntry": "Edit entry",
+        "done": "Done"
     },
     "download": {
         "freeEyebrow": "Your first download is free",

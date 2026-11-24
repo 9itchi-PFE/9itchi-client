@@ -4,6 +4,7 @@ import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef,
 import { cn } from '@/lib/cn'
 import { lookCss, mmToPx, resolveLook, type Look } from '@/lib/cvLook'
 import { visibleEntries, visibleSections, type Layout, type ResumeContent } from '@/types/resume'
+import { Rich } from './RichText'
 import { cvHeadings, dates, join, nonEmpty, shortLink, splitLanguage, type CvLanguage } from './cvText'
 
 export type SectionKey = 'contact' | 'summary' | 'education' | 'experience' | 'projects' | 'skills' | 'certifications' | 'languages' | 'extra'
@@ -144,7 +145,9 @@ const Bullets = ({ lines }: { lines: string[] }) => {
     return (
         <ul className="m-0 mb-[3px] mt-px" style={{ listStyleType: look.hyphen ? '"- "' : 'disc', paddingInlineStart: look.indent ? 14 : 9 }}>
             {l.map((x, i) => (
-                <li key={i}>{x}</li>
+                <li key={i}>
+                    <Rich text={x} />
+                </li>
             ))}
         </ul>
     )
@@ -225,8 +228,9 @@ function Classic({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
     const s: Sections = {}
     if (c.summary.trim())
         s.summary = (
-            <Mark key="summary" k="summary" className="border-t border-cv-blue pt-[5px]">
-                {c.summary}
+            <Mark key="summary" k="summary">
+                {head(h.summary)}
+                <Rich text={c.summary} />
             </Mark>
         )
     if (c.education.length)
@@ -389,8 +393,9 @@ function Modern({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
         )
     if (c.summary.trim())
         s.summary = (
-            <Mark key="summary" k="summary" className="mt-1">
-                {c.summary}
+            <Mark key="summary" k="summary">
+                {head(h.summary)}
+                <Rich text={c.summary} />
             </Mark>
         )
     if (c.education.length)
@@ -492,7 +497,7 @@ const pairs = (xs: string[]) => {
 
 // ---- Compact: black and white, centred name, no photo ----
 
-function Compact({ c, h, phonePlaceholder }: BodyProps) {
+function Compact({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
     const { look } = useContext(Ctx)
     const head: Heading = (t) => (
         <h3 data-cv="heading" className="m-0 mb-1 mt-1.5 border-b-[1.2px] border-[#111] font-cv font-bold uppercase text-[#111]" style={{ fontSize: look.head }}>
@@ -503,8 +508,9 @@ function Compact({ c, h, phonePlaceholder }: BodyProps) {
     const s: Sections = {}
     if (c.summary.trim())
         s.summary = (
-            <Mark key="summary" k="summary" className="mt-1">
-                {c.summary}
+            <Mark key="summary" k="summary">
+                {head(h.summary)}
+                <Rich text={c.summary} />
             </Mark>
         )
     if (c.education.length)
@@ -607,6 +613,10 @@ function Compact({ c, h, phonePlaceholder }: BodyProps) {
     return (
         <div data-cv="body" className="flex flex-col gap-[3px] text-[#111]" style={{ padding: `${mmToPx(look.my)}px ${mmToPx(look.mx)}px`, fontSize: look.base }}>
             <Mark k="contact" head className={cn('flex flex-col gap-0.5', look.center ? 'items-center text-center' : 'items-start text-start')}>
+                {photoUrl ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={photoUrl} alt="" className="mb-1 h-[62px] w-[62px] rounded-full object-cover" />
+                ) : null}
                 <span data-cv="name" className={cn('font-bold uppercase tracking-[.06em]', look.nameSerif && 'font-cvserif')} style={{ fontSize: look.name }}>
                     {c.contact.name}
                 </span>

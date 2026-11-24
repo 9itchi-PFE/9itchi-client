@@ -66,7 +66,8 @@ function Editor({ resume: initial }: { resume: Resume }) {
     const [resume, setResume] = useState(initial)
     const [content, setContent] = useState<ResumeContent>(() => normalize(initial.content))
     const [section, setSection] = useState<Section>((params.get('section') as Section) || 'experience')
-    const [item, setItem] = useState(Number(params.get('item') ?? 0))
+    const [item, setItem] = useState(Number(params.get('item') ?? -1))
+    const [expanded, setExpanded] = useState(true)
     const focusLine = params.get('line') ? Number(params.get('line')) : undefined
     const [save, setSave] = useState<SaveState>('saved')
     const [savedAt, setSavedAt] = useState<Date | null>(null)
@@ -132,12 +133,14 @@ function Editor({ resume: initial }: { resume: Resume }) {
     }, [save])
 
     // Leaving a section that was edited keeps a version of the CV in the history tab.
-    const go = (s: Section, i = 0) => {
+    const go = (s: Section, i = -1) => {
         if (dirtySince.current && dirtySince.current !== s) {
             const prev = dirtySince.current
             dirtySince.current = null
             snapshot.mutate(prev.startsWith('extra:') ? 'edited_extra' : `edited_${prev}`)
         }
+        // A second click on the open section folds it.
+        setExpanded(s !== section || !expanded)
         setSection(s)
         setItem(i)
     }
@@ -161,6 +164,7 @@ function Editor({ resume: initial }: { resume: Resume }) {
         change({ ...content, extra })
         snapshot.mutate('section_added')
         setAdding(false)
+        setExpanded(true)
         setSection(`extra:${extra.length - 1}`)
         toast(t('toastExtraAdded'))
     }
@@ -314,7 +318,7 @@ function Editor({ resume: initial }: { resume: Resume }) {
                             <ScoreBanner resumeId={id} check={check.data} />
                             <nav aria-label={t('sectionsNav')} className="flex flex-col gap-2">
                                 {navItems.map((s) => {
-                                    const on = s === section
+                                    const on = s === section && expanded
                                     const pinned = s === 'contact'
                                     const idx = order.indexOf(s)
                                     const hidden = hiddenSet.has(s)
@@ -339,7 +343,7 @@ function Editor({ resume: initial }: { resume: Resume }) {
                                             onDragEnd={() => setDragKey(null)}
                                             className={cn('rounded-[14px] border bg-white', on ? 'border-violet' : 'border-line-soft', dragKey === s && 'opacity-40')}
                                         >
-                                            <div className="flex h-12 items-center gap-1 px-2">
+                                            <div className="flex h-14 items-center gap-1.5 px-2.5">
                                                 <span aria-hidden className={cn('w-5 flex-none text-center text-ink-3', pinned ? 'invisible' : 'cursor-grab')}>
                                                     ⋮⋮
                                                 </span>
@@ -367,10 +371,11 @@ function Editor({ resume: initial }: { resume: Resume }) {
                                                         title={hidden ? t('showSection') : t('hideSection')}
                                                         onClick={() => toggleHidden(s)}
                                                         className={cn(
-                                                            'h-8 flex-none cursor-pointer rounded-lg border px-2.5 text-[12.5px] font-semibold',
-                                                            hidden ? 'border-line-strong bg-fill-3 text-ink-3' : 'border-line-strong bg-white text-ink-2 hover:bg-fill-3',
+                                                            'inline-flex h-10 flex-none cursor-pointer items-center gap-1.5 rounded-xl border px-3 text-[13.5px] font-semibold transition-colors',
+                                                            hidden ? 'border-line-strong bg-fill-3 text-ink-3 hover:bg-fill-2' : 'border-ok-dot bg-ok-bg text-ok-fg hover:brightness-95',
                                                         )}
                                                     >
+                                                        <Icon name={hidden ? 'eyeOff' : 'eye'} size={18} />
                                                         {hidden ? t('hiddenBadge') : t('visibleBadge')}
                                                     </button>
                                                 )}
@@ -394,7 +399,7 @@ function Editor({ resume: initial }: { resume: Resume }) {
                     )}
                 </div>
 
-                <section aria-label={t('previewAria')} className="sticky top-[92px] flex min-w-0 flex-[3_1_560px] flex-col items-center gap-2.5 rounded-[18px] bg-fill-3 p-5">
+                <section aria-label={t('previewAria')} className="sticky top-4 flex min-w-0 flex-[3_1_560px] flex-col items-center gap-2.5 rounded-[18px] bg-fill-3 p-5">
                     <div className="flex w-full items-center justify-between text-[13px] text-ink-3">
                         <span>{t('previewLabel', { pages })}</span>
                         <span className="inline-flex items-center gap-1.5">

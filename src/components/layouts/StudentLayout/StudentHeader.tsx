@@ -1,6 +1,6 @@
 'use client'
 
-import { useContext } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
@@ -31,8 +31,18 @@ export default function StudentHeader() {
     const path = usePathname()
     const { unread } = useContext(NotificationsContext)
     const applications = countOf(useApplications().data)
+    // On the CV editor the header slides away once the page is scrolled, to leave the room to the preview.
+    const [scrolled, setScrolled] = useState(false)
+    const editor = path.startsWith('/resumes')
+    useEffect(() => {
+        if (!editor) return setScrolled(false)
+        const on = () => setScrolled(window.scrollY > 120)
+        on()
+        window.addEventListener('scroll', on, { passive: true })
+        return () => window.removeEventListener('scroll', on)
+    }, [editor])
     return (
-        <header className="sticky top-0 z-20 bg-[rgba(250,250,249,.9)] backdrop-blur-[10px]">
+        <header className={cn('sticky top-0 z-20 bg-[rgba(250,250,249,.9)] backdrop-blur-[10px] transition-transform duration-200', editor && scrolled && '-translate-y-full')}>
             <div className="mx-auto grid max-w-[1320px] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-4 px-8 py-3.5">
                 <Link href="/jobs" className="justify-self-start no-underline">
                     <Logo />

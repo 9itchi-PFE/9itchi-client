@@ -273,7 +273,9 @@
         "untitled": "بدون عنوان",
         "showEntry": "إظهار {name}",
         "hideEntry": "إخفاء {name}",
-        "addEntry": "+ إضافة عنصر"
+        "addEntry": "+ إضافة عنصر",
+        "editEntry": "تعديل العنصر",
+        "done": "تم"
     },
     "download": {
         "freeEyebrow": "تنزيلك الأول مجاني",

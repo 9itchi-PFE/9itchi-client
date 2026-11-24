@@ -273,7 +273,9 @@
         "untitled": "Sans titre",
         "showEntry": "Afficher {name}",
         "hideEntry": "Masquer {name}",
-        "addEntry": "+ Ajouter une entrée"
+        "addEntry": "+ Ajouter une entrée",
+        "editEntry": "Modifier l’entrée",
+        "done": "Terminé"
     },
     "download": {
         "freeEyebrow": "Ton premier téléchargement est offert",

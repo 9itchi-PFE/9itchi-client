@@ -3,10 +3,12 @@
 import { Fragment, useId, useState, type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/Button'
+import { Icon } from '@/components/ui/icons'
 import { Field, TextArea, inputClass } from '@/components/ui/Field'
 import { cn } from '@/lib/cn'
 import type { ResumeContent } from '@/types/resume'
 import { splitLanguage } from '../cvText'
+import { wrap } from '../RichText'
 import { checkLine } from './bulletChecks'
 import type { Section } from './sections'
 
@@ -96,6 +98,46 @@ const Rule = ({ ok, children }: { ok: boolean; children: ReactNode }) => (
     </span>
 )
 
+const FORMATS: { label: string; title: string; open: string; close?: string; cls: string }[] = [
+    { label: 'B', title: 'Bold', open: '**', cls: 'font-bold' },
+    { label: 'I', title: 'Italic', open: '*', cls: 'italic' },
+    { label: 'U', title: 'Underline', open: '__', cls: 'underline' },
+]
+
+// FormatBar wraps the selection of a description line in the marks CvPreview and the PDF understand.
+function FormatBar({ target, value, onChange }: { target: string; value: string; onChange: (v: string) => void }) {
+    const apply = (open: string, close?: string, link?: boolean) => {
+        const el = document.getElementById(target) as HTMLTextAreaElement | null
+        const s = el?.selectionStart ?? value.length
+        const e = el?.selectionEnd ?? value.length
+        if (link) {
+            const url = window.prompt('https://')
+            if (!url || !/^https?:\/\//i.test(url)) return
+            const label = value.slice(s, e) || url
+            onChange(value.slice(0, s) + `[${label}](${url})` + value.slice(e))
+            return
+        }
+        const r = wrap(value, s, e, open, close)
+        onChange(r.text)
+        requestAnimationFrame(() => {
+            el?.focus()
+            el?.setSelectionRange(r.caret, r.caret)
+        })
+    }
+    const btn = 'inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-lg border border-line-strong bg-white text-sm text-ink hover:bg-fill-3'
+    return (
+        <div role="toolbar" aria-label="Format" className="flex gap-1.5">
+            {FORMATS.map((f) => (
+                <button key={f.label} type="button" title={f.title} aria-label={f.title} className={cn(btn, f.cls)} onClick={() => apply(f.open, f.close)}>
+                    {f.label}
+                </button>
+            ))}
+            <button type="button" title="Insert link" aria-label="Insert link" className={btn} onClick={() => apply('', '', true)}>
+                🔗
+            </button>
+        </div>
+    )
+}
 // Lines edits the bullets of an experience or project, with the live checks of the canvas.
 export function Lines({
     lines,
@@ -138,6 +180,7 @@ export function Lines({
                                 </button>
                             ) : null}
                         </div>
+                        <FormatBar target={`${id}-${i}`} value={line} onChange={(v) => set(i, v)} />
                         <TextArea
                             id={`${id}-${i}`}
                             rows={3}
@@ -175,6 +218,8 @@ function replaceAt<T>(xs: T[], i: number, v: T) {
 
 type Rowish = { hidden?: boolean }
 
+const iconBtn = 'inline-flex h-10 w-10 flex-none cursor-pointer items-center justify-center rounded-xl border border-line-strong bg-white text-ink-2 transition-colors hover:bg-fill-3'
+
 // RowsEditor lists the entries of a section as draggable rows with an eye toggle; a click opens one for editing.
 function RowsEditor<T extends Rowish>({
     title,
@@ -204,20 +249,70 @@ function RowsEditor<T extends Rowish>({
         const [x] = next.splice(from, 1)
         next.splice(to, 0, x)
         onItems(next)
-        setItem(to)
+        // The open entry keeps following its own content; a closed list stays closed.
+        if (item >= 0) setItem(next.indexOf(items[item]))
+    }
+    const cur = item >= 0 && item < items.length ? items[item] : undefined
+    if (cur) {
+        const name = label(cur).trim() || t('untitled')
+        return (
+            <Card
+                title={t('editEntry')}
+                label={t('editLabel', { section: title })}
+                counter={
+                    <div className="flex gap-2">
+                        <button
+                            type="button"
+                            aria-pressed={!cur.hidden}
+                            aria-label={cur.hidden ? t('showEntry', { name }) : t('hideEntry', { name })}
+                            title={cur.hidden ? t('showEntry', { name }) : t('hideEntry', { name })}
+                            onClick={() => onItems(replaceAt(items, item, { ...cur, hidden: !cur.hidden }))}
+                            className={cn(iconBtn, cur.hidden && 'bg-fill-3 text-ink-3')}
+                        >
+                            <Icon name={cur.hidden ? 'eyeOff' : 'eye'} size={20} />
+                        </button>
+                        <button
+                            type="button"
+                            aria-label={t('removeItem')}
+                            title={t('removeItem')}
+                            onClick={() => {
+                                onItems(items.filter((_, j) => j !== item))
+                                setItem(-1)
+                            }}
+                            className={cn(iconBtn, 'hover:border-warn-fg hover:bg-warn-bg hover:text-warn-fg')}
+                        >
+                            <Icon name="trash" size={20} />
+                        </button>
+                    </div>
+                }
+            >
+                {render(cur, (v) => onItems(replaceAt(items, item, v)))}
+                <div className="sticky bottom-3 flex justify-center pt-2">
+                    <button
+                        type="button"
+                        onClick={() => setItem(-1)}
+                        className="inline-flex h-12 w-full max-w-xs cursor-pointer items-center justify-center gap-2 rounded-2xl border-0 bg-gradient-to-r from-[#ec0b8a] to-[#ff6a63] text-[15px] font-bold text-white shadow-lg hover:brightness-105"
+                    >
+                        ✓ {t('done')}
+                    </button>
+                </div>
+            </Card>
+        )
     }
     return (
         <Card title={title} label={t('editLabel', { section: title })}>
             {items.length ? <p className="m-0 text-[13px] text-ink-3">{t('rowsHint')}</p> : <p className="m-0 text-sm text-ink-3">{t('empty')}</p>}
             <ul className="m-0 flex list-none flex-col gap-2 p-0">
                 {items.map((x, i) => {
-                    const open = item === i
                     const name = label(x).trim() || t('untitled')
                     return (
                         <li
                             key={i}
                             draggable
-                            onDragStart={() => setDrag(i)}
+                            onDragStart={(e) => {
+                                e.stopPropagation()
+                                setDrag(i)
+                            }}
                             onDragOver={(e) => {
                                 e.preventDefault()
                                 setOver(i)
@@ -226,19 +321,19 @@ function RowsEditor<T extends Rowish>({
                                 setDrag(null)
                                 setOver(null)
                             }}
-                            onDrop={() => {
+                            onDrop={(e) => {
+                                e.stopPropagation()
                                 if (drag !== null) move(drag, i)
                                 setDrag(null)
                                 setOver(null)
                             }}
                             className={cn('rounded-xl border bg-white', over === i && drag !== null && drag !== i ? 'border-ink' : 'border-line-soft', drag === i && 'opacity-50')}
                         >
-                            <div className="flex items-center gap-2 px-3 py-2.5">
+                            <div className="flex min-h-14 items-center gap-2.5 px-3 py-2">
                                 <span aria-hidden className="cursor-grab select-none text-ink-3">⠿</span>
                                 <button
                                     type="button"
-                                    aria-expanded={open}
-                                    onClick={() => setItem(open ? -1 : i)}
+                                    onClick={() => setItem(i)}
                                     className={cn('min-w-0 flex-1 cursor-pointer truncate border-0 bg-transparent p-0 text-start text-sm font-semibold', x.hidden && 'text-ink-3 line-through')}
                                 >
                                     {name}
@@ -249,9 +344,9 @@ function RowsEditor<T extends Rowish>({
                                     aria-label={x.hidden ? t('showEntry', { name }) : t('hideEntry', { name })}
                                     title={x.hidden ? t('showEntry', { name }) : t('hideEntry', { name })}
                                     onClick={() => onItems(replaceAt(items, i, { ...x, hidden: !x.hidden }))}
-                                    className="h-8 w-8 cursor-pointer rounded-lg border border-line-soft bg-white text-base"
+                                    className={cn(iconBtn, x.hidden && 'bg-fill-3 text-ink-3')}
                                 >
-                                    {x.hidden ? '🙈' : '👁'}
+                                    <Icon name={x.hidden ? 'eyeOff' : 'eye'} size={20} />
                                 </button>
                                 <button
                                     type="button"
@@ -261,12 +356,11 @@ function RowsEditor<T extends Rowish>({
                                         onItems(items.filter((_, j) => j !== i))
                                         setItem(-1)
                                     }}
-                                    className="h-8 w-8 cursor-pointer rounded-lg border border-line-soft bg-white text-base hover:text-warn-fg"
+                                    className={cn(iconBtn, 'hover:border-warn-fg hover:bg-warn-bg hover:text-warn-fg')}
                                 >
-                                    🗑
+                                    <Icon name="trash" size={20} />
                                 </button>
                             </div>
-                            {open ? <div className="flex flex-col gap-4 border-t border-line-soft p-3">{render(x, (v) => onItems(replaceAt(items, i, v)))}</div> : null}
                         </li>
                     )
                 })}
@@ -308,7 +402,7 @@ function ListEditor<T>({
     render: (x: T, set: (v: T) => void) => ReactNode
 }) {
     const t = useTranslations('cv')
-    const i = Math.min(item, Math.max(items.length - 1, 0))
+    const i = Math.max(0, Math.min(item, items.length - 1))
     return (
         <Card title={title} label={t('editLabel', { section: title })} counter={<Counter item={i} count={items.length} />}>
             {items.length ? (
