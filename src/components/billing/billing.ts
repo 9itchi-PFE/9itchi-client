@@ -28,6 +28,13 @@ export function regularOf(plan: Pick<Plan, 'price' | 'regular_price'>): number |
     return plan.regular_price && plan.regular_price > plan.price ? millimes(plan.regular_price) : null
 }
 
+// dayAt reads a day (YYYY-MM-DD) as a date at noon UTC: the same day wherever it is written. null: not a day.
+export function dayAt(day: string | null | undefined): Date | null {
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(day ?? '')
+    const at = m ? new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 12)) : null
+    return at && !Number.isNaN(at.getTime()) ? at : null
+}
+
 // Lines are the rows of a receipt, in millimes: the plan at its price, what the code took off, what was paid.
 // launch is what the launch price took off the regular price that day (0 when the plan had no regular price):
 // the first row then shows price + launch.
