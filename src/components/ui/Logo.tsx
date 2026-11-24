@@ -135,13 +135,13 @@ export function LogoMark({ size = 32, label = '9itchi' }: { size?: number; label
     )
 }
 
-// Logo is the mark, the word and the PFE tag of the header.
-export function Logo() {
+// Logo is the mark, the word and, unless tag is false, the PFE tag of the header.
+export function Logo({ tag = true }: { tag?: boolean }) {
     return (
         <span className="flex items-center gap-2.5 text-ink">
             <LogoMark />
             <span className="font-display text-[21px] font-extrabold tracking-tightish">9itchi</span>
-            <span className="rounded-[5px] bg-ink px-1.5 py-[3px] font-mono text-[10.5px] font-semibold tracking-[.1em] text-lime">PFE</span>
+            {tag ? <span className="rounded-[5px] bg-ink px-1.5 py-[3px] font-mono text-[10.5px] font-semibold tracking-[.1em] text-lime">PFE</span> : null}
         </span>
     )
 }

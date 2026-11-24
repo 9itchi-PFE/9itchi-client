@@ -1,5 +1,7 @@
 export type ServiceName = 'account' | 'resume' | 'ai' | 'job' | 'email' | 'tracker' | 'notification' | 'chat' | 'payments' | 'statistics' | 'schedule'
 
+export const serviceNames: ServiceName[] = ['account', 'resume', 'ai', 'job', 'email', 'tracker', 'notification', 'chat', 'payments', 'statistics', 'schedule']
+
 const baseUrls: Record<ServiceName, string | undefined> = {
     account: process.env.NEXT_PUBLIC_ACCOUNT_API_BASE_URL,
     resume: process.env.NEXT_PUBLIC_RESUME_API_BASE_URL,
@@ -18,4 +20,10 @@ const baseUrls: Record<ServiceName, string | undefined> = {
 export function getServiceBaseUrl(service: ServiceName): string {
     if (process.env.NEXT_PUBLIC_USE_PROXY === 'true') return `/api/proxy/${service}`
     return baseUrls[service] ?? ''
+}
+
+// getServerBaseUrl is the URL the Next server uses to reach a backend (proxy, sign-in): {SERVICE}_API_URL
+// when set (an internal address), else the public one. Read at run time, never sent to the browser.
+export function getServerBaseUrl(service: ServiceName): string {
+    return process.env[`${service.toUpperCase()}_API_URL`] ?? baseUrls[service] ?? ''
 }
