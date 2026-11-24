@@ -102,7 +102,7 @@ export function lookCss(l: Look, explicit: CVStyle = {}): string {
     const stack = BODY_FONTS[l.bodyFont].stack
     if (stack) r.push(`.cvx,.cvx .font-cv{font-family:${stack};}`)
     rule('[data-cv=body]', `font-size:${l.base}px;line-height:${l.lineHeight};`)
-    rule('[data-cv=name]', `font-size:${l.name}px;${l.accents('name') ? `color:${l.accent};` : ''}`)
+    rule('[data-cv=name]', `font-size:${l.name}px;${explicit.accent ? `color:${l.accents('name') ? l.accent : 'inherit'};` : ''}`)
     rule('[data-cv=title]', `font-size:${l.title}px;${explicit.accent ? `color:${l.accents('title') ? l.accent : 'inherit'};` : ''}`)
     rule(
         '[data-cv=heading]',

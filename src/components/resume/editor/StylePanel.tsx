@@ -326,7 +326,7 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
                     <input type="color" aria-label={label} value={value} onChange={(e) => onChange(e.target.value)} className="h-8 w-10 cursor-pointer rounded border border-line-strong bg-white p-0.5" />
                 </span>
             </label>
-            <div className="flex flex-wrap gap-1.5">
+            <div className="grid grid-cols-8 gap-2">
                 {SWATCHES.map((c) => (
                     <button
                         key={c}
@@ -334,7 +334,7 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
                         aria-label={c}
                         onClick={() => onChange(c)}
                         style={{ background: c }}
-                        className={`h-6 w-6 cursor-pointer rounded-full border-2 ${value.toLowerCase() === c.toLowerCase() ? 'border-ink' : 'border-white shadow-[0_0_0_1px_#d0d0d0]'}`}
+                        className={`h-7 w-7 cursor-pointer rounded-full border-2 ${value.toLowerCase() === c.toLowerCase() ? 'border-ink' : 'border-white shadow-[0_0_0_1px_#d0d0d0]'}`}
                     />
                 ))}
             </div>
@@ -342,7 +342,8 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
     )
 }
 
-const SWATCHES = ['#111111', '#2F5597', '#1F2A44', '#0F766E', '#15803D', '#B45309', '#B91C1C', '#7C3AED', '#BE185D']
+// the FlowCV palette, plus black and the template blues
+const SWATCHES = ['#111111', '#485A66', '#527A7E', '#93B5BF', '#3589A9', '#355C7D', '#3A72A8', '#689AC4', '#5BA6D9', '#84D2F6', '#46226F', '#6A2B50', '#C16A82', '#C94179', '#F55C6A', '#2F5597']
 
 const TextStyle = ({ label, value, onChange }: { label: string; value?: TextStyleT; onChange: (v: TextStyleT | undefined) => void }) => (
     <div role="radiogroup" aria-label={label} className="grid grid-cols-3 gap-1.5">

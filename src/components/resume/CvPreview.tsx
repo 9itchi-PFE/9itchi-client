@@ -376,7 +376,7 @@ function Classic({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                 ) : null}
                 <div className="flex min-w-0 flex-1 flex-col gap-[3px]">
                     <div className={cn('flex flex-wrap items-baseline gap-x-3', look.inlineTitle ? '' : 'flex-col gap-y-[3px]')}>
-                        <span data-cv="name" className={cn('font-bold leading-[1.1] text-[#111]', look.nameSerif ? 'font-cvserif' : 'font-cv')} style={{ fontSize: look.name }}>
+                        <span data-cv="name" className={cn('font-bold leading-[1.1] text-cv-blue', 'font-cv')} style={{ fontSize: look.name }}>
                             {c.contact.name}
                         </span>
                         {c.contact.headline ? (
@@ -405,7 +405,7 @@ function Modern({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
     const { look } = useContext(Ctx)
     const sideHead: Heading = (t) => <span className="mt-2 block text-[10px] font-bold uppercase tracking-[.08em]">{t}</span>
     const head: Heading = (t) => (
-        <h3 data-cv="heading" className="m-0 mb-1 mt-2 font-cvserif font-bold text-cv-navy" style={{ fontSize: look.head }}>
+        <h3 data-cv="heading" className="m-0 mb-1 mt-2 font-cv font-bold text-cv-navy" style={{ fontSize: look.head }}>
             {t}
         </h3>
     )
@@ -524,7 +524,7 @@ function Modern({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
             </div>
             <div data-cv="body" className="flex min-w-0 flex-1 flex-col gap-1 px-[24px]" style={{ paddingTop: py, paddingBottom: py, fontSize: look.base }}>
                 <Mark k="contact" head>
-                    <span data-cv="name" className={cn('block font-bold leading-[1.15] text-cv-navy', look.nameSerif ? 'font-cvserif' : 'font-cv')} style={{ fontSize: look.name }}>
+                    <span data-cv="name" className={cn('block font-bold leading-[1.15] text-cv-navy', 'font-cv')} style={{ fontSize: look.name }}>
                         {c.contact.name}
                     </span>
                     {c.contact.headline ? (
@@ -668,7 +668,7 @@ function Compact({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                     <img src={photoUrl} alt="" className="h-[62px] w-[62px] flex-none rounded-full object-cover" />
                 ) : null}
                 <div className={cn('flex min-w-0 flex-1 flex-col gap-0.5', look.center ? 'items-center text-center' : 'items-start text-start')}>
-                    <span data-cv="name" className={cn('font-bold uppercase tracking-[.06em]', look.nameSerif && 'font-cvserif')} style={{ fontSize: look.name }}>
+                    <span data-cv="name" className={cn('font-bold uppercase tracking-[.06em]', 'font-cv')} style={{ fontSize: look.name }}>
                         {c.contact.name}
                     </span>
                     {c.contact.headline ? (
