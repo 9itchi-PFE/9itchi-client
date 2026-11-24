@@ -9,10 +9,10 @@ import { Sk } from '@/components/jobs/OfferStates'
 import { Button, ButtonLink } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/icons'
 import { useToast } from '@/components/ui/Toast'
-import { useCheckout, useMySubscription, usePayments, usePlans, useValidatePromo, useVerifyPayment } from '@/hooks/usePlans'
+import { useCheckout, useMySubscription, usePayments, usePlans, useSetRenewal, useValidatePromo, useVerifyPayment } from '@/hooks/usePlans'
 import { cn } from '@/lib/cn'
 import type { MySubscription, Payment, Plan, PromoCheck } from '@/types/plan'
-import { daysLeft, dinars, fromReturn, millimes, months, paidPlan, promoReason, tnd, type Return } from './billing'
+import { daysLeft, dinars, fromReturn, millimes, months, paidPlan, promoReason, RENEW_DAYS, tnd, type Return } from './billing'
 
 const eyebrow = 'font-mono text-[11px] font-semibold uppercase tracking-[.08em]'
 const panel = 'flex flex-col gap-4 rounded-[20px] border border-line-soft bg-white p-6'
@@ -377,7 +377,10 @@ export default function BillingScreen() {
     const sub = useMySubscription()
     const plans = usePlans()
     const payments = usePayments()
+    const renewal = useSetRenewal()
+    const toast = useToast()
     const [adding, setAdding] = useState(false)
+    const [confirming, setConfirming] = useState(false)
 
     const back = fromReturn(params)
     const plan = paidPlan(plans.data?.items)
@@ -420,51 +423,109 @@ export default function BillingScreen() {
                     <h1 className="m-0 max-w-[760px] text-[44px] font-extrabold leading-[1.05]">{t('sellTitle')}</h1>
                     <p className="m-0 max-w-[700px] text-[17px] leading-[1.55] text-ink-3">{t('sellText')}</p>
                 </div>
+                {sub.data.lapsed ? (
+                    <p role="status" className="m-0 rounded-[14px] bg-warn-bg px-4 py-3 text-[15px] leading-[1.55] text-warn-fg">
+                        {t('lapsed', { date: format.dateTime(new Date(sub.data.lapsed.ends_at), { day: 'numeric', month: 'long', year: 'numeric' }) })}
+                    </p>
+                ) : null}
                 {plan ? <Pay plan={plan} extending={null} /> : <p className="m-0 rounded-2xl bg-fill-3 p-5 text-base text-ink-2">{t('noPlan')}</p>}
                 {payments.data?.length ? <Receipts payments={payments.data} /> : null}
             </main>
         )
     }
 
-    const ends = new Date(active.subscription!.ends_at)
-    const left = daysLeft(active.subscription!.ends_at)
+    const subscription = active.subscription!
+    const ends = new Date(subscription.ends_at)
+    const left = daysLeft(subscription.ends_at)
     const same = plan && plan.id === active.plan.id ? plan : undefined
+    const date = format.dateTime(ends, { day: 'numeric', month: 'long', year: 'numeric' })
+    const shortDate = format.dateTime(ends, { day: 'numeric', month: 'long' })
+    const due = subscription.renews && left <= RENEW_DAYS
+    const set = (renews: boolean) =>
+        renewal.mutate(renews, {
+            onSuccess: () => {
+                setConfirming(false)
+                toast(t(renews ? 'resumed' : 'stopped', { date: shortDate }))
+            },
+            onError: () => toast(tc('error')),
+        })
+    const price = `${dinars(active.plan.price, locale)} DT`
     return (
         <main className={cn(main, 'max-w-[900px]')}>
             <h1 className="m-0 text-[40px] font-extrabold leading-[1.05]">{t('title')}</h1>
-            <section className="flex flex-col gap-[18px] rounded-[20px] border-[1.5px] border-ink bg-white p-6 shadow-card">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                    <div className="flex flex-col gap-1.5">
-                        <span className="inline-flex h-6 items-center gap-1.5 self-start rounded-full bg-ok-bg px-2.5 text-[12.5px] font-semibold text-ok-fg">
-                            <span className="h-1.5 w-1.5 rounded-full bg-ok-dot" />
-                            {t('active')}
-                        </span>
-                        <h2 className="m-0 text-[26px] font-extrabold">{active.plan.name}</h2>
-                        <span className="text-[15px] text-ink-3">
-                            {t.rich('until', {
-                                price: `${dinars(active.plan.price, locale)} DT / ${length(active.plan.duration_days)}`,
-                                date: format.dateTime(ends, { day: 'numeric', month: 'long', year: 'numeric' }),
-                                b: (c) => <strong className="font-semibold text-ink">{c}</strong>,
-                            })}
-                        </span>
+            {subscription.renews ? (
+                <section className="flex flex-col gap-[18px] rounded-[20px] border-[1.5px] border-ink bg-white p-6 shadow-card">
+                    <div className="flex flex-wrap items-start justify-between gap-4">
+                        <div className="flex flex-col gap-1.5">
+                            <span className="inline-flex h-6 items-center gap-1.5 self-start rounded-full bg-ok-bg px-2.5 text-[12.5px] font-semibold text-ok-fg">
+                                <span className="h-1.5 w-1.5 rounded-full bg-ok-dot" />
+                                {t('active')}
+                            </span>
+                            <h2 className="m-0 text-[26px] font-extrabold">{active.plan.name}</h2>
+                            <span className="text-[15px] text-ink-3">
+                                {t.rich('renewsOn', {
+                                    price: `${price} / ${length(active.plan.duration_days)}`,
+                                    date,
+                                    b: (c) => <strong className="font-semibold text-ink">{c}</strong>,
+                                })}
+                            </span>
+                        </div>
+                        <div className="flex items-center gap-2.5 rounded-xl bg-fill-3 px-3.5 py-2.5 text-sm">
+                            <span className="flex h-6 w-6 items-center justify-center rounded-md bg-violet-soft text-violet-hover">
+                                <Icon name="lock" size={13} />
+                            </span>
+                            {t('paidOnFlouci')}
+                        </div>
                     </div>
-                    <div className="flex items-center gap-2.5 rounded-xl bg-fill-3 px-3.5 py-2.5 text-sm">
-                        <span className="flex h-6 w-6 items-center justify-center rounded-md bg-violet-soft text-violet-hover">
-                            <Icon name="lock" size={13} />
-                        </span>
-                        {t('paidOnFlouci')}
-                    </div>
-                </div>
-                <p className={cn('m-0 rounded-[14px] px-4 py-3 text-sm leading-[1.55]', left <= 5 ? 'bg-warn-bg text-warn-fg' : 'bg-fill-3 text-ink-2')}>
-                    {left <= 5 ? t('endsSoon', { count: left }) : t('noAuto')}
-                </p>
-                {same && !adding ? (
-                    <Button variant={left <= 5 ? 'primary' : 'secondary'} className="self-start" onClick={() => setAdding(true)}>
-                        {t('addTime', { length: length(same.duration_days), amount: `${dinars(same.price, locale)} DT` })}
+                    <p className={cn('m-0 rounded-[14px] px-4 py-3 text-sm leading-[1.55]', due ? 'bg-warn-bg text-warn-fg' : 'bg-fill-3 text-ink-2')}>
+                        {due ? t('renewSoon', { count: left, amount: price }) : t('renewNote')}
+                    </p>
+                    {!adding ? (
+                        <div className="flex flex-wrap gap-2">
+                            {same ? (
+                                <Button variant={due ? 'primary' : 'secondary'} onClick={() => setAdding(true)}>
+                                    {t('renewNow', { amount: price })}
+                                </Button>
+                            ) : null}
+                            <Button variant="link" className="px-3 text-sm font-semibold text-ink-3 hover:text-ink" onClick={() => setConfirming(true)}>
+                                {t('stop')}
+                            </Button>
+                        </div>
+                    ) : null}
+                    {confirming ? (
+                        <div
+                            role="alertdialog"
+                            aria-labelledby="stop-h"
+                            className="flex flex-col gap-3 rounded-[14px] border border-[#FCE3CF] bg-[#FFFAF5] p-[18px]"
+                        >
+                            <strong id="stop-h" className="text-base">
+                                {t('stopTitle')}
+                            </strong>
+                            <span className="text-sm leading-[1.55] text-ink-2">{t('stopText', { date: shortDate })}</span>
+                            <div className="flex flex-wrap gap-2">
+                                <Button size="sm" className="h-10 px-4 text-sm" onClick={() => setConfirming(false)}>
+                                    {t('keep')}
+                                </Button>
+                                <Button variant="secondary" size="sm" className="h-10 px-4 text-sm" disabled={renewal.isPending} onClick={() => set(false)}>
+                                    {t('stopYes')}
+                                </Button>
+                            </div>
+                        </div>
+                    ) : null}
+                </section>
+            ) : (
+                <section className={panel}>
+                    <span className="inline-flex h-6 items-center self-start rounded-full bg-fill px-2.5 text-[12.5px] font-semibold text-ink-2">
+                        {t('endsOn', { date: shortDate })}
+                    </span>
+                    <h2 className="m-0 text-2xl font-extrabold">{t('stoppedTitle')}</h2>
+                    <span className="text-[15px] leading-[1.55] text-ink-3">{t('stoppedText', { date })}</span>
+                    <Button className="self-start" disabled={renewal.isPending} onClick={() => set(true)}>
+                        {t('resume')}
                     </Button>
-                ) : null}
-            </section>
-            {same && adding ? <Pay plan={same} extending={active} /> : null}
+                </section>
+            )}
+            {same && adding && subscription.renews ? <Pay plan={same} extending={active} /> : null}
             <Receipts payments={payments.data ?? []} />
         </main>
     )

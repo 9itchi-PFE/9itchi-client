@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
-import { daysLeft, dinars, fromReturn, lines, millimes, months, paidPlan, promoReason, tnd } from '@/components/billing/billing'
-import type { Plan } from '@/types/plan'
+import { daysLeft, dinars, fromReturn, lines, millimes, months, paidPlan, promoReason, renewal, tnd } from '@/components/billing/billing'
+import type { Plan, Subscription } from '@/types/plan'
 
 const plan = (over: Partial<Plan>): Plan => ({ id: 'p', name: 'Mensuel', price: 35, duration_days: 30, quotas: {}, active: true, ...over })
 
@@ -62,5 +62,33 @@ describe('fromReturn', () => {
         expect(fromReturn(q('payment=success&id=../admin'))).toBeNull()
         expect(fromReturn(q('payment=success'))).toBeNull()
         expect(fromReturn(q(''))).toBeNull()
+    })
+})
+
+describe('renewal', () => {
+    const now = new Date('2026-11-24T12:00:00Z')
+    const sub = (over: Partial<Subscription>): Subscription => ({
+        id: 's',
+        plan_id: 'p',
+        status: 'active',
+        amount: 35,
+        starts_at: '2026-11-01T12:00:00Z',
+        ends_at: '2026-11-28T12:00:00Z',
+        renews: true,
+        stopped_at: null,
+        ...over,
+    })
+    it('is due in the last days of a subscription that renews', () => {
+        expect(renewal({ subscription: sub({}), is_free: false }, now)).toEqual({ kind: 'due', endsAt: '2026-11-28T12:00:00Z', days: 4 })
+        expect(renewal({ subscription: sub({ ends_at: '2026-12-20T12:00:00Z' }), is_free: false }, now)).toBeNull()
+    })
+    it('asks nothing once the student stopped it', () => {
+        expect(renewal({ subscription: sub({ renews: false, stopped_at: '2026-11-20T00:00:00Z' }), is_free: false }, now)).toBeNull()
+        expect(renewal({ subscription: null, is_free: true, lapsed: null }, now)).toBeNull()
+    })
+    it('says a subscription lapsed when it ended unpaid', () => {
+        const lapsed = sub({ ends_at: '2026-11-20T12:00:00Z' })
+        expect(renewal({ subscription: null, is_free: true, lapsed }, now)).toEqual({ kind: 'lapsed', endedAt: '2026-11-20T12:00:00Z' })
+        expect(renewal(undefined, now)).toBeNull()
     })
 })

@@ -18,12 +18,25 @@ export type PromoCode = {
     plan_ids: string[]
 }
 
-export type Subscription = { id: string; plan_id: string; status: string; amount: number; starts_at: string; ends_at: string }
+// renews: a new payment is asked when the period ends, until the student stops the subscription (nothing is charged
+// automatically). stopped_at: when they stopped it; access still lasts until ends_at.
+export type Subscription = {
+    id: string
+    plan_id: string
+    status: string
+    amount: number
+    starts_at: string
+    ends_at: string
+    renews: boolean
+    stopped_at: string | null
+}
 
 export type MySubscription = {
     subscription: Subscription | null
     plan: Plan
     is_free: boolean
+    // lapsed: on the free view, the last subscription when it ended unpaid without having been stopped.
+    lapsed?: Subscription | null
 }
 
 // PromoCheck is payments-api's price for a code on a plan (amounts in TND).
