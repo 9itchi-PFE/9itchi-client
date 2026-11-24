@@ -30,6 +30,7 @@ export type CVStyle = {
     name_font?: 'sans' | 'serif'
     heading_case?: 'capitalize' | 'uppercase'
     date_position?: 'right' | 'below'
+    header_layout?: 'stacked' | 'inline'
     photo_position?: 'left' | 'right'
     location_position?: 'line' | 'date'
     meta_order?: 'date_first' | 'location_first'
@@ -38,7 +39,7 @@ export type CVStyle = {
     subtitle_style?: TextStyle
     date_style?: TextStyle
     align?: 'left' | 'center'
-    separator?: 'bullet' | 'bar'
+    separator?: 'bullet' | 'bar' | 'icon'
     color_mode?: 'single' | 'multi'
     accent?: string
     text?: string

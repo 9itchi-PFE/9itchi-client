@@ -38,6 +38,8 @@ export type Look = {
     sep: string
     showPhoto: boolean
     photoRight: boolean
+    icons: boolean
+    inlineTitle: boolean
     bodyFont: BodyFont
     accent?: string
     text?: string
@@ -75,6 +77,8 @@ export function resolveLook(layout: Layout, s: CVStyle = {}): Look {
         sep: s.separator === 'bar' ? ' | ' : ' · ',
         showPhoto: s.show_photo !== false,
         photoRight: s.photo_position === 'right',
+        icons: s.separator ? s.separator === 'icon' : layout === 'classic',
+        inlineTitle: s.header_layout !== 'stacked' && !(s.align ? s.align === 'center' : d.center),
         bodyFont: s.body_font && BODY_FONTS[s.body_font] ? s.body_font : 'sourcesans',
         accent,
         text: multi ? hex(s.text) : undefined,

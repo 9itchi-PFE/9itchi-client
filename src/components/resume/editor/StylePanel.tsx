@@ -197,15 +197,28 @@ export default function StylePanel({ style, layout, onChange }: Props) {
                         ]}
                     />
                 </Field>
+                <Field label={t('headerLayout')}>
+                    <Segmented
+                        role="radiogroup"
+                        label={t('headerLayout')}
+                        value={s.header_layout ?? 'inline'}
+                        onChange={(v) => set({ header_layout: v })}
+                        options={[
+                            { value: 'inline', label: t('titleBesideName') },
+                            { value: 'stacked', label: t('titleBelowName') },
+                        ]}
+                    />
+                </Field>
                 <Field label={t('separator')}>
                     <Segmented
                         role="radiogroup"
                         label={t('separator')}
-                        value={s.separator ?? 'bullet'}
+                        value={s.separator ?? (look.icons ? 'icon' : 'bullet')}
                         onChange={(v) => set({ separator: v })}
                         options={[
                             { value: 'bullet', label: '•' },
                             { value: 'bar', label: '|' },
+                            { value: 'icon', label: t('icons') },
                         ]}
                     />
                 </Field>

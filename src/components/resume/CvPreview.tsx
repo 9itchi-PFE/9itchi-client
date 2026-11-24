@@ -161,18 +161,49 @@ const initials = (name: string) =>
         .map((w) => w[0]?.toUpperCase() ?? '')
         .join('')
 
+type ContactKind = 'mail' | 'phone' | 'pin' | 'linkedin' | 'github' | 'web'
+
+const CONTACT_ICONS: Record<ContactKind, string> = {
+    mail: 'M3 5h18a1 1 0 0 1 1 1v.5l-10 6.5L2 6.5V6a1 1 0 0 1 1-1zm19 3.9V18a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V8.9l10 6.5z',
+    phone: 'M6.6 10.8a15 15 0 0 0 6.6 6.6l2.2-2.2a1 1 0 0 1 1-.25 11 11 0 0 0 3.5.55 1 1 0 0 1 1 1V20a1 1 0 0 1-1 1A17 17 0 0 1 3 4a1 1 0 0 1 1-1h3.5a1 1 0 0 1 1 1c0 1.2.2 2.4.55 3.5a1 1 0 0 1-.25 1z',
+    pin: 'M12 2a7 7 0 0 0-7 7c0 5 7 13 7 13s7-8 7-13a7 7 0 0 0-7-7zm0 9.5A2.5 2.5 0 1 1 12 6.5a2.5 2.5 0 0 1 0 5z',
+    linkedin: 'M4 3h16a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zm2.3 6.5V18h2.6V9.5zM7.6 6.2a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3zM11 9.5V18h2.6v-4.3c0-1.2.6-1.9 1.6-1.9s1.4.7 1.4 1.9V18h2.6v-4.9c0-2.1-1.1-3.8-3.2-3.8-1.1 0-1.9.5-2.4 1.2V9.5z',
+    github: 'M12 2a10 10 0 0 0-3.2 19.5c.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.2-3.4-1.2-.5-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.5 2.4 1.1 3 .8.1-.7.4-1.1.6-1.4-2.2-.3-4.600-1.100-4.600-5 0-1.100.4-2 1-2.700-.1-.3-.4-1.300.1-2.700 0 0 .8-.3 2.700 1a9.300 9.300 0 0 1 5 0c1.900-1.300 2.700-1 2.700-1 .5 1.400.2 2.400.1 2.700.6.700 1 1.600 1 2.700 0 3.900-2.400 4.700-4.600 5 .4.300.7.900.7 1.800V21c0 .3.2.6.7.5A10 10 0 0 0 12 2z',
+    web: 'M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20zm0 2c.9 1.200 1.600 2.800 1.900 5h-3.800c.3-2.200 1-3.800 1.900-5zM4.300 14a8 8 0 0 1 0-4h3.800a17 17 0 0 0 0 4zm.7 2h3.300c.3 1.500.8 2.800 1.500 3.800A8 8 0 0 1 5 16zm3.300-8H5a8 8 0 0 1 4.800-3.800C9.100 5.200 8.600 6.500 8.300 8zm1.800 8h3.800c-.3 2.200-1 3.800-1.900 5-.9-1.200-1.600-2.800-1.900-5zm0-2a15 15 0 0 1 0-4h3.800a15 15 0 0 1 0 4zm4.200 5.800c.7-1 1.200-2.300 1.500-3.800H19a8 8 0 0 1-4.700 3.800zM15.900 14a17 17 0 0 0 0-4h3.800a8 8 0 0 1 0 4zM15.700 8c-.3-1.500-.8-2.800-1.500-3.800A8 8 0 0 1 19 8z',
+}
+
+function kindOfLink(l: string): ContactKind {
+    const x = l.toLowerCase()
+    return x.includes('linkedin.') ? 'linkedin' : x.includes('github.') ? 'github' : 'web'
+}
+
 function contactParts(c: ResumeContent, phonePlaceholder?: string) {
-    const parts: { text: string; kind: 'plain' | 'link' | 'missing' }[] = []
-    if (c.contact.email) parts.push({ text: c.contact.email, kind: 'plain' })
-    if (c.contact.phone) parts.push({ text: c.contact.phone, kind: 'plain' })
-    else if (phonePlaceholder) parts.push({ text: phonePlaceholder, kind: 'missing' })
-    if (c.contact.location) parts.push({ text: c.contact.location, kind: 'plain' })
-    for (const l of nonEmpty(...c.contact.links)) parts.push({ text: shortLink(l), kind: 'link' })
+    const parts: { text: string; kind: 'plain' | 'link' | 'missing'; icon: ContactKind }[] = []
+    if (c.contact.email) parts.push({ text: c.contact.email, kind: 'plain', icon: 'mail' })
+    if (c.contact.phone) parts.push({ text: c.contact.phone, kind: 'plain', icon: 'phone' })
+    else if (phonePlaceholder) parts.push({ text: phonePlaceholder, kind: 'missing', icon: 'phone' })
+    if (c.contact.location) parts.push({ text: c.contact.location, kind: 'plain', icon: 'pin' })
+    for (const l of nonEmpty(...c.contact.links)) parts.push({ text: shortLink(l), kind: 'link', icon: kindOfLink(l) })
     return parts
 }
 
 function ContactLine({ c, phonePlaceholder, linkClass, className }: { c: ResumeContent; phonePlaceholder?: string; linkClass?: string; className?: string }) {
     const { look } = useContext(Ctx)
+    if (look.icons)
+        return (
+            <span className={cn('flex flex-wrap items-center gap-x-6 gap-y-1', className)}>
+                {contactParts(c, phonePlaceholder).map((p, i) => (
+                    <span key={i} className={cn('inline-flex items-center gap-1.5', p.kind === 'missing' && 'text-warn-fg')}>
+                        <svg aria-hidden width="1.05em" height="1.05em" viewBox="0 0 24 24" fill="currentColor" className="flex-none text-[#111]">
+                            <path d={CONTACT_ICONS[p.icon]} />
+                        </svg>
+                        <span data-cv={p.kind === 'link' ? 'link' : undefined} className={cn(p.kind === 'link' && linkClass)}>
+                            {p.text}
+                        </span>
+                    </span>
+                ))}
+            </span>
+        )
     return (
         <span className={className}>
             {contactParts(c, phonePlaceholder).map((p, i) => (
@@ -337,14 +368,20 @@ function Classic({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                     </span>
                 ) : null}
                 <div className="flex min-w-0 flex-1 flex-col gap-[3px]">
-                    <span data-cv="name" className={cn('font-bold leading-[1.1] text-[#111]', look.nameSerif ? 'font-cvserif' : 'font-cv')} style={{ fontSize: look.name }}>
-                        {c.contact.name}
-                    </span>
-                    {c.contact.headline ? (
-                        <span data-cv="title" className="tracking-[.02em] text-cv-blue [font-variant:small-caps]" style={{ fontSize: look.title }}>
-                            {c.contact.headline}
+                    <div className={cn('flex flex-wrap items-baseline gap-x-3', look.inlineTitle ? '' : 'flex-col gap-y-[3px]')}>
+                        <span data-cv="name" className={cn('font-bold leading-[1.1] text-[#111]', look.nameSerif ? 'font-cvserif' : 'font-cv')} style={{ fontSize: look.name }}>
+                            {c.contact.name}
                         </span>
-                    ) : null}
+                        {c.contact.headline ? (
+                            <span
+                                data-cv="title"
+                                className={cn('text-cv-blue', look.inlineTitle ? 'italic' : 'tracking-[.02em] [font-variant:small-caps]')}
+                                style={{ fontSize: look.title }}
+                            >
+                                {c.contact.headline}
+                            </span>
+                        ) : null}
+                    </div>
                     <ContactLine c={c} phonePlaceholder={phonePlaceholder} linkClass="font-mono text-cv-blue" className="text-[9.5px] text-[#333]" />
                 </div>
             </Mark>
