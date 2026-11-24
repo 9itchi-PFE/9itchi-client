@@ -1527,6 +1527,8 @@
         "seeOffers": "Voir les offres",
         "seeOffer": "Voir l’offre",
         "checkCv": "Vérifier mon CV",
+        "gifted": "L’équipe 9itchi t’offre un mois : ton abonnement va jusqu’au {day, date, ::dMMMM}.",
+        "seeBilling": "Voir mon abonnement",
         "alsoByEmail": "Tu reçois aussi les plus importantes par email. Choisis lesquelles dans <link>Paramètres → Alertes</link>.",
         "emptyTitle": "Tu es à jour",
         "emptyText": "Quand une entreprise ouvre ta candidature ou qu’un envoi programmé part, tu le vois ici et par email.",
