@@ -6,6 +6,7 @@ export const billingKeys = {
     plans: ['plans'] as const,
     subscription: ['subscription'] as const,
     payments: ['payments'] as const,
+    issuer: ['receipt-issuer'] as const,
 }
 
 export function usePlans() {
@@ -19,6 +20,11 @@ export function useMySubscription() {
 // usePayments lists the completed payments: the receipts.
 export function usePayments() {
     return useQuery({ queryKey: billingKeys.payments, queryFn: async () => (await PaymentService.listPayments()).data.items })
+}
+
+// useReceiptIssuer reads the legal information of the receipts. It changes rarely: one read is kept for the visit.
+export function useReceiptIssuer() {
+    return useQuery({ queryKey: billingKeys.issuer, queryFn: async () => (await PaymentService.receiptIssuer()).data, staleTime: Infinity })
 }
 
 export function useValidatePromo() {

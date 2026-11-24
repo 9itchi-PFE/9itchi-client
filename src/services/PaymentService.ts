@@ -1,4 +1,4 @@
-import type { Checkout, MySubscription, Payment, Plan, PromoCheck } from '@/types/plan'
+import type { Checkout, MySubscription, Payment, Plan, PromoCheck, ReceiptIssuer } from '@/types/plan'
 import { api } from './ApiService'
 
 const PaymentService = {
@@ -16,6 +16,8 @@ const PaymentService = {
     listPayments: () => api('payments').get<{ items: Payment[] }>(`/payments`),
     // verifyPayment asks where a payment stands after the return from Flouci (payments-api re-checks it with Flouci).
     verifyPayment: (id: string) => api('payments').post<Payment>(`/payments/${id}/verify`),
+    // receiptIssuer is who issues the receipts (legal name, address, tax id, VAT wording), as the admin filled it in.
+    receiptIssuer: () => api('payments').get<ReceiptIssuer>(`/receipt-issuer`),
     // cancel stops the renewal (access lasts until the period ends); resume renews again.
     cancelSubscription: () => api('payments').post<MySubscription>(`/subscriptions/cancel`),
     resumeSubscription: () => api('payments').post<MySubscription>(`/subscriptions/resume`),

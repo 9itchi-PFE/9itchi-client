@@ -12,7 +12,7 @@ import { useToast } from '@/components/ui/Toast'
 import { useCheckout, useMySubscription, usePayments, usePlans, useSetRenewal, useValidatePromo, useVerifyPayment } from '@/hooks/usePlans'
 import { cn } from '@/lib/cn'
 import type { MySubscription, Payment, Plan, PromoCheck } from '@/types/plan'
-import { daysLeft, dinars, fromReturn, millimes, months, paidPlan, promoReason, RENEW_DAYS, tnd, type Return } from './billing'
+import { RENEW_DAYS, daysLeft, dinars, fromReturn, millimes, months, paidPlan, promoReason, regularOf, tnd, type Return } from './billing'
 
 const eyebrow = 'font-mono text-[11px] font-semibold uppercase tracking-[.08em]'
 const panel = 'flex flex-col gap-4 rounded-[20px] border border-line-soft bg-white p-6'
@@ -43,6 +43,7 @@ function Pay({ plan, extending }: { plan: Plan; extending: MySubscription | null
     const [leaving, setLeaving] = useState(false)
 
     const price = millimes(plan.price)
+    const regular = regularOf(plan)
     const due = promo ? millimes(promo.check.final_price) : price
     const amount = `${tnd(due, locale)} TND`
 
@@ -94,9 +95,20 @@ function Pay({ plan, extending }: { plan: Plan; extending: MySubscription | null
                     <div className="flex flex-wrap items-center justify-between gap-4 rounded-[20px] border-[1.5px] border-ink bg-white px-6 py-5">
                         <div className="flex flex-col gap-1">
                             <strong className="text-[17px] font-semibold">{plan.name}</strong>
+                            {regular ? (
+                                <span className="inline-flex h-6 flex-none items-center self-start rounded-full bg-lime px-[9px] text-xs font-bold">
+                                    {t('launchPrice')}
+                                </span>
+                            ) : null}
                             <span className="text-sm text-ink-3">{t('oneOff', { length: length(plan.duration_days) })}</span>
                         </div>
                         <span className="flex items-baseline gap-2">
+                            {regular ? (
+                                <s dir="ltr" className="text-base text-ink-3">
+                                    <span className="sr-only">{t('regularPrice')} </span>
+                                    {dinars(plan.regular_price ?? 0, locale)} DT
+                                </s>
+                            ) : null}
                             <strong dir="ltr" className="font-display text-[34px] font-extrabold leading-none">
                                 {dinars(plan.price, locale)} DT
                             </strong>
@@ -188,7 +200,15 @@ function Pay({ plan, extending }: { plan: Plan; extending: MySubscription | null
                         <dt>
                             {plan.name} · {length(plan.duration_days)}
                         </dt>
-                        <dd className="m-0 tabular-nums">{tnd(price, locale)} TND</dd>
+                        <dd className="m-0 tabular-nums">
+                            {regular ? (
+                                <s className="me-1.5 text-ink-3">
+                                    <span className="sr-only">{t('regularPrice')} </span>
+                                    {tnd(regular, locale)}
+                                </s>
+                            ) : null}
+                            {tnd(price, locale)} TND
+                        </dd>
                     </div>
                     {promo ? (
                         <div className="flex justify-between gap-3 text-ok-fg">
