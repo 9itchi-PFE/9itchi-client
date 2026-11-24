@@ -54,3 +54,14 @@ describe('visibleEntries', () => {
         expect(v.projects).toHaveLength(1)
     })
 })
+
+describe('accent spots', () => {
+    it('colors only the picked spot and keeps an empty pick empty', () => {
+        const only = { accent: '#ff0000', accent_on: ['dates' as const] }
+        const css = lookCss(resolveLook('classic', only), only)
+        expect(css).toContain('[data-cv=date]{color:#ff0000;}')
+        expect(css).toContain('[data-cv=loc]{color:inherit;}')
+        const none = { accent: '#ff0000', accent_on: [] }
+        expect(resolveLook('classic', none).accents('dates')).toBe(false)
+    })
+})

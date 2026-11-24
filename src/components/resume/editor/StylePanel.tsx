@@ -3,12 +3,14 @@
 import { useState, type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
 import { Segmented } from '@/components/ui/Segmented'
+import { Button } from '@/components/ui/Button'
+import { Check } from './Check'
 import { BODY_FONTS, resolveLook } from '@/lib/cvLook'
 import type { AccentTarget, BodyFont, CVStyle, Layout, TextStyle as TextStyleT } from '@/types/resume'
 import ShowSwitch from './ShowSwitch'
 
-const TARGETS: AccentTarget[] = ['name', 'title', 'headings', 'rules', 'dates', 'entry_title', 'links']
-const DEFAULT_TARGETS: AccentTarget[] = ['title', 'headings', 'rules', 'entry_title', 'links']
+const TARGETS: AccentTarget[] = ['name', 'title', 'headings', 'rules', 'dates', 'location', 'entry_title', 'subtitle', 'links']
+const DEFAULT_TARGETS: AccentTarget[] = ['title', 'headings', 'rules', 'entry_title', 'subtitle', 'links']
 const ACCENT_DEFAULT: Record<Layout, string> = { classic: '#2F5597', modern: '#1F2A44', compact: '#111111' }
 
 type Props = { style: CVStyle | undefined; layout: Layout; onChange: (s: CVStyle | undefined) => void }
@@ -28,7 +30,7 @@ export default function StylePanel({ style, layout, onChange }: Props) {
     const s = style ?? {}
     const look = resolveLook(layout, s)
     const set = (patch: Partial<CVStyle>) => onChange(clean({ ...s, ...patch }))
-    const targets = s.accent_on?.length ? s.accent_on : DEFAULT_TARGETS
+    const targets = s.accent_on ?? DEFAULT_TARGETS
     const multi = s.color_mode === 'multi'
 
     return (
@@ -118,10 +120,9 @@ export default function StylePanel({ style, layout, onChange }: Props) {
                         ]}
                     />
                 </Field>
-                <label className="flex items-center gap-2 font-medium text-ink-2">
-                    <input type="checkbox" checked={look.indent} onChange={(e) => set({ indent_body: e.target.checked ? undefined : false })} />
+                <Check checked={look.indent} onChange={(on) => set({ indent_body: on ? undefined : false })}>
                     {t('indentBody')}
-                </label>
+                </Check>
             </Group>
             <Group id="typography" cat={cat}>
                 <Field label={t('capitalization')}>
@@ -136,10 +137,9 @@ export default function StylePanel({ style, layout, onChange }: Props) {
                         ]}
                     />
                 </Field>
-                <label className="flex items-center gap-2 text-sm">
-                    <input type="checkbox" checked={look.headBold} onChange={(e) => set({ heading_bold: e.target.checked })} />
+                <Check checked={look.headBold} onChange={(on) => set({ heading_bold: on })}>
                     {t('headingBold')}
-                </label>
+                </Check>
                 <Field label={t('nameFont')}>
                     <Segmented
                         role="radiogroup"
@@ -176,15 +176,10 @@ export default function StylePanel({ style, layout, onChange }: Props) {
                 ) : null}
                 <fieldset className="m-0 flex flex-col gap-1 border-0 p-0">
                     <legend className="mb-1 p-0 font-medium">{t('applyAccent')}</legend>
-                    {TARGETS.map((k) => (
-                        <label key={k} className="flex cursor-pointer items-center gap-2">
-                            <input
-                                type="checkbox"
-                                checked={targets.includes(k)}
-                                onChange={(e) => set({ accent_on: TARGETS.filter((x) => (x === k ? e.target.checked : targets.includes(x))) })}
-                            />
+                    {TARGETS.filter((k) => k !== 'subtitle' || layout === 'classic').map((k) => (
+                        <Check key={k} checked={targets.includes(k)} onChange={(on) => set({ accent_on: TARGETS.filter((x) => (x === k ? on : targets.includes(x))) })}>
                             {t(`target.${k}`)}
-                        </label>
+                        </Check>
                     ))}
                 </fieldset>
             </Group>
@@ -257,14 +252,9 @@ export default function StylePanel({ style, layout, onChange }: Props) {
                     </div>
                 </Field>
             </Group>
-            <button
-                type="button"
-                onClick={() => onChange(undefined)}
-                disabled={!style}
-                className="h-9 cursor-pointer self-start rounded-[10px] border border-line-strong bg-white px-3 text-[13px] font-medium text-ink-2 enabled:hover:bg-fill-3 disabled:cursor-default disabled:opacity-50"
-            >
+            <Button variant="secondary" size="sm" className="self-start" onClick={() => onChange(undefined)} disabled={!style}>
                 {t('reset')}
-            </button>
+            </Button>
         </div>
     )
 }
@@ -276,7 +266,7 @@ function Group({ id, cat, children }: { id: Cat; cat: Cat; children: ReactNode }
 
 function FontPicker({ value, onChange }: { value: BodyFont; onChange: (v: BodyFont) => void }) {
     return (
-        <div role="radiogroup" aria-label="Font" className="grid grid-cols-2 gap-1.5">
+        <div role="radiogroup" aria-label="Font" className="grid max-h-[280px] grid-cols-2 gap-2 overflow-y-auto pe-1">
             {(Object.keys(BODY_FONTS) as BodyFont[]).map((k) => (
                 <button
                     key={k}

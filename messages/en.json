@@ -184,7 +184,9 @@
                 "headings": "Headings",
                 "rules": "Heading lines",
                 "dates": "Dates",
+                "location": "Location",
                 "entry_title": "Entry titles",
+                "subtitle": "Company / school",
                 "links": "Links"
             },
             "header": "Header",

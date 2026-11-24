@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { cn } from '@/lib/cn'
 import { lookCss, mmToPx, resolveLook, type Look } from '@/lib/cvLook'
-import { visibleEntries, visibleSections, type Layout, type ResumeContent } from '@/types/resume'
+import { LOC_MARK, visibleEntries, visibleSections, type Layout, type ResumeContent } from '@/types/resume'
 import { Rich } from './RichText'
 import { cvHeadings, dates, join, nonEmpty, shortLink, splitLanguage, type CvLanguage } from './cvText'
 
@@ -130,6 +130,13 @@ function Mark({ k, children, className, head }: { k: string; children: ReactNode
         </div>
     )
 }
+
+// Meta prints the right-hand cell of a row: dates, with a location folded in between invisible marks kept apart so each takes its own accent.
+const Meta = ({ t, k = 'date' }: { t?: string; k?: 'date' | 'loc' }) => (
+    <>
+        {(t ?? '').split(LOC_MARK).map((p, i) => (p ? <span key={i} data-cv={i % 2 ? 'loc' : k}>{p}</span> : null))}
+    </>
+)
 
 const Row = ({ left, right, className }: { left: ReactNode; right?: ReactNode; className?: string }) => (
     <div data-cv="row" className={cn('flex justify-between gap-2.5', className)}>
@@ -270,8 +277,8 @@ function Classic({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                 {head(h.education)}
                 {c.education.map((e, i) => (
                     <div key={i} className={cn(i > 0 && 'mt-[3px]')}>
-                        <Row left={<Lnk url={e.url}><strong><Rich text={e.degree} /></strong></Lnk>} right={dates(e.start, e.end)} />
-                        <Row left={<span data-cv="sub"><Rich text={e.school} /></span>} right={e.location} />
+                        <Row left={<Lnk url={e.url}><strong data-cv="etitle"><Rich text={e.degree} /></strong></Lnk>} right={<Meta t={dates(e.start, e.end)} />} />
+                        <Row left={<span data-cv="sub"><Rich text={e.school} /></span>} right={<Meta t={e.location} k="loc" />} />
                     </div>
                 ))}
             </Mark>
@@ -282,7 +289,7 @@ function Classic({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                 {head(h.experience)}
                 {c.experience.map((e, i) => (
                     <div key={i} className={cn(i > 0 && 'mt-[3px]')}>
-                        <Row left={<strong><Rich text={e.title} /></strong>} right={<strong>{dates(e.start, e.end)}</strong>} />
+                        <Row left={<strong data-cv="etitle"><Rich text={e.title} /></strong>} right={<strong><Meta t={dates(e.start, e.end)} /></strong>} />
                         <Row
                             left={
                                 <>
@@ -290,7 +297,7 @@ function Classic({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                                     {e.kind ? ` (${e.kind})` : ''}
                                 </>
                             }
-                            right={e.location}
+                            right={<Meta t={e.location} k="loc" />}
                         />
                         <Bullets lines={e.description} />
                     </div>
@@ -303,7 +310,7 @@ function Classic({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                 {head(h.projects)}
                 {c.projects.map((p, i) => (
                     <div key={i}>
-                        <Row left={<Lnk url={p.url}><strong><Rich text={p.name} /></strong></Lnk>} right={p.year} />
+                        <Row left={<Lnk url={p.url}><strong data-cv="etitle"><Rich text={p.name} /></strong></Lnk>} right={<Meta t={p.year} />} />
                         <Bullets lines={p.description} /><Tech p={p} />
                     </div>
                 ))}
@@ -333,11 +340,11 @@ function Classic({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                         key={i}
                         left={
                             <>
-                                <Lnk url={x.url}><strong><Rich text={x.name} /></strong></Lnk>
+                                <Lnk url={x.url}><strong data-cv="etitle"><Rich text={x.name} /></strong></Lnk>
                                 {x.issuer ? `, ${x.issuer}` : ''}
                             </>
                         }
-                        right={x.year}
+                        right={<Meta t={x.year} />}
                     />
                 ))}
             </Mark>
@@ -441,8 +448,8 @@ function Modern({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                 {head(h.education)}
                 {c.education.map((e, i) => (
                     <div key={i} className="mb-0.5">
-                        <Row left={<Lnk url={e.url}><strong><Rich text={join(' — ', e.school, e.degree)} /></strong></Lnk>} right={<span className="text-ink-3">{dates(e.start, e.end)}</span>} />
-                        {e.location ? <div data-cv="sub" className="text-ink-3">{e.location}</div> : null}
+                        <Row left={<Lnk url={e.url}><strong data-cv="etitle"><Rich text={join(' — ', e.school, e.degree)} /></strong></Lnk>} right={<span className="text-ink-3"><Meta t={dates(e.start, e.end)} /></span>} />
+                        {e.location ? <div data-cv="loc" className="text-ink-3">{e.location}</div> : null}
                     </div>
                 ))}
             </Mark>
@@ -453,8 +460,14 @@ function Modern({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                 {head(h.experience)}
                 {c.experience.map((e, i) => (
                     <div key={i} className="mb-0.5">
-                        <Row left={<Lnk url={e.url}><strong><Rich text={join(' — ', e.title, e.company)} /></strong></Lnk>} right={<span className="text-ink-3">{dates(e.start, e.end)}</span>} />
-                        {join(' · ', e.kind, e.location) ? <div data-cv="sub" className="text-ink-3">{join(' · ', e.kind, e.location)}</div> : null}
+                        <Row left={<Lnk url={e.url}><strong data-cv="etitle"><Rich text={join(' — ', e.title, e.company)} /></strong></Lnk>} right={<span className="text-ink-3"><Meta t={dates(e.start, e.end)} /></span>} />
+                        {join(' · ', e.kind, e.location) ? (
+                        <div className="text-ink-3">
+                            {e.kind}
+                            {e.kind && e.location ? ' · ' : null}
+                            {e.location ? <span data-cv="loc">{e.location}</span> : null}
+                        </div>
+                    ) : null}
                         <Bullets lines={e.description} />
                     </div>
                 ))}
@@ -466,7 +479,7 @@ function Modern({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                 {head(h.projects)}
                 {c.projects.map((p, i) => (
                     <div key={i} className="mb-0.5">
-                        <Row left={<Lnk url={p.url}><strong><Rich text={p.name} /></strong></Lnk>} right={<span className="text-ink-3">{p.year}</span>} />
+                        <Row left={<Lnk url={p.url}><strong data-cv="etitle"><Rich text={p.name} /></strong></Lnk>} right={<span className="text-ink-3"><Meta t={p.year} /></span>} />
                         <Bullets lines={p.description} /><Tech p={p} />
                     </div>
                 ))}
@@ -481,11 +494,11 @@ function Modern({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                         key={i}
                         left={
                             <>
-                                <Lnk url={x.url}><strong><Rich text={x.name} /></strong></Lnk>
+                                <Lnk url={x.url}><strong data-cv="etitle"><Rich text={x.name} /></strong></Lnk>
                                 <span className="text-ink-3">{x.issuer ? `, ${x.issuer}` : ''}</span>
                             </>
                         }
-                        right={<span className="text-ink-3">{x.year}</span>}
+                        right={<span className="text-ink-3"><Meta t={x.year} /></span>}
                     />
                 ))}
             </Mark>
@@ -555,7 +568,7 @@ function Compact({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
             <Mark key="education" k="education">
                 {head(h.education)}
                 {c.education.map((e, i) => (
-                    <Row key={i} left={<Lnk url={e.url}><strong><Rich text={join(' — ', e.school, e.degree)} /></strong></Lnk>} right={dates(e.start, e.end)} />
+                    <Row key={i} left={<Lnk url={e.url}><strong data-cv="etitle"><Rich text={join(' — ', e.school, e.degree)} /></strong></Lnk>} right={<Meta t={dates(e.start, e.end)} />} />
                 ))}
             </Mark>
         )
@@ -568,11 +581,11 @@ function Compact({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                         <Row
                             left={
                                 <>
-                                    <Lnk url={e.url}><strong><Rich text={join(' : ', e.company, e.title)} /></strong></Lnk>
-                                    {e.location ? `, ${e.location}` : ''}
+                                    <Lnk url={e.url}><strong data-cv="etitle"><Rich text={join(' : ', e.company, e.title)} /></strong></Lnk>
+                                    {e.location ? <span data-cv="loc">{`, ${e.location}`}</span> : null}
                                 </>
                             }
-                            right={dates(e.start, e.end)}
+                            right={<Meta t={dates(e.start, e.end)} />}
                         />
                         <Bullets lines={e.description} />
                     </div>
@@ -588,10 +601,10 @@ function Compact({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                         <Row
                             left={
                                 <>
-                                    <Lnk url={p.url}><strong><Rich text={p.name} /></strong></Lnk>
+                                    <Lnk url={p.url}><strong data-cv="etitle"><Rich text={p.name} /></strong></Lnk>
                                 </>
                             }
-                            right={p.year}
+                            right={<Meta t={p.year} />}
                         />
                         <Bullets lines={p.description} /><Tech p={p} />
                     </div>
@@ -623,11 +636,11 @@ function Compact({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                         key={i}
                         left={
                             <>
-                                <Lnk url={x.url}><strong><Rich text={x.name} /></strong></Lnk>
+                                <Lnk url={x.url}><strong data-cv="etitle"><Rich text={x.name} /></strong></Lnk>
                                 {x.issuer ? `, ${x.issuer}` : ''}
                             </>
                         }
-                        right={x.year}
+                        right={<Meta t={x.year} />}
                     />
                 ))}
             </Mark>

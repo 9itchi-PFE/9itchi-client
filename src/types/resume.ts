@@ -50,8 +50,8 @@ export type CVStyle = {
     show_photo?: boolean
     body_font?: BodyFont
 }
-export type BodyFont = 'sourcesans' | 'lato' | 'carlito' | 'tinos'
-export type AccentTarget = 'name' | 'title' | 'headings' | 'rules' | 'dates' | 'entry_title' | 'links'
+export type BodyFont = 'sourcesans' | 'lato' | 'carlito' | 'tinos' | 'amiri' | 'ptsans' | 'ptserif' | 'crimson'
+export type AccentTarget = 'name' | 'title' | 'headings' | 'rules' | 'dates' | 'location' | 'entry_title' | 'subtitle' | 'links'
 
 export type ResumeContent = {
     contact: Contact
@@ -87,12 +87,16 @@ export function visibleSections(c: Pick<ResumeContent, 'extra' | 'section_order'
     return sectionOrder(c).filter((k) => !hidden.has(k))
 }
 
+// LOC_MARK wraps a location folded into the dates, so the preview can color the two apart; it is invisible.
+export const LOC_MARK = '\u2063'
+
 // metaText is the right-hand text of an entry: its dates and, when the style asks for it, the location beside them.
 export function metaText(start: string | undefined, end: string | undefined, loc: string | undefined, style?: CVStyle): string {
     const dates = [start, end].map((x) => (x ?? '').trim()).filter(Boolean).join(' — ')
     const l = (loc ?? '').trim()
     if (!l || style?.location_position !== 'date') return dates
-    return (style?.meta_order === 'location_first' ? [l, dates] : [dates, l]).filter(Boolean).join(' · ')
+    const marked = LOC_MARK + l + LOC_MARK
+    return (style?.meta_order === 'location_first' ? [marked, dates] : [dates, marked]).filter(Boolean).join(' · ')
 }
 
 // visibleEntries drops entries the user hid and folds each entry's dates and location into what is printed; mirrors Go visibleEntries.

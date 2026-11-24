@@ -6,6 +6,10 @@ export const BODY_FONTS: Record<BodyFont, { label: string; stack: string }> = {
     lato: { label: 'Lato', stack: '"Lato","Noto Sans Arabic Variable",sans-serif' },
     carlito: { label: 'Calibri', stack: '"Carlito","Noto Sans Arabic Variable",sans-serif' },
     tinos: { label: 'Times New Roman', stack: '"Tinos","Times New Roman",serif' },
+    amiri: { label: 'Amiri', stack: '"Amiri","Noto Sans Arabic Variable",serif' },
+    ptsans: { label: 'PT Sans', stack: '"PT Sans","Noto Sans Arabic Variable",sans-serif' },
+    ptserif: { label: 'PT Serif', stack: '"PT Serif","Noto Sans Arabic Variable",serif' },
+    crimson: { label: 'Crimson Text', stack: '"Crimson Text","Noto Sans Arabic Variable",serif' },
 }
 
 // Mirrors resume-api core/pdf_style.go (layoutLooks + newLook): the preview and the exports resolve a style the same way.
@@ -17,7 +21,7 @@ export const layoutLooks: Record<Layout, LayoutLook> = {
     compact: { base: 10, name: 17, title: 10, head: 11, mx: 15, my: 12, upper: true, nameSerif: false, center: true },
 }
 
-export const DEFAULT_ACCENT_TARGETS = ['title', 'headings', 'rules', 'entry_title', 'links'] as const
+export const DEFAULT_ACCENT_TARGETS = ['title', 'headings', 'rules', 'entry_title', 'subtitle', 'links'] as const
 
 export type Look = {
     base: number
@@ -58,7 +62,7 @@ export function resolveLook(layout: Layout, s: CVStyle = {}): Look {
     const d = layoutLooks[layout] ?? layoutLooks.classic
     const base = s.base_size ?? d.base
     const accent = hex(s.accent)
-    const targets: readonly string[] = s.accent_on?.length ? s.accent_on : DEFAULT_ACCENT_TARGETS
+    const targets: readonly string[] = s.accent_on ?? DEFAULT_ACCENT_TARGETS
     const multi = s.color_mode === 'multi'
     return {
         base,
@@ -111,8 +115,14 @@ export function lookCss(l: Look, explicit: CVStyle = {}): string {
     const ts = (v?: string) => (v === 'bold' ? 'font-weight:700;font-style:normal;' : v === 'italic' ? 'font-style:italic;font-weight:400;' : v === 'normal' ? 'font-style:normal;font-weight:400;' : '')
     rule('[data-cv=sub]', ts(explicit.subtitle_style))
     rule('[data-cv=row] > span:last-child', ts(explicit.date_style))
-    if (l.accents('dates')) rule('[data-cv=row] > span:last-child', `color:${l.accent};`)
-    if (l.accents('entry_title')) rule('[data-sec] strong', `color:${l.accent};`)
+    if (explicit.accent) {
+        // a spot that was not picked is neutral, even where the template paints it by itself
+        const spot = (sel: string, target: string) => rule(sel, `color:${l.accents(target) ? l.accent : 'inherit'};`)
+        spot('[data-cv=date]', 'dates')
+        spot('[data-cv=loc]', 'location')
+        spot('[data-cv=etitle]', 'entry_title')
+        spot('[data-cv=sub]', 'subtitle')
+    }
     if (l.accents('links')) rule('[data-cv=link]', `color:${l.accent};`)
     if (explicit.align) {
         rule('[data-cv=head]', `text-align:${l.center ? 'center' : 'start'};align-items:${l.center ? 'center' : 'flex-start'};`)

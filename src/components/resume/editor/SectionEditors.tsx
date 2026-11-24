@@ -10,6 +10,7 @@ import type { ResumeContent } from '@/types/resume'
 import { splitLanguage } from '../cvText'
 import { strip, wrap } from '../RichText'
 import { checkLine } from './bulletChecks'
+import { Check } from './Check'
 import type { Section } from './sections'
 
 export type EditorProps = {
@@ -205,7 +206,7 @@ export function Lines({
                     </div>
                 )
             })}
-            <Button variant="dashed" className="h-10 self-start rounded-[10px] font-medium" onClick={() => onChange([...list, ''])}>
+            <Button variant="dashed" className="self-start" onClick={() => onChange([...list, ''])}>
                 {t('addLine')}
             </Button>
         </>
@@ -566,10 +567,9 @@ export function ProjectsEditor(p: EditorProps) {
                     </Grid>
                     <UrlField value={e.url} onChange={(url) => set({ ...e, url })} />
                     <Lines lines={e.description} language={p.language} focusLine={p.focusLine} onChange={(description) => set({ ...e, description })} />
-                    <label className="flex items-center gap-2 text-[13.5px] font-medium text-ink-2">
-                        <input type="checkbox" checked={!e.hide_tech} onChange={(x) => set({ ...e, hide_tech: !x.target.checked })} />
+                    <Check checked={!e.hide_tech} onChange={(on) => set({ ...e, hide_tech: !on })}>
                         {t('fields.showTech')}
-                    </label>
+                    </Check>
                 </>
             )}
         />

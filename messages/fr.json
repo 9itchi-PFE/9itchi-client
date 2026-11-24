@@ -184,7 +184,9 @@
                 "headings": "Titres",
                 "rules": "Traits des titres",
                 "dates": "Dates",
+                "location": "Lieu",
                 "entry_title": "Titres d'entrée",
+                "subtitle": "Entreprise / école",
                 "links": "Liens"
             },
             "header": "En-tête",

@@ -7,14 +7,14 @@ type Size = 'sm' | 'md' | 'lg'
 
 const variants: Record<Variant, string> = {
     primary: 'bg-ink text-white hover:bg-black border-0',
-    secondary: 'border border-line-strong bg-white text-ink hover:bg-fill-3',
+    secondary: 'border border-line-strong bg-white text-ink shadow-[0_1px_0_rgba(16,24,40,.04)] hover:bg-fill-3',
     ghost: 'border-0 bg-fill text-ink-2 hover:bg-line-soft',
     link: 'border-0 bg-transparent px-0 text-violet hover:text-violet-hover',
     dashed: 'border border-dashed border-[#C9CDD5] bg-transparent text-ink-2 hover:bg-white',
 }
 const sizes: Record<Size, string> = {
-    sm: 'h-[34px] rounded-[9px] px-3 text-[13.5px] font-semibold',
-    md: 'h-[42px] rounded-xl px-[18px] text-sm font-semibold',
+    sm: 'h-9 rounded-[10px] px-3.5 text-[13.5px] font-semibold',
+    md: 'h-[42px] rounded-[12px] px-[18px] text-sm font-semibold',
     lg: 'h-[52px] rounded-[14px] px-6 text-[15.5px] font-semibold',
 }
 

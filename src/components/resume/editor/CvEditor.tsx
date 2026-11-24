@@ -1,11 +1,10 @@
 'use client'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import Link from 'next/link'
 import { useSearchParams } from 'next/navigation'
 import { useFormatter, useTranslations } from 'next-intl'
 import { useQueryClient } from '@tanstack/react-query'
-import { Button } from '@/components/ui/Button'
+import { Button, ButtonLink } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/icons'
 import { Modal } from '@/components/ui/Modal'
 import { Segmented } from '@/components/ui/Segmented'
@@ -248,13 +247,14 @@ function Editor({ resume: initial }: { resume: Resume }) {
                     </p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2">
-                    <Button variant="secondary" className="px-3.5 font-medium" onClick={() => setVersionsOpen(true)}>
+                    <Button variant="secondary" onClick={() => setVersionsOpen(true)}>
                         <Icon name="history" />
                         {t('versions', { count: isSubscriber ? (resumes?.total ?? 1) : 1 })}
                     </Button>
-                    <Link
+                    <ButtonLink
+                        variant="secondary"
                         href={`/resumes/templates?cv=${id}`}
-                        className="inline-flex h-[42px] items-center gap-2 rounded-xl border border-line-strong bg-white px-3.5 text-sm font-medium text-ink no-underline hover:text-ink"
+                        className="hover:text-ink"
                         aria-label={t('template', { name: templateName })}
                     >
                         <span
@@ -266,7 +266,7 @@ function Editor({ resume: initial }: { resume: Resume }) {
                         />
                         {templateName}
                         <Icon name="chevron" size={15} />
-                    </Link>
+                    </ButtonLink>
                     <Segmented
                         role="radiogroup"
                         label={t('cvLanguage')}
@@ -420,7 +420,7 @@ function Editor({ resume: initial }: { resume: Resume }) {
                 <p className="m-0 text-[15px] text-ink-3">{t('addSectionText')}</p>
                 <div className="grid grid-cols-2 gap-2">
                     {EXTRA_KINDS.map((k) => (
-                        <Button key={k} variant="secondary" className="h-12 justify-start font-medium" onClick={() => addExtra(k)}>
+                        <Button key={k} variant="secondary" className="justify-start" onClick={() => addExtra(k)}>
                             {t(`extraKinds.${k}`)}
                         </Button>
                     ))}
