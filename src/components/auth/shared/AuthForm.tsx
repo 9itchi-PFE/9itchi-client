@@ -72,10 +72,7 @@ export function SsoButtons() {
         <>
             <div className="flex flex-col gap-2.5">
                 <a href={`${accountUrl()}/auth/google`} className={ssoClass}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#344054" strokeWidth="2" aria-hidden>
-                        <circle cx="12" cy="12" r="9" />
-                        <path d="M12 12h8" />
-                    </svg>
+                    <img src="/img/google.png" alt="" width={20} height={20} />
                     {t('google')}
                 </a>
                 <a href={`${accountUrl()}/auth/linkedin`} className={ssoClass}>

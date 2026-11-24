@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { LOCALE_COOKIE, isLocale } from '@/i18n/locales'
 
 const labels = { fr: 'FR', en: 'EN', ar: 'عربي' } as const
+const flags = { fr: 'FR', en: 'UK', ar: 'SA' } as const
 
 // LanguageSelect stores the choice in a cookie read by i18n/request.ts, then re-renders the page.
 export default function LanguageSelect() {
@@ -14,7 +15,8 @@ export default function LanguageSelect() {
     const router = useRouter()
     const [pending, start] = useTransition()
     return (
-        <label>
+        <label className="relative inline-block">
+            <img src={`/img/countries/${flags[locale as keyof typeof flags] ?? 'FR'}.png`} alt="" width={20} height={20} className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 rounded-full object-cover" />
             <span className="sr-only">{t('language')}</span>
             <select
                 value={locale}
@@ -25,7 +27,7 @@ export default function LanguageSelect() {
                     document.cookie = `${LOCALE_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`
                     start(() => router.refresh())
                 }}
-                className="h-10 cursor-pointer rounded-full border border-line bg-white px-2.5 text-[13.5px] font-medium text-ink-2"
+                className="h-10 cursor-pointer rounded-full border border-line bg-white ps-9 pe-2.5 text-[13.5px] font-medium text-ink-2"
             >
                 {Object.entries(labels).map(([value, label]) => (
                     <option key={value} value={value}>
