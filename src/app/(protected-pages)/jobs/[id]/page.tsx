@@ -1,5 +1,6 @@
-import PagePlaceholder from '@/components/ui/PagePlaceholder'
+import JobPage from '@/components/jobs/JobPage'
 
-export default function Page() {
-    return <PagePlaceholder title="Job detail" description="One-click apply." />
+export default async function Page({ params }: { params: Promise<{ id: string }> }) {
+    const { id } = await params
+    return <JobPage id={id} />
 }

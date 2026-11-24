@@ -5,6 +5,7 @@ export const protectedRoutes: Record<string, string[]> = {
     '/dashboard': [CANDIDATE, ADMIN],
     '/resumes': [CANDIDATE],
     '/jobs': [CANDIDATE],
+    '/books': [CANDIDATE],
     '/applications': [CANDIDATE],
     '/emails': [CANDIDATE],
     '/notifications': [CANDIDATE, ADMIN],
