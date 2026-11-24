@@ -1,13 +1,14 @@
 import type { Notification } from '@/types/notification'
 
 // Shown is how one notification is written on the page: which sentence, with which names, and where its button leads.
-export type TitleKey = 'openedBy' | 'opened' | 'sentTo' | 'sent' | 'failedTo' | 'failed' | 'matches' | 'raw'
-export type ActionKey = 'follow' | 'see' | 'seeOffers'
+export type TitleKey = 'openedBy' | 'opened' | 'sentTo' | 'sent' | 'failedTo' | 'failed' | 'matches' | 'closingAt' | 'closing' | 'tips' | 'raw'
+export type ActionKey = 'follow' | 'see' | 'seeOffers' | 'seeOffer' | 'checkCv'
 export type Glyph = { kind: 'company'; company: string } | { kind: 'count'; count: number } | { kind: 'alert' } | { kind: 'bell' }
 
 export type Shown = {
     title: TitleKey
-    values: { company: string; count: number }
+    // day is the day an offer closes, at noon UTC so that it is the same day wherever it is written.
+    values: { company: string; count: number; day?: Date }
     // raw is the title as notification-api wrote it, for the types the page has no sentence for.
     raw: string
     detail: string
@@ -20,6 +21,13 @@ export type Shown = {
 
 const text = (v: unknown) => (typeof v === 'string' ? v.trim() : '')
 const count = (v: unknown) => (typeof v === 'number' && Number.isFinite(v) && v > 0 ? Math.floor(v) : 0)
+// id keeps what can be put in a path of the app as it is.
+const id = (v: unknown) => (typeof v === 'string' && /^[0-9a-f-]{36}$/i.test(v) ? v : '')
+const day = (v: unknown) => {
+    const m = typeof v === 'string' ? /^(\d{4})-(\d{2})-(\d{2})$/.exec(v) : null
+    const at = m ? new Date(Date.UTC(Number(m[1]), Number(m[2]) - 1, Number(m[3]), 12)) : null
+    return at && !Number.isNaN(at.getTime()) ? at : null
+}
 
 // describe turns a notification into what the page shows. The names come from `data`; without them the sentence is
 // said without the name.
@@ -44,6 +52,32 @@ export function describe(n: Pick<Notification, 'type' | 'title' | 'data'>): Show
                 detail: '',
                 action: 'seeOffers',
                 href: '/jobs',
+                glyph: c ? { kind: 'count', count: c } : { kind: 'bell' },
+            }
+        }
+        case 'saved_job_closing': {
+            const at = day(d.closes_on)
+            const job = id(d.job_id)
+            if (!at) return { ...base, title: 'raw', action: job ? 'seeOffer' : 'seeOffers', href: job ? `/jobs/${job}` : '/jobs', glyph }
+            return {
+                ...base,
+                values: { company, count: 0, day: at },
+                title: company ? 'closingAt' : 'closing',
+                action: job ? 'seeOffer' : 'seeOffers',
+                href: job ? `/jobs/${job}` : '/jobs',
+                glyph,
+            }
+        }
+        case 'cv_tip': {
+            const c = count(d.count)
+            const cv = id(d.resume_id)
+            return {
+                ...base,
+                values: { company: '', count: c },
+                title: c ? 'tips' : 'raw',
+                detail: '',
+                action: 'checkCv',
+                href: cv ? `/resumes/${cv}/check` : '/resumes',
                 glyph: c ? { kind: 'count', count: c } : { kind: 'bell' },
             }
         }

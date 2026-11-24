@@ -17,6 +17,9 @@ const EmailService = {
     cancelEmail: (id: string) => e().delete(`/emails/${id}`),
     apply: (data: ApplyInput) => e().post<Application>(`/applications`, data),
     listApplications: () => e().get<ApplicationList>(`/applications`),
+    // userApplications and userGmail are what the team sees of one student (admin): no recipient, no subject, no address.
+    userApplications: (userId: string) => e().get<ApplicationList>(`/admin/users/${userId}/applications`),
+    userGmail: (userId: string) => e().get<GmailStatus>(`/admin/users/${userId}/gmail`),
     updateApplication: (id: string, status: 'sent' | 'replied' | 'withdrawn' | 'closed') => e().patch<Application>(`/applications/${id}`, { status }),
     sendApplicationNow: (id: string) => e().post<Application>(`/applications/${id}/send`),
 }

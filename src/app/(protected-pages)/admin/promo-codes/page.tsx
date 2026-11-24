@@ -1,5 +1,6 @@
-import PagePlaceholder from '@/components/ui/PagePlaceholder'
+import { redirect } from 'next/navigation'
 
+// The promo codes live on the plans page.
 export default function Page() {
-    return <PagePlaceholder title="Promo codes" description="Percentage or fixed, validity, limits, eligible plans." />
+    redirect('/admin/plans#codes')
 }

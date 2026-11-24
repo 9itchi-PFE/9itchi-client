@@ -12,8 +12,7 @@ import type { Notification } from '@/types/notification'
 import { describe, split, when, type Glyph } from './notifications'
 
 const main = 'mx-auto box-border flex w-full max-w-[820px] flex-1 flex-col gap-[22px] px-8 pb-[72px] pt-4'
-// Arabic letters join: a fixed-width font and spaced letters break the words.
-const eyebrow = 'font-mono text-[11px] font-semibold uppercase tracking-[.08em] text-ink-3 rtl:font-sans rtl:tracking-normal'
+const eyebrow = 'font-mono text-[11px] font-semibold uppercase tracking-[.08em] text-ink-3'
 const tile = 'flex h-[42px] w-[42px] flex-none items-center justify-center rounded-xl text-[13px] font-bold'
 
 function Tile({ glyph }: { glyph: Glyph }) {

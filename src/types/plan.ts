@@ -4,6 +4,9 @@ export type Plan = {
     price: number
     // regular_price: what the plan normally costs, shown struck through next to price (the amount charged). Absent: none.
     regular_price?: number | null
+    // launch_ends_on: the last day (YYYY-MM-DD) price is charged; from the next day the plan costs regular_price.
+    // Absent: the launch price has no end, or is already over (payments-api then returns the regular price as price).
+    launch_ends_on?: string
     duration_days: number
     quotas: Record<string, number>
     active: boolean
@@ -16,9 +19,16 @@ export type PromoCode = {
     value: number
     valid_from: string
     valid_until: string
+    // usage_limit 0: no limit. used_count: how many payments used the code.
     usage_limit: number
+    used_count: number
     plan_ids: string[]
 }
+
+// PlanInput and PromoInput are what the admin saves (payments-api replaces the whole row).
+export type PlanInput = Pick<Plan, 'name' | 'price' | 'duration_days' | 'quotas' | 'active'> & { regular_price?: number; launch_ends_on?: string }
+export type PromoInput = Omit<PromoCode, 'id' | 'used_count'>
+export type ReceiptIssuerInput = Omit<ReceiptIssuer, 'complete'>
 
 // renews: a new payment is asked when the period ends, until the student stops the subscription (nothing is charged
 // automatically). stopped_at: when they stopped it; access still lasts until ends_at.

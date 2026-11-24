@@ -9,8 +9,7 @@ import { useAlertPreferences, useSetAlertPreference } from '@/hooks/useNotificat
 import { cn } from '@/lib/cn'
 import type { AlertPreference } from '@/types/notification'
 
-// Arabic letters join: a fixed-width font and spaced letters break the words.
-const eyebrow = 'font-mono text-[11px] font-semibold uppercase tracking-[.08em] text-ink-3 rtl:font-sans rtl:tracking-normal'
+const eyebrow = 'font-mono text-[11px] font-semibold uppercase tracking-[.08em] text-ink-3'
 const main = 'mx-auto box-border flex w-full max-w-[760px] flex-1 flex-col gap-5 px-8 pb-16 pt-8'
 const cell = 'flex h-full items-center justify-center border-t border-fill py-3.5'
 
