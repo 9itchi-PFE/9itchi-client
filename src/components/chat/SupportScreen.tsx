@@ -3,11 +3,13 @@
 import { useTranslations } from 'next-intl'
 import { useSupport } from '@/hooks/useChat'
 import { Thread } from './Thread'
+import { useLiveChat } from './useLiveChat'
 
 // SupportScreen is « Aide »: the student's conversation with the 9itchi team.
 export default function SupportScreen() {
     const t = useTranslations('chat')
     const { data: conversation, isLoading, isError } = useSupport()
+    useLiveChat(conversation ? [conversation.id] : [])
     return (
         <main className="mx-auto box-border flex w-full max-w-[820px] flex-1 flex-col gap-[22px] px-8 pb-[72px] pt-4">
             <div className="flex flex-col gap-2">

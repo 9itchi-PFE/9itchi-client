@@ -5,6 +5,7 @@ import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { picked } from '@/components/chat/chat'
 import { Thread } from '@/components/chat/Thread'
+import { useLiveChat } from '@/components/chat/useLiveChat'
 import { initials } from '@/components/layouts/StudentLayout/AccountMenu'
 import { useAdminUser } from '@/hooks/useAdminUsers'
 import { useConversations } from '@/hooks/useChat'
@@ -92,6 +93,7 @@ export default function SupportScreen() {
     const params = useSearchParams()
     const { data, isLoading, isError } = useConversations()
     const items = data?.items ?? []
+    useLiveChat(items.map((c) => c.id))
     const id = picked(params.get('c'), items) || items[0]?.id || ''
     const open = items.find((c) => c.id === id)
     return (
