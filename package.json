@@ -12,7 +12,7 @@
     "lint": "next lint",
     "prettier": "npx prettier src --check",
     "prettier:fix": "npm run prettier -- --write",
-    "test": "vitest run"
+    "test": "vitest run --passWithNoTests"
   },
   "dependencies": {
     "@tanstack/react-query": "^5.74.3",

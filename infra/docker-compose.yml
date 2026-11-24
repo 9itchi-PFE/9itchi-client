@@ -1,0 +1,158 @@
+# Local stack: PostgreSQL, RabbitMQ, the 11 services and the Next.js client.
+# Expects the 12 repositories cloned side by side (../../9itchi-account-api, ...).
+# Usage: cp .env.example .env && fill it, then `docker compose up --build` from this folder.
+name: 9itchi
+
+x-go-service: &go-service
+  restart: unless-stopped
+  env_file: .env
+  depends_on:
+    postgres:
+      condition: service_healthy
+    rabbitmq:
+      condition: service_healthy
+
+x-common-env: &common-env
+  ENVIRONMENT: development
+  RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672/
+  FRONTEND_URL: http://localhost:3000
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports: ["5432:5432"]
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      retries: 20
+
+  rabbitmq:
+    image: rabbitmq:3.13-management-alpine
+    ports: ["5672:5672", "15672:15672"]
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      retries: 20
+
+  9itchi-account-api:
+    <<: *go-service
+    build: ../../9itchi-account-api
+    ports: ["8081:8081"]
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/users?sslmode=disable
+      GOOGLE_REDIRECT_URL: http://localhost:8081/auth/google/callback
+      LINKEDIN_REDIRECT_URL: http://localhost:8081/auth/linkedin/callback
+
+  9itchi-resume-api:
+    <<: *go-service
+    build: ../../9itchi-resume-api
+    ports: ["8082:8082"]
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/resumes?sslmode=disable
+
+  9itchi-ai-api:
+    <<: *go-service
+    build: ../../9itchi-ai-api
+    ports: ["8083:8083"]
+    environment:
+      <<: *common-env
+
+  9itchi-job-api:
+    <<: *go-service
+    build: ../../9itchi-job-api
+    ports: ["8084:8084"]
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/jobs?sslmode=disable
+
+  9itchi-email-api:
+    <<: *go-service
+    build: ../../9itchi-email-api
+    ports: ["8085:8085"]
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/emails?sslmode=disable
+
+  9itchi-tracker-api:
+    <<: *go-service
+    build: ../../9itchi-tracker-api
+    ports: ["8086:8086"]
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/tracking?sslmode=disable
+
+  9itchi-notification-api:
+    <<: *go-service
+    build: ../../9itchi-notification-api
+    ports: ["8087:8087"]
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/notifications?sslmode=disable
+
+  9itchi-chat-api:
+    <<: *go-service
+    build: ../../9itchi-chat-api
+    ports: ["8088:8088"]
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/chat?sslmode=disable
+
+  9itchi-payments-api:
+    <<: *go-service
+    build: ../../9itchi-payments-api
+    ports: ["8089:8089"]
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/payments?sslmode=disable
+
+  9itchi-statistics-api:
+    <<: *go-service
+    build: ../../9itchi-statistics-api
+    ports: ["8090:8090"]
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/statistics?sslmode=disable
+
+  9itchi-schedule-api:
+    <<: *go-service
+    build: ../../9itchi-schedule-api
+    ports: ["8091:8091"]
+    environment:
+      <<: *common-env
+      DATABASE_URL: postgres://postgres:postgres@postgres:5432/schedule?sslmode=disable
+
+  9itchi-client:
+    build:
+      context: ..
+      dockerfile: dockerfile
+      # NEXT_PUBLIC_* are baked in at build time: change them, then rebuild.
+      args:
+        NEXT_PUBLIC_USE_PROXY: "false"
+        NEXT_PUBLIC_ACCOUNT_API_BASE_URL: http://localhost:8081
+        NEXT_PUBLIC_RESUME_API_BASE_URL: http://localhost:8082
+        NEXT_PUBLIC_AI_API_BASE_URL: http://localhost:8083
+        NEXT_PUBLIC_JOB_API_BASE_URL: http://localhost:8084
+        NEXT_PUBLIC_EMAIL_API_BASE_URL: http://localhost:8085
+        NEXT_PUBLIC_TRACKER_API_BASE_URL: http://localhost:8086
+        NEXT_PUBLIC_NOTIFICATION_API_BASE_URL: http://localhost:8087
+        NEXT_PUBLIC_CHAT_API_BASE_URL: http://localhost:8088
+        NEXT_PUBLIC_PAYMENTS_API_BASE_URL: http://localhost:8089
+        NEXT_PUBLIC_STATISTICS_API_BASE_URL: http://localhost:8090
+        NEXT_PUBLIC_SCHEDULE_API_BASE_URL: http://localhost:8091
+        NEXTAUTH_URL: http://localhost:3000
+    restart: unless-stopped
+    env_file: .env
+    ports: ["3000:3000"]
+    depends_on:
+      - 9itchi-account-api
+
+volumes:
+  pgdata:
