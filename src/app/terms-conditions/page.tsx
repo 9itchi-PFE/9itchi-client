@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities -- long-form legal copy */
 import type { Metadata } from 'next'
 import LegalPage, { LEGAL, LegalList } from '@/components/legal/LegalPage'
 
@@ -19,7 +20,10 @@ export default function Page() {
                     title: 'The service',
                     body: (
                         <>
-                            <p>{LEGAL.app} is a platform to build and improve resumes, check them against applicant-tracking systems (ATS), discover job opportunities, and prepare and send job applications by email.</p>
+                            <p>
+                                {LEGAL.app} is a platform to build and improve resumes, check them against applicant-tracking systems (ATS), discover job
+                                opportunities, and prepare and send job applications by email.
+                            </p>
                             <LegalList
                                 items={[
                                     'Resume tools: upload, parse, edit, template and export your resume as PDF.',
@@ -48,8 +52,15 @@ export default function Page() {
                     title: 'Your content',
                     body: (
                         <>
-                            <p>Your resumes, profile data and messages remain yours. You grant us a limited, worldwide, non-exclusive licence to host, process and display them only to operate and improve the service for you, including sending them to the processors listed in our Privacy Policy.</p>
-                            <p>You confirm that you have the right to submit your content, that it is truthful, and that it does not infringe the rights of others or contain data about third parties you have no right to share.</p>
+                            <p>
+                                Your resumes, profile data and messages remain yours. You grant us a limited, worldwide, non-exclusive licence to host, process
+                                and display them only to operate and improve the service for you, including sending them to the processors listed in our Privacy
+                                Policy.
+                            </p>
+                            <p>
+                                You confirm that you have the right to submit your content, that it is truthful, and that it does not infringe the rights of
+                                others or contain data about third parties you have no right to share.
+                            </p>
                         </>
                     ),
                 },
@@ -63,7 +74,11 @@ export default function Page() {
                                     'Gmail sending is a separate, optional authorization described in the next section.',
                                 ]}
                             />
-                            <p>Our use of data received from Google APIs follows the {link('https://developers.google.com/terms/api-services-user-data-policy', 'Google API Services User Data Policy')}, including the Limited Use requirements.</p>
+                            <p>
+                                Our use of data received from Google APIs follows the{' '}
+                                {link('https://developers.google.com/terms/api-services-user-data-policy', 'Google API Services User Data Policy')}, including
+                                the Limited Use requirements.
+                            </p>
                         </>
                     ),
                 },
@@ -71,7 +86,10 @@ export default function Page() {
                     title: 'Authorization to send emails on your behalf',
                     body: (
                         <>
-                            <p>Sending applications from your Gmail address is an optional feature that is off by default. It is activated only when you choose "Connect Gmail" in Settings and approve Google's consent screen. Signing in with Google alone does not grant it.</p>
+                            <p>
+                                Sending applications from your Gmail address is an optional feature that is off by default. It is activated only when you choose
+                                "Connect Gmail" in Settings and approve Google's consent screen. Signing in with Google alone does not grant it.
+                            </p>
                             <p>By connecting Gmail you expressly authorize {LEGAL.company} to:</p>
                             <LegalList
                                 items={[
@@ -115,14 +133,26 @@ export default function Page() {
                     title: 'AI-generated content',
                     body: (
                         <>
-                            <p>Rewrites, scores, matches and drafts are produced by automated models and may be inaccurate, incomplete or unsuitable. They are suggestions only.</p>
-                            <p>You must review everything before using or sending it. ATS scores and match results are indicative and do not guarantee interviews, offers or how any employer's system will treat your resume.</p>
+                            <p>
+                                Rewrites, scores, matches and drafts are produced by automated models and may be inaccurate, incomplete or unsuitable. They are
+                                suggestions only.
+                            </p>
+                            <p>
+                                You must review everything before using or sending it. ATS scores and match results are indicative and do not guarantee
+                                interviews, offers or how any employer's system will treat your resume.
+                            </p>
                         </>
                     ),
                 },
                 {
                     title: 'Job opportunities and third parties',
-                    body: <p>Job offers come from third-party sources. We do not employ, endorse or verify employers or recruiters, and we are not a party to any application, interview or employment relationship. Verify any offer before sharing sensitive information. Links and services of third parties are governed by their own terms.</p>,
+                    body: (
+                        <p>
+                            Job offers come from third-party sources. We do not employ, endorse or verify employers or recruiters, and we are not a party to any
+                            application, interview or employment relationship. Verify any offer before sharing sensitive information. Links and services of
+                            third parties are governed by their own terms.
+                        </p>
+                    ),
                 },
                 {
                     title: 'Plans, payments and promo codes',
@@ -139,48 +169,109 @@ export default function Page() {
                 },
                 {
                     title: 'Intellectual property',
-                    body: <p>The service, its software, design, templates, brand and documentation belong to {LEGAL.company} or its licensors. We grant you a limited, revocable, non-exclusive, non-transferable licence to use the service for your personal job search. All rights not expressly granted are reserved.</p>,
+                    body: (
+                        <p>
+                            The service, its software, design, templates, brand and documentation belong to {LEGAL.company} or its licensors. We grant you a
+                            limited, revocable, non-exclusive, non-transferable licence to use the service for your personal job search. All rights not
+                            expressly granted are reserved.
+                        </p>
+                    ),
                 },
                 {
                     title: 'Availability and changes to the service',
-                    body: <p>We aim for reliable service but do not guarantee uninterrupted or error-free operation. We may modify, suspend or discontinue features, for maintenance, security, legal or business reasons, with notice where reasonably possible.</p>,
+                    body: (
+                        <p>
+                            We aim for reliable service but do not guarantee uninterrupted or error-free operation. We may modify, suspend or discontinue
+                            features, for maintenance, security, legal or business reasons, with notice where reasonably possible.
+                        </p>
+                    ),
                 },
                 {
                     title: 'Disclaimer of warranties',
-                    body: <p>The service is provided "as is" and "as available", without warranties of any kind, express or implied, including merchantability, fitness for a particular purpose, accuracy and non-infringement, to the maximum extent permitted by law.</p>,
+                    body: (
+                        <p>
+                            The service is provided "as is" and "as available", without warranties of any kind, express or implied, including merchantability,
+                            fitness for a particular purpose, accuracy and non-infringement, to the maximum extent permitted by law.
+                        </p>
+                    ),
                 },
                 {
                     title: 'Limitation of liability',
                     body: (
                         <>
-                            <p>To the maximum extent permitted by law, {LEGAL.company} is not liable for indirect, incidental, special or consequential damages, or for loss of profits, data, opportunities or employment, arising from your use of the service, from AI output, from emails you send, or from third-party offers and services.</p>
-                            <p>Our total liability for any claim is limited to the amount you paid us in the 12 months before the claim, or 100 TND if you paid nothing. Nothing excludes liability that cannot be excluded by law.</p>
+                            <p>
+                                To the maximum extent permitted by law, {LEGAL.company} is not liable for indirect, incidental, special or consequential
+                                damages, or for loss of profits, data, opportunities or employment, arising from your use of the service, from AI output, from
+                                emails you send, or from third-party offers and services.
+                            </p>
+                            <p>
+                                Our total liability for any claim is limited to the amount you paid us in the 12 months before the claim, or 100 TND if you paid
+                                nothing. Nothing excludes liability that cannot be excluded by law.
+                            </p>
                         </>
                     ),
                 },
                 {
                     title: 'Indemnity',
-                    body: <p>You agree to indemnify and hold us harmless from claims, damages and costs (including reasonable legal fees) arising from your content, the emails you send through the service, or your breach of these Terms or applicable law.</p>,
+                    body: (
+                        <p>
+                            You agree to indemnify and hold us harmless from claims, damages and costs (including reasonable legal fees) arising from your
+                            content, the emails you send through the service, or your breach of these Terms or applicable law.
+                        </p>
+                    ),
                 },
                 {
                     title: 'Suspension and termination',
-                    body: <p>You may stop using the service and delete your account at any time. We may suspend or terminate access immediately if you breach these Terms, put others or the service at risk, or if required by law. On termination your right to use the service ends; clauses that by nature survive (intellectual property, disclaimers, liability, governing law) continue to apply.</p>,
+                    body: (
+                        <p>
+                            You may stop using the service and delete your account at any time. We may suspend or terminate access immediately if you breach
+                            these Terms, put others or the service at risk, or if required by law. On termination your right to use the service ends; clauses
+                            that by nature survive (intellectual property, disclaimers, liability, governing law) continue to apply.
+                        </p>
+                    ),
                 },
                 {
                     title: 'Privacy',
-                    body: <p>Our processing of personal data is described in the <a href="/privacy-policy" className="underline">Privacy Policy</a>, which forms part of these Terms.</p>,
+                    body: (
+                        <p>
+                            Our processing of personal data is described in the{' '}
+                            <a href="/privacy-policy" className="underline">
+                                Privacy Policy
+                            </a>
+                            , which forms part of these Terms.
+                        </p>
+                    ),
                 },
                 {
                     title: 'Governing law and disputes',
-                    body: <p>These Terms are governed by the laws of Tunisia. Before any proceeding, the parties will try to resolve a dispute amicably by contacting us. Failing that, the competent courts of Sfax, Tunisia have jurisdiction, without prejudice to mandatory consumer-protection rules of your country of residence.</p>,
+                    body: (
+                        <p>
+                            These Terms are governed by the laws of Tunisia. Before any proceeding, the parties will try to resolve a dispute amicably by
+                            contacting us. Failing that, the competent courts of Sfax, Tunisia have jurisdiction, without prejudice to mandatory
+                            consumer-protection rules of your country of residence.
+                        </p>
+                    ),
                 },
                 {
                     title: 'Changes to these Terms',
-                    body: <p>We may update these Terms. The updated version is posted on this page with a new date, and for material changes we will notify you in the app or by email. Continuing to use the service after the effective date means you accept the new Terms.</p>,
+                    body: (
+                        <p>
+                            We may update these Terms. The updated version is posted on this page with a new date, and for material changes we will notify you
+                            in the app or by email. Continuing to use the service after the effective date means you accept the new Terms.
+                        </p>
+                    ),
                 },
                 {
                     title: 'Contact',
-                    body: <p>Questions about these Terms: <a href={`mailto:${LEGAL.email}`} className="underline">{LEGAL.email}</a>.</p>,
+                    body: (
+                        <p>
+                            Questions about these Terms:{' '}
+                            <a href={`mailto:${LEGAL.email}`} className="underline">
+                                {LEGAL.email}
+                            </a>
+                            .
+                        </p>
+                    ),
                 },
             ]}
         />

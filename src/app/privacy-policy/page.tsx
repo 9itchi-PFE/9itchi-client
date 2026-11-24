@@ -1,3 +1,4 @@
+/* eslint-disable react/no-unescaped-entities -- long-form legal copy */
 import type { Metadata } from 'next'
 import LegalPage, { LEGAL, LegalList } from '@/components/legal/LegalPage'
 
@@ -60,7 +61,11 @@ export default function Page() {
                                     'Humans do not read Google user data unless you ask for support, it is necessary for security or abuse investigation, or the law requires it.',
                                 ]}
                             />
-                            <p>The use and transfer of information received from Google APIs to any other app adheres to the {link('https://developers.google.com/terms/api-services-user-data-policy', 'Google API Services User Data Policy')}, including the Limited Use requirements.</p>
+                            <p>
+                                The use and transfer of information received from Google APIs to any other app adheres to the{' '}
+                                {link('https://developers.google.com/terms/api-services-user-data-policy', 'Google API Services User Data Policy')}, including
+                                the Limited Use requirements.
+                            </p>
                         </>
                     ),
                 },
@@ -68,14 +73,27 @@ export default function Page() {
                     title: 'AI processing',
                     body: (
                         <>
-                            <p>To parse, score, rewrite or match your resume, and to draft emails, the relevant text is sent to third-party AI providers (currently Google Gemini and OpenAI, and LlamaCloud for document parsing) under their API terms. We send only what is needed for the request.</p>
-                            <p>We do not use your resume content to train our own models, and we do not take decisions with legal effect about you based solely on automated processing; results are suggestions you review.</p>
+                            <p>
+                                To parse, score, rewrite or match your resume, and to draft emails, the relevant text is sent to third-party AI providers
+                                (currently Google Gemini and OpenAI, and LlamaCloud for document parsing) under their API terms. We send only what is needed for
+                                the request.
+                            </p>
+                            <p>
+                                We do not use your resume content to train our own models, and we do not take decisions with legal effect about you based solely
+                                on automated processing; results are suggestions you review.
+                            </p>
                         </>
                     ),
                 },
                 {
                     title: 'Email open tracking',
-                    body: <p>Application emails you send may contain a small tracking image that tells you whether and when a recipient opened them. This is shown in your statistics. Recipients' email clients may block it, so the data is indicative only. You are responsible for informing recipients where the law requires it.</p>,
+                    body: (
+                        <p>
+                            Application emails you send may contain a small tracking image that tells you whether and when a recipient opened them. This is
+                            shown in your statistics. Recipients' email clients may block it, so the data is indicative only. You are responsible for informing
+                            recipients where the law requires it.
+                        </p>
+                    ),
                 },
                 {
                     title: 'Who receives your data',
@@ -98,7 +116,12 @@ export default function Page() {
                 },
                 {
                     title: 'International transfers',
-                    body: <p>Some providers are located outside Tunisia and the EEA. Where required, transfers rely on appropriate safeguards such as standard contractual clauses or an adequacy decision.</p>,
+                    body: (
+                        <p>
+                            Some providers are located outside Tunisia and the EEA. Where required, transfers rely on appropriate safeguards such as standard
+                            contractual clauses or an adequacy decision.
+                        </p>
+                    ),
                 },
                 {
                     title: 'Retention',
@@ -115,24 +138,46 @@ export default function Page() {
                 },
                 {
                     title: 'Security',
-                    body: <p>We use encryption in transit (HTTPS), hashed passwords, encrypted storage of Gmail tokens, access controls, rate limiting and separation of services. No system is perfectly secure; if a breach affecting your rights occurs we will notify you and the competent authority as required by law.</p>,
+                    body: (
+                        <p>
+                            We use encryption in transit (HTTPS), hashed passwords, encrypted storage of Gmail tokens, access controls, rate limiting and
+                            separation of services. No system is perfectly secure; if a breach affecting your rights occurs we will notify you and the competent
+                            authority as required by law.
+                        </p>
+                    ),
                 },
                 {
                     title: 'Cookies',
-                    body: <p>We use only strictly necessary cookies: authentication session and security (CSRF, OAuth state) cookies. We do not use advertising or cross-site tracking cookies.</p>,
+                    body: (
+                        <p>
+                            We use only strictly necessary cookies: authentication session and security (CSRF, OAuth state) cookies. We do not use advertising
+                            or cross-site tracking cookies.
+                        </p>
+                    ),
                 },
                 {
                     title: 'Your rights',
                     body: (
                         <>
-                            <p>You can request access, correction, deletion, restriction, portability, and object to certain processing, and withdraw consent at any time. You can edit most data and delete your account in the app. For other requests write to <a href={`mailto:${LEGAL.email}`} className="underline">{LEGAL.email}</a>; we answer within 30 days and may need to verify your identity.</p>
+                            <p>
+                                You can request access, correction, deletion, restriction, portability, and object to certain processing, and withdraw consent
+                                at any time. You can edit most data and delete your account in the app. For other requests write to{' '}
+                                <a href={`mailto:${LEGAL.email}`} className="underline">
+                                    {LEGAL.email}
+                                </a>
+                                ; we answer within 30 days and may need to verify your identity.
+                            </p>
                             <p>You may also complain to the Tunisian data protection authority (INPDP) or to your local supervisory authority.</p>
                         </>
                     ),
                 },
                 {
                     title: 'Children',
-                    body: <p>The service is not intended for people under 18. If we learn that we hold data of a minor without valid authorization, we delete it.</p>,
+                    body: (
+                        <p>
+                            The service is not intended for people under 18. If we learn that we hold data of a minor without valid authorization, we delete it.
+                        </p>
+                    ),
                 },
                 {
                     title: 'Changes to this policy',
@@ -140,7 +185,15 @@ export default function Page() {
                 },
                 {
                     title: 'Contact',
-                    body: <p>{LEGAL.company}, {LEGAL.address}. Email: <a href={`mailto:${LEGAL.email}`} className="underline">{LEGAL.email}</a>.</p>,
+                    body: (
+                        <p>
+                            {LEGAL.company}, {LEGAL.address}. Email:{' '}
+                            <a href={`mailto:${LEGAL.email}`} className="underline">
+                                {LEGAL.email}
+                            </a>
+                            .
+                        </p>
+                    ),
                 },
             ]}
         />

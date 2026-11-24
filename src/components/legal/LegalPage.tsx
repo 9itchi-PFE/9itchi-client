@@ -44,12 +44,19 @@ export default function LegalPage({ title, intro, sections }: { title: string; i
                 <p>Trade name: {LEGAL.company}</p>
                 <p>Registered office: {LEGAL.address}</p>
                 <p>
-                    Contact: <a href={`mailto:${LEGAL.email}`} className="underline">{LEGAL.email}</a>
+                    Contact:{' '}
+                    <a href={`mailto:${LEGAL.email}`} className="underline">
+                        {LEGAL.email}
+                    </a>
                 </p>
                 <p className="mt-3">
-                    <Link href="/terms-conditions" className="underline">Terms and Conditions</Link>
+                    <Link href="/terms-conditions" className="underline">
+                        Terms and Conditions
+                    </Link>
                     {' · '}
-                    <Link href="/privacy-policy" className="underline">Privacy Policy</Link>
+                    <Link href="/privacy-policy" className="underline">
+                        Privacy Policy
+                    </Link>
                 </p>
             </footer>
         </main>
