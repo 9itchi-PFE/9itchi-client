@@ -1,5 +1,5 @@
-import PagePlaceholder from '@/components/ui/PagePlaceholder'
+import StudentsScreen from '@/components/admin/StudentsScreen'
 
 export default function Page() {
-    return <PagePlaceholder title="User management" description="List, search, suspend, delete." />
+    return <StudentsScreen />
 }
