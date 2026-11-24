@@ -1,4 +1,19 @@
-import type { Book, BookList, Job, JobCounts, JobList, JobQuery } from '@/types/job'
+import type {
+    Book,
+    BookList,
+    Job,
+    JobCounts,
+    JobEdit,
+    JobList,
+    JobQuery,
+    PostImport,
+    ReviewJob,
+    ReviewList,
+    ReviewTab,
+    Source,
+    SourceInput,
+    SourceList,
+} from '@/types/job'
 import type { Preferences, SavedPreferences } from '@/types/preferences'
 import { api } from './ApiService'
 
@@ -25,6 +40,18 @@ const JobService = {
     getBook: (id: string) => api('job').get<Book>(`/books/${id}`),
     getPreferences: () => api('job').get<SavedPreferences>(`/preferences`),
     savePreferences: (p: Preferences) => api('job').put<SavedPreferences>(`/preferences`, p),
+    // Admin: collection sources (« Collectes ») and the review queue (« Offres »).
+    listSources: () => api('job').get<SourceList>(`/admin/sources`),
+    createSource: (s: SourceInput) => api('job').post<Source>(`/admin/sources`, s),
+    updateSource: (id: string, s: SourceInput) => api('job').patch<Source>(`/admin/sources/${id}`, s),
+    deleteSource: (id: string) => api('job').delete(`/admin/sources/${id}`),
+    runSource: (id: string) => api('job').post<Source>(`/admin/sources/${id}/run`),
+    listReview: (tab: ReviewTab, page = 1) => api('job').get<ReviewList>(`/admin/jobs`, { params: { tab, page, page_size: 50 } }),
+    getReview: (id: string) => api('job').get<ReviewJob>(`/admin/jobs/${id}`),
+    editReview: (id: string, e: JobEdit) => api('job').patch<ReviewJob>(`/admin/jobs/${id}`, e),
+    publishJob: (id: string) => api('job').post<ReviewJob>(`/admin/jobs/${id}/publish`),
+    hideJob: (id: string) => api('job').post<ReviewJob>(`/admin/jobs/${id}/hide`),
+    importPost: (p: PostImport) => api('job').post<ReviewJob>(`/admin/jobs/import`, p),
     previewPreferences: (p: Preferences) => api('job').post<{ count: number; unanswered: number }>(`/preferences/preview`, p),
 }
 
