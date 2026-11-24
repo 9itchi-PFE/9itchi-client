@@ -1,3 +1,43 @@
+@import '@fontsource-variable/inter';
+@import '@fontsource-variable/bricolage-grotesque/opsz.css';
+@import '@fontsource-variable/jetbrains-mono';
+@import '@fontsource-variable/source-sans-3/wght-italic.css';
+@import '@fontsource-variable/source-sans-3';
+@import '@fontsource-variable/noto-sans-arabic';
+@import '@fontsource-variable/source-serif-4';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    body {
+        @apply bg-page font-sans text-ink antialiased;
+    }
+    h1,
+    h2 {
+        @apply font-display tracking-tightish;
+    }
+    a {
+        @apply text-violet hover:text-violet-hover;
+    }
+    button,
+    a,
+    input,
+    select,
+    textarea {
+        @apply focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+    svg * {
+        animation: none !important;
+    }
+}

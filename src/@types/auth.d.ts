@@ -4,4 +4,5 @@ export type User = {
     email: string
     role: 'admin' | 'candidate'
     status: string
+    school?: string
 }

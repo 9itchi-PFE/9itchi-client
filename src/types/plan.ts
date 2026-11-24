@@ -17,3 +17,9 @@ export type PromoCode = {
     usage_limit: number
     plan_ids: string[]
 }
+
+export type MySubscription = {
+    subscription: { id: string; plan_id: string; status: string; ends_at: string } | null
+    plan: Plan
+    is_free: boolean
+}

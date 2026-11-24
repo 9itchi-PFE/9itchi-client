@@ -1,0 +1,235 @@
+'use client'
+
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useTranslations } from 'next-intl'
+import { useQueryClient } from '@tanstack/react-query'
+import { Button } from '@/components/ui/Button'
+import { Icon } from '@/components/ui/icons'
+import { LogoReading } from '@/components/ui/Logo'
+import { useResume, resumeKeys } from '@/hooks/useResumes'
+import { cn } from '@/lib/cn'
+import ResumeService from '@/services/ResumeService'
+import { errorStatus } from '@/services/ApiService'
+import ImportError from './ImportError'
+import ImportResult from './ImportResult'
+
+export const MAX_UPLOAD = 10 * 1024 * 1024
+const ACCEPT = '.pdf,.docx,.jpg,.jpeg,.png,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png'
+
+type Failure = { file: string; reason: 'read' | 'size' | 'type' | 'quota' | 'other' }
+
+// ImportFlow drives choose -> reading -> done (or the error card). The resume id lives in ?cv= so a reload
+// keeps waiting for the same reading.
+export default function ImportFlow() {
+    const t = useTranslations('import')
+    const router = useRouter()
+    const params = useSearchParams()
+    const qc = useQueryClient()
+    const [id, setId] = useState(params.get('cv') ?? '')
+    const [fileName, setFileName] = useState(params.get('file') ?? '')
+    const [uploading, setUploading] = useState(false)
+    const [failure, setFailure] = useState<Failure | null>(null)
+    const resume = useResume(id)
+    const status = resume.data?.parse_status
+
+    const setUrl = useCallback(
+        (cv: string, file: string) => {
+            const q = cv ? `?cv=${encodeURIComponent(cv)}&file=${encodeURIComponent(file)}` : ''
+            router.replace(`/resumes/upload${q}`)
+        },
+        [router],
+    )
+
+    useEffect(() => {
+        if (status === 'failed') setFailure({ file: fileName, reason: 'read' })
+    }, [status, fileName])
+
+    const upload = async (file: File) => {
+        setFailure(null)
+        if (file.size > MAX_UPLOAD) return setFailure({ file: file.name, reason: 'size' })
+        if (!/\.(pdf|docx|jpe?g|png)$/i.test(file.name)) return setFailure({ file: file.name, reason: 'type' })
+        setUploading(true)
+        try {
+            const { data } = await ResumeService.uploadResume(file)
+            qc.setQueryData(resumeKeys.one(data.resume.id), data.resume)
+            qc.invalidateQueries({ queryKey: resumeKeys.list })
+            setId(data.resume.id)
+            setFileName(file.name)
+            setUrl(data.resume.id, file.name)
+        } catch (err) {
+            const s = errorStatus(err)
+            setFailure({ file: file.name, reason: s === 413 ? 'size' : s === 400 ? 'type' : s === 402 ? 'quota' : 'other' })
+        } finally {
+            setUploading(false)
+        }
+    }
+
+    // reset forgets the current file; the half-read CV is deleted so the free plan's one CV stays available.
+    const reset = async () => {
+        if (id) await ResumeService.deleteResume(id).catch(() => undefined)
+        qc.invalidateQueries({ queryKey: resumeKeys.list })
+        setId('')
+        setFileName('')
+        setFailure(null)
+        setUrl('', '')
+    }
+
+    const blank = async () => {
+        try {
+            const { data } = await ResumeService.createResume({ title: t('blankTitleDefault') })
+            qc.invalidateQueries({ queryKey: resumeKeys.list })
+            router.push(`/resumes/${data.id}`)
+        } catch (err) {
+            setFailure({ file: '', reason: errorStatus(err) === 402 ? 'quota' : 'other' })
+        }
+    }
+
+    let body
+    if (failure && (failure.reason === 'read' || failure.reason === 'size')) {
+        body = <ImportError fileName={failure.file} onRetry={reset} onBlank={blank} />
+    } else if (id && (uploading || !resume.data || status === 'pending')) {
+        body = <Reading fileName={fileName} onCancel={reset} />
+    } else if (id && resume.data && (status === 'done' || status === 'none')) {
+        body = <ImportResult resume={resume.data} fileName={fileName} onOther={reset} />
+    } else {
+        body = (
+            <Choose
+                onFile={upload}
+                onBlank={blank}
+                busy={uploading}
+                message={failure ? t(failure.reason === 'type' ? 'errType' : failure.reason === 'quota' ? 'errQuota' : 'errFile') : ''}
+            />
+        )
+    }
+    return <main className="mx-auto box-border flex w-full max-w-[1000px] flex-col gap-7 px-8 pb-16 pt-12">{body}</main>
+}
+
+function Choose({ onFile, onBlank, busy, message }: { onFile: (f: File) => void; onBlank: () => void; busy: boolean; message: string }) {
+    const t = useTranslations('import')
+    const tc = useTranslations('common')
+    const input = useRef<HTMLInputElement>(null)
+    const [over, setOver] = useState(false)
+    return (
+        <div className="flex flex-col gap-7">
+            <div className="flex flex-col items-center gap-2 text-center">
+                <h1 className="m-0 text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
+                <p className="m-0 max-w-[560px] text-base leading-[1.6] text-ink-3">{t('lead')}</p>
+            </div>
+            <button
+                type="button"
+                disabled={busy}
+                onClick={() => input.current?.click()}
+                onDragOver={(e) => {
+                    e.preventDefault()
+                    setOver(true)
+                }}
+                onDragLeave={() => setOver(false)}
+                onDrop={(e) => {
+                    e.preventDefault()
+                    setOver(false)
+                    const f = e.dataTransfer.files?.[0]
+                    if (f) onFile(f)
+                }}
+                className={cn(
+                    'flex cursor-pointer flex-col items-center gap-3.5 rounded-[22px] border-[1.5px] border-dashed bg-white px-6 py-14 text-center shadow-[0_1px_2px_rgba(16,24,40,.04)] transition-colors',
+                    over ? 'border-violet bg-violet-tint' : 'border-[#B6BBC6]',
+                )}
+            >
+                <span className="flex h-14 w-14 items-center justify-center rounded-[14px] bg-lime text-ink">
+                    <Icon name="upload" size={24} />
+                </span>
+                <span className="text-lg font-semibold">{over ? t('dropActive') : t('dropTitle')}</span>
+                <span className="text-[15px] text-ink-3">
+                    {t.rich('dropText', { browse: (chunks) => <span className="font-semibold text-violet">{chunks}</span> })}
+                </span>
+            </button>
+            <input
+                ref={input}
+                type="file"
+                accept={ACCEPT}
+                className="hidden"
+                onChange={(e) => {
+                    const f = e.target.files?.[0]
+                    e.target.value = ''
+                    if (f) onFile(f)
+                }}
+            />
+            {message ? (
+                <p role="alert" className="m-0 rounded-xl bg-warn-bg px-4 py-3 text-center text-sm text-warn-fg">
+                    {message}
+                </p>
+            ) : null}
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                <button
+                    type="button"
+                    onClick={onBlank}
+                    className="flex cursor-pointer items-start gap-3.5 rounded-[18px] border border-line-soft bg-white p-5 text-start text-ink hover:border-line-strong"
+                >
+                    <span className="flex h-10 w-10 flex-none items-center justify-center rounded-[10px] bg-fill">
+                        <Icon name="pencil" />
+                    </span>
+                    <span className="flex flex-col gap-1">
+                        <strong className="text-[15px]">{t('blankTitle')}</strong>
+                        <span className="text-sm leading-normal text-ink-3">{t('blankText')}</span>
+                    </span>
+                </button>
+                <div aria-disabled="true" className="flex items-start gap-3.5 rounded-[18px] border border-line-soft bg-white p-5 text-ink opacity-80">
+                    <span className="flex h-10 w-10 flex-none items-center justify-center rounded-[10px] bg-fill">
+                        <Icon name="link" />
+                    </span>
+                    <span className="flex flex-col gap-1">
+                        <strong className="flex items-center gap-2 text-[15px]">
+                            {t('linkedinTitle')}
+                            <span className="rounded-full bg-violet-soft px-2 py-0.5 text-[11.5px] font-semibold text-violet-hover">{tc('soon')}</span>
+                        </strong>
+                        <span className="text-sm leading-normal text-ink-3">{t('linkedinText')}</span>
+                    </span>
+                </div>
+            </div>
+            <p className="m-0 text-center text-[13px] text-ink-3">{t('privacy')}</p>
+        </div>
+    )
+}
+
+// Reading shows the three steps filling in while resume-api reads the file (polling parse_status).
+function Reading({ fileName, onCancel }: { fileName: string; onCancel: () => void }) {
+    const t = useTranslations('import')
+    const tc = useTranslations('common')
+    const [done, setDone] = useState(0)
+    useEffect(() => {
+        const a = setTimeout(() => setDone(1), 1200)
+        const b = setTimeout(() => setDone(2), 3200)
+        return () => {
+            clearTimeout(a)
+            clearTimeout(b)
+        }
+    }, [])
+    const steps = [t('stepContact'), t('stepEducation'), t('stepSkills')]
+    return (
+        <div aria-live="polite" className="flex flex-col items-center gap-[22px] rounded-3xl border border-line-soft bg-white px-6 py-14 text-center">
+            <LogoReading label={t('readingTitle')} />
+            <div className="flex flex-col items-center gap-2">
+                <h1 className="m-0 text-[32px] font-extrabold">{t('readingTitle')}</h1>
+                <p className="m-0 max-w-[440px] text-[15px] leading-[1.6] text-ink-3">{t('readingText', { file: fileName || 'CV' })}</p>
+            </div>
+            <ul className="m-0 flex list-none flex-col gap-2.5 p-0 text-start text-sm">
+                {steps.map((s, i) => (
+                    <li key={s} className={cn('flex items-center gap-2.5', i >= done && 'text-ink-3')}>
+                        {i < done ? (
+                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-lime text-ink">
+                                <Icon name="check" size={11} strokeWidth={3.5} />
+                            </span>
+                        ) : (
+                            <span className="box-border h-5 w-5 rounded-full border-[1.5px] border-line-input" />
+                        )}
+                        {s}
+                    </li>
+                ))}
+            </ul>
+            <Button variant="secondary" className="h-[38px] rounded-lg border-line-input px-3.5 font-medium" onClick={onCancel}>
+                {tc('cancel')}
+            </Button>
+        </div>
+    )
+}
