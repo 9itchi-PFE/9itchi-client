@@ -108,14 +108,23 @@
         "scoreCheck": "تحقّق من السيرة",
         "scoreOf": "/ {total}",
         "sectionsNav": "أقسام السيرة الذاتية",
-        "tabs": { "label": "وضع التحرير", "content": "المحتوى", "customize": "تخصيص" },
+        "tabs": {
+            "label": "وضع التحرير",
+            "content": "المحتوى",
+            "customize": "تخصيص"
+        },
         "showSection": "إظهار هذا القسم في السيرة الذاتية",
         "hideSection": "إخفاء هذا القسم من السيرة الذاتية",
         "hiddenBadge": "مخفي",
         "visibleBadge": "ظاهر",
         "style": {
             "categories": "فئات التخصيص",
-            "cat": { "typography": "النص", "spacing": "التباعد", "colors": "الألوان", "header": "الرأس" },
+            "cat": {
+                "typography": "النص",
+                "spacing": "التباعد",
+                "colors": "الألوان",
+                "header": "الرأس"
+            },
             "bodyFont": "الخط",
             "open": "التنسيق",
             "fontSize": "حجم الخط",
@@ -150,14 +159,28 @@
             "textColor": "لون النص",
             "background": "الخلفية",
             "applyAccent": "تطبيق لون التمييز على",
-            "target": { "name": "الاسم", "title": "المسمى المهني", "headings": "العناوين", "rules": "خطوط العناوين", "dates": "التواريخ", "entry_title": "عناوين الإدخالات", "links": "الروابط" },
+            "target": {
+                "name": "الاسم",
+                "title": "المسمى المهني",
+                "headings": "العناوين",
+                "rules": "خطوط العناوين",
+                "dates": "التواريخ",
+                "entry_title": "عناوين الإدخالات",
+                "links": "الروابط"
+            },
             "header": "الرأس",
             "align": "محاذاة النص",
             "left": "يسار",
             "center": "وسط",
             "separator": "فاصل بيانات الاتصال",
             "showPhoto": "إظهار الصورة",
-            "reset": "إعادة ضبط التنسيق"
+            "reset": "إعادة ضبط التنسيق",
+            "subtitleStyle": "العنوان الفرعي",
+            "dateStyle": "التاريخ",
+            "listStyle": "نمط القائمة",
+            "bullet": "نقطة",
+            "hyphen": "شرطة",
+            "indentBody": "إزاحة النص"
         },
         "addSection": "+ أضف قسمًا",
         "addSectionTitle": "أضف قسمًا",
@@ -215,7 +238,9 @@
             "language": "اللغة",
             "level": "المستوى",
             "extraTitle": "عنوان القسم",
-            "extraItem": "العنصر {n}"
+            "extraItem": "العنصر {n}",
+            "url": "رابط (اختياري)",
+            "showTech": "إظهار التقنيات تحت المشروع"
         },
         "line1": "ما قمت به · السطر {n}",
         "lineN": "السطر {n}",
@@ -243,7 +268,12 @@
         "toastPhoto": "حُفظت الصورة",
         "toastPhotoRemoved": "حُذفت الصورة",
         "photoTooBig": "الصورة تتجاوز 2 ميغابايت.",
-        "photoType": "اختر صورة JPG أو PNG."
+        "photoType": "اختر صورة JPG أو PNG.",
+        "rowsHint": "اسحب لإعادة الترتيب، اضغط على العين لإخفاء عنصر، واضغط على السطر لتعديله.",
+        "untitled": "بدون عنوان",
+        "showEntry": "إظهار {name}",
+        "hideEntry": "إخفاء {name}",
+        "addEntry": "+ إضافة عنصر"
     },
     "download": {
         "freeEyebrow": "تنزيلك الأول مجاني",

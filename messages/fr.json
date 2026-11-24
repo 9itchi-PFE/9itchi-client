@@ -108,14 +108,23 @@
         "scoreCheck": "Vérifier le CV",
         "scoreOf": "/ {total}",
         "sectionsNav": "Sections du CV",
-        "tabs": { "label": "Mode d’édition", "content": "Contenu", "customize": "Personnaliser" },
+        "tabs": {
+            "label": "Mode d’édition",
+            "content": "Contenu",
+            "customize": "Personnaliser"
+        },
         "showSection": "Afficher cette section sur le CV",
         "hideSection": "Masquer cette section du CV",
         "hiddenBadge": "Masquée",
         "visibleBadge": "Affichée",
         "style": {
             "categories": "Catégories de personnalisation",
-            "cat": { "typography": "Texte", "spacing": "Espacement", "colors": "Couleurs", "header": "En-tête" },
+            "cat": {
+                "typography": "Texte",
+                "spacing": "Espacement",
+                "colors": "Couleurs",
+                "header": "En-tête"
+            },
             "bodyFont": "Police",
             "open": "Style",
             "fontSize": "Taille du texte",
@@ -150,14 +159,28 @@
             "textColor": "Couleur du texte",
             "background": "Fond",
             "applyAccent": "Appliquer la couleur d'accent à",
-            "target": { "name": "Nom", "title": "Titre professionnel", "headings": "Titres", "rules": "Traits des titres", "dates": "Dates", "entry_title": "Titres d'entrée", "links": "Liens" },
+            "target": {
+                "name": "Nom",
+                "title": "Titre professionnel",
+                "headings": "Titres",
+                "rules": "Traits des titres",
+                "dates": "Dates",
+                "entry_title": "Titres d'entrée",
+                "links": "Liens"
+            },
             "header": "En-tête",
             "align": "Alignement du texte",
             "left": "Gauche",
             "center": "Centré",
             "separator": "Séparateur des coordonnées",
             "showPhoto": "Afficher la photo",
-            "reset": "Réinitialiser le style"
+            "reset": "Réinitialiser le style",
+            "subtitleStyle": "Sous-titre",
+            "dateStyle": "Date",
+            "listStyle": "Style de liste",
+            "bullet": "Puce",
+            "hyphen": "Tiret",
+            "indentBody": "Indenter le texte"
         },
         "addSection": "+ Ajouter une section",
         "addSectionTitle": "Ajouter une section",
@@ -215,7 +238,9 @@
             "language": "Langue",
             "level": "Niveau",
             "extraTitle": "Titre de la section",
-            "extraItem": "Élément {n}"
+            "extraItem": "Élément {n}",
+            "url": "Lien (facultatif)",
+            "showTech": "Afficher les technologies sous le projet"
         },
         "line1": "Ce que tu as fait · ligne {n}",
         "lineN": "Ligne {n}",
@@ -243,7 +268,12 @@
         "toastPhoto": "Photo enregistrée",
         "toastPhotoRemoved": "Photo retirée",
         "photoTooBig": "La photo dépasse 2 Mo.",
-        "photoType": "Choisis une photo JPG ou PNG."
+        "photoType": "Choisis une photo JPG ou PNG.",
+        "rowsHint": "Glisse pour réordonner, clique sur l’œil pour masquer une entrée, clique sur une ligne pour la modifier.",
+        "untitled": "Sans titre",
+        "showEntry": "Afficher {name}",
+        "hideEntry": "Masquer {name}",
+        "addEntry": "+ Ajouter une entrée"
     },
     "download": {
         "freeEyebrow": "Ton premier téléchargement est offert",

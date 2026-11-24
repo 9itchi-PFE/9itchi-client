@@ -44,3 +44,13 @@ describe('resolveLook', () => {
         expect(resolveLook('classic', { accent: 'red' }).accent).toBeUndefined()
     })
 })
+
+import { visibleEntries as __ve } from '@/types/resume'
+describe('visibleEntries', () => {
+    it('drops hidden entries', () => {
+        const c = { experience: [{ hidden: true }, {}], education: [], projects: [{ hidden: false }], certifications: [] } as never
+        const v = __ve(c) as { experience: unknown[]; projects: unknown[] }
+        expect(v.experience).toHaveLength(1)
+        expect(v.projects).toHaveLength(1)
+    })
+})

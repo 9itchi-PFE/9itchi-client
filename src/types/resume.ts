@@ -8,13 +8,15 @@ export type Contact = {
     location: string
     links: string[]
 }
-export type Experience = { company: string; title: string; kind?: string; location?: string; start: string; end: string; description: string[] }
-export type Education = { school: string; degree: string; location?: string; start: string; end: string }
-export type Project = { name: string; tech: string; year: string; description: string[] }
+export type Entry = { url?: string; hidden?: boolean }
+export type Experience = Entry & { company: string; title: string; kind?: string; location?: string; start: string; end: string; description: string[] }
+export type Education = Entry & { school: string; degree: string; location?: string; start: string; end: string }
+export type Project = Entry & { hide_tech?: boolean; name: string; tech: string; year: string; description: string[] }
 export type SkillGroup = { label: string; items: string[] }
-export type Certification = { name: string; issuer: string; year: string }
+export type Certification = Entry & { name: string; issuer: string; year: string }
 export type ExtraSection = { title: string; items: string[] }
 
+export type TextStyle = 'normal' | 'bold' | 'italic'
 export type CVStyle = {
     base_size?: number
     name_delta?: number
@@ -28,6 +30,10 @@ export type CVStyle = {
     name_font?: 'sans' | 'serif'
     heading_case?: 'capitalize' | 'uppercase'
     date_position?: 'right' | 'below'
+    list_style?: 'bullet' | 'hyphen'
+    indent_body?: boolean
+    subtitle_style?: TextStyle
+    date_style?: TextStyle
     align?: 'left' | 'center'
     separator?: 'bullet' | 'bar'
     color_mode?: 'single' | 'multi'
@@ -73,6 +79,12 @@ export function sectionOrder(c: Pick<ResumeContent, 'extra' | 'section_order'>):
 export function visibleSections(c: Pick<ResumeContent, 'extra' | 'section_order' | 'hidden_sections'>): string[] {
     const hidden = new Set(c.hidden_sections ?? [])
     return sectionOrder(c).filter((k) => !hidden.has(k))
+}
+
+// visibleEntries drops entries the user hid; mirrors Go visibleEntries.
+export function visibleEntries<T extends Pick<ResumeContent, 'experience' | 'education' | 'projects' | 'certifications'>>(c: T): T {
+    const keep = <E extends Entry>(l: E[] = []) => l.filter((e) => !e.hidden)
+    return { ...c, experience: keep(c.experience), education: keep(c.education), projects: keep(c.projects), certifications: keep(c.certifications) }
 }
 
 export type ParseStatus = 'none' | 'pending' | 'done' | 'failed'

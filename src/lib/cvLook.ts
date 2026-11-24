@@ -32,6 +32,8 @@ export type Look = {
     nameSerif: boolean
     upper: boolean
     dateBelow: boolean
+    hyphen: boolean
+    indent: boolean
     center: boolean
     sep: string
     showPhoto: boolean
@@ -66,6 +68,8 @@ export function resolveLook(layout: Layout, s: CVStyle = {}): Look {
         nameSerif: s.name_font ? s.name_font === 'serif' : d.nameSerif,
         upper: s.heading_case ? s.heading_case === 'uppercase' : d.upper,
         dateBelow: s.date_position === 'below',
+        hyphen: s.list_style === 'hyphen',
+        indent: s.indent_body !== false,
         center: s.align ? s.align === 'center' : d.center,
         sep: s.separator === 'bar' ? ' | ' : ' · ',
         showPhoto: s.show_photo !== false,
@@ -94,6 +98,9 @@ export function lookCss(l: Look, explicit: CVStyle = {}): string {
     rule('[data-cv=row]', `font-size:${l.entry}px;`)
     if (l.dateBelow) rule('[data-cv=row]', 'flex-direction:column;gap:0;')
     if (l.dateBelow) rule('[data-cv=row] > span:last-child', 'text-align:start;')
+    const ts = (v?: string) => (v === 'bold' ? 'font-weight:700;font-style:normal;' : v === 'italic' ? 'font-style:italic;font-weight:400;' : v === 'normal' ? 'font-style:normal;font-weight:400;' : '')
+    rule('[data-cv=sub]', ts(explicit.subtitle_style))
+    rule('[data-cv=row] > span:last-child', ts(explicit.date_style))
     if (l.accents('dates')) rule('[data-cv=row] > span:last-child', `color:${l.accent};`)
     if (l.accents('entry_title')) rule('[data-sec] strong', `color:${l.accent};`)
     if (l.accents('links')) rule('[data-cv=link]', `color:${l.accent};`)

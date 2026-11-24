@@ -3,7 +3,7 @@
 import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { cn } from '@/lib/cn'
 import { lookCss, mmToPx, resolveLook, type Look } from '@/lib/cvLook'
-import { visibleSections, type Layout, type ResumeContent } from '@/types/resume'
+import { visibleEntries, visibleSections, type Layout, type ResumeContent } from '@/types/resume'
 import { cvHeadings, dates, join, nonEmpty, shortLink, splitLanguage, type CvLanguage } from './cvText'
 
 export type SectionKey = 'contact' | 'summary' | 'education' | 'experience' | 'projects' | 'skills' | 'certifications' | 'languages' | 'extra'
@@ -24,7 +24,27 @@ type Props = {
     ariaLabel?: string
 }
 
-const Ctx = createContext<{ highlight?: SectionKey; look: Look }>({ look: resolveLook('classic') })
+const Ctx = createContext<{ highlight?: SectionKey; look: Look; language: CvLanguage }>({ look: resolveLook('classic'), language: 'en' })
+
+const Lnk = ({ url, children }: { url?: string; children: ReactNode }) =>
+    url && /^https?:\/\//i.test(url) ? (
+        <a data-cv="link" href={url} target="_blank" rel="noopener noreferrer" className="text-inherit underline decoration-dotted">
+            {children}
+        </a>
+    ) : (
+        <>{children}</>
+    )
+
+const Tech = ({ p }: { p: { tech: string; hide_tech?: boolean } }) => {
+    const { language } = useContext(Ctx)
+    if (!p.tech?.trim() || p.hide_tech) return null
+    return (
+        <div className="italic">
+            {language === 'fr' ? 'Technologies : ' : 'Technologies: '}
+            {p.tech}
+        </div>
+    )
+}
 
 // CvPreview renders the CV as the three templates of screen 4.3 draw it, the same way the PDF export does.
 export default function CvPreview({ content, layout, language, photoUrl, highlight, phonePlaceholder, onPages, className, ariaLabel }: Props) {
@@ -34,6 +54,7 @@ export default function CvPreview({ content, layout, language, photoUrl, highlig
     const [height, setHeight] = useState(BASE_H)
     const look = useMemo(() => resolveLook(layout, content.style), [layout, content.style])
     const css = useMemo(() => lookCss(look, content.style), [look, content.style])
+    const shown = useMemo(() => visibleEntries(content), [content])
 
     useLayoutEffect(() => {
         const el = box.current
@@ -74,8 +95,8 @@ export default function CvPreview({ content, layout, language, photoUrl, highlig
                 }}
             >
                 <style>{css}</style>
-                <Ctx.Provider value={{ highlight, look }}>
-                    <Body c={content} h={cvHeadings[language]} photoUrl={look.showPhoto ? photoUrl : null} phonePlaceholder={phonePlaceholder} />
+                <Ctx.Provider value={{ highlight, look, language }}>
+                    <Body c={shown} h={cvHeadings[language]} photoUrl={look.showPhoto ? photoUrl : null} phonePlaceholder={phonePlaceholder} />
                 </Ctx.Provider>
                 {Array.from({ length: Math.floor((height - 2) / BASE_H) }, (_, i) => (
                     <div key={i} aria-hidden className="absolute inset-x-0 border-t border-dashed border-line-strong" style={{ top: (i + 1) * BASE_H }} />
@@ -117,10 +138,11 @@ const Row = ({ left, right, className }: { left: ReactNode; right?: ReactNode; c
 )
 
 const Bullets = ({ lines }: { lines: string[] }) => {
+    const { look } = useContext(Ctx)
     const l = nonEmpty(...lines)
     if (!l.length) return null
     return (
-        <ul className="m-0 mb-[3px] mt-px list-disc ps-3.5">
+        <ul className="m-0 mb-[3px] mt-px" style={{ listStyleType: look.hyphen ? '"- "' : 'disc', paddingInlineStart: look.indent ? 14 : 9 }}>
             {l.map((x, i) => (
                 <li key={i}>{x}</li>
             ))}
@@ -213,8 +235,8 @@ function Classic({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                 {head(h.education)}
                 {c.education.map((e, i) => (
                     <div key={i} className={cn(i > 0 && 'mt-[3px]')}>
-                        <Row left={<strong>{e.degree}</strong>} right={dates(e.start, e.end)} />
-                        <Row left={e.school} right={e.location} />
+                        <Row left={<Lnk url={e.url}><strong>{e.degree}</strong></Lnk>} right={dates(e.start, e.end)} />
+                        <Row left={<span data-cv="sub">{e.school}</span>} right={e.location} />
                     </div>
                 ))}
             </Mark>
@@ -229,7 +251,7 @@ function Classic({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                         <Row
                             left={
                                 <>
-                                    <span className="text-cv-blue">{e.company}</span>
+                                    <Lnk url={e.url}><span data-cv="sub" className="text-cv-blue">{e.company}</span></Lnk>
                                     {e.kind ? ` (${e.kind})` : ''}
                                 </>
                             }
@@ -246,8 +268,8 @@ function Classic({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                 {head(h.projects)}
                 {c.projects.map((p, i) => (
                     <div key={i}>
-                        <Row left={<strong>{p.name}</strong>} right={join(' · ', p.tech, p.year)} />
-                        <Bullets lines={p.description} />
+                        <Row left={<Lnk url={p.url}><strong>{p.name}</strong></Lnk>} right={p.year} />
+                        <Bullets lines={p.description} /><Tech p={p} />
                     </div>
                 ))}
             </Mark>
@@ -276,7 +298,7 @@ function Classic({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                         key={i}
                         left={
                             <>
-                                <strong>{x.name}</strong>
+                                <Lnk url={x.url}><strong>{x.name}</strong></Lnk>
                                 {x.issuer ? `, ${x.issuer}` : ''}
                             </>
                         }
@@ -377,8 +399,8 @@ function Modern({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                 {head(h.education)}
                 {c.education.map((e, i) => (
                     <div key={i} className="mb-0.5">
-                        <Row left={<strong>{join(' — ', e.school, e.degree)}</strong>} right={<span className="text-ink-3">{dates(e.start, e.end)}</span>} />
-                        {e.location ? <div className="text-ink-3">{e.location}</div> : null}
+                        <Row left={<Lnk url={e.url}><strong>{join(' — ', e.school, e.degree)}</strong></Lnk>} right={<span className="text-ink-3">{dates(e.start, e.end)}</span>} />
+                        {e.location ? <div data-cv="sub" className="text-ink-3">{e.location}</div> : null}
                     </div>
                 ))}
             </Mark>
@@ -389,8 +411,8 @@ function Modern({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                 {head(h.experience)}
                 {c.experience.map((e, i) => (
                     <div key={i} className="mb-0.5">
-                        <Row left={<strong>{join(' — ', e.title, e.company)}</strong>} right={<span className="text-ink-3">{dates(e.start, e.end)}</span>} />
-                        {join(' · ', e.kind, e.location) ? <div className="text-ink-3">{join(' · ', e.kind, e.location)}</div> : null}
+                        <Row left={<Lnk url={e.url}><strong>{join(' — ', e.title, e.company)}</strong></Lnk>} right={<span className="text-ink-3">{dates(e.start, e.end)}</span>} />
+                        {join(' · ', e.kind, e.location) ? <div data-cv="sub" className="text-ink-3">{join(' · ', e.kind, e.location)}</div> : null}
                         <Bullets lines={e.description} />
                     </div>
                 ))}
@@ -402,8 +424,8 @@ function Modern({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                 {head(h.projects)}
                 {c.projects.map((p, i) => (
                     <div key={i} className="mb-0.5">
-                        <Row left={<strong>{p.name}</strong>} right={<span className="text-ink-3">{join(' · ', p.tech, p.year)}</span>} />
-                        <Bullets lines={p.description} />
+                        <Row left={<Lnk url={p.url}><strong>{p.name}</strong></Lnk>} right={<span className="text-ink-3">{p.year}</span>} />
+                        <Bullets lines={p.description} /><Tech p={p} />
                     </div>
                 ))}
             </Mark>
@@ -417,7 +439,7 @@ function Modern({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                         key={i}
                         left={
                             <>
-                                <strong>{x.name}</strong>
+                                <Lnk url={x.url}><strong>{x.name}</strong></Lnk>
                                 <span className="text-ink-3">{x.issuer ? `, ${x.issuer}` : ''}</span>
                             </>
                         }
@@ -490,7 +512,7 @@ function Compact({ c, h, phonePlaceholder }: BodyProps) {
             <Mark key="education" k="education">
                 {head(h.education)}
                 {c.education.map((e, i) => (
-                    <Row key={i} left={<strong>{join(' — ', e.school, e.degree)}</strong>} right={dates(e.start, e.end)} />
+                    <Row key={i} left={<Lnk url={e.url}><strong>{join(' — ', e.school, e.degree)}</strong></Lnk>} right={dates(e.start, e.end)} />
                 ))}
             </Mark>
         )
@@ -503,7 +525,7 @@ function Compact({ c, h, phonePlaceholder }: BodyProps) {
                         <Row
                             left={
                                 <>
-                                    <strong>{join(' : ', e.company, e.title)}</strong>
+                                    <Lnk url={e.url}><strong>{join(' : ', e.company, e.title)}</strong></Lnk>
                                     {e.location ? `, ${e.location}` : ''}
                                 </>
                             }
@@ -523,13 +545,12 @@ function Compact({ c, h, phonePlaceholder }: BodyProps) {
                         <Row
                             left={
                                 <>
-                                    <strong>{p.name}</strong>
-                                    {p.tech ? ` · ${p.tech}` : ''}
+                                    <Lnk url={p.url}><strong>{p.name}</strong></Lnk>
                                 </>
                             }
                             right={p.year}
                         />
-                        <Bullets lines={p.description} />
+                        <Bullets lines={p.description} /><Tech p={p} />
                     </div>
                 ))}
             </Mark>
@@ -559,7 +580,7 @@ function Compact({ c, h, phonePlaceholder }: BodyProps) {
                         key={i}
                         left={
                             <>
-                                <strong>{x.name}</strong>
+                                <Lnk url={x.url}><strong>{x.name}</strong></Lnk>
                                 {x.issuer ? `, ${x.issuer}` : ''}
                             </>
                         }

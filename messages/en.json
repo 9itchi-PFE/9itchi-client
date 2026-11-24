@@ -108,14 +108,23 @@
         "scoreCheck": "Check the CV",
         "scoreOf": "/ {total}",
         "sectionsNav": "CV sections",
-        "tabs": { "label": "Editor mode", "content": "Content", "customize": "Customize" },
+        "tabs": {
+            "label": "Editor mode",
+            "content": "Content",
+            "customize": "Customize"
+        },
         "showSection": "Show this section on the CV",
         "hideSection": "Hide this section from the CV",
         "hiddenBadge": "Hidden",
         "visibleBadge": "Shown",
         "style": {
             "categories": "Customization categories",
-            "cat": { "typography": "Text", "spacing": "Spacing", "colors": "Colors", "header": "Header" },
+            "cat": {
+                "typography": "Text",
+                "spacing": "Spacing",
+                "colors": "Colors",
+                "header": "Header"
+            },
             "bodyFont": "Font",
             "open": "Style",
             "fontSize": "Font size",
@@ -150,14 +159,28 @@
             "textColor": "Text color",
             "background": "Background",
             "applyAccent": "Apply accent color to",
-            "target": { "name": "Name", "title": "Job title", "headings": "Headings", "rules": "Heading lines", "dates": "Dates", "entry_title": "Entry titles", "links": "Links" },
+            "target": {
+                "name": "Name",
+                "title": "Job title",
+                "headings": "Headings",
+                "rules": "Heading lines",
+                "dates": "Dates",
+                "entry_title": "Entry titles",
+                "links": "Links"
+            },
             "header": "Header",
             "align": "Text alignment",
             "left": "Left",
             "center": "Center",
             "separator": "Details separator",
             "showPhoto": "Show photo",
-            "reset": "Reset style"
+            "reset": "Reset style",
+            "subtitleStyle": "Subtitle",
+            "dateStyle": "Date",
+            "listStyle": "List style",
+            "bullet": "Bullet",
+            "hyphen": "Hyphen",
+            "indentBody": "Indent body"
         },
         "addSection": "+ Add a section",
         "addSectionTitle": "Add a section",
@@ -215,7 +238,9 @@
             "language": "Language",
             "level": "Level",
             "extraTitle": "Section title",
-            "extraItem": "Item {n}"
+            "extraItem": "Item {n}",
+            "url": "Link (optional)",
+            "showTech": "Show technologies under the project"
         },
         "line1": "What you did · line {n}",
         "lineN": "Line {n}",
@@ -243,7 +268,12 @@
         "toastPhoto": "Photo saved",
         "toastPhotoRemoved": "Photo removed",
         "photoTooBig": "The photo is over 2 MB.",
-        "photoType": "Choose a JPG or PNG photo."
+        "photoType": "Choose a JPG or PNG photo.",
+        "rowsHint": "Drag to reorder, click the eye to hide an entry, click a row to edit it.",
+        "untitled": "Untitled",
+        "showEntry": "Show {name}",
+        "hideEntry": "Hide {name}",
+        "addEntry": "+ Add entry"
     },
     "download": {
         "freeEyebrow": "Your first download is free",

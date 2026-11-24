@@ -4,7 +4,7 @@ import { useState, type ReactNode } from 'react'
 import { useTranslations } from 'next-intl'
 import { Segmented } from '@/components/ui/Segmented'
 import { BODY_FONTS, resolveLook } from '@/lib/cvLook'
-import type { AccentTarget, BodyFont, CVStyle, Layout } from '@/types/resume'
+import type { AccentTarget, BodyFont, CVStyle, Layout, TextStyle as TextStyleT } from '@/types/resume'
 
 const TARGETS: AccentTarget[] = ['name', 'title', 'headings', 'rules', 'dates', 'entry_title', 'links']
 const DEFAULT_TARGETS: AccentTarget[] = ['title', 'headings', 'rules', 'entry_title', 'links']
@@ -75,6 +75,28 @@ export default function StylePanel({ style, layout, onChange }: Props) {
                         ]}
                     />
                 </Field>
+                <Field label={t('subtitleStyle')}>
+                    <TextStyle label={t('subtitleStyle')} value={s.subtitle_style} onChange={(v) => set({ subtitle_style: v })} />
+                </Field>
+                <Field label={t('dateStyle')}>
+                    <TextStyle label={t('dateStyle')} value={s.date_style} onChange={(v) => set({ date_style: v })} />
+                </Field>
+                <Field label={t('listStyle')}>
+                    <Segmented
+                        role="radiogroup"
+                        label={t('listStyle')}
+                        value={s.list_style ?? 'bullet'}
+                        onChange={(v) => set({ list_style: v })}
+                        options={[
+                            { value: 'bullet', label: t('bullet') },
+                            { value: 'hyphen', label: t('hyphen') },
+                        ]}
+                    />
+                </Field>
+                <label className="flex items-center gap-2 font-medium text-ink-2">
+                    <input type="checkbox" checked={look.indent} onChange={(e) => set({ indent_body: e.target.checked ? undefined : false })} />
+                    {t('indentBody')}
+                </label>
             </Group>
             <Group id="typography" cat={cat}>
                 <Field label={t('capitalization')}>
@@ -265,3 +287,22 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
 }
 
 const SWATCHES = ['#111111', '#2F5597', '#1F2A44', '#0F766E', '#15803D', '#B45309', '#B91C1C', '#7C3AED', '#BE185D']
+
+const TextStyle = ({ label, value, onChange }: { label: string; value?: TextStyleT; onChange: (v: TextStyleT | undefined) => void }) => (
+    <div role="radiogroup" aria-label={label} className="grid grid-cols-3 gap-1.5">
+        {(['normal', 'bold', 'italic'] as const).map((k) => (
+            <button
+                key={k}
+                type="button"
+                role="radio"
+                aria-checked={value === k}
+                aria-label={k}
+                onClick={() => onChange(value === k ? undefined : k)}
+                className={`h-9 cursor-pointer rounded-lg border text-sm ${value === k ? 'border-ink bg-ink text-white' : 'border-line-soft bg-white text-ink'}`}
+                style={{ fontWeight: k === 'bold' ? 700 : 400, fontStyle: k === 'italic' ? 'italic' : 'normal' }}
+            >
+                Aa
+            </button>
+        ))}
+    </div>
+)

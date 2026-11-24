@@ -173,6 +173,122 @@ function replaceAt<T>(xs: T[], i: number, v: T) {
     return xs.map((x, j) => (j === i ? v : x))
 }
 
+type Rowish = { hidden?: boolean }
+
+// RowsEditor lists the entries of a section as draggable rows with an eye toggle; a click opens one for editing.
+function RowsEditor<T extends Rowish>({
+    title,
+    items,
+    item,
+    setItem,
+    blank,
+    onItems,
+    render,
+    label,
+}: {
+    title: string
+    items: T[]
+    item: number
+    setItem: (i: number) => void
+    blank: T
+    onItems: (xs: T[]) => void
+    render: (x: T, set: (v: T) => void) => ReactNode
+    label: (x: T) => string
+}) {
+    const t = useTranslations('cv')
+    const [drag, setDrag] = useState<number | null>(null)
+    const [over, setOver] = useState<number | null>(null)
+    const move = (from: number, to: number) => {
+        if (from === to) return
+        const next = items.slice()
+        const [x] = next.splice(from, 1)
+        next.splice(to, 0, x)
+        onItems(next)
+        setItem(to)
+    }
+    return (
+        <Card title={title} label={t('editLabel', { section: title })}>
+            {items.length ? <p className="m-0 text-[13px] text-ink-3">{t('rowsHint')}</p> : <p className="m-0 text-sm text-ink-3">{t('empty')}</p>}
+            <ul className="m-0 flex list-none flex-col gap-2 p-0">
+                {items.map((x, i) => {
+                    const open = item === i
+                    const name = label(x).trim() || t('untitled')
+                    return (
+                        <li
+                            key={i}
+                            draggable
+                            onDragStart={() => setDrag(i)}
+                            onDragOver={(e) => {
+                                e.preventDefault()
+                                setOver(i)
+                            }}
+                            onDragEnd={() => {
+                                setDrag(null)
+                                setOver(null)
+                            }}
+                            onDrop={() => {
+                                if (drag !== null) move(drag, i)
+                                setDrag(null)
+                                setOver(null)
+                            }}
+                            className={cn('rounded-xl border bg-white', over === i && drag !== null && drag !== i ? 'border-ink' : 'border-line-soft', drag === i && 'opacity-50')}
+                        >
+                            <div className="flex items-center gap-2 px-3 py-2.5">
+                                <span aria-hidden className="cursor-grab select-none text-ink-3">⠿</span>
+                                <button
+                                    type="button"
+                                    aria-expanded={open}
+                                    onClick={() => setItem(open ? -1 : i)}
+                                    className={cn('min-w-0 flex-1 cursor-pointer truncate border-0 bg-transparent p-0 text-start text-sm font-semibold', x.hidden && 'text-ink-3 line-through')}
+                                >
+                                    {name}
+                                </button>
+                                <button
+                                    type="button"
+                                    aria-pressed={!x.hidden}
+                                    aria-label={x.hidden ? t('showEntry', { name }) : t('hideEntry', { name })}
+                                    title={x.hidden ? t('showEntry', { name }) : t('hideEntry', { name })}
+                                    onClick={() => onItems(replaceAt(items, i, { ...x, hidden: !x.hidden }))}
+                                    className="h-8 w-8 cursor-pointer rounded-lg border border-line-soft bg-white text-base"
+                                >
+                                    {x.hidden ? '🙈' : '👁'}
+                                </button>
+                                <button
+                                    type="button"
+                                    aria-label={t('removeItem')}
+                                    title={t('removeItem')}
+                                    onClick={() => {
+                                        onItems(items.filter((_, j) => j !== i))
+                                        setItem(-1)
+                                    }}
+                                    className="h-8 w-8 cursor-pointer rounded-lg border border-line-soft bg-white text-base hover:text-warn-fg"
+                                >
+                                    🗑
+                                </button>
+                            </div>
+                            {open ? <div className="flex flex-col gap-4 border-t border-line-soft p-3">{render(x, (v) => onItems(replaceAt(items, i, v)))}</div> : null}
+                        </li>
+                    )
+                })}
+            </ul>
+            <Button
+                variant="dashed"
+                className="h-10 self-start rounded-[10px] font-medium"
+                onClick={() => {
+                    onItems([...items, blank])
+                    setItem(items.length)
+                }}
+            >
+                {t('addEntry')}
+            </Button>
+        </Card>
+    )
+}
+
+const UrlField = ({ value, onChange }: { value?: string; onChange: (v: string) => void }) => {
+    const t = useTranslations('cv')
+    return <Field label={t('fields.url')} type="url" inputMode="url" placeholder="https://…" value={value ?? ''} onChange={(x) => onChange(x.target.value)} />
+}
 // ListEditor is the shared shape of the list sections: one item at a time, a pager, fields.
 function ListEditor<T>({
     title,
@@ -276,7 +392,8 @@ export function SummaryEditor({ content, onChange }: EditorProps) {
 export function EducationEditor(p: EditorProps) {
     const t = useTranslations('cv')
     return (
-        <ListEditor
+        <RowsEditor
+            label={(e) => [e.school, e.degree].filter(Boolean).join(', ')}
             title={t('sections.education')}
             items={p.content.education}
             item={p.item}
@@ -292,6 +409,7 @@ export function EducationEditor(p: EditorProps) {
                         <Field label={t('fields.end')} value={e.end} onChange={(x) => set({ ...e, end: x.target.value })} />
                     </Grid>
                     <Field label={t('fields.place')} value={e.location ?? ''} onChange={(x) => set({ ...e, location: x.target.value })} />
+                    <UrlField value={e.url} onChange={(url) => set({ ...e, url })} />
                 </>
             )}
         />
@@ -301,7 +419,8 @@ export function EducationEditor(p: EditorProps) {
 export function ExperienceEditor(p: EditorProps) {
     const t = useTranslations('cv')
     return (
-        <ListEditor
+        <RowsEditor
+            label={(e) => [e.company, e.title].filter(Boolean).join(', ')}
             title={t('sections.experience')}
             items={p.content.experience}
             item={p.item}
@@ -323,6 +442,7 @@ export function ExperienceEditor(p: EditorProps) {
                         />
                         <Field label={t('fields.place')} value={e.location ?? ''} onChange={(x) => set({ ...e, location: x.target.value })} />
                     </Grid>
+                    <UrlField value={e.url} onChange={(url) => set({ ...e, url })} />
                     <Lines lines={e.description} language={p.language} focusLine={p.focusLine} onChange={(description) => set({ ...e, description })} />
                 </>
             )}
@@ -333,7 +453,8 @@ export function ExperienceEditor(p: EditorProps) {
 export function ProjectsEditor(p: EditorProps) {
     const t = useTranslations('cv')
     return (
-        <ListEditor
+        <RowsEditor
+            label={(e) => [e.name].filter(Boolean).join(', ')}
             title={t('sections.projects')}
             items={p.content.projects ?? []}
             item={p.item}
@@ -347,7 +468,12 @@ export function ProjectsEditor(p: EditorProps) {
                         <Field label={t('fields.tech')} value={e.tech} onChange={(x) => set({ ...e, tech: x.target.value })} />
                         <Field label={t('fields.year')} value={e.year} onChange={(x) => set({ ...e, year: x.target.value })} />
                     </Grid>
+                    <UrlField value={e.url} onChange={(url) => set({ ...e, url })} />
                     <Lines lines={e.description} language={p.language} focusLine={p.focusLine} onChange={(description) => set({ ...e, description })} />
+                    <label className="flex items-center gap-2 text-[13.5px] font-medium text-ink-2">
+                        <input type="checkbox" checked={!e.hide_tech} onChange={(x) => set({ ...e, hide_tech: !x.target.checked })} />
+                        {t('fields.showTech')}
+                    </label>
                 </>
             )}
         />
@@ -405,7 +531,8 @@ function CommaField({ label, hint, items, onItems }: { label: string; hint: stri
 export function CertificationsEditor(p: EditorProps) {
     const t = useTranslations('cv')
     return (
-        <ListEditor
+        <RowsEditor
+            label={(e) => [e.name, e.issuer].filter(Boolean).join(', ')}
             title={t('sections.certifications')}
             items={p.content.certifications}
             item={p.item}
@@ -415,6 +542,7 @@ export function CertificationsEditor(p: EditorProps) {
             render={(e, set) => (
                 <>
                     <Field label={t('fields.certName')} value={e.name} onChange={(x) => set({ ...e, name: x.target.value })} />
+                    <UrlField value={e.url} onChange={(url) => set({ ...e, url })} />
                     <Grid>
                         <Field label={t('fields.issuer')} value={e.issuer} onChange={(x) => set({ ...e, issuer: x.target.value })} />
                         <Field label={t('fields.year')} value={e.year} onChange={(x) => set({ ...e, year: x.target.value })} />
