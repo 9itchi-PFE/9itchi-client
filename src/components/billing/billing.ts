@@ -23,11 +23,20 @@ export function months(days: number): number | null {
     return days > 0 && days % 30 === 0 ? days / 30 : null
 }
 
-// Lines are the rows of a receipt, in millimes: the plan at its price, what the code took off, what was paid.
-export type Lines = { price: number; discount: number; paid: number }
+// regularOf is the price to strike through, in millimes: the regular price when it is above the price charged, else null.
+export function regularOf(plan: Pick<Plan, 'price' | 'regular_price'>): number | null {
+    return plan.regular_price && plan.regular_price > plan.price ? millimes(plan.regular_price) : null
+}
 
-export function lines(p: Pick<Payment, 'amount_millimes' | 'discount_millimes'>): Lines {
-    return { price: p.amount_millimes + p.discount_millimes, discount: p.discount_millimes, paid: p.amount_millimes }
+// Lines are the rows of a receipt, in millimes: the plan at its price, what the code took off, what was paid.
+// launch is what the launch price took off the regular price that day (0 when the plan had no regular price):
+// the first row then shows price + launch.
+export type Lines = { price: number; launch: number; discount: number; paid: number }
+
+export function lines(p: Pick<Payment, 'amount_millimes' | 'discount_millimes' | 'regular_millimes'>): Lines {
+    const price = p.amount_millimes + p.discount_millimes
+    const launch = p.regular_millimes && p.regular_millimes > price ? p.regular_millimes - price : 0
+    return { price, launch, discount: p.discount_millimes, paid: p.amount_millimes }
 }
 
 // promoReason turns payments-api's refusal of a code into the key of the message shown.

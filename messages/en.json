@@ -1315,6 +1315,14 @@
         "lapsed": "Your subscription ended on {date} and was not renewed. Pay the renewal to get back the letter, 1-click sending and tracking.",
         "bannerDue": "{count, plural, =0 {Your subscription is to renew today.} one {Your subscription is to renew tomorrow.} other {Your subscription is to renew in # days.}}",
         "bannerLapsed": "Your subscription ended on {date}.",
-        "bannerAction": "Renew"
+        "bannerAction": "Renew",
+        "launchPrice": "Launch price",
+        "regularPrice": "Regular price:",
+        "legalName": "Company name",
+        "legalAddress": "Address",
+        "taxId": "Tax ID",
+        "taxIdShort": "Tax ID",
+        "vat": "VAT",
+        "toFill": "to be completed"
     }
 }

@@ -2,6 +2,8 @@ export type Plan = {
     id: string
     name: string
     price: number
+    // regular_price: what the plan normally costs, shown struck through next to price (the amount charged). Absent: none.
+    regular_price?: number | null
     duration_days: number
     quotas: Record<string, number>
     active: boolean
@@ -55,6 +57,8 @@ export type Payment = {
     duration_days: number
     amount_millimes: number
     discount_millimes: number
+    // regular_millimes: the plan's regular price the day the payment was opened, when it had one.
+    regular_millimes?: number | null
     promo_code: string
     provider: string
     provider_ref: string
@@ -62,4 +66,13 @@ export type Payment = {
     period_end: string | null
     completed_at: string | null
     created_at: string
+}
+
+// ReceiptIssuer is the legal information printed on receipts. An empty field is not known yet: the receipt leaves a gap.
+export type ReceiptIssuer = {
+    legal_name: string
+    address: string
+    tax_id: string
+    vat_mention: string
+    complete: boolean
 }

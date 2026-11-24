@@ -1315,6 +1315,14 @@
         "lapsed": "Ton abonnement s’est terminé le {date} et n’a pas été renouvelé. Paie le renouvellement pour retrouver la lettre, l’envoi en un clic et le suivi.",
         "bannerDue": "{count, plural, =0 {Ton abonnement est à renouveler aujourd’hui.} one {Ton abonnement est à renouveler demain.} other {Ton abonnement est à renouveler dans # jours.}}",
         "bannerLapsed": "Ton abonnement s’est terminé le {date}.",
-        "bannerAction": "Renouveler"
+        "bannerAction": "Renouveler",
+        "launchPrice": "Prix de lancement",
+        "regularPrice": "Prix normal :",
+        "legalName": "Raison sociale",
+        "legalAddress": "Adresse",
+        "taxId": "Matricule fiscal",
+        "taxIdShort": "MF",
+        "vat": "TVA",
+        "toFill": "à compléter"
     }
 }

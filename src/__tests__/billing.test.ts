@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { daysLeft, dinars, fromReturn, lines, millimes, months, paidPlan, promoReason, renewal, tnd } from '@/components/billing/billing'
+import { daysLeft, dinars, fromReturn, lines, millimes, months, paidPlan, promoReason, regularOf, renewal, tnd } from '@/components/billing/billing'
 import type { Plan, Subscription } from '@/types/plan'
 
 const plan = (over: Partial<Plan>): Plan => ({ id: 'p', name: 'Mensuel', price: 35, duration_days: 30, quotas: {}, active: true, ...over })
@@ -15,8 +15,8 @@ describe('amounts', () => {
         expect(dinars(35.5, 'fr')).toBe('35,5')
     })
     it('splits a receipt into price, discount and paid', () => {
-        expect(lines({ amount_millimes: 30000, discount_millimes: 5000 })).toEqual({ price: 35000, discount: 5000, paid: 30000 })
-        expect(lines({ amount_millimes: 0, discount_millimes: 35000 })).toEqual({ price: 35000, discount: 35000, paid: 0 })
+        expect(lines({ amount_millimes: 30000, discount_millimes: 5000 })).toEqual({ price: 35000, launch: 0, discount: 5000, paid: 30000 })
+        expect(lines({ amount_millimes: 0, discount_millimes: 35000 })).toEqual({ price: 35000, launch: 0, discount: 35000, paid: 0 })
     })
 })
 
@@ -90,5 +90,30 @@ describe('renewal', () => {
         const lapsed = sub({ ends_at: '2026-11-20T12:00:00Z' })
         expect(renewal({ subscription: null, is_free: true, lapsed }, now)).toEqual({ kind: 'lapsed', endedAt: '2026-11-20T12:00:00Z' })
         expect(renewal(undefined, now)).toBeNull()
+    })
+})
+
+describe('regular price', () => {
+    it('is struck through only when it is above the price charged', () => {
+        expect(regularOf({ price: 35, regular_price: 50 })).toBe(50000)
+        expect(regularOf({ price: 35, regular_price: 35 })).toBeNull()
+        expect(regularOf({ price: 35, regular_price: 20 })).toBeNull()
+        expect(regularOf({ price: 35, regular_price: null })).toBeNull()
+        expect(regularOf({ price: 35 })).toBeNull()
+    })
+
+    it('adds a launch-price row to the receipt of a payment opened with one', () => {
+        // 50 regular, 35 at launch, 5 off with a code: 30 paid.
+        expect(lines({ amount_millimes: 30000, discount_millimes: 5000, regular_millimes: 50000 })).toEqual({
+            price: 35000,
+            launch: 15000,
+            discount: 5000,
+            paid: 30000,
+        })
+    })
+
+    it('adds none for a payment opened without one', () => {
+        expect(lines({ amount_millimes: 30000, discount_millimes: 5000 })).toEqual({ price: 35000, launch: 0, discount: 5000, paid: 30000 })
+        expect(lines({ amount_millimes: 35000, discount_millimes: 0, regular_millimes: 35000 }).launch).toBe(0)
     })
 })
