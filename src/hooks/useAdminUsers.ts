@@ -10,7 +10,7 @@ export const adminUserKeys = {
     all: ['admin', 'users'] as const,
     list: (query: UserQuery) => ['admin', 'users', 'list', query] as const,
     one: (id: string) => ['admin', 'users', 'one', id] as const,
-    part: (id: string, what: 'subscription' | 'payments' | 'applications' | 'gmail' | 'cv' | 'note') => ['admin', 'users', 'one', id, what] as const,
+    part: (id: string, what: 'subscription' | 'payments' | 'applications' | 'gmail' | 'cv' | 'note' | 'gifts') => ['admin', 'users', 'one', id, what] as const,
 }
 
 // useAdminUsers lists the students; while a new page or search loads, the rows already shown stay.
@@ -105,5 +105,26 @@ export function useSaveStudentNote(id: string) {
     return useMutation({
         mutationFn: async (note: string) => (await AccountService.setUserNote(id, note)).data,
         onSuccess: (saved) => qc.setQueryData<UserNote>(adminUserKeys.part(id, 'note'), saved),
+    })
+}
+
+export function useStudentGifts(id: string) {
+    return useQuery({
+        queryKey: adminUserKeys.part(id, 'gifts'),
+        queryFn: async () => (await PaymentService.userGifts(id)).data.items,
+        enabled: !!id,
+        retry: 1,
+    })
+}
+
+// useGiveMonth gives the student 30 days; the plan and the gifts of the file are read again.
+export function useGiveMonth(id: string) {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: async () => (await PaymentService.giveMonth(id)).data,
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: adminUserKeys.part(id, 'subscription') })
+            qc.invalidateQueries({ queryKey: adminUserKeys.part(id, 'gifts') })
+        },
     })
 }

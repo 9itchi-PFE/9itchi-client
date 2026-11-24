@@ -13,9 +13,11 @@ import { useToast } from '@/components/ui/Toast'
 import {
     useAdminUser,
     useDeleteUser,
+    useGiveMonth,
     useSaveStudentNote,
     useStudentApplications,
     useStudentCV,
+    useStudentGifts,
     useStudentGmail,
     useStudentNote,
     useStudentPayments,
@@ -196,6 +198,8 @@ export default function StudentScreen({ id }: { id: string }) {
     const sub = useStudentSubscription(user?.id ?? '')
     const gmail = useStudentGmail(user?.id ?? '')
     const cv = useStudentCV(user?.id ?? '')
+    const gifts = useStudentGifts(user?.id ?? '')
+    const give = useGiveMonth(user?.id ?? '')
     const suspend = useSuspendUser()
     const write = useStartConversation()
     const tc = useTranslations('chat')
@@ -213,6 +217,14 @@ export default function StudentScreen({ id }: { id: string }) {
             { id: user.id, suspended },
             { onSuccess: () => toast(suspended ? t('suspended') : t('reactivated')), onError: (e) => setProblem(apiError(e) ?? t('stateError')) },
         )
+    }
+    const gift = () => {
+        if (!user || !window.confirm(t('giftConfirm', { name: user.name || user.email }))) return
+        setProblem('')
+        give.mutate(undefined, {
+            onSuccess: () => toast(t('gifted')),
+            onError: (e) => setProblem(isAxiosError(e) && e.response?.status === 409 ? t('giftRefused') : (apiError(e) ?? t('stateError'))),
+        })
     }
     const del = () => {
         if (!user || !window.confirm(t('deleteStudentConfirm', { name: user.name || user.email }))) return
@@ -278,6 +290,9 @@ export default function StudentScreen({ id }: { id: string }) {
                                         ? t('sPlanFree')
                                         : t(paid.renews ? 'sPlanPaid' : 'sPlanStopped', { name: sub.data.plan.name, day: new Date(paid.ends_at) })}
                             </Row>
+                            {gifts.data?.length ? (
+                                <Row label={t('sGifts')}>{t('sGiftsValue', { count: gifts.data.length, day: new Date(gifts.data[0].created_at) })}</Row>
+                            ) : null}
                             <Row label={t('sCv')}>
                                 {cv.isLoading
                                     ? '…'
@@ -309,6 +324,9 @@ export default function StudentScreen({ id }: { id: string }) {
                                 }
                             >
                                 {tc('writeTo', { name: (user.name || user.email).split(' ')[0] })}
+                            </Button>
+                            <Button variant="secondary" disabled={give.isPending} onClick={gift}>
+                                {t('gift')}
                             </Button>
                             {user.status === 'active' ? (
                                 <Button

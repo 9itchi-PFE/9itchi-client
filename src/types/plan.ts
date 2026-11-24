@@ -51,6 +51,18 @@ export type MySubscription = {
     lapsed?: Subscription | null
 }
 
+// Gift is a month the team gave a student: the plan and the days it added, and the admin who gave it.
+export type Gift = {
+    id: string
+    plan_id: string
+    plan_name: string
+    days: number
+    given_by: string
+    period_start: string
+    period_end: string
+    created_at: string
+}
+
 // PromoCheck is payments-api's price for a code on a plan (amounts in TND).
 export type PromoCheck = { valid: boolean; discount_amount: number; final_price: number; reason?: string }
 
