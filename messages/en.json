@@ -1324,5 +1324,62 @@
         "taxIdShort": "Tax ID",
         "vat": "VAT",
         "toFill": "to be completed"
+    },
+    "notifications": {
+        "title": "Notifications",
+        "unread": "{count, plural, one {# new} other {# new}}",
+        "allRead": "All read",
+        "markAllRead": "Mark all as read",
+        "markRead": "Mark as read",
+        "groupNew": "New",
+        "groupEarlier": "Earlier",
+        "new": "New:",
+        "today": "Today, {time}",
+        "yesterday": "Yesterday",
+        "openedBy": "{company} opened your application.",
+        "opened": "Your application was opened.",
+        "sentTo": "Your application to {company} was sent.",
+        "sent": "Your scheduled application was sent.",
+        "failedTo": "Your application to {company} was not sent.",
+        "failed": "Your scheduled application was not sent.",
+        "matches": "{count, plural, one {# new offer} other {# new offers}} for you.",
+        "follow": "Follow it",
+        "see": "See",
+        "seeOffers": "See the offers",
+        "alsoByEmail": "You also get the most important ones by email. Choose which in <link>Settings → Alerts</link>.",
+        "emptyTitle": "You are up to date",
+        "emptyText": "When a company opens your application or a scheduled send leaves, you see it here and by email.",
+        "chooseEmails": "Choose what I get by email",
+        "backToOffers": "Back to the offers"
+    },
+    "alerts": {
+        "title": "Alerts",
+        "intro": "Choose what we tell you, and where.",
+        "colAlert": "Alert",
+        "email": "Email",
+        "inApp": "In 9itchi",
+        "byEmail": "{alert}: by email",
+        "byApp": "{alert}: in 9itchi",
+        "goesTo": "Emails go to",
+        "notSaved": "Your choice was not saved. Try again.",
+        "always": "The receipt of a payment and a scheduled send that could not leave are always reported to you.",
+        "kinds": {
+            "applications": {
+                "label": "Follow-up of my applications",
+                "desc": "Application opened, scheduled send sent"
+            },
+            "matches": {
+                "label": "New offers for you",
+                "desc": "One email a day at most, grouped"
+            },
+            "closing": {
+                "label": "A saved offer closes soon",
+                "desc": "3 days before the deadline"
+            },
+            "tips": {
+                "label": "Tips to improve your CV",
+                "desc": "Once a week at most"
+            }
+        }
     }
 }

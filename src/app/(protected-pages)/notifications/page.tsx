@@ -1,5 +1,5 @@
-import PagePlaceholder from '@/components/ui/PagePlaceholder'
+import NotificationsScreen from '@/components/notifications/NotificationsScreen'
 
 export default function Page() {
-    return <PagePlaceholder title="Notifications" description="Email opened, scheduled email sent, new matching jobs." />
+    return <NotificationsScreen />
 }

@@ -1324,5 +1324,62 @@
         "taxIdShort": "MF",
         "vat": "TVA",
         "toFill": "à compléter"
+    },
+    "notifications": {
+        "title": "Notifications",
+        "unread": "{count, plural, one {# nouvelle} other {# nouvelles}}",
+        "allRead": "Tout est lu",
+        "markAllRead": "Tout marquer comme lu",
+        "markRead": "Marquer comme lu",
+        "groupNew": "Nouveau",
+        "groupEarlier": "Plus tôt",
+        "new": "Nouveau :",
+        "today": "Aujourd’hui, {time}",
+        "yesterday": "Hier",
+        "openedBy": "{company} a ouvert ta candidature.",
+        "opened": "Ta candidature a été ouverte.",
+        "sentTo": "Ta candidature pour {company} est partie.",
+        "sent": "Ta candidature programmée est partie.",
+        "failedTo": "Ta candidature pour {company} n’est pas partie.",
+        "failed": "Ta candidature programmée n’est pas partie.",
+        "matches": "{count, plural, one {# nouvelle offre} other {# nouvelles offres}} pour toi.",
+        "follow": "La suivre",
+        "see": "Voir",
+        "seeOffers": "Voir les offres",
+        "alsoByEmail": "Tu reçois aussi les plus importantes par email. Choisis lesquelles dans <link>Paramètres → Alertes</link>.",
+        "emptyTitle": "Tu es à jour",
+        "emptyText": "Quand une entreprise ouvre ta candidature ou qu’un envoi programmé part, tu le vois ici et par email.",
+        "chooseEmails": "Choisir ce que je reçois par email",
+        "backToOffers": "Retour aux offres"
+    },
+    "alerts": {
+        "title": "Alertes",
+        "intro": "Choisis ce qu’on te dit, et où.",
+        "colAlert": "Alerte",
+        "email": "Email",
+        "inApp": "Dans 9itchi",
+        "byEmail": "{alert} : par email",
+        "byApp": "{alert} : dans 9itchi",
+        "goesTo": "Les emails vont à",
+        "notSaved": "Ton choix n’a pas été enregistré. Réessaie.",
+        "always": "Le reçu d’un paiement et un envoi programmé qui n’a pas pu partir te sont toujours signalés.",
+        "kinds": {
+            "applications": {
+                "label": "Suivi de mes candidatures",
+                "desc": "Candidature ouverte, envoi programmé parti"
+            },
+            "matches": {
+                "label": "Nouvelles offres pour toi",
+                "desc": "Un email par jour au plus, groupé"
+            },
+            "closing": {
+                "label": "Une offre sauvegardée ferme bientôt",
+                "desc": "3 jours avant la date limite"
+            },
+            "tips": {
+                "label": "Conseils pour améliorer ton CV",
+                "desc": "Une fois par semaine au plus"
+            }
+        }
     }
 }
