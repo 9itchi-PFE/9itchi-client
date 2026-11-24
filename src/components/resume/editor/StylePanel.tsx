@@ -136,6 +136,10 @@ export default function StylePanel({ style, layout, onChange }: Props) {
                         ]}
                     />
                 </Field>
+                <label className="flex items-center gap-2 text-sm">
+                    <input type="checkbox" checked={look.headBold} onChange={(e) => set({ heading_bold: e.target.checked })} />
+                    {t('headingBold')}
+                </label>
                 <Field label={t('nameFont')}>
                     <Segmented
                         role="radiogroup"

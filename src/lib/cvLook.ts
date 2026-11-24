@@ -31,6 +31,7 @@ export type Look = {
     my: number
     nameSerif: boolean
     upper: boolean
+    headBold: boolean
     dateBelow: boolean
     hyphen: boolean
     indent: boolean
@@ -71,6 +72,7 @@ export function resolveLook(layout: Layout, s: CVStyle = {}): Look {
         my: s.margin_y ?? d.my,
         nameSerif: s.name_font ? s.name_font === 'serif' : d.nameSerif,
         upper: s.heading_case ? s.heading_case === 'uppercase' : d.upper,
+        headBold: s.heading_bold ?? layout !== 'classic',
         dateBelow: s.date_position === 'below',
         hyphen: s.list_style === 'hyphen',
         indent: s.indent_body !== false,
@@ -100,7 +102,7 @@ export function lookCss(l: Look, explicit: CVStyle = {}): string {
     rule('[data-cv=title]', `font-size:${l.title}px;${explicit.accent ? `color:${l.accents('title') ? l.accent : 'inherit'};` : ''}`)
     rule(
         '[data-cv=heading]',
-        `font-size:${l.head}px;${explicit.heading_case ? `text-transform:${l.upper ? 'uppercase' : 'none'};` : ''}` +
+        `font-size:${l.head}px;${explicit.heading_bold === undefined ? '' : `font-weight:${explicit.heading_bold ? 700 : 400};`}${explicit.heading_case ? `text-transform:${l.upper ? 'uppercase' : 'none'};` : ''}` +
             (explicit.accent ? `color:${l.accents('headings') ? l.accent : 'inherit'};border-color:${l.accents('rules') ? l.accent : 'currentColor'};` : '')
     )
     rule('[data-cv=row]', `font-size:${l.entry}px;`)

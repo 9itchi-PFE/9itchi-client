@@ -28,6 +28,7 @@ export type CVStyle = {
     margin_x?: number
     margin_y?: number
     name_font?: 'sans' | 'serif'
+    heading_bold?: boolean
     heading_case?: 'capitalize' | 'uppercase'
     date_position?: 'right' | 'below'
     header_layout?: 'stacked' | 'inline'
