@@ -16,6 +16,9 @@ const PaymentService = {
     checkout: (data: { plan_id: string; promo_code?: string }) => api('payments').post<Checkout>(`/subscriptions/checkout`, data),
     mySubscription: () => api('payments').get<MySubscription>(`/subscriptions/me`),
     listPayments: () => api('payments').get<{ items: Payment[] }>(`/payments`),
+    // userSubscription and userPayments are the plan and the completed payments of one student (admin).
+    userSubscription: (userId: string) => api('payments').get<MySubscription>(`/admin/users/${userId}/subscription`),
+    userPayments: (userId: string) => api('payments').get<{ items: Payment[] }>(`/admin/users/${userId}/payments`),
     // verifyPayment asks where a payment stands after the return from Flouci (payments-api re-checks it with Flouci).
     verifyPayment: (id: string) => api('payments').post<Payment>(`/payments/${id}/verify`),
     // receiptIssuer is who issues the receipts (legal name, address, tax id, VAT wording), as the admin filled it in.

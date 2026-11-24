@@ -1,3 +1,4 @@
+import type { AdminUser, UserList, UserQuery } from '@/types/user'
 import { api } from './ApiService'
 
 const AccountService = {
@@ -14,9 +15,11 @@ const AccountService = {
     // setLanguage tells account-api which language to write to the user in (emails, notifications).
     setLanguage: (language: string) => api('account').put(`/users/me/language`, { language }),
     deleteMe: () => api('account').delete(`/users/me`),
-    listUsers: () => api('account').get(`/admin/users`),
-    getUser: (id: string) => api('account').get(`/admin/users/${id}`),
-    suspendUser: (id: string, data?: unknown) => api('account').put(`/admin/users/${id}/suspend`, data),
+    // listUsers searches the accounts by name or email (admin). Pages start at 1.
+    listUsers: (params: UserQuery) => api('account').get<UserList>(`/admin/users`, { params }),
+    getUser: (id: string) => api('account').get<AdminUser>(`/admin/users/${id}`),
+    // suspendUser blocks the sign-in of an account (suspended true) or lets it in again (false).
+    suspendUser: (id: string, suspended: boolean) => api('account').put<AdminUser>(`/admin/users/${id}/suspend`, { suspended }),
     deleteUser: (id: string) => api('account').delete(`/admin/users/${id}`),
 }
 
