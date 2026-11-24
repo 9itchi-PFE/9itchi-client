@@ -412,8 +412,6 @@ export default function ApplyScreen({ id }: { id: string }) {
         if (!gmail.data?.connected) return setModal('gmail')
         setBusy(true)
         try {
-            // email-api attaches the last exported PDF: export now so the recruiter gets the CV as it is today.
-            await ResumeService.exportResume(my.id!, 'pdf')
             const app = await apply.mutateAsync({
                 job_id: id,
                 resume_id: my.id,
