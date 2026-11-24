@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { signIn } from 'next-auth/react'
 import axios from 'axios'
 import AuthService from '@/services/AuthService'
@@ -18,6 +18,7 @@ type Errors = Partial<Record<'name' | 'email' | 'password' | 'form', string>>
 
 const SignUp = () => {
     const t = useTranslations('auth')
+    const locale = useLocale()
     const router = useRouter()
     const [errors, setErrors] = useState<Errors>({})
     const [busy, setBusy] = useState(false)
@@ -37,7 +38,7 @@ const SignUp = () => {
         if (Object.keys(next).length) return
         setBusy(true)
         try {
-            const { data } = await AuthService.signUp({ name, email, password, school })
+            const { data } = await AuthService.signUp({ name, email, password, school, language: locale })
             const res = await signIn('tokens', { access_token: data.access_token, refresh_token: data.refresh_token, redirect: false })
             if (!res || res.error) throw new Error('sign-in after sign-up')
             // A new student starts with the CV (screen 1.2).

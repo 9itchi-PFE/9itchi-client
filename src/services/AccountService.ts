@@ -11,6 +11,8 @@ const AccountService = {
     googleCallback: () => api('account').get(`/auth/google/callback`),
     getMe: () => api('account').get(`/users/me`),
     updateMe: (data?: unknown) => api('account').put(`/users/me`, data),
+    // setLanguage tells account-api which language to write to the user in (emails, notifications).
+    setLanguage: (language: string) => api('account').put(`/users/me/language`, { language }),
     deleteMe: () => api('account').delete(`/users/me`),
     listUsers: () => api('account').get(`/admin/users`),
     getUser: (id: string) => api('account').get(`/admin/users/${id}`),
