@@ -42,7 +42,8 @@ export function WhenText({ value }: { value: When }) {
 
 export const apiError = (e: unknown) => (isAxiosError(e) ? (e.response?.data as { error?: string } | undefined)?.error : undefined)
 
-function Kpi({ label, value, sub }: { label: string; value?: number; sub: string }) {
+// Kpi is one figure of an admin page with what it counts above and a remark below (also used by the statistics).
+export function Kpi({ label, value, sub }: { label: string; value?: number | string; sub: string }) {
     return (
         <div className="flex flex-col gap-1.5 rounded-[18px] border border-line bg-white px-[18px] py-[18px]">
             <span className="font-mono text-[11px] font-semibold uppercase tracking-[.1em] text-ink-3">{label}</span>

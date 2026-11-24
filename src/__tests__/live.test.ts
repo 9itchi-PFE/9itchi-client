@@ -3,7 +3,7 @@ import { LIVE_EVENT, channelOf, connectLive, type LiveOptions, type TokenCallbac
 
 // fakeAbly records what the link asks of Ably and lets a test play Ably's part.
 function fakeAbly() {
-    const state = { options: null as LiveOptions | null, channel: '', event: '', listener: (_m: unknown) => {}, closed: 0 }
+    const state = { options: null as LiveOptions | null, channel: '', event: '', listener: (() => {}) as (m: unknown) => void, closed: 0 }
     const create = (options: LiveOptions) => {
         state.options = options
         return {
