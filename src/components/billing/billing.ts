@@ -1,4 +1,4 @@
-import type { Payment, Plan } from '@/types/plan'
+import type { MySubscription, Payment, Plan } from '@/types/plan'
 
 // millimes turns a price in TND into integer millimes, the unit payments-api counts in.
 export const millimes = (tnd: number) => Math.round(tnd * 1000)
@@ -57,4 +57,20 @@ export function fromReturn(params: { get: (k: string) => string | null }): Retur
 // daysLeft counts the days until the subscription ends (0 on the last day).
 export function daysLeft(endsAt: string, now = new Date()): number {
     return Math.max(0, Math.ceil((new Date(endsAt).getTime() - now.getTime()) / 86_400_000))
+}
+
+// RENEW_DAYS is how long before the end the renewal is put forward (banner, main button).
+export const RENEW_DAYS = 7
+
+// Renewal says what the student should know about their subscription right now, if anything:
+// due: it renews and ends within RENEW_DAYS; lapsed: it ended unpaid without having been stopped.
+export type Renewal = { kind: 'due'; endsAt: string; days: number } | { kind: 'lapsed'; endedAt: string } | null
+
+export function renewal(s: Pick<MySubscription, 'subscription' | 'is_free' | 'lapsed'> | undefined, now = new Date()): Renewal {
+    if (!s) return null
+    if (s.subscription && !s.is_free) {
+        const days = daysLeft(s.subscription.ends_at, now)
+        return s.subscription.renews && days <= RENEW_DAYS ? { kind: 'due', endsAt: s.subscription.ends_at, days } : null
+    }
+    return s.lapsed ? { kind: 'lapsed', endedAt: s.lapsed.ends_at } : null
 }

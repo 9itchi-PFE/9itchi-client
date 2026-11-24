@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import PaymentService from '@/services/PaymentService'
+import type { MySubscription } from '@/types/plan'
 
 export const billingKeys = {
     plans: ['plans'] as const,
@@ -39,5 +40,14 @@ export function useVerifyPayment() {
             qc.invalidateQueries({ queryKey: billingKeys.payments })
             qc.invalidateQueries({ queryKey: ['downloads'] })
         },
+    })
+}
+
+// useSetRenewal stops the renewal of the subscription (renews false) or resumes it.
+export function useSetRenewal() {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: async (renews: boolean) => (await (renews ? PaymentService.resumeSubscription() : PaymentService.cancelSubscription())).data,
+        onSuccess: (s) => qc.setQueryData<MySubscription>(billingKeys.subscription, s),
     })
 }

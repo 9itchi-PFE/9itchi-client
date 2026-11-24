@@ -16,7 +16,9 @@ const PaymentService = {
     listPayments: () => api('payments').get<{ items: Payment[] }>(`/payments`),
     // verifyPayment asks where a payment stands after the return from Flouci (payments-api re-checks it with Flouci).
     verifyPayment: (id: string) => api('payments').post<Payment>(`/payments/${id}/verify`),
-    cancelSubscription: (data?: unknown) => api('payments').post(`/subscriptions/cancel`, data),
+    // cancel stops the renewal (access lasts until the period ends); resume renews again.
+    cancelSubscription: () => api('payments').post<MySubscription>(`/subscriptions/cancel`),
+    resumeSubscription: () => api('payments').post<MySubscription>(`/subscriptions/resume`),
     webhook: (provider: string, data?: unknown) => api('payments').post(`/webhooks/${provider}`, data),
 }
 
