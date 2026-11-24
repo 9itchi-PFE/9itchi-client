@@ -156,6 +156,7 @@
             "locationPosition": "Position du lieu",
             "ownLine": "Sur sa ligne",
             "besideDate": "À côté de la date",
+            "metaSeparator": "Séparateur date et lieu",
             "metaOrder": "Ordre date et lieu",
             "dateLocation": "Date - Lieu",
             "locationDate": "Lieu - Date",

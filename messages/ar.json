@@ -156,6 +156,7 @@
             "locationPosition": "موضع المكان",
             "ownLine": "في سطر منفصل",
             "besideDate": "بجانب التاريخ",
+            "metaSeparator": "الفاصل بين التاريخ والمكان",
             "metaOrder": "ترتيب التاريخ والمكان",
             "dateLocation": "التاريخ - المكان",
             "locationDate": "المكان - التاريخ",

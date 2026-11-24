@@ -36,6 +36,7 @@ export type CVStyle = {
     photo_position?: 'left' | 'right'
     location_position?: 'line' | 'date'
     meta_order?: 'date_first' | 'location_first'
+    meta_separator?: 'bullet' | 'hyphen' | 'bar'
     list_style?: 'bullet' | 'hyphen'
     indent_body?: boolean
     subtitle_style?: TextStyle
@@ -90,13 +91,15 @@ export function visibleSections(c: Pick<ResumeContent, 'extra' | 'section_order'
 // LOC_MARK wraps a location folded into the dates, so the preview can color the two apart; it is invisible.
 export const LOC_MARK = '\u2063'
 
+const META_SEPARATORS = { bullet: ' · ', hyphen: ' - ', bar: ' | ' } as const
+
 // metaText is the right-hand text of an entry: its dates and, when the style asks for it, the location beside them.
 export function metaText(start: string | undefined, end: string | undefined, loc: string | undefined, style?: CVStyle): string {
     const dates = [start, end].map((x) => (x ?? '').trim()).filter(Boolean).join(' — ')
     const l = (loc ?? '').trim()
     if (!l || style?.location_position !== 'date') return dates
     const marked = LOC_MARK + l + LOC_MARK
-    return (style?.meta_order === 'location_first' ? [marked, dates] : [dates, marked]).filter(Boolean).join(' · ')
+    return (style?.meta_order === 'location_first' ? [marked, dates] : [dates, marked]).filter(Boolean).join(META_SEPARATORS[style?.meta_separator ?? 'bullet'])
 }
 
 // visibleEntries drops entries the user hid and folds each entry's dates and location into what is printed; mirrors Go visibleEntries.

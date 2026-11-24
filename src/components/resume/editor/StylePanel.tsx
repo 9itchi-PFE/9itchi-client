@@ -102,6 +102,19 @@ export default function StylePanel({ style, layout, onChange }: Props) {
                         ]}
                     />
                 </Field>
+                <Field label={t('metaSeparator')}>
+                    <Segmented
+                        role="radiogroup"
+                        label={t('metaSeparator')}
+                        value={s.meta_separator ?? 'bullet'}
+                        onChange={(v) => set({ meta_separator: v })}
+                        options={[
+                            { value: 'bullet', label: '•' },
+                            { value: 'hyphen', label: '-' },
+                            { value: 'bar', label: '|' },
+                        ]}
+                    />
+                </Field>
                 <Field label={t('subtitleStyle')}>
                     <TextStyle label={t('subtitleStyle')} value={s.subtitle_style} onChange={(v) => set({ subtitle_style: v })} />
                 </Field>
