@@ -1,7 +1,5 @@
-import { getTranslations } from 'next-intl/server'
-import PagePlaceholder from '@/components/ui/PagePlaceholder'
+import StatsScreen from '@/components/admin/StatsScreen'
 
-export default async function Page() {
-    const t = await getTranslations('admin')
-    return <PagePlaceholder title={t('navStats')} description={t('comingSoon')} />
+export default function Page() {
+    return <StatsScreen />
 }
