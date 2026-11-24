@@ -153,6 +153,17 @@ services:
     environment:
       AUTH_TRUST_HOST: "true"
       NEXTAUTH_URL: http://localhost:3000
+      ACCOUNT_API_URL: http://9itchi-account-api:8081
+      RESUME_API_URL: http://9itchi-resume-api:8082
+      AI_API_URL: http://9itchi-ai-api:8083
+      JOB_API_URL: http://9itchi-job-api:8084
+      EMAIL_API_URL: http://9itchi-email-api:8085
+      TRACKER_API_URL: http://9itchi-tracker-api:8086
+      NOTIFICATION_API_URL: http://9itchi-notification-api:8087
+      CHAT_API_URL: http://9itchi-chat-api:8088
+      PAYMENTS_API_URL: http://9itchi-payments-api:8089
+      STATISTICS_API_URL: http://9itchi-statistics-api:8090
+      SCHEDULE_API_URL: http://9itchi-schedule-api:8091
     ports: ["3000:3000"]
     depends_on:
       - 9itchi-account-api
