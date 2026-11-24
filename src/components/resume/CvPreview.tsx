@@ -389,7 +389,7 @@ function Classic({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                             </span>
                         ) : null}
                     </div>
-                    <ContactLine c={c} phonePlaceholder={phonePlaceholder} linkClass="font-mono text-cv-blue" className="text-[9.5px] text-[#333]" />
+                    <ContactLine c={c} phonePlaceholder={phonePlaceholder} linkClass="text-cv-blue" className="text-[9.5px] text-[#333]" />
                 </div>
             </Mark>
             {inOrder(c, s)}

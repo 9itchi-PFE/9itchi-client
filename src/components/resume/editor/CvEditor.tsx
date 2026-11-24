@@ -155,7 +155,7 @@ function Editor({ resume: initial }: { resume: Resume }) {
                 : t('savedAt', { time: format.dateTime(savedAt, { hour: '2-digit', minute: '2-digit' }) })
 
     const openDownload = () => {
-        if (isSubscriber) setDownload('sub')
+        if (isSubscriber || process.env.NEXT_PUBLIC_UNLIMITED_DOWNLOADS === 'true') setDownload('sub')
         else setDownload((downloads?.used ?? 0) >= 1 ? 'pay' : 'free')
     }
 
@@ -186,7 +186,7 @@ function Editor({ resume: initial }: { resume: Resume }) {
         next.splice(to, 0, key)
         change({ ...content, section_order: next })
     }
-    const highlight: SectionKey | undefined = !expanded ? undefined : section.startsWith('extra:') ? 'extra' : (section as SectionKey)
+    const highlight: SectionKey | undefined = !expanded || tab !== 'content' ? undefined : section.startsWith('extra:') ? 'extra' : (section as SectionKey)
     const props = { content, onChange: change, language: resume.language, item, setItem, focusLine }
 
     const editor = (() => {
