@@ -10,5 +10,6 @@ export const protectedRoutes: Record<string, string[]> = {
     '/notifications': [CANDIDATE, ADMIN],
     '/support': [CANDIDATE],
     '/settings': [CANDIDATE],
+    '/preferences': [CANDIDATE],
     '/admin': [ADMIN],
 }
