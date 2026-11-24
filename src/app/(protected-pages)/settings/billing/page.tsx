@@ -1,5 +1,10 @@
-import PagePlaceholder from '@/components/ui/PagePlaceholder'
+import { Suspense } from 'react'
+import BillingScreen from '@/components/billing/BillingScreen'
 
 export default function Page() {
-    return <PagePlaceholder title="Billing" description="Plan, promo code, subscription." />
+    return (
+        <Suspense>
+            <BillingScreen />
+        </Suspense>
+    )
 }
