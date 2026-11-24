@@ -82,3 +82,68 @@ export type Book = {
 }
 
 export type BookList = { items: Book[]; total: number; page: number; page_size: number }
+
+// Admin: collection sources and the review queue (job-api /admin/*).
+export type SourceKind = 'lever' | 'lever_eu' | 'greenhouse' | 'recruitee' | 'workable' | 'smartrecruiters' | 'page'
+export type SourceState = 'idle' | 'running' | 'ok' | 'error'
+
+export type Source = {
+    id: string
+    company: string
+    careers_url: string
+    kind: SourceKind
+    board: string
+    places: string[]
+    every_hours: number
+    enabled: boolean
+    state: SourceState
+    last_run_at: string | null
+    last_found: number
+    last_new: number
+    last_error: string
+    note: string
+}
+
+export type SourceInput = Pick<Source, 'company' | 'careers_url' | 'places' | 'every_hours' | 'enabled' | 'note'>
+
+export type CollectStats = { online: number; online_from_book: number; new_24h: number; duplicates_24h: number; expired_24h: number; pending: number }
+
+export type SourceList = { stats: CollectStats; items: Source[] }
+
+export type Origin = 'feed' | 'site' | 'link' | 'book'
+export type ReviewStatus = 'pending' | 'published' | 'hidden'
+export type ReviewTab = 'pending' | 'expired' | 'hidden'
+
+export type ReviewItem = {
+    id: string
+    title: string
+    company: string
+    origin: Origin
+    review_status: ReviewStatus
+    closes_on: string | null
+    created_at: string
+}
+
+export type ReviewList = { items: ReviewItem[]; total: number; page: number; page_size: number; counts: Record<ReviewTab, number> }
+
+export type CheckKey = 'company_known' | 'deadline_not_passed' | 'subject_and_skills' | 'start_date'
+
+export type ReviewJob = Job & { review_status: ReviewStatus; origin: Origin; apply_email: string | null; checks: { key: CheckKey; ok: boolean }[] }
+
+export type JobEdit = {
+    title: string
+    company: string
+    location: string
+    description: string
+    stipend_tnd: number | null
+    duration_months: number | null
+    work_mode: WorkMode | ''
+    starts_on: string
+    closes_on: string
+    skills: string[]
+    pair_ok: boolean
+    topic: Topic | ''
+    apply_email: string
+}
+
+export type PostImport = { url: string; text: string; company?: string }
