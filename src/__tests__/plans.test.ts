@@ -1,5 +1,10 @@
+import { createTranslator } from 'next-intl'
 import { describe, expect, it } from 'vitest'
-import { dayOf, planInput, price, promoInput, promoState, quotaKeys, stopped } from '@/components/admin/plans'
+import ar from '../../messages/ar.json'
+import en from '../../messages/en.json'
+import fr from '../../messages/fr.json'
+import { dayOf, launchIsOver, planInput, price, promoInput, promoState, quotaKeys, stopped } from '@/components/admin/plans'
+import { dayAt } from '@/components/billing/billing'
 import type { Plan, PromoCode } from '@/types/plan'
 
 const plan: Plan = { id: 'p1', name: 'Abonnement étudiant', price: 35, regular_price: 50, duration_days: 30, quotas: { resumes: 50 }, active: true }
@@ -38,6 +43,43 @@ describe('planInput', () => {
         expect(planInput(plan, { price: 'x', regular: '' })).toEqual({ error: 'priceInvalid' })
         expect(planInput(plan, { price: '35', regular: 'x' })).toEqual({ error: 'regularInvalid' })
         expect(planInput(plan, { price: '35', regular: '35' })).toEqual({ error: 'regularBelow' })
+    })
+})
+
+describe('the last day of the launch price', () => {
+    it('is saved with the plan and needs a regular price to go back to', () => {
+        expect(planInput(plan, { price: '35', regular: '50', until: '2027-01-31' })).toMatchObject({
+            input: { price: 35, regular_price: 50, launch_ends_on: '2027-01-31' },
+        })
+        const open = planInput(plan, { price: '35', regular: '50', until: '' })
+        expect('input' in open && 'launch_ends_on' in open.input).toBe(false)
+        expect(planInput(plan, { price: '35', regular: '', until: '2027-01-31' })).toEqual({ error: 'untilNeedsRegular' })
+        expect(planInput(plan, { price: '35', regular: '50', until: '31/01/2027' })).toEqual({ error: 'untilInvalid' })
+    })
+    it('is over from the next day in Tunis', () => {
+        const launch = { regular_price: 50, launch_ends_on: '2027-01-31' }
+        expect(launchIsOver(launch, new Date('2027-01-31T22:59:00Z'))).toBe(false)
+        expect(launchIsOver(launch, new Date('2027-01-31T23:00:00Z'))).toBe(true)
+        expect(launchIsOver({ regular_price: 50 }, new Date('2030-01-01T00:00:00Z'))).toBe(false)
+    })
+    it('is written in each language, for the admin and for the student', () => {
+        const day = dayAt('2027-01-31') as Date
+        const say = (locale: string, messages: typeof fr) => createTranslator({ locale, messages, timeZone: 'Africa/Tunis' })
+        expect(say('fr', fr)('billing.launchPriceUntil', { day })).toBe('Prix de lancement jusqu’au 31 janvier')
+        expect(say('en', en)('billing.launchPriceUntil', { day })).toBe('Launch price until January 31')
+        expect(say('ar', ar)('billing.launchPriceUntil', { day })).toContain('31')
+        expect(say('fr', fr)('admin.priceHintUntil', { price: '35', regular: '50', day })).toBe(
+            'L’étudiant paie 35 DT jusqu’au 31 janvier 2027 inclus, puis 50 DT.',
+        )
+        expect(say('fr', fr)('admin.priceHintOver', { regular: '50', day })).toBe(
+            'Le prix de lancement s’est terminé le 31 janvier 2027 : l’étudiant paie 50 DT.',
+        )
+    })
+    it('is read as the same day everywhere', () => {
+        expect(dayAt('2027-01-31')?.toISOString()).toBe('2027-01-31T12:00:00.000Z')
+        expect(dayAt('')).toBeNull()
+        expect(dayAt(undefined)).toBeNull()
+        expect(dayAt('31/01/2027')).toBeNull()
     })
 })
 

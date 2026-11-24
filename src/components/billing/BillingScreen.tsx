@@ -12,7 +12,7 @@ import { useToast } from '@/components/ui/Toast'
 import { useCheckout, useMySubscription, usePayments, usePlans, useSetRenewal, useValidatePromo, useVerifyPayment } from '@/hooks/usePlans'
 import { cn } from '@/lib/cn'
 import type { MySubscription, Payment, Plan, PromoCheck } from '@/types/plan'
-import { RENEW_DAYS, daysLeft, dinars, fromReturn, millimes, months, paidPlan, promoReason, regularOf, tnd, type Return } from './billing'
+import { RENEW_DAYS, dayAt, daysLeft, dinars, fromReturn, millimes, months, paidPlan, promoReason, regularOf, tnd, type Return } from './billing'
 
 const eyebrow = 'font-mono text-[11px] font-semibold uppercase tracking-[.08em]'
 const panel = 'flex flex-col gap-4 rounded-[20px] border border-line-soft bg-white p-6'
@@ -44,6 +44,7 @@ function Pay({ plan, extending }: { plan: Plan; extending: MySubscription | null
 
     const price = millimes(plan.price)
     const regular = regularOf(plan)
+    const launchEnd = dayAt(plan.launch_ends_on)
     const due = promo ? millimes(promo.check.final_price) : price
     const amount = `${tnd(due, locale)} TND`
 
@@ -97,7 +98,7 @@ function Pay({ plan, extending }: { plan: Plan; extending: MySubscription | null
                             <strong className="text-[17px] font-semibold">{plan.name}</strong>
                             {regular ? (
                                 <span className="inline-flex h-6 flex-none items-center self-start rounded-full bg-lime px-[9px] text-xs font-bold">
-                                    {t('launchPrice')}
+                                    {launchEnd ? t('launchPriceUntil', { day: launchEnd }) : t('launchPrice')}
                                 </span>
                             ) : null}
                             <span className="text-sm text-ink-3">{t('oneOff', { length: length(plan.duration_days) })}</span>

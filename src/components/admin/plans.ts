@@ -13,19 +13,30 @@ export function price(typed: string): number | null {
 }
 
 // PriceError says why the two prices of a plan cannot be saved.
-export type PriceError = 'priceInvalid' | 'regularInvalid' | 'regularBelow'
+export type PriceError = 'priceInvalid' | 'regularInvalid' | 'regularBelow' | 'untilInvalid' | 'untilNeedsRegular'
 
-// planInput builds what is saved for a plan from the two prices typed. The regular price is optional: empty means
-// nothing is struck through. Everything else of the plan is sent back as it is (payments-api replaces the row).
-export function planInput(plan: Plan, typed: { price: string; regular: string }): { input: PlanInput } | { error: PriceError } {
+// planInput builds what is saved for a plan from what was typed. The regular price is optional: empty means
+// nothing is struck through. until is the last day of the launch price (optional); it needs a regular price to go
+// back to. Everything else of the plan is sent back as it is (payments-api replaces the row).
+export function planInput(plan: Plan, typed: { price: string; regular: string; until?: string }): { input: PlanInput } | { error: PriceError } {
     const paid = price(typed.price)
     if (paid === null) return { error: 'priceInvalid' }
+    const until = (typed.until ?? '').trim()
+    if (until && !/^\d{4}-\d{2}-\d{2}$/.test(until)) return { error: 'untilInvalid' }
     const input: PlanInput = { name: plan.name, price: paid, duration_days: plan.duration_days, quotas: plan.quotas, active: plan.active }
-    if (typed.regular.trim() === '') return { input }
+    if (typed.regular.trim() === '') return until ? { error: 'untilNeedsRegular' } : { input }
     const regular = price(typed.regular)
     if (regular === null) return { error: 'regularInvalid' }
     if (regular <= paid) return { error: 'regularBelow' }
-    return { input: { ...input, regular_price: regular } }
+    return { input: { ...input, regular_price: regular, ...(until ? { launch_ends_on: until } : {}) } }
+}
+
+// today is the current day in Tunis (YYYY-MM-DD).
+export const today = (now = new Date()) => dayOf(now.toISOString())
+
+// launchIsOver says whether the last day of a launch price is past: students now pay the regular price.
+export function launchIsOver(plan: Pick<Plan, 'launch_ends_on' | 'regular_price'>, now = new Date()): boolean {
+    return !!plan.launch_ends_on && !!plan.regular_price && today(now) > plan.launch_ends_on
 }
 
 // quotaKeys lists the limits payments-api checks, the known ones first, in the order of the page.

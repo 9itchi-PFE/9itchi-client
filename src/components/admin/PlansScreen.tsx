@@ -3,7 +3,7 @@
 import { useState, type FormEvent } from 'react'
 import { isAxiosError } from 'axios'
 import { useFormatter, useLocale, useTranslations } from 'next-intl'
-import { dinars, months } from '@/components/billing/billing'
+import { dayAt, dinars, months } from '@/components/billing/billing'
 import { Button } from '@/components/ui/Button'
 import { Field, inputClass } from '@/components/ui/Field'
 import { Modal } from '@/components/ui/Modal'
@@ -13,7 +13,7 @@ import { useReceiptIssuer } from '@/hooks/usePlans'
 import { cn } from '@/lib/cn'
 import type { Plan, PromoCode } from '@/types/plan'
 import { apiError } from './SourcesScreen'
-import { FREE_PLAN, dayOf, planInput, promoInput, promoState, quotaKeys, stopped, type PromoState } from './plans'
+import { FREE_PLAN, dayOf, launchIsOver, planInput, promoInput, promoState, quotaKeys, stopped, type PromoState } from './plans'
 
 const KNOWN_QUOTAS = ['resumes', 'cv_downloads', 'emails_per_month'] as const
 const isKnown = (k: string): k is (typeof KNOWN_QUOTAS)[number] => (KNOWN_QUOTAS as readonly string[]).includes(k)
@@ -46,11 +46,22 @@ function PlanCard({ plan }: { plan: Plan }) {
     const [error, setError] = useState('')
     const m = months(plan.duration_days)
     const period = m === 1 ? t('perMonth') : m ? t('perMonths', { count: m }) : t('perDays', { count: plan.duration_days })
+    const paid = dinars(plan.price, locale)
+    const regular = plan.regular_price ? dinars(plan.regular_price, locale) : ''
+    const until = dayAt(plan.launch_ends_on)
+    // What students pay today, and what happens on the last day of the launch price.
+    const hint = !regular
+        ? t('priceHintOne', { price: paid })
+        : !until
+          ? t('priceHintBoth', { price: paid, regular })
+          : launchIsOver(plan)
+            ? t('priceHintOver', { regular, day: until })
+            : t('priceHintUntil', { price: paid, regular, day: until })
 
     const submit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const f = new FormData(e.currentTarget)
-        const built = planInput(plan, { price: String(f.get('price')), regular: String(f.get('regular')) })
+        const built = planInput(plan, { price: String(f.get('price')), regular: String(f.get('regular')), until: String(f.get('until') ?? '') })
         if ('error' in built) return setError(t(built.error))
         setError('')
         save.mutate(
@@ -67,7 +78,7 @@ function PlanCard({ plan }: { plan: Plan }) {
                 {plan.active ? null : <span className="rounded-full bg-fill px-2.5 py-[3px] text-[13px] font-semibold text-ink-3">{t('planOff')}</span>}
             </div>
             <form onSubmit={submit} className="flex flex-col gap-3.5">
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+                <div className="grid grid-cols-1 items-end gap-3 sm:grid-cols-3">
                     <Field
                         name="regular"
                         label={t('regularPrice', { period })}
@@ -84,17 +95,14 @@ function PlanCard({ plan }: { plan: Plan }) {
                         required
                         defaultValue={dinars(plan.price, 'en').replace(/,/g, '')}
                     />
+                    <Field name="until" type="date" label={t('launchUntil')} dir="ltr" defaultValue={plan.launch_ends_on ?? ''} />
                 </div>
                 <Problem>{error}</Problem>
                 <div className="flex flex-wrap items-center gap-3">
                     <Button type="submit" variant="secondary" disabled={save.isPending}>
                         {t('save')}
                     </Button>
-                    <span className="text-[13px] text-ink-3">
-                        {plan.regular_price
-                            ? t('priceHintBoth', { price: dinars(plan.price, locale), regular: dinars(plan.regular_price, locale) })
-                            : t('priceHintOne', { price: dinars(plan.price, locale) })}
-                    </span>
+                    <span className="text-[13px] text-ink-3">{hint}</span>
                 </div>
             </form>
         </section>
@@ -296,7 +304,7 @@ export default function PlansScreen() {
                         </section>
                     ) : null}
                     {paid.map((p) => (
-                        <PlanCard key={`${p.id}|${p.price}|${p.regular_price ?? ''}`} plan={p} />
+                        <PlanCard key={`${p.id}|${p.price}|${p.regular_price ?? ''}|${p.launch_ends_on ?? ''}`} plan={p} />
                     ))}
                 </div>
             ) : null}
