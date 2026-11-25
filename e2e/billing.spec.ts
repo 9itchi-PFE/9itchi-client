@@ -160,3 +160,27 @@ test('a yearly subscriber renews the year, and a monthly one can move to the yea
     await page.getByRole('button', { name: /Passer à Abonnement annuel/ }).click()
     await expect(page.getByRole('button', { name: /Payer sur Flouci/ })).toBeVisible()
 })
+
+const DETAILED = {
+    ...MONTH,
+    details: {
+        fr: { label: 'Mensuel', tagline: 'Pour postuler vite', features: ['CV illimités', 'Candidatures sans limite'] },
+        en: { label: 'Monthly', tagline: 'To apply fast', features: ['Unlimited CVs', 'Unlimited applications'] },
+        ar: { label: 'شهري', features: ['سير ذاتية غير محدودة'] },
+    },
+}
+
+for (const [locale, label, feature] of [
+    ['fr', 'Mensuel', 'CV illimités'],
+    ['en', 'Monthly', 'Unlimited CVs'],
+    ['ar', 'شهري', 'سير ذاتية غير محدودة'],
+] as const) {
+    test(`the plan card speaks ${locale}: label and features come from the plan`, async ({ page, context }) => {
+        await mockServices(page, free({ 'GET /payments/plans': { items: [FREE, DETAILED] } }))
+        await signIn(page, STUDENT)
+        await context.addCookies([{ name: 'NEXT_LOCALE', value: locale, url: 'http://localhost:3101' }])
+        await page.goto('/settings/billing')
+        await expect(page.getByText(label, { exact: true }).first()).toBeVisible()
+        await expect(page.getByTestId('plan-features').getByText(feature)).toBeVisible()
+    })
+}

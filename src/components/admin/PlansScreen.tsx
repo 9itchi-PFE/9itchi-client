@@ -6,8 +6,9 @@ import { useFormatter, useLocale, useTranslations } from 'next-intl'
 import { dayAt, dinars, months } from '@/components/billing/billing'
 import { Button } from '@/components/ui/Button'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
-import { Field, inputClass } from '@/components/ui/Field'
+import { Field, TextArea, inputClass } from '@/components/ui/Field'
 import { Modal } from '@/components/ui/Modal'
+import { Segmented } from '@/components/ui/Segmented'
 import { useToast } from '@/components/ui/Toast'
 import {
     useAllPlans,
@@ -24,16 +25,21 @@ import {
 } from '@/hooks/useAdminPlans'
 import { useReceiptIssuer } from '@/hooks/usePlans'
 import { cn } from '@/lib/cn'
-import type { Plan, PromoCode, Sale } from '@/types/plan'
+import type { Locale, Plan, PromoCode, Sale } from '@/types/plan'
 import { apiError } from './SourcesScreen'
 import {
     ALLOWED,
     COUNTS,
     DURATIONS,
     FREE_PLAN,
+    LABEL_MAX,
+    LOCALES,
     SHOWN,
+    TAGLINE_MAX,
     countOf,
     dayOf,
+    detailsInput,
+    detailsTyped,
     launchIsOver,
     newPlanInput,
     planInput,
@@ -218,6 +224,9 @@ function PlanModal({ plan, plans, onClose }: { plan: Plan | null | undefined; pl
     const create = useCreatePlan()
     const save = useSavePlan()
     const [error, setError] = useState('')
+    // What students read, in each language: all three are kept while switching tabs and saved together.
+    const [typed, setTyped] = useState(() => detailsTyped(plan?.details))
+    const [tab, setTab] = useState<Locale>('fr')
     if (plan === undefined) return null
 
     const from = plans.filter((p) => p.name !== FREE_PLAN && p.active).sort((a, b) => a.price - b.price)[0]
@@ -236,12 +245,17 @@ function PlanModal({ plan, plans, onClose }: { plan: Plan | null | undefined; pl
         e.preventDefault()
         const f = new FormData(e.currentTarget)
         const get = (k: string) => String(f.get(k) ?? '')
+        const described = detailsInput(typed)
+        if ('error' in described) {
+            setTab(described.locale)
+            return setError(t(described.error))
+        }
         if (plan) {
             const built = renamedInput(plan, { name: get('name'), duration: get('duration') }, plans)
             if ('error' in built) return setError(t(built.error))
             setError('')
             return save.mutate(
-                { id: plan.id, input: built.input },
+                { id: plan.id, input: { ...built.input, details: described.details } },
                 {
                     onSuccess: () => {
                         toast(t('planUpdated'))
@@ -265,7 +279,7 @@ function PlanModal({ plan, plans, onClose }: { plan: Plan | null | undefined; pl
         )
         if ('error' in built) return setError(t(built.error))
         setError('')
-        create.mutate(built.input, {
+        create.mutate(Object.keys(described.details).length ? { ...built.input, details: described.details } : built.input, {
             onSuccess: () => {
                 toast(t('planCreated', { name: built.input.name }))
                 onClose()
@@ -308,6 +322,54 @@ function PlanModal({ plan, plans, onClose }: { plan: Plan | null | undefined; pl
                         </label>
                     </>
                 )}
+                <fieldset className="m-0 flex flex-col gap-3 rounded-2xl border border-line-soft p-4">
+                    <legend className="px-1.5 text-[14px] font-semibold">{t('detailsTitle')}</legend>
+                    <Segmented<Locale>
+                        label={t('detailsLang')}
+                        value={tab}
+                        onChange={setTab}
+                        options={[
+                            { value: 'fr', label: 'Français' },
+                            { value: 'en', label: 'English' },
+                            { value: 'ar', label: 'العربية' },
+                        ]}
+                    />
+                    {LOCALES.filter((l) => l === tab).map((l) => {
+                        const set = (k: 'label' | 'tagline' | 'features', v: string) => setTyped((d) => ({ ...d, [l]: { ...d[l], [k]: v } }))
+                        const dir = l === 'ar' ? 'rtl' : 'ltr'
+                        return (
+                            <div key={l} className="flex flex-col gap-3">
+                                <Field
+                                    name={`detail-label-${l}`}
+                                    label={t('detailLabel')}
+                                    dir={dir}
+                                    value={typed[l].label}
+                                    onChange={(e) => set('label', e.target.value)}
+                                    maxLength={LABEL_MAX}
+                                />
+                                <Field
+                                    name={`detail-tagline-${l}`}
+                                    label={t('detailTagline')}
+                                    dir={dir}
+                                    value={typed[l].tagline}
+                                    onChange={(e) => set('tagline', e.target.value)}
+                                    maxLength={TAGLINE_MAX}
+                                />
+                                <label className="flex flex-col gap-1.5 text-[13.5px] font-medium text-ink-2">
+                                    {t('detailFeatures')}
+                                    <TextArea
+                                        name={`detail-features-${l}`}
+                                        dir={dir}
+                                        rows={5}
+                                        value={typed[l].features}
+                                        onChange={(e) => set('features', e.target.value)}
+                                    />
+                                    <span className="text-[12.5px] font-normal text-ink-3">{t('detailFeaturesHint')}</span>
+                                </label>
+                            </div>
+                        )
+                    })}
+                </fieldset>
                 <Problem>{error}</Problem>
                 <div className="flex justify-end pt-1">
                     <Button type="submit" disabled={busy}>

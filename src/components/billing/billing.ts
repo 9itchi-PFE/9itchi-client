@@ -1,4 +1,4 @@
-import type { MySubscription, Payment, Plan } from '@/types/plan'
+import type { Locale, MySubscription, Payment, Plan } from '@/types/plan'
 
 // millimes turns a price in TND into integer millimes, the unit payments-api counts in.
 export const millimes = (tnd: number) => Math.round(tnd * 1000)
@@ -21,6 +21,18 @@ export function paidPlan(plans: Plan[] | undefined): Plan | undefined {
 // paidPlans are the plans a student can buy, shortest first (the monthly plan, then the longer ones).
 export function paidPlans(plans: Plan[] | undefined): Plan[] {
     return (plans ?? []).filter((p) => p.active && p.price > 0).sort((a, b) => a.duration_days - b.duration_days || a.price - b.price)
+}
+
+// planText is what a student reads on a plan card in their language: each field from the plan's text in that
+// language, else from French, else the plan name with no tagline and no features.
+export function planText(plan: Pick<Plan, 'name'> & Partial<Pick<Plan, 'details'>>, locale: string): { label: string; tagline: string; features: string[] } {
+    const own = plan.details?.[locale as Locale]
+    const fr = plan.details?.fr
+    return {
+        label: own?.label?.trim() || fr?.label?.trim() || plan.name,
+        tagline: own?.tagline?.trim() || fr?.tagline?.trim() || '',
+        features: (own?.features?.length ? own.features : fr?.features) ?? [],
+    }
 }
 
 // lengthOf says how a period is counted on screen: in years (365 days), in months (30 days), else in days.

@@ -64,7 +64,7 @@ export function Modal({
                 aria-modal="true"
                 aria-labelledby={id}
                 style={{ maxWidth: width }}
-                className="relative flex w-full flex-col gap-4 rounded-3xl border-[1.5px] border-ink bg-white p-8 shadow-pop"
+                className="relative flex max-h-full w-full flex-col overflow-y-auto gap-4 rounded-3xl border-[1.5px] border-ink bg-white p-8 shadow-pop"
             >
                 <CloseButton onClick={onClose} className="absolute end-4 top-4" />
                 {eyebrow ? <span className="font-mono text-[11px] font-semibold uppercase tracking-[.08em] text-ink-3">{eyebrow}</span> : null}
