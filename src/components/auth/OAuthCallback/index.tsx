@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { signIn } from 'next-auth/react'
 import { landingPath } from '../shared/landing'
+import AuthLoading from '../shared/AuthLoading'
 
 // OAuthCallback receives the tokens account-api puts in the URL fragment after Google or LinkedIn
 // (the fragment never reaches a server log), removes them from the address bar and opens the session.
@@ -26,11 +27,7 @@ const OAuthCallback = () => {
             router.replace(await landingPath(null))
         })()
     }, [router])
-    return (
-        <p role="status" className="m-0 text-center text-[15px] text-ink-3">
-            {t('callback')}
-        </p>
-    )
+    return <AuthLoading title={t('callback')} text={t('callbackText')} />
 }
 
 export default OAuthCallback

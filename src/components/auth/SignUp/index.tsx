@@ -8,6 +8,7 @@ import { signIn } from 'next-auth/react'
 import axios from 'axios'
 import AuthService from '@/services/AuthService'
 import { AuthField, AuthHeading, AuthSelect, FormError, SsoButtons, submitClass } from '../shared/AuthForm'
+import AuthLoading from '../shared/AuthLoading'
 
 export const SCHOOLS = ['ENIS', 'ENIT', 'INSAT', 'ENSI', 'SUPCOM', 'ESPRIT', 'ENISO', 'ENIM', 'ENIG', 'ENICARTHAGE', 'ISIMM', 'ISI', 'FST', 'OTHER'] as const
 
@@ -22,6 +23,7 @@ const SignUp = () => {
     const router = useRouter()
     const [errors, setErrors] = useState<Errors>({})
     const [busy, setBusy] = useState(false)
+    const [opening, setOpening] = useState(false)
 
     const submit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -41,6 +43,7 @@ const SignUp = () => {
             const { data } = await AuthService.signUp({ name, email, password, school, language: locale })
             const res = await signIn('tokens', { access_token: data.access_token, refresh_token: data.refresh_token, redirect: false })
             if (!res || res.error) throw new Error('sign-in after sign-up')
+            setOpening(true)
             // A new student starts with the CV (screen 1.2).
             router.replace('/resumes/upload')
         } catch (err) {
@@ -59,6 +62,7 @@ const SignUp = () => {
         }
     }
 
+    if (opening) return <AuthLoading title={t('signupOpening')} text={t('signupOpeningText')} />
     return (
         <>
             <AuthHeading title={t('signupTitle')} subtitle={t('signupSubtitle')} switchLabel={t('signupSwitch')} switchHref="/auth/signin" />
@@ -105,7 +109,7 @@ const SignUp = () => {
                     ))}
                 </AuthSelect>
                 <button type="submit" disabled={busy} className={submitClass}>
-                    {t('signup')}
+                    {busy ? t('signingUp') : t('signup')}
                 </button>
             </form>
             <p className="m-0 text-[13px] leading-normal text-ink-3">

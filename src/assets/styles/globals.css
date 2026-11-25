@@ -80,6 +80,35 @@
     }
 }
 
+/* The session opening (AuthLoading): two rings leave the mark one after the other, and a bar crosses its track. */
+.auth-ring {
+    animation: auth-ring 2.4s cubic-bezier(0.2, 0.6, 0.3, 1) infinite;
+}
+.auth-ring-late {
+    animation-delay: 1.2s;
+}
+.auth-bar {
+    animation: auth-bar 1.3s ease-in-out infinite;
+}
+@keyframes auth-ring {
+    from {
+        transform: scale(0.7);
+        opacity: 0.9;
+    }
+    to {
+        transform: scale(1.25);
+        opacity: 0;
+    }
+}
+@keyframes auth-bar {
+    from {
+        left: -40%;
+    }
+    to {
+        left: 100%;
+    }
+}
+
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,

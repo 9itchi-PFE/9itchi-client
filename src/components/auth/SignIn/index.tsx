@@ -8,6 +8,7 @@ import { signIn } from 'next-auth/react'
 import { REDIRECT_URL_KEY } from '@/constants/app.constant'
 import { AuthField, AuthHeading, FormError, SsoButtons, submitClass } from '../shared/AuthForm'
 import { landingPath } from '../shared/landing'
+import AuthLoading from '../shared/AuthLoading'
 
 const providers: Record<string, string> = { google: 'Google', linkedin: 'LinkedIn' }
 
@@ -18,6 +19,7 @@ const SignIn = () => {
     const oauth = params.get('error')?.match(/^(google|linkedin)_failed$/)?.[1]
     const [error, setError] = useState(oauth ? t('errOauth', { provider: providers[oauth] }) : '')
     const [busy, setBusy] = useState(false)
+    const [opening, setOpening] = useState(false)
 
     const submit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -30,9 +32,11 @@ const SignIn = () => {
             setError(res?.error === 'CredentialsSignin' ? t('errCredentials') : t('errGeneric'))
             return
         }
+        setOpening(true)
         router.replace(await landingPath(params.get(REDIRECT_URL_KEY)))
     }
 
+    if (opening) return <AuthLoading title={t('callback')} text={t('callbackText')} />
     return (
         <>
             <AuthHeading title={t('loginTitle')} subtitle={t('loginSubtitle')} switchLabel={t('loginSwitch')} switchHref="/auth/signup" />
@@ -52,7 +56,7 @@ const SignIn = () => {
                     {t('forgot')}
                 </Link>
                 <button type="submit" disabled={busy} className={submitClass}>
-                    {t('login')}
+                    {busy ? t('loggingIn') : t('login')}
                 </button>
             </form>
         </>
