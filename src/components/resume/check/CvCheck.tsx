@@ -17,6 +17,9 @@ import { itemOfPath, sectionOfPath } from '../editor/sections'
 
 const GROUPS: (RuleGroup | 'all')[] = ['all', 'contact', 'summary', 'experience', 'education', 'skills', 'layout', 'file']
 const WITH_EXAMPLE = new Set(['number_style', 'no_skill_ratings'])
+// seenFixes counts the points to correct in the groups the plan shows.
+export const seenFixes = (rules: { status: string }[]) => rules.filter((r) => r.status === 'fix').length
+
 const BULLET_RULES = new Set(['action_verbs', 'quantified_results', 'short_bullets', 'no_first_person', 'number_style'])
 
 // setAt writes text at a JSON path such as experience[0].description[1] or summary.
@@ -53,7 +56,11 @@ export default function CvCheck({ id }: { id: string }) {
         return <p className="mx-auto max-w-[1320px] px-8 py-16 text-ink-3">{check.isError || resume.isError ? tc('error') : tc('loading')}</p>
     }
     const { passed, total, to_fix } = check.data
-    const shown = rules.filter((r) => (group === 'all' || r.group === group) && (!onlyFix || r.status !== 'ok'))
+    const locked = new Set<RuleGroup>(check.data.locked_groups ?? [])
+    const seen = seenFixes(rules)
+    const hidden = Math.max(0, to_fix - seen)
+    const shown = rules.filter((r) => r.status !== 'locked' && (group === 'all' || r.group === group) && (!onlyFix || r.status !== 'ok'))
+    const lockedHere = group === 'all' ? locked.size > 0 : locked.has(group)
     const content = normalize(resume.data.content)
 
     return (
@@ -73,7 +80,11 @@ export default function CvCheck({ id }: { id: string }) {
                         </div>
                         <div className="flex gap-[3px]" aria-hidden>
                             {rules.map((r) => (
-                                <span key={r.id} className="h-2 flex-1 rounded-sm" style={{ background: r.status === 'fix' ? '#F7B27A' : '#9DB82A' }} />
+                                <span
+                                    key={r.id}
+                                    className="h-2 flex-1 rounded-sm"
+                                    style={{ background: r.status === 'locked' ? '#D0D5DD' : r.status === 'fix' ? '#F7B27A' : '#9DB82A' }}
+                                />
                             ))}
                         </div>
                         <p className="m-0 text-sm leading-[1.55] text-ink-2">{to_fix ? t('verdictFix', { count: to_fix }) : t('verdictDone')}</p>
@@ -83,8 +94,9 @@ export default function CvCheck({ id }: { id: string }) {
                     </div>
                     <nav aria-label={t('groupsLabel')} className="flex flex-col rounded-[18px] border border-line-soft bg-white p-2">
                         {GROUPS.map((g) => {
-                            const n = g === 'all' ? to_fix : (counts.get(g) ?? 0)
+                            const n = g === 'all' ? seen : (counts.get(g) ?? 0)
                             const on = g === group
+                            const closed = g !== 'all' && locked.has(g)
                             return (
                                 <button
                                     key={g}
@@ -97,9 +109,13 @@ export default function CvCheck({ id }: { id: string }) {
                                     )}
                                 >
                                     <span>{t(`groups.${g}`)}</span>
-                                    <span className={cn('text-xs font-semibold', n ? 'text-warn-fg' : 'text-ok-fg')}>
-                                        {n ? t('groupCount', { count: n }) : '✓'}
-                                    </span>
+                                    {closed ? (
+                                        <span className="rounded-full bg-fill px-2 py-0.5 text-[11.5px] font-semibold text-ink-3">{t('lockedTag')}</span>
+                                    ) : (
+                                        <span className={cn('text-xs font-semibold', n ? 'text-warn-fg' : 'text-ok-fg')}>
+                                            {n ? t('groupCount', { count: n }) : '✓'}
+                                        </span>
+                                    )}
                                 </button>
                             )
                         })}
@@ -113,7 +129,7 @@ export default function CvCheck({ id }: { id: string }) {
                 <section aria-label={t('rulesLabel')} className="flex min-w-0 flex-[999_1_640px] flex-col gap-3.5">
                     <div className="flex flex-wrap items-end justify-between gap-3">
                         <div className="flex flex-col gap-1">
-                            <h1 className="m-0 text-[40px] font-extrabold leading-[1.08]">{onlyFix ? t('titleFix', { count: to_fix }) : t('titleAll')}</h1>
+                            <h1 className="m-0 text-[40px] font-extrabold leading-[1.08]">{onlyFix ? t('titleFix', { count: seen }) : t('titleAll')}</h1>
                             <p className="m-0 text-[15px] text-ink-3">{onlyFix ? t('subtitleFix') : t('subtitleAll')}</p>
                         </div>
                         <div role="group" aria-label={t('filterLabel')} className="flex overflow-hidden rounded-lg border border-line-strong bg-white">
@@ -136,6 +152,24 @@ export default function CvCheck({ id }: { id: string }) {
                     {shown.map((r) => (
                         <RuleCard key={r.id} rule={r} resumeId={id} content={content} language={resume.data.language} title={resume.data.title} />
                     ))}
+                    {lockedHere ? (
+                        <article className="flex flex-col gap-3 rounded-xl border border-dashed border-line-strong bg-white p-[18px]">
+                            <strong className="text-base">
+                                {group === 'all' ? t('lockedTitle', { count: locked.size }) : t('lockedTitleOne', { group: t(`groups.${group}`) })}
+                            </strong>
+                            {group === 'all' ? (
+                                <p className="m-0 text-[14.5px] leading-[1.55] text-ink-2">
+                                    {GROUPS.filter((g): g is RuleGroup => g !== 'all' && locked.has(g))
+                                        .map((g) => t(`groups.${g}`))
+                                        .join(' · ')}
+                                </p>
+                            ) : null}
+                            <p className="m-0 text-[14.5px] leading-[1.55] text-ink-3">{hidden ? t('lockedText', { count: hidden }) : t('lockedTextNone')}</p>
+                            <ButtonLink href="/settings/billing" className="self-start">
+                                {t('lockedButton')}
+                            </ButtonLink>
+                        </article>
+                    ) : null}
                 </section>
             </div>
         </div>

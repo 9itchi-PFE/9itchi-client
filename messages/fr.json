@@ -119,7 +119,7 @@
         "errSizeText": "Compresse-le, ou envoie le PDF au lieu de photos.",
         "errRetry": "Essayer un autre fichier",
         "errType": "Importe un PDF, un fichier Word ou une photo (JPG ou PNG).",
-        "errQuota": "Ton offre gratuite comprend un CV. Abonne-toi pour en avoir plusieurs.",
+        "errQuota": "Sans abonnement, tu as un seul CV. Abonne-toi pour en avoir plusieurs.",
         "blankTitleDefault": "Mon CV"
     },
     "wishes": {
@@ -334,15 +334,8 @@
         "done": "Terminé"
     },
     "download": {
-        "freeEyebrow": "Ton premier téléchargement est offert",
-        "freeTitle": "Télécharge ton CV gratuitement, une fois",
-        "freeWhat": "Modèle {name}, 1 page, en PDF",
-        "freeMark": "Avec une petite mention « Fait avec 9itchi » en bas.",
-        "freeWord": "Word, pour retoucher toi-même : avec l’abonnement",
-        "freeButton": "Télécharger mon PDF gratuit",
-        "freeNote": "Avec l’abonnement : PDF ou Word, tous les modèles, sans mention, autant de fois que tu veux.",
-        "payTitle": "Tu as utilisé ton téléchargement offert",
-        "payText": "Abonne-toi pour télécharger ton CV en PDF ou en Word, dans tous les modèles, sans mention, à chaque modification. Tu as aussi la lettre pour chaque offre et l’envoi en un clic.",
+        "payTitle": "Télécharger ton CV, c’est avec l’abonnement",
+        "payText": "Tu peux écrire, importer et vérifier ton CV sans abonnement. Abonne-toi pour le télécharger en PDF ou en Word, dans tous les modèles. Tu as aussi la lettre pour chaque offre et l’envoi en un clic.",
         "payPrice": "{price} DT",
         "payPer": "/ mois",
         "payButton": "M’abonner et télécharger",
@@ -358,15 +351,18 @@
         "summary": "Modèle <b>{template}</b> · {version} · {language}",
         "change": "Changer",
         "subButton": "Télécharger {file}",
-        "subNote": "Sans mention 9itchi. Autant de fois que tu veux.",
-        "toastFree": "Téléchargement de {file} · {template}, avec la mention 9itchi",
+        "subNote": "Sans mention 9itchi.",
         "toastSub": "Téléchargement de {file} · {template}, sans mention",
         "toastOriginal": "Téléchargement de {file}, le fichier que tu as importé",
         "languages": {
             "fr": "français",
             "en": "anglais",
             "ar": "arabe"
-        }
+        },
+        "limitTitle": "{count, plural, one {Tu as utilisé ton téléchargement de cette période} other {Tu as utilisé tes # téléchargements de cette période}}",
+        "limitText": "Ton plan compte les téléchargements par période d’abonnement. Ils reviennent à ton prochain renouvellement ; un autre plan en donne peut-être plus.",
+        "limitButton": "Voir mon abonnement",
+        "subNoteLeft": "Sans mention 9itchi. {left, plural, =0 {Plus de téléchargement} one {# téléchargement restant} other {# téléchargements restants}} sur {limit} pour cette période."
     },
     "versions": {
         "title": "Versions du CV",
@@ -384,7 +380,7 @@
         "newVersion": "+ Nouvelle version à partir de « {name} »",
         "copyOf": "{name} (copie)",
         "newName": "Nouvelle version {n}",
-        "freeTitle": "1 version en gratuit",
+        "freeTitle": "1 version sans abonnement",
         "freeText": "Avec l’abonnement, crée une version par type de poste (web, data, embarqué…) et choisis laquelle envoyer à chaque offre.",
         "freeLink": "Voir l’abonnement →",
         "historyIntro": "Chaque modification de « {name} » est gardée. Tu peux revenir en arrière.",
@@ -606,7 +602,13 @@
             }
         },
         "breadcrumbLabel": "Fil d’Ariane",
-        "rulesLabel": "Règles"
+        "rulesLabel": "Règles",
+        "lockedTag": "Abonnement",
+        "lockedTitle": "{count, plural, one {# partie du diagnostic est réservée à l’abonnement} other {# parties du diagnostic sont réservées à l’abonnement}}",
+        "lockedTitleOne": "« {group} » est réservé à l’abonnement",
+        "lockedText": "{count, plural, one {# autre point à corriger s’y trouve.} other {# autres points à corriger s’y trouvent.}} Abonne-toi pour voir tout le diagnostic.",
+        "lockedTextNone": "Abonne-toi pour voir tout le diagnostic.",
+        "lockedButton": "Voir l’abonnement"
     },
     "templates": {
         "breadcrumb": "Modèles",
@@ -650,9 +652,6 @@
         "cvSection": "Expérience",
         "cvLine": "• Développé en React la page de réservation…",
         "cvChecks": "✓ Verbe au passé ✓ Résultat",
-        "priceOld": "50",
-        "priceNew": "35 DT",
-        "priceText": "Prix de lancement par mois. Chercher et postuler avec ton CV restent gratuits.",
         "loginTitle": "Content de te revoir",
         "loginSubtitle": "Nouveau sur 9itchi ?",
         "loginSwitch": "Créer un compte",
@@ -771,7 +770,7 @@
         "ctaWait": "Réponds aux questions pour continuer",
         "ctaCv": "C’est bon, montre mes offres",
         "ctaBlank": "Montrer mes offres",
-        "note": "Parcourir les offres est gratuit. Postuler aussi, avec ton CV seul.",
+        "note": "Parcourir les offres ne demande pas d’abonnement.",
         "saveError": "On n’a pas pu enregistrer tes choix. Réessaie."
     },
     "offers": {
@@ -820,10 +819,10 @@
         "unknown": "Non précisé",
         "apply": "Postuler en 1 clic",
         "applyNote": "Ton CV + une lettre écrite pour ce sujet. Tu la relis avant tout envoi.",
-        "sendCv": "Envoyer mon CV seul · gratuit",
+        "sendCv": "Envoyer mon CV seul",
         "prepare": "Préparer ma candidature",
         "prepareNote": "On prépare ton CV et ta lettre, puis on ouvre {source} pour que tu termines là-bas.",
-        "applyOn": "Postuler sur {source} avec mon CV · gratuit",
+        "applyOn": "Postuler sur {source} avec mon CV",
         "fitTitle": "Ce qui colle",
         "fitCount": "{n} sur {total} compétences sur ton CV",
         "fitAll": "Tu as toutes les compétences demandées.",
@@ -1057,7 +1056,7 @@
         "reactivated": "Compte réactivé",
         "studentDeleted": "Compte supprimé",
         "sPlan": "Plan",
-        "sPlanFree": "Gratuit",
+        "sPlanFree": "Sans abonnement",
         "sPlanPaid": "{name} · jusqu’au {day, date, ::dMMMy}",
         "sPlanStopped": "{name} · arrêté, accès jusqu’au {day, date, ::dMMMy}",
         "sGmail": "Gmail",
@@ -1155,9 +1154,9 @@
         "plansTitle": "Plans et codes promo",
         "plansSubtitle": "Les limites de chaque plan sont vérifiées côté serveur. Changer un prix ne touche pas la période déjà payée par un abonné : il vaut pour les prochains paiements.",
         "plansError": "Les plans n’ont pas pu être lus. Recharge la page.",
-        "freePlan": "Gratuit",
+        "freePlan": "Sans abonnement",
         "freePrice": "0 DT",
-        "freeText": "Le plan de départ de tout le monde.",
+        "freeText": "Ce qu’un étudiant a sans abonnement : il écrit et vérifie son CV, sans le télécharger. Ses limites se règlent plus bas.",
         "planOff": "Désactivé",
         "planSaved": "Prix enregistrés",
         "perMonth": "par mois",
@@ -1180,8 +1179,15 @@
         "colLimit": "Limite",
         "quota": {
             "resumes": "CV enregistrés",
-            "cv_downloads": "Téléchargements du CV",
-            "emails_per_month": "Candidatures envoyées par mois"
+            "cv_downloads": "Téléchargements du CV par période",
+            "emails_per_month": "Candidatures envoyées par mois",
+            "ats_contact": "Coordonnées",
+            "ats_summary": "Résumé",
+            "ats_experience": "Expérience",
+            "ats_education": "Formation",
+            "ats_skills": "Compétences et langues",
+            "ats_layout": "Mise en page",
+            "ats_file": "Fichier final"
         },
         "promosTitle": "Codes promo",
         "promoNew": "+ Nouveau code",
@@ -1238,7 +1244,13 @@
         "iLegalName": "Raison sociale",
         "iTaxId": "Matricule fiscal",
         "iAddress": "Adresse",
-        "iVat": "Mention de TVA"
+        "iVat": "Mention de TVA",
+        "limitsHint": "Pour un étudiant sans abonnement puis pour chaque plan. Un nombre vide ne met pas de limite ; 0 n’autorise rien. Les téléchargements du CV se comptent par période d’abonnement. Une partie du diagnostic décochée est cachée à l’étudiant, avec une invitation à s’abonner.",
+        "limitsDiagnosis": "Diagnostic du CV : parties affichées",
+        "noLimit": "Sans limite",
+        "limitsSave": "Enregistrer les limites",
+        "limitsSaved": "Limites enregistrées",
+        "limitsInvalid": "Une limite est un nombre entier, 0 ou plus."
     },
     "apply": {
         "back": "Retour à l’offre",
@@ -1326,9 +1338,9 @@
         "gmailUnavailable": "La connexion à Gmail ne marche pas pour l’instant. Réessaie plus tard.",
         "planEyebrow": "Abonnement",
         "planTitle": "L’envoi depuis ton Gmail fait partie de l’abonnement",
-        "planText": "Avec l’abonnement, ta candidature part en 1 clic, tu peux la programmer et tu vois quand elle est ouverte. Sans abonnement, tu peux toujours l’envoyer toi-même avec ton CV et ta lettre.",
+        "planText": "Avec l’abonnement, ta candidature part en 1 clic, tu peux la programmer et tu vois quand elle est ouverte. Sans abonnement, tu peux toujours postuler toi-même.",
         "planSee": "Voir l’abonnement",
-        "planSelf": "L’envoyer moi-même · gratuit",
+        "planSelf": "L’envoyer moi-même",
         "applyingAt": "Tu postules chez {company}",
         "writingTitle": "Ta lettre s’écrit…",
         "writingText": "Environ 10 secondes. Tu la liras et la changeras avant tout envoi.",
@@ -1360,8 +1372,8 @@
         "introSelf": "Ton CV et ta lettre sont prêts. Envoie-les à l’adresse indiquée dans l’offre, puis dis-le nous pour la garder dans tes candidatures.",
         "selfOpenOffer": "Ouvrir l’offre d’origine",
         "selfSent": "Je l’ai envoyée",
-        "downloadTitle": "Tu as déjà utilisé ton téléchargement gratuit",
-        "downloadText": "Avec l’abonnement, tu télécharges ton CV autant de fois que tu veux, sans logo. Le fichier que tu as importé reste téléchargeable depuis Mon CV.",
+        "downloadTitle": "Télécharger ton CV, c’est avec l’abonnement",
+        "downloadText": "Avec l’abonnement, tu télécharges ton CV en PDF ou en Word. Le fichier que tu as importé reste téléchargeable depuis Mon CV.",
         "downloadOpen": "Ouvrir mon CV"
     },
     "applications": {
@@ -1448,7 +1460,7 @@
     "billing": {
         "title": "Abonnement",
         "sellTitle": "Envoie plus vite, avec une lettre pour chaque offre.",
-        "sellText": "Postuler reste gratuit ; l’abonnement ajoute la lettre, l’envoi en un clic et le suivi. Il se renouvelle chaque période tant que tu ne l’arrêtes pas, et c’est toi qui paies chaque renouvellement sur Flouci.",
+        "sellText": "L’abonnement ajoute le téléchargement de ton CV, le diagnostic complet, la lettre, l’envoi en un clic et le suivi. Il se renouvelle chaque période tant que tu ne l’arrêtes pas, et c’est toi qui paies chaque renouvellement sur Flouci.",
         "months": "{count, plural, one {1 mois} other {# mois}}",
         "days": "{count, plural, one {1 jour} other {# jours}}",
         "oneOff": "Renouvelé tous les {length} · tu peux arrêter quand tu veux",

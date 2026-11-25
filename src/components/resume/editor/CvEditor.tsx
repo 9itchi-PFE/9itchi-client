@@ -20,7 +20,7 @@ import { normalize, sectionOrder, type Resume, type ResumeContent } from '@/type
 import CvPreview, { type SectionKey } from '../CvPreview'
 import StylePanel from './StylePanel'
 import { phonePlaceholder } from '../cvText'
-import DownloadDialogs, { type DownloadMode } from './DownloadDialogs'
+import DownloadDialogs, { downloadMode, type DownloadMode } from './DownloadDialogs'
 import PhotoControl from './PhotoControl'
 import ScoreBanner from './ScoreBanner'
 import {
@@ -155,8 +155,8 @@ function Editor({ resume: initial }: { resume: Resume }) {
                 : t('savedAt', { time: format.dateTime(savedAt, { hour: '2-digit', minute: '2-digit' }) })
 
     const openDownload = () => {
-        if (isSubscriber || process.env.NEXT_PUBLIC_UNLIMITED_DOWNLOADS === 'true') setDownload('sub')
-        else setDownload((downloads?.used ?? 0) >= 1 ? 'pay' : 'free')
+        if (process.env.NEXT_PUBLIC_UNLIMITED_DOWNLOADS === 'true') setDownload('sub')
+        else setDownload(downloadMode(isSubscriber, downloads))
     }
 
     const addExtra = (kind: (typeof EXTRA_KINDS)[number]) => {
@@ -197,22 +197,22 @@ function Editor({ resume: initial }: { resume: Resume }) {
                         {...props}
                         photo={
                             <div className="flex flex-col gap-3">
-                            <PhotoControl
-                                resumeId={id}
-                                hasPhoto={resume.has_photo}
-                                photoUrl={photo}
-                                shown={content.style?.show_photo !== false}
-                                onShown={(on) => {
-                                    const rest = { ...content.style }
-                                    delete rest.show_photo
-                                    const style = on ? rest : { ...rest, show_photo: false }
-                                    change({ ...content, style: Object.keys(style).length ? style : undefined })
-                                }}
-                                onChanged={(has) => {
-                                    setResume((r) => ({ ...r, has_photo: has }))
-                                    qc.invalidateQueries({ queryKey: resumeKeys.photo(id) })
-                                }}
-                            />
+                                <PhotoControl
+                                    resumeId={id}
+                                    hasPhoto={resume.has_photo}
+                                    photoUrl={photo}
+                                    shown={content.style?.show_photo !== false}
+                                    onShown={(on) => {
+                                        const rest = { ...content.style }
+                                        delete rest.show_photo
+                                        const style = on ? rest : { ...rest, show_photo: false }
+                                        change({ ...content, style: Object.keys(style).length ? style : undefined })
+                                    }}
+                                    onChanged={(has) => {
+                                        setResume((r) => ({ ...r, has_photo: has }))
+                                        qc.invalidateQueries({ queryKey: resumeKeys.photo(id) })
+                                    }}
+                                />
                             </div>
                         }
                     />
@@ -337,7 +337,11 @@ function Editor({ resume: initial }: { resume: Resume }) {
                                                 setDragKey(null)
                                             }}
                                             onDragEnd={() => setDragKey(null)}
-                                            className={cn('rounded-[14px] border bg-white', on ? 'border-violet' : 'border-line-soft', dragKey === s && 'opacity-40')}
+                                            className={cn(
+                                                'rounded-[14px] border bg-white',
+                                                on ? 'border-violet' : 'border-line-soft',
+                                                dragKey === s && 'opacity-40',
+                                            )}
                                         >
                                             <div className="flex h-14 items-center gap-1.5 px-2.5">
                                                 <span aria-hidden className={cn('w-5 flex-none text-center text-ink-3', pinned ? 'invisible' : 'cursor-grab')}>
@@ -356,10 +360,16 @@ function Editor({ resume: initial }: { resume: Resume }) {
                                                     className="flex h-full min-w-0 flex-1 cursor-pointer items-center gap-2.5 border-0 bg-transparent p-0 text-start text-[15px] font-semibold text-ink"
                                                 >
                                                     <span className={cn('h-2 w-2 flex-none rounded-full', toFix.has(s) ? 'bg-warn-dot' : 'bg-ok-dot')} />
-                                                    <span className={cn('min-w-0 flex-1 truncate', hidden && 'text-ink-3 line-through')}>{sectionTitle(s, content, t)}</span>
+                                                    <span className={cn('min-w-0 flex-1 truncate', hidden && 'text-ink-3 line-through')}>
+                                                        {sectionTitle(s, content, t)}
+                                                    </span>
                                                 </button>
                                                 {pinned ? null : (
-                                                    <ShowSwitch shown={!hidden} label={hidden ? t('showSection') : t('hideSection')} onChange={() => toggleHidden(s)} />
+                                                    <ShowSwitch
+                                                        shown={!hidden}
+                                                        label={hidden ? t('showSection') : t('hideSection')}
+                                                        onChange={() => toggleHidden(s)}
+                                                    />
                                                 )}
                                                 <span aria-hidden className="w-4 flex-none text-center text-ink-3">
                                                     {on ? '▴' : '▾'}
@@ -381,7 +391,10 @@ function Editor({ resume: initial }: { resume: Resume }) {
                     )}
                 </div>
 
-                <section aria-label={t('previewAria')} className="sticky top-4 flex min-w-0 flex-[3_1_560px] flex-col items-center gap-2.5 rounded-[18px] bg-fill-3 p-5">
+                <section
+                    aria-label={t('previewAria')}
+                    className="sticky top-4 flex min-w-0 flex-[3_1_560px] flex-col items-center gap-2.5 rounded-[18px] bg-fill-3 p-5"
+                >
                     <div className="flex w-full items-center justify-between text-[13px] text-ink-3">
                         <span>{t('previewLabel', { pages })}</span>
                         <span className="inline-flex items-center gap-1.5">
@@ -404,7 +417,14 @@ function Editor({ resume: initial }: { resume: Resume }) {
                 </section>
             </div>
 
-            <DownloadDialogs mode={download} setMode={setDownload} resume={{ ...resume, content }} templateName={templateName} />
+            <DownloadDialogs
+                mode={download}
+                setMode={setDownload}
+                resume={{ ...resume, content }}
+                templateName={templateName}
+                subscriber={isSubscriber}
+                downloads={downloads}
+            />
             <VersionsDrawer
                 open={versionsOpen}
                 onClose={() => setVersionsOpen(false)}

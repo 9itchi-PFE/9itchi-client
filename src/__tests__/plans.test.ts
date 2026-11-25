@@ -3,7 +3,22 @@ import { describe, expect, it } from 'vitest'
 import ar from '../../messages/ar.json'
 import en from '../../messages/en.json'
 import fr from '../../messages/fr.json'
-import { dayOf, launchIsOver, planInput, price, promoInput, promoState, quotaKeys, stopped } from '@/components/admin/plans'
+import {
+    countOf,
+    dayOf,
+    launchIsOver,
+    planInput,
+    price,
+    promoInput,
+    promoState,
+    quotaKeys,
+    quotasInput,
+    sameQuotas,
+    shows,
+    stopped,
+    withCount,
+    withShown,
+} from '@/components/admin/plans'
 import { dayAt } from '@/components/billing/billing'
 import type { Plan, PromoCode } from '@/types/plan'
 
@@ -154,5 +169,62 @@ describe('dayOf and stopped', () => {
             plan_ids: ['p1'],
         })
         expect(promoState({ ...promo, ...stopped(promo, now) }, now)).toBe('expired')
+    })
+})
+
+describe('what each plan allows', () => {
+    const plan = {
+        id: 'p',
+        name: 'Mensuel',
+        price: 35,
+        regular_price: 50,
+        launch_ends_on: '2026-12-31',
+        duration_days: 30,
+        quotas: { resumes: 3 },
+        active: true,
+    }
+
+    it('reads a number limit: empty when the plan sets none', () => {
+        expect(countOf({ cv_downloads: 0 }, 'cv_downloads')).toBe('0')
+        expect(countOf({ cv_downloads: 5 }, 'cv_downloads')).toBe('5')
+        expect(countOf({}, 'cv_downloads')).toBe('')
+        expect(countOf(undefined, 'cv_downloads')).toBe('')
+    })
+    it('writes a number limit: empty removes it, 0 allows none, anything else is refused', () => {
+        expect(withCount({ resumes: 1 }, 'cv_downloads', ' 5 ')).toEqual({ resumes: 1, cv_downloads: 5 })
+        expect(withCount({ cv_downloads: 5 }, 'cv_downloads', '')).toEqual({})
+        expect(withCount({}, 'cv_downloads', '0')).toEqual({ cv_downloads: 0 })
+        for (const bad of ['-1', '2.5', 'cinq', '1e3', '1234567']) expect(withCount({}, 'cv_downloads', bad)).toBeNull()
+    })
+    it('shows a group of the diagnosis unless its key is 0', () => {
+        expect(shows({}, 'ats_layout')).toBe(true)
+        expect(shows({ ats_layout: 1 }, 'ats_layout')).toBe(true)
+        expect(shows({ ats_layout: 0 }, 'ats_layout')).toBe(false)
+        expect(withShown({ resumes: 1 }, 'ats_layout', false)).toEqual({ resumes: 1, ats_layout: 0 })
+        expect(withShown({ ats_layout: 0 }, 'ats_layout', true)).toEqual({})
+    })
+    it('saves the limits without losing the prices of the plan', () => {
+        expect(quotasInput(plan, { resumes: 3, cv_downloads: 5 })).toEqual({
+            name: 'Mensuel',
+            price: 35,
+            duration_days: 30,
+            quotas: { resumes: 3, cv_downloads: 5 },
+            active: true,
+            regular_price: 50,
+            launch_ends_on: '2026-12-31',
+        })
+        expect(quotasInput({ ...plan, regular_price: null, launch_ends_on: undefined }, {})).toEqual({
+            name: 'Mensuel',
+            price: 35,
+            duration_days: 30,
+            quotas: {},
+            active: true,
+        })
+    })
+    it('knows when nothing changed', () => {
+        expect(sameQuotas({ a: 1, b: 0 }, { b: 0, a: 1 })).toBe(true)
+        expect(sameQuotas({ a: 1 }, { a: 1, b: 0 })).toBe(false)
+        expect(sameQuotas({ a: 1 }, { a: 2 })).toBe(false)
+        expect(sameQuotas(undefined, {})).toBe(true)
     })
 })

@@ -119,7 +119,7 @@
         "errSizeText": "Compress it, or send the PDF instead of photos.",
         "errRetry": "Try another file",
         "errType": "Import a PDF, a Word file or a photo (JPG or PNG).",
-        "errQuota": "Your free plan includes one CV. Subscribe to have several.",
+        "errQuota": "Without a subscription you have one CV. Subscribe to have several.",
         "blankTitleDefault": "My CV"
     },
     "wishes": {
@@ -334,15 +334,8 @@
         "done": "Done"
     },
     "download": {
-        "freeEyebrow": "Your first download is free",
-        "freeTitle": "Download your CV for free, once",
-        "freeWhat": "{name} template, 1 page, as a PDF",
-        "freeMark": "With a small “Made with 9itchi” note at the bottom.",
-        "freeWord": "Word, to edit it yourself: with the subscription",
-        "freeButton": "Download my free PDF",
-        "freeNote": "With the subscription: PDF or Word, every template, no note, as often as you like.",
-        "payTitle": "You have used your free download",
-        "payText": "Subscribe to download your CV as a PDF or in Word, in every template, with no note, after every change. You also get the letter for each offer and one-click sending.",
+        "payTitle": "Downloading your CV comes with the subscription",
+        "payText": "You can write, import and check your CV without a subscription. Subscribe to download it as PDF or Word, in every template. You also get the letter for each offer and one-click sending.",
         "payPrice": "{price} DT",
         "payPer": "/ month",
         "payButton": "Subscribe and download",
@@ -358,15 +351,18 @@
         "summary": "<b>{template}</b> template · {version} · {language}",
         "change": "Change",
         "subButton": "Download {file}",
-        "subNote": "No 9itchi note. As often as you like.",
-        "toastFree": "Downloading {file} · {template}, with the 9itchi note",
+        "subNote": "Without the 9itchi mention.",
         "toastSub": "Downloading {file} · {template}, no note",
         "toastOriginal": "Downloading {file}, the file you imported",
         "languages": {
             "fr": "French",
             "en": "English",
             "ar": "Arabic"
-        }
+        },
+        "limitTitle": "{count, plural, one {You used your download for this period} other {You used your # downloads for this period}}",
+        "limitText": "Your plan counts downloads per subscription period. They come back at your next renewal; another plan may give more.",
+        "limitButton": "See my subscription",
+        "subNoteLeft": "Without the 9itchi mention. {left, plural, =0 {No download left} one {# download left} other {# downloads left}} out of {limit} for this period."
     },
     "versions": {
         "title": "CV versions",
@@ -384,7 +380,7 @@
         "newVersion": "+ New version from “{name}”",
         "copyOf": "{name} (copy)",
         "newName": "New version {n}",
-        "freeTitle": "1 version on the free plan",
+        "freeTitle": "1 version without a subscription",
         "freeText": "With the subscription, create one version per kind of job (web, data, embedded…) and choose which one to send to each offer.",
         "freeLink": "See the subscription →",
         "historyIntro": "Every change to “{name}” is kept. You can go back.",
@@ -606,7 +602,13 @@
             }
         },
         "breadcrumbLabel": "Breadcrumb",
-        "rulesLabel": "Rules"
+        "rulesLabel": "Rules",
+        "lockedTag": "Subscription",
+        "lockedTitle": "{count, plural, one {# part of the diagnosis is for subscribers} other {# parts of the diagnosis are for subscribers}}",
+        "lockedTitleOne": "“{group}” is for subscribers",
+        "lockedText": "{count, plural, one {# more point to correct is in there.} other {# more points to correct are in there.}} Subscribe to see the whole diagnosis.",
+        "lockedTextNone": "Subscribe to see the whole diagnosis.",
+        "lockedButton": "See the subscription"
     },
     "templates": {
         "breadcrumb": "Templates",
@@ -650,9 +652,6 @@
         "cvSection": "Experience",
         "cvLine": "• Built the booking page in React…",
         "cvChecks": "✓ Past-tense verb ✓ Result",
-        "priceOld": "50",
-        "priceNew": "35 DT",
-        "priceText": "Launch price per month. Searching and applying with your CV stay free.",
         "loginTitle": "Good to see you again",
         "loginSubtitle": "New to 9itchi?",
         "loginSwitch": "Create an account",
@@ -771,7 +770,7 @@
         "ctaWait": "Answer the questions to continue",
         "ctaCv": "Looks good, show my offers",
         "ctaBlank": "Show my offers",
-        "note": "Browsing offers is free. Applying too, with your CV alone.",
+        "note": "Browsing offers needs no subscription.",
         "saveError": "We could not save your choices. Try again."
     },
     "offers": {
@@ -820,10 +819,10 @@
         "unknown": "Not given",
         "apply": "1-click apply",
         "applyNote": "Your CV + a letter written for this topic. You read it before anything is sent.",
-        "sendCv": "Send my CV only · free",
+        "sendCv": "Send my CV only",
         "prepare": "Prepare my application",
         "prepareNote": "We prepare your CV and letter, then open {source} so you finish there.",
-        "applyOn": "Apply on {source} with my CV · free",
+        "applyOn": "Apply on {source} with my CV",
         "fitTitle": "What fits",
         "fitCount": "{n} of {total} skills on your CV",
         "fitAll": "You have every skill asked for.",
@@ -1057,7 +1056,7 @@
         "reactivated": "Account reactivated",
         "studentDeleted": "Account deleted",
         "sPlan": "Plan",
-        "sPlanFree": "Free",
+        "sPlanFree": "No subscription",
         "sPlanPaid": "{name} · until {day, date, ::dMMMy}",
         "sPlanStopped": "{name} · stopped, access until {day, date, ::dMMMy}",
         "sGmail": "Gmail",
@@ -1155,9 +1154,9 @@
         "plansTitle": "Plans and promo codes",
         "plansSubtitle": "The limits of each plan are checked on the server. Changing a price does not touch the period a subscriber already paid for: it applies to the next payments.",
         "plansError": "The plans could not be read. Reload the page.",
-        "freePlan": "Free",
+        "freePlan": "No subscription",
         "freePrice": "0 TND",
-        "freeText": "The plan everyone starts with.",
+        "freeText": "What a student has without a subscription: they write and check their CV, without downloading it. Its limits are set below.",
         "planOff": "Switched off",
         "planSaved": "Prices saved",
         "perMonth": "per month",
@@ -1180,8 +1179,15 @@
         "colLimit": "Limit",
         "quota": {
             "resumes": "Saved CVs",
-            "cv_downloads": "CV downloads",
-            "emails_per_month": "Applications sent per month"
+            "cv_downloads": "CV downloads per period",
+            "emails_per_month": "Applications sent per month",
+            "ats_contact": "Contact details",
+            "ats_summary": "Summary",
+            "ats_experience": "Experience",
+            "ats_education": "Education",
+            "ats_skills": "Skills and languages",
+            "ats_layout": "Layout",
+            "ats_file": "Final file"
         },
         "promosTitle": "Promo codes",
         "promoNew": "+ New code",
@@ -1238,7 +1244,13 @@
         "iLegalName": "Legal name",
         "iTaxId": "Tax ID",
         "iAddress": "Address",
-        "iVat": "VAT wording"
+        "iVat": "VAT wording",
+        "limitsHint": "For a student with no subscription, then for each plan. An empty number sets no limit; 0 allows none. CV downloads are counted per subscription period. An unticked part of the diagnosis is hidden from the student, with an invitation to subscribe.",
+        "limitsDiagnosis": "CV diagnosis: parts shown",
+        "noLimit": "No limit",
+        "limitsSave": "Save the limits",
+        "limitsSaved": "Limits saved",
+        "limitsInvalid": "A limit is a whole number, 0 or more."
     },
     "apply": {
         "back": "Back to the offer",
@@ -1332,9 +1344,9 @@
         "gmailUnavailable": "Connecting to Gmail does not work right now. Try again later.",
         "planEyebrow": "Subscription",
         "planTitle": "Sending from your Gmail is part of the subscription",
-        "planText": "With the subscription, your application leaves in 1 click, you can schedule it and you see when it is opened. Without it, you can still send it yourself with your CV and your letter.",
+        "planText": "With the subscription, your application leaves in 1 click, you can schedule it and you see when it is opened. Without it, you can still apply yourself.",
         "planSee": "See the subscription",
-        "planSelf": "Send it myself · free",
+        "planSelf": "Send it myself",
         "applyingAt": "You are applying at {company}",
         "writingTitle": "Your letter is being written…",
         "writingText": "About 10 seconds. You will read it and change it before anything is sent.",
@@ -1360,8 +1372,8 @@
         "noCvAction": "Import my CV",
         "goneTitle": "This offer no longer exists",
         "goneText": "It was removed. Other offers are waiting for you.",
-        "downloadTitle": "You already used your free download",
-        "downloadText": "With the subscription, you download your CV as often as you want, without the logo. The file you imported can still be downloaded from My CV.",
+        "downloadTitle": "Downloading your CV comes with the subscription",
+        "downloadText": "With the subscription, you download your CV as PDF or Word. The file you imported can still be downloaded from My CV.",
         "downloadOpen": "Open my CV"
     },
     "applications": {
@@ -1448,7 +1460,7 @@
     "billing": {
         "title": "Subscription",
         "sellTitle": "Send faster, with a letter for every offer.",
-        "sellText": "Applying stays free; the subscription adds the letter, 1-click sending and tracking. It renews every period until you stop it, and you pay each renewal yourself on Flouci.",
+        "sellText": "The subscription adds downloading your CV, the full diagnosis, the letter, 1-click sending and tracking. It renews every period until you stop it, and you pay each renewal yourself on Flouci.",
         "months": "{count, plural, one {1 month} other {# months}}",
         "days": "{count, plural, one {1 day} other {# days}}",
         "oneOff": "Renewed every {length} · stop whenever you want",
