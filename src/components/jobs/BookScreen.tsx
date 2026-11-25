@@ -95,7 +95,7 @@ function TopicCard({ job, cvSkills, selected, onSelect }: { job: JobSummary; cvS
     return (
         <article
             className={cn(
-                'flex items-start gap-[18px] rounded-[18px] border bg-white p-[18px]',
+                'flex flex-col items-stretch gap-3.5 rounded-[18px] border bg-white p-[18px] sm:flex-row sm:items-start sm:gap-[18px]',
                 selected ? 'border-violet shadow-[0_0_0_3px_rgba(75,50,224,.14)]' : 'border-line',
             )}
         >
@@ -119,13 +119,13 @@ function TopicCard({ job, cvSkills, selected, onSelect }: { job: JobSummary; cvS
                     {meta ? <span className="ms-1 text-[13px] text-ink-3">{meta}</span> : null}
                 </span>
             </button>
-            <div className="flex w-[140px] flex-none flex-col items-stretch gap-1.5">
+            <div className="flex flex-none flex-row-reverse items-center justify-end gap-3 sm:w-[140px] sm:flex-col sm:items-stretch sm:justify-start sm:gap-1.5">
                 {closed ? (
-                    <span className="flex h-10 items-center justify-center rounded-lg bg-fill text-sm font-semibold text-ink-3">{t('closed')}</span>
+                    <span className="flex h-10 items-center justify-center rounded-lg bg-fill px-5 text-sm font-semibold text-ink-3">{t('closed')}</span>
                 ) : job.easy_apply ? (
                     <Link
                         href={`/jobs/${job.id}/apply`}
-                        className="flex h-10 items-center justify-center gap-1.5 rounded-xl bg-ink text-sm font-semibold text-white no-underline hover:bg-black hover:text-white"
+                        className="flex h-10 items-center justify-center gap-1.5 rounded-xl bg-ink px-5 text-sm font-semibold text-white no-underline hover:bg-black hover:text-white"
                     >
                         <Bolt size={14} />
                         {to('apply')}
@@ -133,7 +133,7 @@ function TopicCard({ job, cvSkills, selected, onSelect }: { job: JobSummary; cvS
                 ) : (
                     <Link
                         href={`/jobs?tab=all&job=${job.id}`}
-                        className="flex h-10 items-center justify-center rounded-xl border border-line-strong bg-white text-sm font-semibold text-ink no-underline hover:text-ink"
+                        className="flex h-10 items-center justify-center rounded-xl border border-line-strong bg-white px-5 text-sm font-semibold text-ink no-underline hover:text-ink"
                     >
                         {t('see')}
                     </Link>
@@ -201,7 +201,7 @@ export default function BookScreen({ id }: { id: string }) {
     if (res.isError) {
         const gone = isAxiosError(res.error) && [400, 404].includes(res.error.response?.status ?? 0)
         return (
-            <main className="mx-auto w-full max-w-[1320px] px-8 py-8">
+            <main className="mx-auto w-full max-w-[1320px] px-4 sm:px-8 py-8">
                 <p role="alert" className="m-0 text-ink-3">
                     {gone ? t('notFound') : tc('error')}
                 </p>
@@ -219,7 +219,7 @@ export default function BookScreen({ id }: { id: string }) {
     return (
         <>
             <section>
-                <div className="mx-auto box-border flex max-w-[1320px] flex-col gap-[22px] px-8 pb-7 pt-[22px]">
+                <div className="mx-auto box-border flex max-w-[1320px] flex-col gap-[22px] px-4 sm:px-8 pb-7 pt-[22px]">
                     <nav aria-label={t('crumbs')} className="flex items-center gap-2 text-sm text-ink-3">
                         <Link href="/jobs" className="no-underline">
                             {t('offers')}
@@ -272,7 +272,7 @@ export default function BookScreen({ id }: { id: string }) {
                 </div>
             </section>
             {book ? (
-                <main className="mx-auto box-border flex w-full max-w-[1320px] flex-wrap items-start gap-7 px-8 pb-16 pt-7">
+                <main className="mx-auto box-border flex w-full max-w-[1320px] flex-wrap items-start gap-7 px-4 sm:px-8 pb-16 pt-7">
                     <section aria-label={t('topics', { count: topics.length })} className="flex min-w-0 flex-[999_1_560px] flex-col gap-3">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                             <h2 className="m-0 text-xl font-extrabold">{t('topics', { count: topics.length })}</h2>

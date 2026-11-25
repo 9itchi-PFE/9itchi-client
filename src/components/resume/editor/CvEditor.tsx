@@ -48,9 +48,9 @@ export default function CvEditor({ id }: { id: string }) {
     const tc = useTranslations('common')
     const query = useResume(id)
     if (query.isError) {
-        return <p className="mx-auto max-w-[1320px] px-8 py-16 text-ink-3">{errorStatus(query.error) === 404 ? t('notFound') : tc('error')}</p>
+        return <p className="mx-auto max-w-[1320px] px-4 sm:px-8 py-16 text-ink-3">{errorStatus(query.error) === 404 ? t('notFound') : tc('error')}</p>
     }
-    if (!query.data) return <p className="mx-auto max-w-[1320px] px-8 py-16 text-ink-3">{tc('loading')}</p>
+    if (!query.data) return <p className="mx-auto max-w-[1320px] px-4 sm:px-8 py-16 text-ink-3">{tc('loading')}</p>
     return <Editor key={query.data.id} resume={query.data} />
 }
 
@@ -239,10 +239,10 @@ function Editor({ resume: initial }: { resume: Resume }) {
     const cvLang = resume.language === 'en' ? 'en' : 'fr'
 
     return (
-        <div className="mx-auto box-border flex w-full max-w-[1500px] flex-col gap-[22px] px-8 pb-[72px] pt-4">
+        <div className="mx-auto box-border flex w-full max-w-[1500px] flex-col gap-[22px] px-4 sm:px-8 pb-[72px] pt-4">
             <div className="flex flex-wrap items-end justify-between gap-4">
                 <div className="flex flex-col gap-1.5">
-                    <h1 className="m-0 text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
+                    <h1 className="m-0 text-[30px] sm:text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
                     <p className="m-0 text-[15px] text-ink-3" aria-live="polite">
                         {t('subtitle', { status })}
                     </p>

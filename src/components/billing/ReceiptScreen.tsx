@@ -43,7 +43,7 @@ export default function ReceiptScreen({ id }: { id: string }) {
     // A receipt that cannot read the legal mentions still shows: each of them is then a gap.
     const issuer = useReceiptIssuer().data
     const p = payments.data?.find((x) => x.id === id)
-    const main = 'mx-auto box-border flex w-full max-w-[900px] flex-1 flex-col gap-4 px-8 pb-16 pt-4'
+    const main = 'mx-auto box-border flex w-full max-w-[900px] flex-1 flex-col gap-4 px-4 sm:px-8 pb-16 pt-4'
 
     if (payments.isLoading) {
         return (

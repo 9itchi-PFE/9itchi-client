@@ -92,9 +92,9 @@ export default function OutreachScreen() {
     const sent = (emails.data ?? []).filter((e) => e.status === 'sent')
 
     return (
-        <main className="mx-auto box-border flex w-full max-w-[1100px] flex-1 flex-col gap-5 px-8 pb-16 pt-8">
+        <main className="mx-auto box-border flex w-full max-w-[1100px] flex-1 flex-col gap-5 px-4 sm:px-8 pb-16 pt-8">
             <div className="flex flex-col gap-2">
-                <h1 className="m-0 text-[40px] font-extrabold leading-[1.05]">{t('title')}</h1>
+                <h1 className="m-0 text-[30px] sm:text-[40px] font-extrabold leading-[1.05]">{t('title')}</h1>
                 <p className="m-0 text-base text-ink-3">{t('intro')}</p>
             </div>
 

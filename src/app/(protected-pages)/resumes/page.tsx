@@ -15,5 +15,5 @@ export default function Page() {
         const last = [...data.items].sort((a, b) => b.updated_at.localeCompare(a.updated_at))[0]
         router.replace(last ? `/resumes/${last.id}` : '/resumes/upload')
     }, [data, router])
-    return <p className="mx-auto max-w-[1320px] px-8 py-16 text-ink-3">{isError ? t('error') : t('loading')}</p>
+    return <p className="mx-auto max-w-[1320px] px-4 sm:px-8 py-16 text-ink-3">{isError ? t('error') : t('loading')}</p>
 }

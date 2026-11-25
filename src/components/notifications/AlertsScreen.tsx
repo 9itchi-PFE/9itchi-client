@@ -10,7 +10,7 @@ import { cn } from '@/lib/cn'
 import type { AlertPreference } from '@/types/notification'
 
 const eyebrow = 'font-mono text-[11px] font-semibold uppercase tracking-[.08em] text-ink-3'
-const main = 'mx-auto box-border flex w-full max-w-[760px] flex-1 flex-col gap-5 px-8 pb-16 pt-8'
+const main = 'mx-auto box-border flex w-full max-w-[760px] flex-1 flex-col gap-5 px-4 sm:px-8 pb-16 pt-8'
 const cell = 'flex h-full items-center justify-center border-t border-fill py-3.5'
 
 // Toggle is the on / off switch of one way of being told (email, in 9itchi) for one kind of alert.
@@ -52,7 +52,7 @@ export default function AlertsScreen() {
     if (prefs.isError) {
         return (
             <main className={cn(main, 'items-start')}>
-                <h1 className="m-0 text-[40px] font-extrabold leading-[1.05]">{t('title')}</h1>
+                <h1 className="m-0 text-[30px] sm:text-[40px] font-extrabold leading-[1.05]">{t('title')}</h1>
                 <p role="alert" className="m-0 text-base text-ink-3">
                     {tc('error')}
                 </p>
@@ -65,7 +65,7 @@ export default function AlertsScreen() {
     return (
         <main className={main}>
             <div className="flex flex-col gap-1.5">
-                <h1 className="m-0 text-[40px] font-extrabold leading-[1.05]">{t('title')}</h1>
+                <h1 className="m-0 text-[30px] sm:text-[40px] font-extrabold leading-[1.05]">{t('title')}</h1>
                 <p className="m-0 text-[15px] text-ink-3">{t('intro')}</p>
             </div>
             <section className="flex flex-col gap-4 rounded-[20px] border border-line-soft bg-white p-6">

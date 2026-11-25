@@ -83,12 +83,17 @@ export default function AdminHeader() {
     const pending = useReviewList('pending').data?.counts?.pending
     return (
         <header className="sticky top-0 z-20 bg-[rgba(242,243,245,.9)] backdrop-blur-[10px]">
-            <div className="mx-auto flex max-w-[1376px] items-center justify-between gap-4 px-8 py-3.5">
-                <Link href="/admin" className="no-underline">
+            <div className="mx-auto flex max-w-[1376px] flex-wrap items-center gap-x-4 gap-y-2.5 px-4 py-3.5 sm:px-8">
+                <Link href="/admin" className="me-auto no-underline">
                     <Logo tag="ADMIN" />
                 </Link>
-                <div className="flex items-center gap-4">
-                    <nav aria-label={t('nav')} className="flex flex-wrap gap-0.5 rounded-full border border-line bg-white p-[5px] shadow-nav">
+                {/* Under 1280px the sections take their own line and scroll sideways; the language and the account stay
+                    beside the logo. */}
+                <div className="contents">
+                    <nav
+                        aria-label={t('nav')}
+                        className="order-last flex basis-full gap-0.5 overflow-x-auto rounded-full border border-line bg-white p-[5px] shadow-nav xl:order-none xl:basis-auto"
+                    >
                         {nav.map((n) => {
                             const on = isActive(path, n)
                             return (
@@ -97,7 +102,7 @@ export default function AdminHeader() {
                                     href={n.href}
                                     aria-current={on ? 'page' : undefined}
                                     className={cn(
-                                        'flex h-9 items-center gap-2 rounded-full px-3 text-[13.5px] no-underline',
+                                        'flex h-9 flex-none items-center gap-2 whitespace-nowrap rounded-full px-3 text-[13.5px] no-underline',
                                         on ? 'bg-ink font-semibold text-white hover:text-white' : 'font-medium text-ink-2 hover:text-ink',
                                     )}
                                 >

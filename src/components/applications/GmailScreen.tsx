@@ -63,7 +63,7 @@ export default function GmailScreen() {
 
     if (returning) {
         return (
-            <main className="mx-auto box-border flex w-full max-w-[760px] flex-1 flex-col gap-4 px-8 pb-16 pt-12">
+            <main className="mx-auto box-border flex w-full max-w-[760px] flex-1 flex-col gap-4 px-4 sm:px-8 pb-16 pt-12">
                 <p role="status" className="m-0 text-base text-ink-3">
                     {t('backToLetter')}
                 </p>
@@ -72,9 +72,9 @@ export default function GmailScreen() {
     }
     const s = status.data
     return (
-        <main className="mx-auto box-border flex w-full max-w-[760px] flex-1 flex-col gap-5 px-8 pb-16 pt-8">
+        <main className="mx-auto box-border flex w-full max-w-[760px] flex-1 flex-col gap-5 px-4 sm:px-8 pb-16 pt-8">
             <div className="flex flex-col gap-2">
-                <h1 className="m-0 text-[40px] font-extrabold leading-[1.05]">{t('title')}</h1>
+                <h1 className="m-0 text-[30px] sm:text-[40px] font-extrabold leading-[1.05]">{t('title')}</h1>
                 <p className="m-0 text-base leading-[1.55] text-ink-3">{t('intro')}</p>
             </div>
             <section className="flex flex-col gap-4 rounded-[20px] border border-line-soft bg-white p-6">
@@ -82,7 +82,7 @@ export default function GmailScreen() {
                     <span className="flex h-10 w-10 flex-none items-center justify-center rounded-xl bg-fill">
                         <Icon name="send" />
                     </span>
-                    <span className="flex min-w-0 flex-1 flex-col gap-0.5">
+                    <span className="flex min-w-0 flex-[1_1_170px] flex-col gap-0.5">
                         <strong className="text-[15px]">Gmail</strong>
                         {status.isLoading ? (
                             <Sk className="h-4 w-48 rounded" />

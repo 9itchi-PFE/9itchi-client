@@ -42,52 +42,85 @@ export default function StudentHeader() {
         window.addEventListener('scroll', on, { passive: true })
         return () => window.removeEventListener('scroll', on)
     }, [editor])
+    const active = (n: (typeof nav)[number]) => [n.href, ...(n.also ?? [])].some((h) => path === h || path.startsWith(h + '/'))
     return (
-        <header
-            className={cn(
-                'sticky top-0 z-20 bg-[rgba(250,250,249,.9)] backdrop-blur-[10px] transition-transform duration-200',
-                editor && scrolled && '-translate-y-full',
-            )}
-        >
-            <div className="mx-auto grid max-w-[1320px] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-4 px-8 py-3.5">
-                <Link href="/jobs" className="justify-self-start no-underline">
-                    <Logo />
-                </Link>
-                <nav aria-label={t('mainNav')} className="flex gap-0.5 rounded-full border border-line bg-white p-[5px] shadow-nav">
-                    {nav.map((n) => {
-                        const on = [n.href, ...(n.also ?? [])].some((h) => path === h || path.startsWith(h + '/'))
-                        return (
-                            <Link
-                                key={n.key}
-                                href={n.href}
-                                aria-current={on ? 'page' : undefined}
-                                className={cn(
-                                    'flex h-10 items-center gap-2 rounded-full px-4 text-[14.5px] no-underline',
-                                    on ? 'bg-ink font-semibold text-white hover:text-white' : 'font-medium text-ink-2 hover:text-ink',
-                                )}
-                            >
-                                <Icon name={n.icon} stroke={on ? '#D6F25E' : 'currentColor'} />
-                                {t(n.key)}
-                                {n.key === 'applications' && applications ? (
-                                    <span className="rounded-full bg-fill px-[7px] py-px text-xs font-bold text-ink-2">{applications}</span>
-                                ) : null}
-                            </Link>
-                        )
-                    })}
-                </nav>
-                <div className="flex items-center gap-2.5 justify-self-end">
-                    <LanguageSelect />
-                    <Link
-                        href="/notifications"
-                        aria-label={unread ? t('notificationsUnread', { count: unread }) : t('notifications')}
-                        className="relative flex h-10 w-10 items-center justify-center rounded-full border border-line bg-white text-ink-2"
-                    >
-                        <Icon name="bell" />
-                        {unread ? <span className="absolute end-[9px] top-2 h-2 w-2 rounded-full border-2 border-white bg-violet" /> : null}
+        <>
+            <header
+                className={cn(
+                    'sticky top-0 z-20 bg-[rgba(250,250,249,.9)] backdrop-blur-[10px] transition-transform duration-200',
+                    editor && scrolled && '-translate-y-full',
+                )}
+            >
+                <div className="mx-auto grid max-w-[1320px] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 sm:px-8 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-4 lg:py-3.5">
+                    <Link href="/jobs" className="justify-self-start no-underline">
+                        <Logo />
                     </Link>
-                    <AccountMenu />
+                    {/* From a laptop up the sections sit in the header; on a phone they are the bar at the bottom. */}
+                    <nav aria-label={t('mainNav')} className="hidden gap-0.5 rounded-full border border-line bg-white p-[5px] shadow-nav lg:flex">
+                        {nav.map((n) => {
+                            const on = active(n)
+                            return (
+                                <Link
+                                    key={n.key}
+                                    href={n.href}
+                                    aria-current={on ? 'page' : undefined}
+                                    className={cn(
+                                        'flex h-10 items-center gap-2 whitespace-nowrap rounded-full px-4 text-[14.5px] no-underline',
+                                        on ? 'bg-ink font-semibold text-white hover:text-white' : 'font-medium text-ink-2 hover:text-ink',
+                                    )}
+                                >
+                                    <Icon name={n.icon} stroke={on ? '#D6F25E' : 'currentColor'} />
+                                    {t(n.key)}
+                                    {n.key === 'applications' && applications ? (
+                                        <span className="rounded-full bg-fill px-[7px] py-px text-xs font-bold text-ink-2">{applications}</span>
+                                    ) : null}
+                                </Link>
+                            )
+                        })}
+                    </nav>
+                    <div className="flex items-center gap-2 justify-self-end sm:gap-2.5">
+                        <LanguageSelect />
+                        <Link
+                            href="/notifications"
+                            aria-label={unread ? t('notificationsUnread', { count: unread }) : t('notifications')}
+                            className="relative flex h-10 w-10 flex-none items-center justify-center rounded-full border border-line bg-white text-ink-2"
+                        >
+                            <Icon name="bell" />
+                            {unread ? <span className="absolute end-[9px] top-2 h-2 w-2 rounded-full border-2 border-white bg-violet" /> : null}
+                        </Link>
+                        <AccountMenu />
+                    </div>
                 </div>
-            </div>
-        </header>
+            </header>
+            <nav
+                aria-label={t('mainNav')}
+                className="fixed inset-x-0 bottom-0 z-30 flex border-t border-line bg-white px-1 pb-[env(safe-area-inset-bottom)] shadow-[0_-4px_16px_rgba(16,24,40,.06)] lg:hidden"
+            >
+                {nav.map((n) => {
+                    const on = active(n)
+                    return (
+                        <Link
+                            key={n.key}
+                            href={n.href}
+                            aria-current={on ? 'page' : undefined}
+                            className={cn(
+                                'relative flex min-w-0 flex-1 flex-col items-center gap-1 px-1 pb-2 pt-2.5 text-[11.5px] leading-tight no-underline',
+                                on ? 'font-semibold text-ink' : 'font-medium text-ink-3 hover:text-ink',
+                            )}
+                        >
+                            <span className={cn('flex h-7 w-12 items-center justify-center rounded-full', on && 'bg-ink')}>
+                                <Icon name={n.icon} stroke={on ? '#D6F25E' : 'currentColor'} />
+                            </span>
+                            <span className="max-w-full truncate">{t(n.key)}</span>
+                            {n.key === 'applications' && applications ? (
+                                <span className="absolute start-[calc(50%+14px)] top-1.5 rounded-full bg-violet px-[5px] text-[10px] font-bold leading-[16px] text-white">
+                                    {applications}
+                                </span>
+                            ) : null}
+                        </Link>
+                    )
+                })}
+            </nav>
+        </>
     )
 }

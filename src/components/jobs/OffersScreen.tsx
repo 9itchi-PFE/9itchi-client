@@ -110,11 +110,11 @@ export default function OffersScreen() {
     const bandAfter = Math.min(3, items.length) - 1
 
     return (
-        <main className="mx-auto box-border flex w-full max-w-[1320px] flex-col gap-7 px-8 pb-[72px] pt-5">
+        <main className="mx-auto box-border flex w-full max-w-[1320px] flex-col gap-7 px-4 sm:px-8 pb-[72px] pt-5">
             <section aria-label={t('search')} className="flex flex-col gap-[18px] pt-2">
                 <div className="flex flex-wrap items-end justify-between gap-5">
                     <div className="flex flex-col gap-2">
-                        <h1 className="m-0 text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
+                        <h1 className="m-0 text-[30px] sm:text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
                         <p className="m-0 text-base text-ink-3">
                             {searching(filters) ? (
                                 list.data ? (

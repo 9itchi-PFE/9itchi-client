@@ -340,7 +340,8 @@ function Receipts({ payments }: { payments: Payment[] }) {
     const t = useTranslations('billing')
     const locale = useLocale()
     const format = useFormatter()
-    const row = 'grid grid-cols-[1fr_1fr_1fr_auto] items-center gap-3 border-b border-line-soft py-3 text-[14.5px] last:border-b-0'
+    const row =
+        'grid grid-cols-[1fr_auto] items-center gap-x-3 gap-y-1.5 border-b border-line-soft py-3 text-[14.5px] last:border-b-0 sm:grid-cols-[1fr_1fr_1fr_auto]'
     return (
         <section aria-labelledby="receipts-h" className={panel}>
             <h2 id="receipts-h" className="m-0 text-[19px] font-extrabold">
@@ -350,7 +351,7 @@ function Receipts({ payments }: { payments: Payment[] }) {
                 <p className="m-0 text-sm text-ink-3">{t('noReceipts')}</p>
             ) : (
                 <div role="table" aria-labelledby="receipts-h">
-                    <div role="row" className={cn(row, 'py-2 font-mono text-xs uppercase tracking-[.06em] text-ink-3')}>
+                    <div role="row" className={cn(row, 'hidden py-2 font-mono text-xs uppercase tracking-[.06em] text-ink-3 sm:grid')}>
                         <span role="columnheader">{t('colDate')}</span>
                         <span role="columnheader">{t('colPlan')}</span>
                         <span role="columnheader">{t('colAmount')}</span>
@@ -405,7 +406,7 @@ export default function BillingScreen() {
 
     const back = fromReturn(params)
     const plan = paidPlan(plans.data?.items)
-    const main = 'mx-auto box-border flex w-full max-w-[1180px] flex-1 flex-col gap-7 px-8 pb-[72px] pt-6'
+    const main = 'mx-auto box-border flex w-full max-w-[1180px] flex-1 flex-col gap-7 px-4 sm:px-8 pb-[72px] pt-6'
 
     if (back) {
         return (
@@ -425,7 +426,7 @@ export default function BillingScreen() {
     if (sub.isError || !sub.data) {
         return (
             <main className={main}>
-                <h1 className="m-0 text-[40px] font-extrabold leading-[1.05]">{t('title')}</h1>
+                <h1 className="m-0 text-[30px] sm:text-[40px] font-extrabold leading-[1.05]">{t('title')}</h1>
                 <p role="alert" className="m-0 text-base text-ink-3">
                     {tc('error')}
                 </p>
@@ -441,7 +442,7 @@ export default function BillingScreen() {
         return (
             <main className={main}>
                 <div className="flex flex-col gap-3">
-                    <h1 className="m-0 max-w-[760px] text-[44px] font-extrabold leading-[1.05]">{t('sellTitle')}</h1>
+                    <h1 className="m-0 max-w-[760px] text-[30px] sm:text-[44px] font-extrabold leading-[1.05]">{t('sellTitle')}</h1>
                     <p className="m-0 max-w-[700px] text-[17px] leading-[1.55] text-ink-3">{t('sellText')}</p>
                 </div>
                 {sub.data.lapsed ? (
@@ -473,7 +474,7 @@ export default function BillingScreen() {
     const price = `${dinars(active.plan.price, locale)} DT`
     return (
         <main className={cn(main, 'max-w-[900px]')}>
-            <h1 className="m-0 text-[40px] font-extrabold leading-[1.05]">{t('title')}</h1>
+            <h1 className="m-0 text-[30px] sm:text-[40px] font-extrabold leading-[1.05]">{t('title')}</h1>
             {subscription.renews ? (
                 <section className="flex flex-col gap-[18px] rounded-[20px] border-[1.5px] border-ink bg-white p-6 shadow-card">
                     <div className="flex flex-wrap items-start justify-between gap-4">

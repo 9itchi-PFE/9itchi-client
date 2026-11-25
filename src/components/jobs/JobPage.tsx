@@ -21,7 +21,7 @@ function ClosedOffer({ job }: { job: Job }) {
     const similar = useSimilarJobs(job.id, true)
     const d = deadline(job.closes_on)
     return (
-        <main className="mx-auto box-border flex w-full max-w-[1100px] flex-1 flex-col gap-6 px-8 pb-16 pt-8">
+        <main className="mx-auto box-border flex w-full max-w-[1100px] flex-1 flex-col gap-6 px-4 sm:px-8 pb-16 pt-8">
             <Link href="/jobs" className="text-sm font-semibold no-underline">
                 {t('closedBack')}
             </Link>
@@ -85,7 +85,7 @@ export default function JobPage({ id }: { id: string }) {
     if (job.isError) {
         const gone = isAxiosError(job.error) && (job.error.response?.status === 404 || job.error.response?.status === 400)
         return (
-            <main className="mx-auto flex w-full max-w-[1100px] flex-col gap-4 px-8 pb-16 pt-8">
+            <main className="mx-auto flex w-full max-w-[1100px] flex-col gap-4 px-4 sm:px-8 pb-16 pt-8">
                 <Link href="/jobs" className="text-sm font-semibold no-underline">
                     {t('closedBack')}
                 </Link>
@@ -97,7 +97,7 @@ export default function JobPage({ id }: { id: string }) {
     }
     if (job.data && closed) return <ClosedOffer job={job.data} />
     return (
-        <main className="mx-auto box-border w-full max-w-[1320px] px-8 pb-[72px] pt-5">
+        <main className="mx-auto box-border w-full max-w-[1320px] px-4 sm:px-8 pb-[72px] pt-5">
             <OffersSkeleton />
         </main>
     )
