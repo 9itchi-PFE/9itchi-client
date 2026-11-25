@@ -13,4 +13,6 @@ npx playwright install chromium               # sinon, le Chromium de Playwright
 
 En CI (`.github/workflows/e2e.yml`), le client est construit avec les adresses de test puis démarré ; en cas d’échec, le rapport et les traces sont joints au run.
 
-Les parcours : connexion (mauvais mot de passe, étudiant avec ou sans CV, page demandée avant la connexion, équipe et accès refusé à l’admin), offres (panneau, analyse de l’IA, sans abonnement), profil, modèles de CV côté admin, arabe de droite à gauche et anglais.
+Les parcours : connexion (mauvais mot de passe, étudiant avec ou sans CV, page demandée avant la connexion, équipe et accès refusé à l’admin), offres (panneau, analyse de l’IA, sans abonnement), candidature (envoi depuis Gmail une fois la lettre relue, envoi programmé, Gmail à connecter, candidatures sans abonnement, plan qui n’envoie rien), paiement (code promo, Flouci simulé et retour abonné, paiement refusé, code inexistant), limites de l’IA (réécriture, lettre, réglages admin), profil, modèles de CV côté admin, arabe de droite à gauche et anglais.
+
+Flouci et Google ne sont jamais appelés : leurs pages sont remplacées par des pages simulées qui renvoient le navigateur comme eux.
