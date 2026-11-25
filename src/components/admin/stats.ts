@@ -53,3 +53,15 @@ export function weekly(series: (MetricPoint[] | undefined)[], keep = 6): Week[] 
     })
     return [...byMonday.values()].sort((a, b) => a.monday.localeCompare(b.monday)).slice(-keep)
 }
+
+// before is the period of the same length that ends the day before a range starts: what a figure is compared with.
+export function before(range: { from: string; to: string }): { from: string; to: string } {
+    const from = new Date(`${range.from}T00:00:00Z`)
+    const to = new Date(`${range.to}T00:00:00Z`)
+    const days = Math.round((to.getTime() - from.getTime()) / 86_400_000) + 1
+    const end = new Date(from)
+    end.setUTCDate(end.getUTCDate() - 1)
+    const start = new Date(end)
+    start.setUTCDate(start.getUTCDate() - (days - 1))
+    return { from: iso(start), to: iso(end) }
+}
