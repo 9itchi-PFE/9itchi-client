@@ -76,7 +76,7 @@ export default function AiMatch({ jobId, resumeId }: { jobId: string; resumeId: 
                         <p role="alert" className="m-0 text-[13.5px] leading-[1.55] text-[#B42318]">
                             {t(`error.${why}`)}{' '}
                             {why === 'plan' || why === 'used' ? (
-                                <Link href="/billing" className="font-semibold underline">
+                                <Link href="/settings/billing" className="font-semibold underline">
                                     {t('seePlans')}
                                 </Link>
                             ) : null}

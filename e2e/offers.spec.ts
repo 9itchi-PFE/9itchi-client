@@ -56,5 +56,8 @@ test('without analyses in the plan, the panel says so and points to the plans', 
     const panel = page.getByRole('complementary')
     await panel.getByRole('button', { name: 'Analyser avec l’IA' }).click()
     await expect(panel.getByRole('alert')).toContainText('L’analyse par l’IA fait partie de l’abonnement.')
-    await expect(panel.getByRole('link', { name: 'Voir les abonnements' })).toHaveAttribute('href', '/billing')
+    // The link leads to the real subscription page, not only to an address.
+    await panel.getByRole('link', { name: 'Voir les abonnements' }).click()
+    await expect(page).toHaveURL(/\/settings\/billing$/)
+    await expect(page.getByRole('heading', { level: 1 })).toBeVisible()
 })

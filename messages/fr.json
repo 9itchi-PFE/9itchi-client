@@ -608,7 +608,11 @@
         "lockedTitleOne": "« {group} » est réservé à l’abonnement",
         "lockedText": "{count, plural, one {# autre point à corriger s’y trouve.} other {# autres points à corriger s’y trouvent.}} Abonne-toi pour voir tout le diagnostic.",
         "lockedTextNone": "Abonne-toi pour voir tout le diagnostic.",
-        "lockedButton": "Voir l’abonnement"
+        "lockedButton": "Voir l’abonnement",
+        "askRewrite": "Proposer une version avec l’IA",
+        "rewritePlan": "La réécriture par l’IA fait partie de l’abonnement.",
+        "rewriteUsed": "Tu as utilisé les réécritures par l’IA de ce mois-ci.",
+        "seePlans": "Voir les abonnements"
     },
     "templates": {
         "breadcrumb": "Modèles",
@@ -1321,7 +1325,10 @@
             "ats_education": "Formation",
             "ats_skills": "Compétences et langues",
             "ats_layout": "Mise en page",
-            "ats_file": "Fichier final"
+            "ats_file": "Fichier final",
+            "ai_drafts_per_month": "Lettres écrites par l’IA, par mois",
+            "ai_rewrites_per_month": "Réécritures du CV par l’IA, par mois",
+            "ai_matches_per_month": "Analyses d’une offre par l’IA, par mois"
         },
         "promosTitle": "Codes promo",
         "promoNew": "+ Nouveau code",
@@ -1587,7 +1594,13 @@
         "freeText": "Elle part avec le CV que tu as importé, pas avec celui corrigé dans 9itchi.",
         "freeUsedTitle": "{count, plural, one {Tu as utilisé ta candidature sans abonnement} other {Tu as utilisé tes # candidatures sans abonnement}}",
         "freeUsedText": "Avec l’abonnement, tes candidatures partent avec ton CV corrigé dans 9itchi, tu peux les programmer et tu vois quand elles sont ouvertes. Sans abonnement, tu peux toujours postuler toi-même.",
-        "noFile": "Ce CV n’a pas de fichier importé. Importe ton CV pour postuler sans abonnement."
+        "noFile": "Ce CV n’a pas de fichier importé. Importe ton CV pour postuler sans abonnement.",
+        "draftUsedTitle": "Ta lettre par l’IA de ce mois-ci est utilisée",
+        "draftPlanTitle": "La lettre par l’IA fait partie de l’abonnement",
+        "draftLimitText": "Écris ta lettre toi-même à partir d’un modèle : tu peux toujours postuler. Avec l’abonnement, l’IA en écrit davantage.",
+        "draftUsedToast": "Plus de lettre par l’IA ce mois-ci : la lettre affichée reste, modifie-la toi-même.",
+        "draftPlanToast": "La lettre par l’IA fait partie de l’abonnement : la lettre affichée reste.",
+        "seePlans": "Voir les abonnements"
     },
     "applications": {
         "title": "Mes candidatures",

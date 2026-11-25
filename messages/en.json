@@ -608,7 +608,11 @@
         "lockedTitleOne": "“{group}” is for subscribers",
         "lockedText": "{count, plural, one {# more point to correct is in there.} other {# more points to correct are in there.}} Subscribe to see the whole diagnosis.",
         "lockedTextNone": "Subscribe to see the whole diagnosis.",
-        "lockedButton": "See the subscription"
+        "lockedButton": "See the subscription",
+        "askRewrite": "Suggest a version with AI",
+        "rewritePlan": "The AI rewrite is part of the subscription.",
+        "rewriteUsed": "You have used this month’s AI rewrites.",
+        "seePlans": "See the plans"
     },
     "templates": {
         "breadcrumb": "Templates",
@@ -1321,7 +1325,10 @@
             "ats_education": "Education",
             "ats_skills": "Skills and languages",
             "ats_layout": "Layout",
-            "ats_file": "Final file"
+            "ats_file": "Final file",
+            "ai_drafts_per_month": "Letters written by the AI, per month",
+            "ai_rewrites_per_month": "CV rewrites by the AI, per month",
+            "ai_matches_per_month": "Offer analyses by the AI, per month"
         },
         "promosTitle": "Promo codes",
         "promoNew": "+ New code",
@@ -1587,7 +1594,13 @@
         "freeText": "It leaves with the CV you imported, not the one fixed in 9itchi.",
         "freeUsedTitle": "{count, plural, one {You have used your application without a subscription} other {You have used your # applications without a subscription}}",
         "freeUsedText": "With the subscription, your applications leave with your CV fixed in 9itchi, you can schedule them and you see when they are opened. Without it, you can still apply yourself.",
-        "noFile": "This CV has no imported file. Import your CV to apply without a subscription."
+        "noFile": "This CV has no imported file. Import your CV to apply without a subscription.",
+        "draftUsedTitle": "This month’s AI letter is used",
+        "draftPlanTitle": "The AI letter is part of the subscription",
+        "draftLimitText": "Write your letter yourself from a template: you can still apply. With the subscription, the AI writes more of them.",
+        "draftUsedToast": "No more AI letters this month: the letter shown stays, edit it yourself.",
+        "draftPlanToast": "The AI letter is part of the subscription: the letter shown stays.",
+        "seePlans": "See the plans"
     },
     "applications": {
         "title": "My applications",

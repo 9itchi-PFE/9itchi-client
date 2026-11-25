@@ -50,8 +50,9 @@ export type ApplyInput = { job_id: string; resume_id?: string; via?: Via; subjec
 export type Tone = 'formal' | 'friendly'
 export type LetterLanguage = 'fr' | 'en' | 'ar'
 
-export type DraftInput = { job_id: string; resume_id?: string; language: LetterLanguage; tone: Tone }
-export type Draft = { subject: string; body: string }
+// fresh asks for a new letter (« Réécrire »); otherwise the last one written for the same offer and CV comes back.
+export type DraftInput = { job_id: string; resume_id?: string; language: LetterLanguage; tone: Tone; fresh?: boolean }
+export type Draft = { subject: string; body: string; limit: number | null; used: number }
 
 export type GmailStatus = { connected: boolean; email?: string; connected_at?: string }
 
