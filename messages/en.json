@@ -1418,7 +1418,21 @@
         "todoBooksText": "Drafts to check or failed imports",
         "todoExpired": "Offers past their date",
         "todoExpiredText": "Already hidden from students",
-        "oOpened": "{rate}% opened by the recruiter"
+        "oOpened": "{rate}% opened by the recruiter",
+        "tplTitle": "CV templates",
+        "tplSubtitle": "The templates offered to students in the CV editor, and how many CVs use each.",
+        "tplPublished": "Published",
+        "tplOff": "Withdrawn",
+        "tplUse": "{count, plural, =0 {No CV} one {# CV} other {# CVs}}",
+        "tplPublish": "Publish",
+        "tplWithdraw": "Withdraw",
+        "tplWithdrawConfirm": "{count, plural, =0 {Withdraw the {name} template from the choices?} other {Withdraw the {name} template from the choices? The # CVs using it keep it; it is no longer offered to others.}}",
+        "tplPublishedToast": "{name} published",
+        "tplWithdrawn": "{name} withdrawn from the choices",
+        "tplLast": "Last published template: there must always be one.",
+        "tplError": "The templates could not be read.",
+        "tplEmpty": "No template.",
+        "tplNote": "A withdrawn template is no longer offered; CVs already using it do not change. Adding a new template means drawing its layout in the code."
     },
     "apply": {
         "back": "Back to the offer",
