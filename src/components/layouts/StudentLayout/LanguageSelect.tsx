@@ -8,6 +8,9 @@ import AccountService from '@/services/AccountService'
 
 const labels = { fr: 'FR', en: 'EN', ar: 'عربي' } as const
 const flags = { fr: 'FR', en: 'UK', ar: 'SA' } as const
+// OFFERED are the languages the menu proposes. Arabic is hidden for now (its texts stay); someone already in Arabic
+// still sees it selected, so that they can switch to French or English.
+const OFFERED = ['fr', 'en'] as const
 
 // LanguageSelect stores the choice in a cookie read by i18n/request.ts, then re-renders the page. It also tells
 // account-api, so that the emails 9itchi sends are written in the same language; the page does not wait for it.
@@ -42,11 +45,13 @@ export default function LanguageSelect({ remember = true }: { remember?: boolean
                 }}
                 className="h-10 cursor-pointer rounded-full border border-line bg-white ps-9 pe-2.5 text-[13.5px] font-medium text-ink-2"
             >
-                {Object.entries(labels).map(([value, label]) => (
-                    <option key={value} value={value}>
-                        {label}
-                    </option>
-                ))}
+                {(Object.keys(labels) as (keyof typeof labels)[])
+                    .filter((value) => (OFFERED as readonly string[]).includes(value) || value === locale)
+                    .map((value) => (
+                        <option key={value} value={value}>
+                            {labels[value]}
+                        </option>
+                    ))}
             </select>
         </label>
     )

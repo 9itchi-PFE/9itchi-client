@@ -19,3 +19,10 @@ test('English keeps the student signed in and changes the words', async ({ page,
     await expect(page.locator('html')).toHaveAttribute('dir', 'ltr')
     await expect(page).toHaveURL(/\/jobs$/)
 })
+
+test('the language menu offers French and English only', async ({ page }) => {
+    await mockServices(page)
+    await signIn(page, STUDENT)
+    const menu = page.getByLabel('Langue').first()
+    await expect(menu.locator('option')).toHaveText(['FR', 'EN'])
+})
