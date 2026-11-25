@@ -1464,7 +1464,10 @@
         "tplLast": "Last published template: there must always be one.",
         "tplError": "The templates could not be read.",
         "tplEmpty": "No template.",
-        "tplNote": "A withdrawn template is no longer offered; CVs already using it do not change. Adding a new template means drawing its layout in the code."
+        "tplNote": "A withdrawn template is no longer offered; CVs already using it do not change. Adding a new template means drawing its layout in the code.",
+        "oReplies": "{count, plural, =0 {no reply} one {# reply} other {# replies}}",
+        "mReplies": "Replies received",
+        "repliesNote": "A reply is counted when the student marks the application « Reply received », whether it left through 9itchi or on their own."
     },
     "apply": {
         "back": "Back to the offer",

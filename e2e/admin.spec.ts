@@ -37,3 +37,15 @@ test('with one template published, it cannot be withdrawn', async ({ page }) => 
     await expect(classic.getByRole('button', { name: 'Retirer' })).toBeDisabled()
     await expect(classic.getByText('Dernier modèle publié : il en faut toujours un.')).toBeVisible()
 })
+
+test('the overview and the statistics show the replies the students marked', async ({ page }) => {
+    const metric = (total: number) => ({ total, series: [] })
+    const dashboard = { metrics: { email_sent: metric(20), email_opened: metric(10), replies: metric(3), user_registered: metric(5) } }
+    await mockServices(page, {
+        'GET /statistics/admin/statistics/overview': dashboard,
+    })
+    await signIn(page, ADMIN)
+    await expect(page.getByText('50 % ouvertes par le recruteur · 3 réponses')).toBeVisible()
+    await page.goto('/admin/stats')
+    await expect(page.getByText('Réponses reçues')).toBeVisible()
+})
