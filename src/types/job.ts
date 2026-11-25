@@ -86,7 +86,7 @@ export type Book = {
 // Admin: a PFE book imported from its PDF (job-api /admin/books). importing: the PDF is being read; draft: to
 // check; failed: import_error says why; published: students see it.
 export type BookStatus = 'importing' | 'draft' | 'failed' | 'published'
-export type BookImportError = '' | 'ai_unavailable' | 'no_topics' | 'storage_error' | 'partial'
+export type BookImportError = '' | 'ai_unavailable' | 'no_topics' | 'storage_error' | 'already_known' | 'partial'
 
 // BookTopic is one topic on the check screen; ready is false when the subject is short or names no skill.
 export type BookTopic = {

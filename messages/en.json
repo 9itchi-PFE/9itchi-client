@@ -1140,6 +1140,7 @@
         "bookErrAi": "The AI could not read this PDF. The file is kept: try again in a moment.",
         "bookErrNoTopics": "No topic was found in this PDF.",
         "bookErrStorage": "The topics could not be stored. Try again.",
+        "bookErrKnown": "The topics of this PDF are already offers elsewhere: this book was probably imported before.",
         "bookErrPartial": "This book is too long: only its first pages were read. Check in the PDF that no topic is missing.",
         "bookRetry": "Try again",
         "bookRetryStarted": "Reading started again",

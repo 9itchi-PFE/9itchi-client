@@ -25,7 +25,13 @@ const statePill: Record<TopicState, string> = {
     hidden: 'bg-fill text-ink-3',
 }
 const stateKey = { ready: 'topicReady', check: 'topicCheck', published: 'statusPublished', hidden: 'statusHidden' } as const
-const errorKey = { ai_unavailable: 'bookErrAi', no_topics: 'bookErrNoTopics', storage_error: 'bookErrStorage', partial: 'bookErrPartial' } as const
+const errorKey = {
+    ai_unavailable: 'bookErrAi',
+    no_topics: 'bookErrNoTopics',
+    storage_error: 'bookErrStorage',
+    already_known: 'bookErrKnown',
+    partial: 'bookErrPartial',
+} as const
 
 // Steps shows where the book stands: imported, being checked, published.
 function Steps({ book }: { book: AdminBook }) {

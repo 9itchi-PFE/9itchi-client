@@ -1140,6 +1140,7 @@
         "bookErrAi": "L’IA n’a pas pu lire ce PDF. Le fichier est conservé : réessaie dans un moment.",
         "bookErrNoTopics": "Aucun sujet n’a été trouvé dans ce PDF.",
         "bookErrStorage": "Les sujets n’ont pas pu être enregistrés. Réessaie.",
+        "bookErrKnown": "Les sujets de ce PDF sont déjà des offres ailleurs : ce book a sans doute déjà été importé.",
         "bookErrPartial": "Ce book est trop long : seules ses premières pages ont été lues. Vérifie dans le PDF qu’il ne manque pas de sujets.",
         "bookRetry": "Réessayer",
         "bookRetryStarted": "Nouvelle lecture lancée",
