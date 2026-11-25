@@ -18,6 +18,7 @@ import {
     stopped,
     withCount,
     withShown,
+    inSale,
     saleInput,
     salePrice,
 } from '@/components/admin/plans'
@@ -257,5 +258,22 @@ describe('a sale', () => {
         expect(salePrice(35, 30)).toBe(24.5)
         expect(salePrice(49.99, 33)).toBe(33.493)
         expect(salePrice(35, 90)).toBe(3.5)
+    })
+})
+
+describe('a plan in a sale', () => {
+    const launch = { price: 35, regular_price: 50, launch_ends_on: '2027-01-31' }
+    it('takes the percentage off the regular price, never the launch price', () => {
+        expect(inSale(launch, 40, new Date('2027-01-25T09:00:00Z'))).toEqual({ usual: 50, price: 30, kept: false })
+    })
+    it('keeps a launch price that is already lower', () => {
+        expect(inSale(launch, 20, new Date('2027-01-25T09:00:00Z'))).toEqual({ usual: 50, price: 35, kept: true })
+        expect(inSale(launch, 30, new Date('2027-01-25T09:00:00Z'))).toEqual({ usual: 50, price: 35, kept: true })
+    })
+    it('counts on the regular price once the launch is over', () => {
+        expect(inSale(launch, 20, new Date('2027-02-02T09:00:00Z'))).toEqual({ usual: 50, price: 40, kept: false })
+    })
+    it('counts on the only price of a plan', () => {
+        expect(inSale({ price: 50 }, 30)).toEqual({ usual: 50, price: 35, kept: false })
     })
 })

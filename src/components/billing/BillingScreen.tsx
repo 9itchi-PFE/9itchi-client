@@ -170,6 +170,8 @@ function Pay({ plan, extending }: { plan: Plan; extending: MySubscription | null
                             {t('promoRemove')}
                         </button>
                     </div>
+                ) : sale ? (
+                    <p className="m-0 text-[13.5px] leading-[1.5] text-ink-3">{t('promoDuringSale')}</p>
                 ) : (
                     <form onSubmit={applyCode} className="flex flex-col gap-1.5">
                         <label htmlFor="promo" className="text-sm font-medium text-ink-2">

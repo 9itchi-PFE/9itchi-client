@@ -47,10 +47,11 @@ export function lines(p: Pick<Payment, 'amount_millimes' | 'discount_millimes' |
 }
 
 // promoReason turns payments-api's refusal of a code into the key of the message shown.
-export type PromoReason = 'promoExpired' | 'promoNotYet' | 'promoUsedUp' | 'promoOtherPlan' | 'promoUnknown'
+export type PromoReason = 'promoDuringSale' | 'promoExpired' | 'promoNotYet' | 'promoUsedUp' | 'promoOtherPlan' | 'promoUnknown'
 
 export function promoReason(reason = ''): PromoReason {
     const r = reason.toLowerCase()
+    if (r.includes('during a sale')) return 'promoDuringSale'
     if (r.includes('expired')) return 'promoExpired'
     if (r.includes('not yet') || r.includes('not valid yet')) return 'promoNotYet'
     if (r.includes('limit')) return 'promoUsedUp'

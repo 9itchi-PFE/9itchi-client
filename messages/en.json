@@ -1353,7 +1353,7 @@
         "limitsSaved": "Limits saved",
         "limitsInvalid": "A limit is a whole number, 0 or more.",
         "salesTitle": "Sales",
-        "salesHint": "A reduction without a code, between two dates. During the sale every student sees the reduced price with the usual price struck through, and pays the reduced price. The day after the last day the usual price comes back by itself. A subscription already paid does not change.",
+        "salesHint": "A reduction without a code, between two dates. During the sale every student sees the reduced price with the usual price struck through, and pays the reduced price. The day after the last day the usual price comes back by itself. A subscription already paid does not change. The reduction is counted on the regular price, never the launch price, and no promo code is taken during a sale.",
         "saleNew": "+ New sale",
         "saleAdd": "New sale",
         "saleEdit": "Edit the sale",
@@ -1384,7 +1384,8 @@
         },
         "saleNameInvalid": "Give the sale a name, 60 characters at most.",
         "salePercentRange": "The reduction is a whole number between 1 and 90.",
-        "saleOver": "The last day is already past."
+        "saleOver": "The last day is already past.",
+        "saleKept": "{price} DT: the launch price is already lower, it stays."
     },
     "apply": {
         "back": "Back to the offer",
@@ -1704,7 +1705,8 @@
         "vat": "VAT",
         "toFill": "to be completed",
         "saleUntil": "{name} · −{percent}% until {day, date, ::dMMMM}",
-        "saleLine": "Sale “{name}”"
+        "saleLine": "Sale “{name}”",
+        "promoDuringSale": "No promo code during a sale: the reduced price already applies."
     },
     "notifications": {
         "title": "Notifications",
