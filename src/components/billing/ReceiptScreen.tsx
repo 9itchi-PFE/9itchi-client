@@ -7,7 +7,7 @@ import { Sk } from '@/components/jobs/OfferStates'
 import { Button, ButtonLink } from '@/components/ui/Button'
 import { LogoMark } from '@/components/ui/Logo'
 import { usePayments, useReceiptIssuer } from '@/hooks/usePlans'
-import { lines, months, tnd } from './billing'
+import { lines, lengthOf, tnd } from './billing'
 
 const eyebrow = 'font-mono text-[11px] font-semibold uppercase tracking-[.08em] text-ink-3'
 
@@ -64,8 +64,8 @@ export default function ReceiptScreen({ id }: { id: string }) {
     }
 
     const l = lines(p)
-    const m = months(p.duration_days)
-    const length = m === null ? t('days', { count: p.duration_days }) : t('months', { count: m })
+    const span = lengthOf(p.duration_days)
+    const length = t(span.unit, { count: span.count })
     const day = (iso: string) => format.dateTime(new Date(iso), { day: 'numeric', month: 'short', year: 'numeric' })
     const period = p.period_start && p.period_end ? ` (${day(p.period_start)} → ${day(p.period_end)})` : ''
     const row = 'flex justify-between gap-4 border-b border-line-soft px-4 py-4 text-[15px]'

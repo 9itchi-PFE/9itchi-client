@@ -7,15 +7,18 @@ import {
     countOf,
     dayOf,
     launchIsOver,
+    newPlanInput,
     planInput,
     price,
     promoInput,
     promoState,
     quotaKeys,
     quotasInput,
+    renamedInput,
     sameQuotas,
     shows,
     stopped,
+    switchedOn,
     withCount,
     withShown,
     inSale,
@@ -275,5 +278,54 @@ describe('a plan in a sale', () => {
     })
     it('counts on the only price of a plan', () => {
         expect(inSale({ price: 50 }, 30)).toEqual({ usual: 50, price: 35, kept: false })
+    })
+})
+
+describe('a new plan', () => {
+    const free: Plan = { id: 'f', name: 'Free', price: 0, duration_days: 36500, quotas: { free_applications: 3, cv_edit: 0 }, active: true }
+    const typed = { name: ' Abonnement 3 mois ', duration: '90', price: '90', regular: '120', until: '', active: true }
+
+    it('takes the name, period and prices typed, and the limits of the plan it starts from', () => {
+        const built = newPlanInput(typed, [free, plan], plan)
+        expect(built).toEqual({
+            input: { name: 'Abonnement 3 mois', price: 90, regular_price: 120, duration_days: 90, quotas: { resumes: 50 }, active: true },
+        })
+        if ('input' in built) expect(built.input.quotas).not.toBe(plan.quotas)
+    })
+
+    it('can be kept from students until it is ready', () => {
+        const built = newPlanInput({ ...typed, active: false }, [plan])
+        expect('input' in built && built.input.active).toBe(false)
+        expect('input' in built && built.input.quotas).toEqual({})
+    })
+
+    it('refuses a name already used or Free, in any case, and an empty one', () => {
+        expect(newPlanInput({ ...typed, name: 'abonnement ÉTUDIANT' }, [plan])).toEqual({ error: 'nameTaken' })
+        expect(newPlanInput({ ...typed, name: 'free' }, [plan])).toEqual({ error: 'nameFree' })
+        expect(newPlanInput({ ...typed, name: '  ' }, [plan])).toEqual({ error: 'nameMissing' })
+    })
+
+    it('refuses a free price, a missing period and the price errors of a plan', () => {
+        expect(newPlanInput({ ...typed, price: '0' }, [])).toEqual({ error: 'priceZero' })
+        expect(newPlanInput({ ...typed, duration: '' }, [])).toEqual({ error: 'durationInvalid' })
+        expect(newPlanInput({ ...typed, regular: '80' }, [])).toEqual({ error: 'regularBelow' })
+        expect(newPlanInput({ ...typed, regular: '', until: '2027-01-31' }, [])).toEqual({ error: 'untilNeedsRegular' })
+    })
+})
+
+describe('a plan renamed or switched on', () => {
+    it('changes only the name and the period', () => {
+        const built = renamedInput(plan, { name: 'Mensuel', duration: '30' }, [plan])
+        expect(built).toEqual({ input: { ...quotasInput(plan, plan.quotas), name: 'Mensuel', duration_days: 30 } })
+    })
+
+    it('may keep its own name, but not take another plan’s', () => {
+        const other: Plan = { ...plan, id: 'p2', name: 'Annuel', duration_days: 365 }
+        expect('input' in renamedInput(plan, { name: 'ABONNEMENT ÉTUDIANT', duration: '30' }, [plan, other])).toBe(true)
+        expect(renamedInput(plan, { name: 'annuel', duration: '30' }, [plan, other])).toEqual({ error: 'nameTaken' })
+    })
+
+    it('is sent back whole, switched on', () => {
+        expect(switchedOn({ ...plan, active: false })).toEqual({ ...quotasInput(plan, plan.quotas), active: true })
     })
 })

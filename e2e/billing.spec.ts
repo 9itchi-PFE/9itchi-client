@@ -112,3 +112,51 @@ test('the launch price is kept for a subscriber, and for 7 days after a lapse', 
     await page.reload()
     await expect(page.getByText(/prix de lancement est gardé/)).toHaveCount(0)
 })
+
+const YEAR = { id: 'p-year', name: 'Abonnement annuel', price: 350, duration_days: 365, quotas: {}, active: true }
+
+test('with a month and a year on offer, the student picks the year and pays for it', async ({ page }) => {
+    const seen = await mockServices(
+        page,
+        free({
+            'GET /payments/plans': { items: [FREE, YEAR, MONTH] },
+            'POST /payments/subscriptions/checkout': { payment_url: 'https://flouci.test/pay/year', payment_id: PAYMENT_ID },
+        }),
+    )
+    await page.route('https://flouci.test/**', (r) => r.fulfill({ contentType: 'text/html', body: '<h1>Flouci (simulé)</h1>' }))
+    await signIn(page, STUDENT)
+    await page.goto('/settings/billing')
+    await expect(page.getByRole('radio', { name: /Abonnement étudiant/ })).toBeChecked()
+    await page.getByRole('radio', { name: /Abonnement annuel/ }).check()
+    await expect(page.getByText('soit 28,767 DT par mois')).toBeVisible()
+    await expect(page.getByText('Abonnement annuel · 1 an')).toBeVisible()
+    await page.getByRole('button', { name: /Payer sur Flouci/ }).click()
+    await expect(page).toHaveURL('https://flouci.test/pay/year')
+    expect(seen.find((r) => r.path === '/payments/subscriptions/checkout')?.body).toEqual({ plan_id: YEAR.id })
+})
+
+test('a yearly subscriber renews the year, and a monthly one can move to the year', async ({ page }) => {
+    const sub = (planId: string) => ({
+        id: 's1',
+        plan_id: planId,
+        promo_code_id: null,
+        status: 'active',
+        amount: 35,
+        starts_at: new Date(Date.now() - 10 * 86_400_000).toISOString(),
+        ends_at: new Date(Date.now() + 20 * 86_400_000).toISOString(),
+        renews: true,
+        stopped_at: null,
+    })
+    let me: unknown = { subscription: sub(YEAR.id), plan: YEAR, is_free: false, kept_price: null }
+    await mockServices(page, free({ 'GET /payments/plans': { items: [FREE, MONTH, YEAR] }, 'GET /payments/subscriptions/me': () => me }))
+    await signIn(page, STUDENT)
+    await page.goto('/settings/billing')
+    await expect(page.getByRole('button', { name: /Renouveler.*350/ })).toBeVisible()
+    await expect(page.getByText(/350 DT \/ 1 an/).first()).toBeVisible()
+
+    me = { subscription: sub(MONTH.id), plan: MONTH, is_free: false, kept_price: null }
+    await page.reload()
+    await expect(page.getByRole('heading', { name: 'Changer de forfait' })).toBeVisible()
+    await page.getByRole('button', { name: /Passer à Abonnement annuel/ }).click()
+    await expect(page.getByRole('button', { name: /Payer sur Flouci/ })).toBeVisible()
+})

@@ -1,5 +1,20 @@
 import { describe, expect, it } from 'vitest'
-import { daysLeft, dinars, fromReturn, lines, millimes, months, paidPlan, promoReason, regularOf, renewal, tnd } from '@/components/billing/billing'
+import {
+    daysLeft,
+    dinars,
+    fromReturn,
+    lengthOf,
+    lines,
+    millimes,
+    months,
+    paidPlan,
+    paidPlans,
+    perMonth,
+    promoReason,
+    regularOf,
+    renewal,
+    tnd,
+} from '@/components/billing/billing'
 import { atKeptPrice, type Plan, type Subscription } from '@/types/plan'
 
 const plan = (over: Partial<Plan>): Plan => ({ id: 'p', name: 'Mensuel', price: 35, duration_days: 30, quotas: {}, active: true, ...over })
@@ -134,5 +149,28 @@ describe('atKeptPrice', () => {
         expect(atKeptPrice(plan, null)).toBe(plan)
         expect(atKeptPrice(plan, undefined)).toBe(plan)
         expect(atKeptPrice({ ...plan, price: 30 }, 35).price).toBe(30)
+    })
+})
+
+describe('a month and a year', () => {
+    const month = plan({ id: 'm' })
+    const year = plan({ id: 'y', name: 'Annuel', price: 350, duration_days: 365 })
+    const off = plan({ id: 'o', price: 20, active: false })
+    const free = plan({ id: 'f', name: 'Free', price: 0, duration_days: 36500 })
+
+    it('offers the paid plans that are on, shortest first', () => {
+        expect(paidPlans([year, free, off, month]).map((p) => p.id)).toEqual(['m', 'y'])
+        expect(paidPlans(undefined)).toEqual([])
+    })
+
+    it('counts a period in years, months or days', () => {
+        expect(lengthOf(365)).toEqual({ unit: 'years', count: 1 })
+        expect(lengthOf(90)).toEqual({ unit: 'months', count: 3 })
+        expect(lengthOf(45)).toEqual({ unit: 'days', count: 45 })
+    })
+
+    it('says what a longer plan comes to per month', () => {
+        expect(perMonth(year)).toBe(28.767)
+        expect(perMonth(month)).toBeNull()
     })
 })

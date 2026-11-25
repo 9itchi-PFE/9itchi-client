@@ -10,6 +10,7 @@ import { Modal } from '@/components/ui/Modal'
 import { useToast } from '@/components/ui/Toast'
 import {
     useAllPlans,
+    useCreatePlan,
     useDeletePromo,
     useDeleteSale,
     usePromos,
@@ -18,28 +19,34 @@ import {
     useSavePromo,
     useSaveReceiptIssuer,
     useSaveSale,
+    useSwitchOffPlan,
 } from '@/hooks/useAdminPlans'
 import { useReceiptIssuer } from '@/hooks/usePlans'
 import { cn } from '@/lib/cn'
 import type { Plan, PromoCode, Sale } from '@/types/plan'
 import { apiError } from './SourcesScreen'
 import {
+    ALLOWED,
     COUNTS,
+    DURATIONS,
     FREE_PLAN,
     SHOWN,
     countOf,
     dayOf,
     launchIsOver,
+    newPlanInput,
     planInput,
     promoInput,
     promoState,
     quotaKeys,
     inSale,
     quotasInput,
+    renamedInput,
     saleInput,
     sameQuotas,
     shows,
     stopped,
+    switchedOn,
     today,
     withCount,
     withShown,
@@ -72,14 +79,16 @@ function Problem({ children }: { children: string }) {
 }
 
 // PlanCard is one paid plan: what it normally costs (struck through for students) and what is charged.
-function PlanCard({ plan }: { plan: Plan }) {
+function PlanCard({ plan, onEdit }: { plan: Plan; onEdit: () => void }) {
     const t = useTranslations('admin')
     const locale = useLocale()
     const toast = useToast()
     const save = useSavePlan()
+    const off = useSwitchOffPlan()
     const [error, setError] = useState('')
     const m = months(plan.duration_days)
-    const period = m === 1 ? t('perMonth') : m ? t('perMonths', { count: m }) : t('perDays', { count: plan.duration_days })
+    const period =
+        plan.duration_days === 365 ? t('perYear') : m === 1 ? t('perMonth') : m ? t('perMonths', { count: m }) : t('perDays', { count: plan.duration_days })
     const paid = dinars(plan.price, locale)
     const regular = plan.regular_price ? dinars(plan.regular_price, locale) : ''
     const until = dayAt(plan.launch_ends_on)
@@ -103,14 +112,48 @@ function PlanCard({ plan }: { plan: Plan }) {
             { onSuccess: () => toast(t('planSaved')), onError: (err) => setError(apiError(err) ?? t('stateError')) },
         )
     }
+    // Switching off asks first: students stop seeing the plan, subscribers keep it until their period ends.
+    const switchOff = () => {
+        if (!window.confirm(t('planOffConfirm', { name: plan.name }))) return
+        off.mutate(plan.id, {
+            onSuccess: () => toast(t('planOffDone', { name: plan.name })),
+            onError: (err) => toast(apiError(err) ?? t('stateError')),
+        })
+    }
+    const switchOn = () =>
+        save.mutate(
+            { id: plan.id, input: switchedOn(plan) },
+            { onSuccess: () => toast(t('planOnDone', { name: plan.name })), onError: (err) => toast(apiError(err) ?? t('stateError')) },
+        )
     return (
-        <section aria-labelledby={`plan-${plan.id}`} className={cn(card, 'border-[1.5px] border-ink shadow-card')}>
-            <div className="flex items-center justify-between gap-3">
-                <h2 id={`plan-${plan.id}`} className="m-0 text-xl font-extrabold">
-                    {plan.name}
-                </h2>
-                {plan.active ? null : <span className="rounded-full bg-fill px-2.5 py-[3px] text-[13px] font-semibold text-ink-3">{t('planOff')}</span>}
+        <section
+            aria-labelledby={`plan-${plan.id}`}
+            className={cn(card, plan.active ? 'border-[1.5px] border-ink shadow-card' : 'border-dashed border-line-strong')}
+        >
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex min-w-0 flex-col gap-0.5">
+                    <h2 id={`plan-${plan.id}`} className="m-0 flex flex-wrap items-center gap-2.5 text-xl font-extrabold">
+                        {plan.name}
+                        {plan.active ? null : <span className="rounded-full bg-fill px-2.5 py-[3px] text-[13px] font-semibold text-ink-3">{t('planOff')}</span>}
+                    </h2>
+                    <span className="text-[13px] text-ink-3">{t('planSoldFor', { period: durationLabel(t, plan.duration_days) })}</span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <Button variant="secondary" size="sm" onClick={onEdit}>
+                        {t('planEdit')}
+                    </Button>
+                    {plan.active ? (
+                        <Button variant="link" size="sm" className="text-ink-3" onClick={switchOff} disabled={off.isPending}>
+                            {t('planOffBtn')}
+                        </Button>
+                    ) : (
+                        <Button variant="link" size="sm" onClick={switchOn} disabled={save.isPending}>
+                            {t('planOnBtn')}
+                        </Button>
+                    )}
+                </div>
             </div>
+            {plan.active ? null : <p className="m-0 text-[13.5px] leading-[1.5] text-ink-3">{t('planOffHint')}</p>}
             <form onSubmit={submit} className="flex flex-col gap-3.5">
                 <div className="grid grid-cols-1 items-end gap-3 sm:grid-cols-3">
                     <Field
@@ -140,6 +183,117 @@ function PlanCard({ plan }: { plan: Plan }) {
                 </div>
             </form>
         </section>
+    )
+}
+
+// durationLabel names a period: 1 month, 3 months, 1 year, or a number of days that is not whole months.
+function durationLabel(t: ReturnType<typeof useTranslations<'admin'>>, days: number): string {
+    if (days === 365) return t('durYear')
+    const m = months(days)
+    return m ? t('durMonths', { count: m }) : t('durDays', { count: days })
+}
+
+// PlanModal creates a paid plan (name, period, prices) or, for a plan, changes its name and period. A new plan
+// takes the limits of the cheapest paid plan, to be set in the table below; it is proposed to students at once
+// unless the box is unticked.
+function PlanModal({ plan, plans, onClose }: { plan: Plan | null | undefined; plans: Plan[]; onClose: () => void }) {
+    const t = useTranslations('admin')
+    const toast = useToast()
+    const create = useCreatePlan()
+    const save = useSavePlan()
+    const [error, setError] = useState('')
+    if (plan === undefined) return null
+
+    const from = plans.filter((p) => p.name !== FREE_PLAN && p.active).sort((a, b) => a.price - b.price)[0]
+    const days = plan?.duration_days ?? 30
+    const choices: number[] = (DURATIONS as readonly number[]).includes(days) ? [...DURATIONS] : [...DURATIONS, days]
+    const busy = create.isPending || save.isPending
+    const failed = (err: unknown) => setError(isAxiosError(err) && err.response?.status === 409 ? t('nameTaken') : (apiError(err) ?? t('stateError')))
+
+    const submit = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        const f = new FormData(e.currentTarget)
+        const get = (k: string) => String(f.get(k) ?? '')
+        if (plan) {
+            const built = renamedInput(plan, { name: get('name'), duration: get('duration') }, plans)
+            if ('error' in built) return setError(t(built.error))
+            setError('')
+            return save.mutate(
+                { id: plan.id, input: built.input },
+                {
+                    onSuccess: () => {
+                        toast(t('planUpdated'))
+                        onClose()
+                    },
+                    onError: failed,
+                },
+            )
+        }
+        const built = newPlanInput(
+            {
+                name: get('name'),
+                duration: get('duration'),
+                price: get('price'),
+                regular: get('regular'),
+                until: get('until'),
+                active: f.get('active') === 'on',
+            },
+            plans,
+            from,
+        )
+        if ('error' in built) return setError(t(built.error))
+        setError('')
+        create.mutate(built.input, {
+            onSuccess: () => {
+                toast(t('planCreated', { name: built.input.name }))
+                onClose()
+            },
+            onError: failed,
+        })
+    }
+    return (
+        <Modal open onClose={onClose} title={plan ? t('planEditTitle') : t('planAddTitle')} width={560}>
+            <form onSubmit={submit} className="flex flex-col gap-3.5">
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-[1fr_180px]">
+                    <div className="flex flex-col gap-1.5">
+                        <Field name="name" label={t('planName')} required maxLength={100} defaultValue={plan?.name} />
+                        <span className="text-[12.5px] text-ink-3">{t('planNameHint')}</span>
+                    </div>
+                    <label className="flex flex-col gap-1.5 self-start text-[13.5px] font-medium text-ink-2">
+                        {t('planDuration')}
+                        <select name="duration" defaultValue={String(days)} className={inputClass}>
+                            {choices.map((d) => (
+                                <option key={d} value={d}>
+                                    {durationLabel(t, d)}
+                                </option>
+                            ))}
+                        </select>
+                    </label>
+                </div>
+                {plan ? (
+                    <p className="m-0 text-[13px] leading-[1.5] text-ink-3">{t('planEditHint')}</p>
+                ) : (
+                    <>
+                        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+                            <Field name="regular" label={t('newRegular')} inputMode="decimal" dir="ltr" placeholder={t('regularNone')} />
+                            <Field name="price" label={t('newPrice')} inputMode="decimal" dir="ltr" required />
+                            <Field name="until" type="date" label={t('launchUntil')} dir="ltr" />
+                        </div>
+                        <p className="m-0 text-[13px] leading-[1.5] text-ink-3">{from ? t('planLimitsFrom', { name: from.name }) : t('planLimitsEmpty')}</p>
+                        <label className="flex items-center gap-2.5 text-[14.5px]">
+                            <input type="checkbox" name="active" defaultChecked className="h-4 w-4 accent-ink" />
+                            {t('planActiveNow')}
+                        </label>
+                    </>
+                )}
+                <Problem>{error}</Problem>
+                <div className="flex justify-end pt-1">
+                    <Button type="submit" disabled={busy}>
+                        {plan ? t('save') : t('planCreate')}
+                    </Button>
+                </div>
+            </form>
+        </Modal>
     )
 }
 
@@ -488,7 +642,9 @@ function Limits({ plans }: { plans: Plan[] }) {
     const [draft, setDraft] = useState<Record<string, Record<string, number>>>(() => Object.fromEntries(plans.map((p) => [p.id, { ...(p.quotas ?? {}) }])))
     const [typed, setTyped] = useState<Record<string, string>>({})
     const [error, setError] = useState('')
-    const others = quotaKeys(plans).filter((k) => !(COUNTS as readonly string[]).includes(k) && !(SHOWN as readonly string[]).includes(k))
+    const others = quotaKeys(plans).filter(
+        (k) => !(COUNTS as readonly string[]).includes(k) && !(SHOWN as readonly string[]).includes(k) && !(ALLOWED as readonly string[]).includes(k),
+    )
     const changed = plans.filter((p) => !sameQuotas(p.quotas ?? {}, draft[p.id]))
     const bad = Object.keys(typed).some((cell) => {
         const [id, key] = cell.split('|')
@@ -541,6 +697,22 @@ function Limits({ plans }: { plans: Plan[] }) {
                                     value={typed[`${p.id}|${k}`] ?? countOf(draft[p.id], k)}
                                     onChange={(e) => setCount(p, k, e.target.value)}
                                     className={cn(inputClass, 'h-9 max-w-[130px] tabular-nums')}
+                                />
+                            </span>
+                        ))}
+                    </div>
+                ))}
+                {ALLOWED.map((k) => (
+                    <div role="row" key={k} style={cols} className={cn(row, line)}>
+                        <span role="rowheader">{t(`quota.${k}`)}</span>
+                        {plans.map((p) => (
+                            <span role="cell" key={p.id}>
+                                <input
+                                    type="checkbox"
+                                    aria-label={`${t(`quota.${k}`)} · ${nameOf(p)}`}
+                                    checked={shows(draft[p.id], k)}
+                                    onChange={(e) => setDraft({ ...draft, [p.id]: withShown(draft[p.id] ?? {}, k, e.target.checked) })}
+                                    className="h-4 w-4 accent-ink"
                                 />
                             </span>
                         ))}
@@ -601,6 +773,8 @@ export default function PlansScreen() {
     const stop = useSavePromo()
     // undefined: closed; null: a new code; a code: editing it.
     const [editing, setEditing] = useState<PromoCode | null | undefined>(undefined)
+    // The same for plans: undefined closed, null a new plan, a plan its name and period.
+    const [planEditing, setPlanEditing] = useState<Plan | null | undefined>(undefined)
 
     const all = plans.data ?? []
     const free = all.find((p) => p.name === FREE_PLAN)
@@ -617,9 +791,12 @@ export default function PlansScreen() {
     }
     return (
         <div className="mx-auto flex max-w-[1376px] flex-col gap-6 px-8 pb-16 pt-6 md:px-[60px]">
-            <div className="flex flex-col gap-2">
-                <h1 className="m-0 font-display text-[40px] font-extrabold leading-[1.05] tracking-tightish">{t('plansTitle')}</h1>
-                <p className="m-0 max-w-[760px] text-base leading-[1.55] text-ink-3">{t('plansSubtitle')}</p>
+            <div className="flex flex-wrap items-end justify-between gap-4">
+                <div className="flex flex-col gap-2">
+                    <h1 className="m-0 font-display text-[40px] font-extrabold leading-[1.05] tracking-tightish">{t('plansTitle')}</h1>
+                    <p className="m-0 max-w-[760px] text-base leading-[1.55] text-ink-3">{t('plansSubtitle')}</p>
+                </div>
+                {plans.data ? <Button onClick={() => setPlanEditing(null)}>{t('planNew')}</Button> : null}
             </div>
             {plans.isLoading ? <div className="sk h-40 rounded-[22px]" /> : null}
             {plans.isError ? <Problem>{t('plansError')}</Problem> : null}
@@ -637,7 +814,7 @@ export default function PlansScreen() {
                         </section>
                     ) : null}
                     {paid.map((p) => (
-                        <PlanCard key={`${p.id}|${p.price}|${p.regular_price ?? ''}|${p.launch_ends_on ?? ''}`} plan={p} />
+                        <PlanCard key={`${p.id}|${p.price}|${p.regular_price ?? ''}|${p.launch_ends_on ?? ''}`} plan={p} onEdit={() => setPlanEditing(p)} />
                     ))}
                 </div>
             ) : null}
@@ -713,6 +890,12 @@ export default function PlansScreen() {
             </section>
             <IssuerCard />
             <PromoModal key={editing === undefined ? 'closed' : (editing?.id ?? 'new')} promo={editing} onClose={() => setEditing(undefined)} />
+            <PlanModal
+                key={planEditing === undefined ? 'plan-closed' : `plan-${planEditing?.id ?? 'new'}`}
+                plan={planEditing}
+                plans={all}
+                onClose={() => setPlanEditing(undefined)}
+            />
         </div>
     )
 }
