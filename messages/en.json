@@ -1102,6 +1102,14 @@
         },
         "sPayments": "Payments",
         "sNoPayments": "No payment.",
+        "refundOpen": "Refundable until {date}",
+        "refundUsed": {
+            "download": "Not refundable: CV downloaded",
+            "application": "Not refundable: application sent",
+            "both": "Not refundable: CV downloaded and application sent"
+        },
+        "refundUnknown": "Refund to check",
+        "refundRule": "Full refund within 7 days if nothing was used since the payment: no CV downloaded, no application sent with the corrected CV. Double payment or plan not activated: always refunded. The refund itself is made by hand at Flouci.",
         "colReceipt": "Receipt",
         "colDate": "Date",
         "colAmount": "Amount",

@@ -1,6 +1,6 @@
 import type { ATSCheck, Downloads, Resume, ResumeContent, ResumeFile, ResumeList, Template, Version, VersionWithContent } from '@/types/resume'
 import { api } from './ApiService'
-import type { UserCV } from '@/types/user'
+import type { LastUse, UserCV } from '@/types/user'
 
 const r = () => api('resume')
 
@@ -14,6 +14,8 @@ const ResumeService = {
     listResumes: () => r().get<ResumeList>(`/resumes`, { params: { page_size: 100 } }),
     getResume: (id: string) => r().get<Resume>(`/resumes/${id}`),
     // userCV is where a student's CV stands with the 24 rules, for the team (admin). 404: no CV.
+    // userDownloads is how many CV downloads a student made and when the last one was (admin).
+    userDownloads: (userId: string) => r().get<LastUse>(`/admin/users/${userId}/downloads`),
     userCV: (userId: string) => r().get<UserCV>(`/admin/users/${userId}/cv`),
     updateResume: (id: string, data: { title?: string; template_id?: string; content?: ResumeContent }) => r().put<Resume>(`/resumes/${id}`, data),
     deleteResume: (id: string) => r().delete(`/resumes/${id}`),
