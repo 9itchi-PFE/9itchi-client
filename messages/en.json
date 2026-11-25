@@ -1797,5 +1797,35 @@
         "send": "Send",
         "sendError": "The message was not sent. Try again.",
         "writeTo": "Write to {name}"
+    },
+    "settings": {
+        "title": "Settings",
+        "intro": "Your account, and everything you can set.",
+        "profile": "My profile",
+        "name": "First and last name",
+        "email": "Email",
+        "emailHint": "The address you sign in with. It cannot be changed here.",
+        "school": "School",
+        "save": "Save",
+        "saved": "Profile saved",
+        "nameRequired": "Write your first and last name.",
+        "nameLong": "100 characters at most.",
+        "more": "Settings",
+        "links": {
+            "search": "What I am looking for",
+            "searchText": "Kind of subject, skills, city, dates: what picks the offers “For you”.",
+            "alerts": "Alerts",
+            "alertsText": "What we tell you, by email and in 9itchi.",
+            "gmail": "Gmail",
+            "gmailText": "The address your applications leave from.",
+            "billing": "Subscription",
+            "billingText": "Your plan, your receipts, the renewal.",
+            "support": "Help",
+            "supportText": "Write to the 9itchi team."
+        },
+        "session": "Session and account",
+        "deleteText": "To delete your account and your data, write to the team: we take care of it and confirm.",
+        "signOut": "Sign out",
+        "deleteAsk": "Ask for my account to be deleted"
     }
 }

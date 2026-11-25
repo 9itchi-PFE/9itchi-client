@@ -1797,5 +1797,35 @@
         "send": "Envoyer",
         "sendError": "Le message n’est pas parti. Réessaie.",
         "writeTo": "Écrire à {name}"
+    },
+    "settings": {
+        "title": "Paramètres",
+        "intro": "Ton compte, et tout ce que tu peux régler.",
+        "profile": "Mon profil",
+        "name": "Prénom et nom",
+        "email": "Email",
+        "emailHint": "C’est l’adresse avec laquelle tu te connectes. Elle ne se change pas ici.",
+        "school": "École",
+        "save": "Enregistrer",
+        "saved": "Profil enregistré",
+        "nameRequired": "Écris ton prénom et ton nom.",
+        "nameLong": "100 caractères au plus.",
+        "more": "Réglages",
+        "links": {
+            "search": "Ce que je cherche",
+            "searchText": "Type de sujet, compétences, ville, dates : ce qui choisit les offres « Pour toi ».",
+            "alerts": "Alertes",
+            "alertsText": "Ce qu’on te dit, par email et dans 9itchi.",
+            "gmail": "Gmail",
+            "gmailText": "L’adresse d’où partent tes candidatures.",
+            "billing": "Abonnement",
+            "billingText": "Ton plan, tes reçus, le renouvellement.",
+            "support": "Aide",
+            "supportText": "Écrire à l’équipe 9itchi."
+        },
+        "session": "Session et compte",
+        "deleteText": "Pour supprimer ton compte et tes données, écris à l’équipe : on s’en occupe et on te confirme.",
+        "signOut": "Se déconnecter",
+        "deleteAsk": "Demander la suppression de mon compte"
     }
 }
