@@ -1,5 +1,7 @@
 import type {
+    AdminBook,
     Book,
+    BookEdit,
     BookList,
     Job,
     JobCounts,
@@ -52,6 +54,20 @@ const JobService = {
     publishJob: (id: string) => api('job').post<ReviewJob>(`/admin/jobs/${id}/publish`),
     hideJob: (id: string) => api('job').post<ReviewJob>(`/admin/jobs/${id}/hide`),
     importPost: (p: PostImport) => api('job').post<ReviewJob>(`/admin/jobs/import`, p),
+    // Admin: PFE books imported from their PDF. bookPdf reads the PDF 9itchi keeps (the admin's copy for any book).
+    listAdminBooks: () => api('job').get<{ items: AdminBook[] }>(`/admin/books`),
+    getAdminBook: (id: string) => api('job').get<AdminBook>(`/admin/books/${id}`),
+    importBook: (file: File, company: string) => {
+        const form = new FormData()
+        form.append('file', file)
+        if (company) form.append('company', company)
+        return api('job').post<AdminBook>(`/admin/books/import`, form)
+    },
+    editBook: (id: string, e: BookEdit) => api('job').patch<AdminBook>(`/admin/books/${id}`, e),
+    publishBook: (id: string, jobIds: string[]) => api('job').post<AdminBook>(`/admin/books/${id}/publish`, { job_ids: jobIds }),
+    retryBook: (id: string) => api('job').post<AdminBook>(`/admin/books/${id}/retry`),
+    deleteBook: (id: string) => api('job').delete(`/admin/books/${id}`),
+    bookPdf: (id: string, admin = false) => api('job').get<Blob>(`${admin ? '/admin' : ''}/books/${id}/pdf`, { responseType: 'blob' }),
     previewPreferences: (p: Preferences) => api('job').post<{ count: number; unanswered: number }>(`/preferences/preview`, p),
 }
 

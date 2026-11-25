@@ -1,7 +1,5 @@
-import { getTranslations } from 'next-intl/server'
-import PagePlaceholder from '@/components/ui/PagePlaceholder'
+import BooksScreen from '@/components/admin/BooksScreen'
 
-export default async function Page() {
-    const t = await getTranslations('admin')
-    return <PagePlaceholder title={t('navBooks')} description={t('comingSoon')} />
+export default function Page() {
+    return <BooksScreen />
 }
