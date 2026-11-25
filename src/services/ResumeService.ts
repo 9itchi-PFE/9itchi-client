@@ -20,6 +20,8 @@ const ResumeService = {
     rewrite: (id: string, data: { section: 'bullet' | 'summary'; text: string; language: 'fr' | 'en' | 'ar'; job_title?: string }) =>
         r().post<{ suggestions: string[]; limit: number | null; used: number }>(`/resumes/${id}/rewrite`, data),
     userCV: (userId: string) => r().get<UserCV>(`/admin/users/${userId}/cv`),
+    // chooseEditable keeps this CV editable beyond the plan's CV limit; the others become read-only.
+    chooseEditable: (id: string) => r().put<Resume>(`/resumes/${id}/editable`),
     updateResume: (id: string, data: { title?: string; template_id?: string; content?: ResumeContent }) => r().put<Resume>(`/resumes/${id}`, data),
     deleteResume: (id: string) => r().delete(`/resumes/${id}`),
     duplicateResume: (id: string, title: string) => r().post<Resume>(`/resumes/${id}/duplicate`, { title }),

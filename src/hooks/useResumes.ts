@@ -76,3 +76,15 @@ export function useMyCv() {
         toFix: check.data?.to_fix ?? 0,
     }
 }
+
+// useChooseEditable makes a read-only CV the one the student edits; every CV is read again (the list key is their prefix).
+export function useChooseEditable() {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: async (id: string) => (await ResumeService.chooseEditable(id)).data,
+        onSuccess: (data) => {
+            qc.setQueryData(resumeKeys.one(data.id), data)
+            qc.invalidateQueries({ queryKey: resumeKeys.list })
+        },
+    })
+}

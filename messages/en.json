@@ -410,7 +410,12 @@
             "other": "Change"
         },
         "today": "Today, {time}",
-        "yesterday": "Yesterday, {time}"
+        "yesterday": "Yesterday, {time}",
+        "locked": "Read-only",
+        "lockedTitle": "Subscribe to edit your other versions",
+        "lockedText": "This version can still be read and downloaded. Without a subscription, you edit one version only: the one you choose.",
+        "choose": "Edit this one instead",
+        "toastChosen": "You now edit “{name}”"
     },
     "check": {
         "breadcrumb": "CV check",

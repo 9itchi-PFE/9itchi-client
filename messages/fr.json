@@ -410,7 +410,12 @@
             "other": "Modification"
         },
         "today": "Aujourd’hui, {time}",
-        "yesterday": "Hier, {time}"
+        "yesterday": "Hier, {time}",
+        "locked": "Lecture seule",
+        "lockedTitle": "Abonne-toi pour modifier tes autres versions",
+        "lockedText": "Cette version reste lisible et téléchargeable. Sans abonnement, tu modifies une seule version : celle que tu choisis.",
+        "choose": "Modifier celle-ci à la place",
+        "toastChosen": "Tu modifies maintenant « {name} »"
     },
     "check": {
         "breadcrumb": "Vérification du CV",

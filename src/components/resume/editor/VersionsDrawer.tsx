@@ -11,7 +11,7 @@ import { Icon } from '@/components/ui/icons'
 import { Drawer } from '@/components/ui/Modal'
 import { Segmented } from '@/components/ui/Segmented'
 import { useToast } from '@/components/ui/Toast'
-import { resumeKeys, useResumes, useVersions } from '@/hooks/useResumes'
+import { resumeKeys, useChooseEditable, useResumes, useVersions } from '@/hooks/useResumes'
 import { useTemplates } from '@/hooks/useTemplates'
 import { cn } from '@/lib/cn'
 import { errorStatus } from '@/services/ApiService'
@@ -52,6 +52,7 @@ export default function VersionsDrawer({
     onRestored: (r: Resume) => void
 }) {
     const t = useTranslations('versions')
+    const tc = useTranslations('common')
     const tl = useTranslations('templates.layouts')
     const format = useFormatter()
     const toast = useToast()
@@ -61,6 +62,7 @@ export default function VersionsDrawer({
     const [renaming, setRenaming] = useState<string | null>(null)
     const [name, setName] = useState('')
     const resumes = useResumes().data?.items ?? []
+    const choose = useChooseEditable()
     const history = useVersions(resume.id, open && tab === 'history').data ?? []
     const templates = useTemplates().data
     const layoutName = (templateId: string | null) => tl(`${templates?.find((x) => x.id === templateId)?.layout ?? 'classic'}.name`)
@@ -75,7 +77,8 @@ export default function VersionsDrawer({
         if (diff === 1) return t('yesterday', { time })
         return `${format.dateTime(d, { day: 'numeric', month: 'short' })}, ${time}`
     }
-    const shown = isSubscriber ? resumes : resumes.filter((r) => r.id === resume.id)
+    // Every CV is listed: beyond the plan's limit, the others are read-only, never hidden.
+    const shown = resumes.length ? resumes : [resume]
 
     const copy = async (id: string, title: string, message: string) => {
         try {
@@ -152,11 +155,17 @@ export default function VersionsDrawer({
                                             </span>
                                         </span>
                                     )}
-                                    {current ? (
-                                        <span className="inline-flex h-6 flex-none items-center rounded-full bg-lime px-[9px] text-xs font-bold">
-                                            {t('opened')}
-                                        </span>
-                                    ) : null}
+                                    <span className="flex flex-none gap-1.5">
+                                        {v.locked ? (
+                                            <span className="inline-flex h-6 items-center gap-1 rounded-full bg-fill-3 px-[9px] text-xs font-bold text-ink-2">
+                                                <Icon name="lock" size={12} />
+                                                {t('locked')}
+                                            </span>
+                                        ) : null}
+                                        {current ? (
+                                            <span className="inline-flex h-6 items-center rounded-full bg-lime px-[9px] text-xs font-bold">{t('opened')}</span>
+                                        ) : null}
+                                    </span>
                                 </div>
                                 <div className="flex flex-wrap gap-2">
                                     {!current ? (
@@ -183,17 +192,34 @@ export default function VersionsDrawer({
                                             {t('duplicate')}
                                         </Button>
                                     ) : null}
-                                    <Button
-                                        variant="secondary"
-                                        size="sm"
-                                        className="text-ink-2"
-                                        onClick={() => {
-                                            setName(v.title)
-                                            setRenaming(v.id)
-                                        }}
-                                    >
-                                        {t('rename')}
-                                    </Button>
+                                    {v.locked ? (
+                                        <Button
+                                            variant="secondary"
+                                            size="sm"
+                                            className="text-ink-2"
+                                            disabled={choose.isPending}
+                                            onClick={() =>
+                                                choose.mutate(v.id, {
+                                                    onSuccess: () => toast(t('toastChosen', { name: v.title })),
+                                                    onError: () => toast(tc('error')),
+                                                })
+                                            }
+                                        >
+                                            {t('choose')}
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            variant="secondary"
+                                            size="sm"
+                                            className="text-ink-2"
+                                            onClick={() => {
+                                                setName(v.title)
+                                                setRenaming(v.id)
+                                            }}
+                                        >
+                                            {t('rename')}
+                                        </Button>
+                                    )}
                                 </div>
                             </div>
                         )
