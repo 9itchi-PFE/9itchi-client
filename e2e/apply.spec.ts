@@ -99,3 +99,31 @@ test('when the plan sends nothing, sending opens the plans instead', async ({ pa
     await expect(page.getByRole('dialog').getByText('L’envoi depuis ton Gmail fait partie de l’abonnement')).toBeVisible()
     expect(seen.filter((r) => r.method === 'POST' && r.path === '/email/applications')).toHaveLength(0)
 })
+
+test('the details of « Mon profil » go under the letter that is sent', async ({ page }) => {
+    const seen = await mockServices(
+        page,
+        base({
+            'GET /account/users/me': {
+                id: '0e2e0000-0000-4000-8000-000000000001',
+                name: 'Prénom Nom',
+                email: 'etudiant@exemple.tn',
+                role: 'candidate',
+                status: 'active',
+                language: 'fr',
+                school: 'ENIS',
+                speciality: 'Génie logiciel',
+                year: 'ing3',
+                linkedin: 'https://www.linkedin.com/in/prenom-nom',
+            },
+        }),
+    )
+    await openLetter(page)
+    await expect(page.getByText('linkedin.com/in/prenom-nom')).toBeVisible()
+    await expect(page.getByText('Génie logiciel, 3e année, cycle ingénieur')).toBeVisible()
+    await page.getByText('J’ai relu ma lettre et elle dit ce que je veux.').click()
+    await page.getByRole('button', { name: `Envoyer à ${offer.company}` }).click()
+    await expect(page.getByRole('heading', { name: `Envoyée à ${offer.company}` })).toBeVisible()
+    const body = (seen.find((r) => r.method === 'POST' && r.path === '/email/applications')?.body as Record<string, string>).body
+    expect(body.endsWith('Prénom Nom\nGénie logiciel, 3e année, cycle ingénieur\nENIS\nlinkedin.com/in/prenom-nom')).toBe(true)
+})

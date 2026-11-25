@@ -3,6 +3,7 @@ import {
     applyError,
     bucket,
     compose,
+    signature,
     followUpDue,
     followUpOn,
     live,
@@ -132,5 +133,36 @@ describe('buckets', () => {
             app({ status: 'replied' }),
         ]
         expect(sentThisMonth(items, now)).toBe(3)
+    })
+})
+
+describe('the signature under the letters', () => {
+    const year = (c: string) => ({ ing3: '3e année, cycle ingénieur' })[c] ?? c
+
+    it('reads « Mon profil » as the design draws it, without the name', () => {
+        expect(
+            signature(
+                {
+                    speciality: 'Génie logiciel',
+                    year: 'ing3',
+                    school: 'ENIS',
+                    phone: '+21620000000',
+                    linkedin: 'https://www.linkedin.com/in/prenom-nom',
+                    github: 'https://github.com/prenom-nom',
+                },
+                year,
+            ),
+        ).toEqual(['Génie logiciel, 3e année, cycle ingénieur', 'ENIS · +21620000000', 'linkedin.com/in/prenom-nom', 'github.com/prenom-nom'])
+    })
+    it('leaves out what is empty, and « Autre école »', () => {
+        expect(signature({ school: 'OTHER', phone: '  ' }, year)).toEqual([])
+        expect(signature({ year: 'ing3' }, year)).toEqual(['3e année, cycle ingénieur'])
+        expect(signature(undefined, year)).toEqual([])
+    })
+    it('goes right under the last line of the letter', () => {
+        expect(compose(['Bonjour,', 'Cordialement,\nPrénom Nom'], '', ['ENIS · +21620000000'])).toBe(
+            'Bonjour,\n\nCordialement,\nPrénom Nom\nENIS · +21620000000',
+        )
+        expect(compose(['Bonjour,'], '', [])).toBe('Bonjour,')
     })
 })
