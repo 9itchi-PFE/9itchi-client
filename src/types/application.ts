@@ -10,6 +10,20 @@ export type Email = EmailBrief & { job_id: string | null; resume_id: string | nu
 // original: no subscription, the imported file, limit over the life of the account; none: nothing. limit null: none.
 export type Allowance = { mode: 'plan' | 'original' | 'none'; limit: number | null; used: number }
 
+export type MatchLevel = 'strong' | 'good' | 'partial' | 'weak'
+// JobMatch is the AI's reading of how well the CV fits an offer (email-api), with the plan's analyses this month.
+export type JobMatch = {
+    score: number
+    level: MatchLevel
+    strengths: string[]
+    gaps: string[]
+    advice: string
+    created_at: string
+    limit: number | null
+    used: number
+}
+export type MatchInput = { job_id: string; resume_id: string; language: 'fr' | 'en' | 'ar' }
+
 // failed is only shown: a scheduled application whose email could not leave.
 export type ApplicationStatus = 'scheduled' | 'sent' | 'opened' | 'replied' | 'withdrawn' | 'closed' | 'failed'
 

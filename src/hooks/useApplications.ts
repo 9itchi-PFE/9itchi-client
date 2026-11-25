@@ -1,12 +1,14 @@
 import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import EmailService from '@/services/EmailService'
 import TrackerService from '@/services/TrackerService'
-import type { Application, ApplicationList, ApplyInput, DraftInput } from '@/types/application'
+import { isAxiosError } from 'axios'
+import type { Application, ApplicationList, ApplyInput, DraftInput, JobMatch, MatchInput } from '@/types/application'
 
 export const applicationKeys = {
     list: ['applications'] as const,
     // Under the list key: an application sent or cancelled reads it again with the list.
     allowance: ['applications', 'allowance'] as const,
+    match: (input: MatchInput) => ['applications', 'match', input.job_id, input.resume_id, input.language] as const,
     gmail: ['gmail'] as const,
     email: (id: string) => ['emails', id] as const,
     opens: (id: string) => ['emails', id, 'opens'] as const,
@@ -18,6 +20,33 @@ export function useApplications() {
 
 export function useAllowance() {
     return useQuery({ queryKey: applicationKeys.allowance, queryFn: async () => (await EmailService.allowance()).data })
+}
+
+// useMatch reads the AI's reading of the CV against the offer if it was already made: null when not, and the AI
+// is never asked from here.
+export function useMatch(input: MatchInput) {
+    return useQuery({
+        queryKey: applicationKeys.match(input),
+        queryFn: async (): Promise<JobMatch | null> => {
+            try {
+                return (await EmailService.findMatch(input)).data
+            } catch (e) {
+                if (isAxiosError(e) && e.response?.status === 404) return null
+                throw e
+            }
+        },
+        enabled: !!input.job_id && !!input.resume_id,
+        retry: false,
+    })
+}
+
+// useRunMatch asks the AI; a reading already made comes back without being counted again.
+export function useRunMatch() {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: async (input: MatchInput) => (await EmailService.match(input)).data,
+        onSuccess: (m, input) => qc.setQueryData(applicationKeys.match(input), m),
+    })
 }
 
 export function useGmailStatus() {
