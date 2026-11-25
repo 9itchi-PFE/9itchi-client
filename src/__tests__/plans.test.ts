@@ -6,6 +6,9 @@ import fr from '../../messages/fr.json'
 import {
     countOf,
     dayOf,
+    detailsInput,
+    detailsTyped,
+    emptyDetails,
     launchIsOver,
     newPlanInput,
     planInput,
@@ -329,5 +332,39 @@ describe('a plan renamed or switched on', () => {
 
     it('is sent back whole, switched on', () => {
         expect(switchedOn({ ...plan, active: false })).toEqual({ ...quotasInput(plan, plan.quotas), active: true })
+    })
+})
+
+describe('what students read about a plan', () => {
+    const typed = () => ({
+        ...emptyDetails(),
+        fr: { label: ' Mensuel ', tagline: '', features: ' A \n\n B\n' },
+        en: { label: 'Monthly', tagline: 'Fast', features: '' },
+    })
+    it('trims, drops empty fields and empty languages', () => {
+        expect(detailsInput(typed())).toEqual({ details: { fr: { label: 'Mensuel', features: ['A', 'B'] }, en: { label: 'Monthly', tagline: 'Fast' } } })
+        expect(detailsInput(emptyDetails())).toEqual({ details: {} })
+    })
+    it('refuses what payments-api refuses, naming the language', () => {
+        const long = (n: number) => 'x'.repeat(n)
+        expect(detailsInput({ ...typed(), ar: { label: long(41), tagline: '', features: '' } })).toEqual({ error: 'detailLabelLong', locale: 'ar' })
+        expect(detailsInput({ ...typed(), en: { label: '', tagline: long(121), features: '' } })).toEqual({ error: 'detailTaglineLong', locale: 'en' })
+        expect(detailsInput({ ...typed(), en: { label: '', tagline: '', features: Array(11).fill('a').join('\n') } })).toEqual({
+            error: 'detailFeaturesMany',
+            locale: 'en',
+        })
+        expect(detailsInput({ ...typed(), fr: { label: '', tagline: '', features: long(141) } })).toEqual({ error: 'detailFeatureLong', locale: 'fr' })
+        expect(detailsInput({ ...typed(), fr: { label: long(40), tagline: long(120), features: long(140) } })).toHaveProperty('details')
+    })
+    it('fills the form from the plan and gives the same details back', () => {
+        const details = { fr: { label: 'Mensuel', features: ['A', 'B'] }, ar: { tagline: 'س' } }
+        expect(detailsInput(detailsTyped(details))).toEqual({ details })
+    })
+    it('is never sent by the other saves of a plan, which would wipe it', () => {
+        const described = { ...plan, details: { fr: { label: 'M' } } }
+        const others = [quotasInput(described, {}), switchedOn(described), renamedInput(described, { name: 'X', duration: '30' }, [])]
+        for (const o of others) expect('input' in o ? o.input : o).not.toHaveProperty('details')
+        const built = planInput(described, { price: '35', regular: '', until: '' })
+        expect('input' in built && built.input).not.toHaveProperty('details')
     })
 })

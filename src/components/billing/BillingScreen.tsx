@@ -23,6 +23,7 @@ import {
     millimes,
     paidPlans,
     perMonth,
+    planText,
     promoReason,
     regularOf,
     tnd,
@@ -54,6 +55,7 @@ function PlanChoice({ plans, chosen, onChoose }: { plans: Plan[]; chosen: Plan; 
                 const on = p.id === chosen.id
                 const each = perMonth(p)
                 const regular = regularOf(p)
+                const text = planText(p, locale)
                 return (
                     <label
                         key={p.id}
@@ -65,7 +67,8 @@ function PlanChoice({ plans, chosen, onChoose }: { plans: Plan[]; chosen: Plan; 
                         <span className="flex items-center gap-3">
                             <input type="radio" name="plan" checked={on} onChange={() => onChoose(p)} className="h-4 w-4 accent-ink" />
                             <span className="flex flex-col gap-0.5">
-                                <strong className="text-[16px] font-semibold">{p.name}</strong>
+                                <strong className="text-[16px] font-semibold">{text.label}</strong>
+                                {text.tagline ? <span className="text-sm text-ink-3">{text.tagline}</span> : null}
                                 {each ? <span className="text-sm text-ink-3">{t('perMonthEq', { amount: dinars(each, locale) })}</span> : null}
                             </span>
                         </span>
@@ -145,6 +148,7 @@ function Pay({ plan, extending, choice }: { plan: Plan; extending: MySubscriptio
         )
 
     const busy = checkout.isPending || leaving
+    const text = planText(plan, locale)
     const features = [1, 2, 3, 4] as const
     return (
         <div className="flex flex-wrap items-start gap-7">
@@ -153,7 +157,8 @@ function Pay({ plan, extending, choice }: { plan: Plan; extending: MySubscriptio
                     {choice ?? (
                         <div className="flex flex-wrap items-center justify-between gap-4 rounded-[20px] border-[1.5px] border-ink bg-white px-6 py-5">
                             <div className="flex flex-col gap-1">
-                                <strong className="text-[17px] font-semibold">{plan.name}</strong>
+                                <strong className="text-[17px] font-semibold">{text.label}</strong>
+                                {text.tagline ? <span className="text-sm text-ink-3">{text.tagline}</span> : null}
                                 {regular ? (
                                     <span className="inline-flex h-6 flex-none items-center self-start rounded-full bg-lime px-[9px] text-xs font-bold">
                                         {sale && saleEnd
@@ -179,6 +184,18 @@ function Pay({ plan, extending, choice }: { plan: Plan; extending: MySubscriptio
                             </span>
                         </div>
                     )}
+                    {text.features.length ? (
+                        <ul data-testid="plan-features" className="m-0 flex list-none flex-col gap-3 rounded-[20px] border border-line-soft bg-white p-6">
+                            {text.features.map((f) => (
+                                <li key={f} className="flex items-start gap-3 text-[15px]">
+                                    <span className="mt-0.5 flex h-[22px] w-[22px] flex-none items-center justify-center rounded-full bg-lime text-ink">
+                                        <Icon name="check" size={12} strokeWidth={3} />
+                                    </span>
+                                    <span>{f}</span>
+                                </li>
+                            ))}
+                        </ul>
+                    ) : null}
                     <div className="flex flex-col gap-4 rounded-[20px] bg-ink p-6 text-white">
                         <span className={cn(eyebrow, 'text-[#B8BCC6]')}>{t('addsTitle')}</span>
                         <ul className="m-0 flex list-none flex-col gap-3.5 p-0">
@@ -264,7 +281,7 @@ function Pay({ plan, extending, choice }: { plan: Plan; extending: MySubscriptio
                 <dl className="m-0 flex flex-col gap-2.5 rounded-2xl bg-fill-3 p-4 text-[15px]">
                     <div className="flex justify-between gap-3">
                         <dt>
-                            {plan.name} · {length(plan.duration_days)}
+                            {text.label} · {length(plan.duration_days)}
                         </dt>
                         <dd className="m-0 tabular-nums">
                             {regular ? (
@@ -579,7 +596,7 @@ export default function BillingScreen() {
                                 <span className="h-1.5 w-1.5 rounded-full bg-ok-dot" />
                                 {t('active')}
                             </span>
-                            <h2 className="m-0 text-[26px] font-extrabold">{active.plan.name}</h2>
+                            <h2 className="m-0 text-[26px] font-extrabold">{planText(active.plan, locale).label}</h2>
                             <span className="text-[15px] text-ink-3">
                                 {t.rich('renewsOn', {
                                     price: `${price} / ${length(active.plan.duration_days)}`,

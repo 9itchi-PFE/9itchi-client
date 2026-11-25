@@ -1,3 +1,8 @@
+export type Locale = 'fr' | 'en' | 'ar'
+// PlanText is what students read about a plan in one language; every field is optional.
+export type PlanText = { label?: string; tagline?: string; features?: string[] }
+export type PlanDetails = Partial<Record<Locale, PlanText>>
+
 export type Plan = {
     id: string
     name: string
@@ -13,6 +18,8 @@ export type Plan = {
     duration_days: number
     quotas: Record<string, number>
     active: boolean
+    // details: what students read about the plan, per language (always an object, may be empty).
+    details?: PlanDetails
 }
 
 export type PromoCode = {
@@ -42,7 +49,11 @@ export type Sale = {
 export type SaleInput = Omit<Sale, 'id' | 'state'>
 
 // PlanInput and PromoInput are what the admin saves (payments-api replaces the whole row).
-export type PlanInput = Pick<Plan, 'name' | 'price' | 'duration_days' | 'quotas' | 'active'> & { regular_price?: number; launch_ends_on?: string }
+export type PlanInput = Pick<Plan, 'name' | 'price' | 'duration_days' | 'quotas' | 'active'> & {
+    regular_price?: number
+    launch_ends_on?: string
+    details?: PlanDetails
+}
 export type PromoInput = Omit<PromoCode, 'id' | 'used_count'>
 export type ReceiptIssuerInput = Omit<ReceiptIssuer, 'complete'>
 

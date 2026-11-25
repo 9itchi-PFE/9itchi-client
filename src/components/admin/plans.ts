@@ -1,4 +1,4 @@
-import type { Plan, PlanInput, PromoCode, PromoInput, SaleInput } from '@/types/plan'
+import type { Locale, Plan, PlanDetails, PlanInput, PromoCode, PromoInput, SaleInput } from '@/types/plan'
 
 // The free plan keeps this name in payments-api; the page writes it in the language of the admin.
 export const FREE_PLAN = 'Free'
@@ -30,6 +30,54 @@ export function planInput(plan: Plan, typed: { price: string; regular: string; u
     if (regular === null) return { error: 'regularInvalid' }
     if (regular <= paid) return { error: 'regularBelow' }
     return { input: { ...input, regular_price: regular, ...(until ? { launch_ends_on: until } : {}) } }
+}
+
+// LOCALES are the languages a plan is described in (the limits are payments-api's).
+export const LOCALES: Locale[] = ['fr', 'en', 'ar']
+export const LABEL_MAX = 40
+export const TAGLINE_MAX = 120
+export const FEATURES_MAX = 10
+export const FEATURE_MAX = 140
+
+// DetailsTyped is what the admin typed for each language: features one per line.
+export type DetailsTyped = Record<Locale, { label: string; tagline: string; features: string }>
+export type DetailsError = 'detailLabelLong' | 'detailTaglineLong' | 'detailFeaturesMany' | 'detailFeatureLong'
+
+export const emptyDetails = (): DetailsTyped => ({
+    fr: { label: '', tagline: '', features: '' },
+    en: { label: '', tagline: '', features: '' },
+    ar: { label: '', tagline: '', features: '' },
+})
+
+// detailsTyped fills the form from what a plan has.
+export function detailsTyped(details?: PlanDetails): DetailsTyped {
+    const typed = emptyDetails()
+    for (const l of LOCALES) {
+        const d = details?.[l]
+        if (d) typed[l] = { label: d.label ?? '', tagline: d.tagline ?? '', features: (d.features ?? []).join('\n') }
+    }
+    return typed
+}
+
+// detailsInput builds the details to save from the form: trimmed, empty languages and fields dropped, with the limits
+// of payments-api. A language with a single error names it by its key; the first error found is returned.
+export function detailsInput(typed: DetailsTyped): { details: PlanDetails } | { error: DetailsError; locale: Locale } {
+    const details: PlanDetails = {}
+    for (const locale of LOCALES) {
+        const label = typed[locale].label.trim()
+        const tagline = typed[locale].tagline.trim()
+        const features = typed[locale].features
+            .split('\n')
+            .map((f) => f.trim())
+            .filter(Boolean)
+        if ([...label].length > LABEL_MAX) return { error: 'detailLabelLong', locale }
+        if ([...tagline].length > TAGLINE_MAX) return { error: 'detailTaglineLong', locale }
+        if (features.length > FEATURES_MAX) return { error: 'detailFeaturesMany', locale }
+        if (features.some((f) => [...f].length > FEATURE_MAX)) return { error: 'detailFeatureLong', locale }
+        if (label || tagline || features.length)
+            details[locale] = { ...(label ? { label } : {}), ...(tagline ? { tagline } : {}), ...(features.length ? { features } : {}) }
+    }
+    return { details }
 }
 
 // today is the current day in Tunis (YYYY-MM-DD).

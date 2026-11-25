@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
-import { dinars, lengthOf, paidPlans, regularOf } from '@/components/billing/billing'
+import { dinars, lengthOf, paidPlans, planText, regularOf } from '@/components/billing/billing'
 import { ButtonLink } from '@/components/ui/Button'
 import { usePlans } from '@/hooks/usePlans'
 import { cn } from '@/lib/cn'
@@ -26,11 +26,13 @@ function Check() {
 function PlanCard({ plan }: { plan: Plan }) {
     const t = useTranslations('public')
     const locale = useLocale()
+    const text = planText(plan, locale)
     const regular = regularOf(plan)
     const span = lengthOf(plan.duration_days)
     return (
         <div className="flex flex-col gap-4 rounded-[20px] border-[1.5px] border-ink bg-white p-7 shadow-card">
-            <span className="font-mono text-[11px] font-semibold uppercase tracking-[.08em] text-ink-3">{plan.name || t('paidName')}</span>
+            <span className="font-mono text-[11px] font-semibold uppercase tracking-[.08em] text-ink-3">{text.label || t('paidName')}</span>
+            {text.tagline ? <span className="-mt-2 text-sm text-ink-3">{text.tagline}</span> : null}
             <div className="flex items-baseline gap-2.5">
                 {regular ? <span className="text-lg text-ink-3 line-through">{dinars(regular / 1000, locale)} DT</span> : null}
                 <b className="font-display text-[44px] font-extrabold leading-none">{dinars(plan.price, locale)} DT</b>
@@ -44,10 +46,10 @@ function PlanCard({ plan }: { plan: Plan }) {
             </div>
             <span className="text-sm text-ink-3">{regular ? t('paidLaunchNote') : t('paidNote')}</span>
             <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
-                {PAID.map((k) => (
-                    <li key={k} className="flex gap-2.5 text-[15px] text-ink-2">
+                {(text.features.length ? text.features : PAID.map((k) => t(k))).map((f) => (
+                    <li key={f} className="flex gap-2.5 text-[15px] text-ink-2">
                         <Check />
-                        <span>{t(k)}</span>
+                        <span>{f}</span>
                     </li>
                 ))}
             </ul>

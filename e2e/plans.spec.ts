@@ -90,3 +90,39 @@ test('the length of a plan students hold cannot change, and the team is told wha
     await dialog.getByRole('button', { name: 'Enregistrer' }).click()
     await expect(dialog.getByText('Des étudiants ont ce plan : sa durée ne peut plus changer.')).toBeVisible()
 })
+
+test('the team writes what students read in French and English, and the request carries both', async ({ page }) => {
+    let plans: Plan[] = [FREE, MONTH]
+    const seen = await mockServices(page, {
+        'GET /payments/admin/plans': () => ({ items: plans }),
+        'POST /payments/admin/plans': (req: { postDataJSON: () => Omit<Plan, 'id'> }) => {
+            const created = { ...req.postDataJSON(), id: 'p-quarter' }
+            plans = [...plans, created]
+            return created
+        },
+    })
+    await signIn(page, ADMIN)
+    await page.goto('/admin/plans')
+    await page.getByRole('button', { name: 'Nouveau plan' }).click()
+    const dialog = page.getByRole('dialog', { name: 'Nouveau plan' })
+    await dialog.getByLabel('Nom').fill('Trimestre')
+    await dialog.getByLabel('Durée').selectOption({ label: '3 mois' })
+    await dialog.getByLabel('Prix payé, en DT').fill('90')
+
+    await dialog.getByLabel('Label').fill('Trimestriel')
+    await dialog.getByLabel('Fonctionnalités').fill('CV illimités\n\n  Candidatures  ')
+    // The values of a language stay while the team writes the next one.
+    await dialog.getByRole('tab', { name: 'English' }).click()
+    await dialog.getByLabel('Label').fill('Quarterly')
+    await dialog.getByLabel('Fonctionnalités').fill('Unlimited CVs')
+    await dialog.getByRole('tab', { name: 'Français' }).click()
+    await expect(dialog.getByLabel('Label')).toHaveValue('Trimestriel')
+    await dialog.getByRole('button', { name: 'Créer le plan' }).click()
+
+    await expect(page.getByText('Plan « Trimestre » créé')).toBeVisible()
+    const sent = seen.find((r) => r.method === 'POST' && r.path === '/payments/admin/plans')
+    expect((sent?.body as { details: unknown }).details).toEqual({
+        fr: { label: 'Trimestriel', features: ['CV illimités', 'Candidatures'] },
+        en: { label: 'Quarterly', features: ['Unlimited CVs'] },
+    })
+})

@@ -18,6 +18,7 @@ Next.js 15.1 (App Router, standalone, turbopack dev), React 19, TypeScript, Tail
 - Ably: token via `authCallback` from `GET /notifications/ably-token` (channel `user:{id}`) and `GET /chat/ably-token` (channel = conversation id). Clients never publish.
 - Keep backend field names (`id`, `role`, `status`, `tracking_id`). Server components by default; `"use client"` only when needed. Invalidate the right query keys after mutations. No new UI libraries without need.
 - Paywall: 402 from services means quota/subscription; show the subscription UI, don't treat it as an error.
+- Plan texts for students come from `plan.details[locale]` (label, tagline, features) via `planText(plan, locale)` in `components/billing/billing.ts` (fallback fr, then `plan.name`); the admin edits them per language in PlanModal.
 
 ## UI style
 - Tokens only from `tailwind.config.ts` (from the canvas): `ink`, `lime`, `violet`, `ember`, `page`, `line`, `fill`, `ok`, `warn`, `cv`; fonts `sans` (Inter), `display` (Bricolage), `mono`; shadows `card`/`pop` (hard offset), `nav`, `paper`, `toast`. No raw hex unless already the pattern nearby.

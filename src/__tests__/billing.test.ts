@@ -10,6 +10,7 @@ import {
     paidPlan,
     paidPlans,
     perMonth,
+    planText,
     promoReason,
     regularOf,
     renewal,
@@ -172,5 +173,18 @@ describe('a month and a year', () => {
     it('says what a longer plan comes to per month', () => {
         expect(perMonth(year)).toBe(28.767)
         expect(perMonth(month)).toBeNull()
+    })
+})
+
+describe('planText', () => {
+    const details = { fr: { label: 'Mensuel', tagline: 'Rapide', features: ['A', 'B'] }, en: { label: 'Monthly' } }
+    it('reads each field in the language of the student', () => {
+        expect(planText({ name: 'M', details }, 'en')).toEqual({ label: 'Monthly', tagline: 'Rapide', features: ['A', 'B'] })
+        expect(planText({ name: 'M', details }, 'fr')).toEqual({ label: 'Mensuel', tagline: 'Rapide', features: ['A', 'B'] })
+    })
+    it('falls back to French, then to the plan name', () => {
+        expect(planText({ name: 'M', details }, 'ar').label).toBe('Mensuel')
+        expect(planText({ name: 'M', details: {} }, 'ar')).toEqual({ label: 'M', tagline: '', features: [] })
+        expect(planText({ name: 'M' }, 'fr')).toEqual({ label: 'M', tagline: '', features: [] })
     })
 })
