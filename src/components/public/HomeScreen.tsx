@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
-import { dinars, months, regularOf } from '@/components/billing/billing'
+import { dinars, lengthOf, paidPlans, regularOf } from '@/components/billing/billing'
 import { ButtonLink } from '@/components/ui/Button'
 import { usePlans } from '@/hooks/usePlans'
 import { cn } from '@/lib/cn'
@@ -27,14 +27,20 @@ function PlanCard({ plan }: { plan: Plan }) {
     const t = useTranslations('public')
     const locale = useLocale()
     const regular = regularOf(plan)
-    const m = months(plan.duration_days)
+    const span = lengthOf(plan.duration_days)
     return (
         <div className="flex flex-col gap-4 rounded-[20px] border-[1.5px] border-ink bg-white p-7 shadow-card">
             <span className="font-mono text-[11px] font-semibold uppercase tracking-[.08em] text-ink-3">{plan.name || t('paidName')}</span>
             <div className="flex items-baseline gap-2.5">
                 {regular ? <span className="text-lg text-ink-3 line-through">{dinars(regular / 1000, locale)} DT</span> : null}
                 <b className="font-display text-[44px] font-extrabold leading-none">{dinars(plan.price, locale)} DT</b>
-                <span className="text-[15px] text-ink-3">{m === 1 ? t('perMonth') : t('perDays', { count: plan.duration_days })}</span>
+                <span className="text-[15px] text-ink-3">
+                    {span.unit === 'months' && span.count === 1
+                        ? t('perMonth')
+                        : span.unit === 'years' && span.count === 1
+                          ? t('perYear')
+                          : t('perDays', { count: plan.duration_days })}
+                </span>
             </div>
             <span className="text-sm text-ink-3">{regular ? t('paidLaunchNote') : t('paidNote')}</span>
             <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
@@ -62,7 +68,7 @@ export function freeApplications(plans: Plan[] | undefined): number {
 export default function HomeScreen() {
     const t = useTranslations('public')
     const plans = usePlans()
-    const paid = (plans.data?.items ?? []).filter((p) => p.active && p.price > 0).sort((a, b) => a.price - b.price)
+    const paid = paidPlans(plans.data?.items)
     const count = freeApplications(plans.data?.items)
     return (
         <div className="min-h-screen bg-page">
@@ -128,7 +134,7 @@ export default function HomeScreen() {
                         <p className="m-0 text-[17px] text-ink-2">{t('pricingText')}</p>
                     </div>
                     {/* Only the subscription is a price: without one, a student tries with a few applications. */}
-                    <div className="grid gap-5 md:grid-cols-[minmax(0,560px)]">
+                    <div className={cn('grid gap-5', paid.length > 1 ? 'md:grid-cols-2' : 'md:grid-cols-[minmax(0,560px)]')}>
                         {paid.length ? (
                             paid.map((p) => <PlanCard key={p.id} plan={p} />)
                         ) : (

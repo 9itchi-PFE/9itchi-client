@@ -13,7 +13,7 @@ export function price(typed: string): number | null {
 }
 
 // PriceError says why the two prices of a plan cannot be saved.
-export type PriceError = 'priceInvalid' | 'regularInvalid' | 'regularBelow' | 'untilInvalid' | 'untilNeedsRegular'
+export type PriceError = 'priceInvalid' | 'priceZero' | 'regularInvalid' | 'regularBelow' | 'untilInvalid' | 'untilNeedsRegular'
 
 // planInput builds what is saved for a plan from what was typed. The regular price is optional: empty means
 // nothing is struck through. until is the last day of the launch price (optional); it needs a regular price to go
@@ -21,6 +21,7 @@ export type PriceError = 'priceInvalid' | 'regularInvalid' | 'regularBelow' | 'u
 export function planInput(plan: Plan, typed: { price: string; regular: string; until?: string }): { input: PlanInput } | { error: PriceError } {
     const paid = price(typed.price)
     if (paid === null) return { error: 'priceInvalid' }
+    if (paid === 0 && plan.name !== FREE_PLAN) return { error: 'priceZero' }
     const until = (typed.until ?? '').trim()
     if (until && !/^\d{4}-\d{2}-\d{2}$/.test(until)) return { error: 'untilInvalid' }
     const input: PlanInput = { name: plan.name, price: paid, duration_days: plan.duration_days, quotas: plan.quotas, active: plan.active }
@@ -38,6 +39,56 @@ export const today = (now = new Date()) => dayOf(now.toISOString())
 export function launchIsOver(plan: Pick<Plan, 'launch_ends_on' | 'regular_price'>, now = new Date()): boolean {
     return !!plan.launch_ends_on && !!plan.regular_price && today(now) > plan.launch_ends_on
 }
+
+// DURATIONS are the periods a new plan is sold for, in days (payments-api counts a month as 30 days).
+export const DURATIONS = [30, 90, 180, 365] as const
+
+// PlanError says why a plan cannot be created or changed.
+export type PlanError = PriceError | 'nameMissing' | 'nameTaken' | 'nameFree' | 'durationInvalid'
+
+// PlanTyped is what the admin typed in the plan form.
+export type PlanTyped = { name: string; duration: string; price: string; regular: string; until: string; active: boolean }
+
+// planName checks a name against the other plans, without case: names are unique, and Free is the plan without
+// a subscription (payments-api finds it by that name).
+function planName(typed: string, others: Pick<Plan, 'id' | 'name'>[], self?: string): { name: string } | { error: PlanError } {
+    const name = typed.trim()
+    if (!name) return { error: 'nameMissing' }
+    if (name.toLowerCase() === FREE_PLAN.toLowerCase()) return { error: 'nameFree' }
+    if (others.some((p) => p.id !== self && p.name.trim().toLowerCase() === name.toLowerCase())) return { error: 'nameTaken' }
+    return { name }
+}
+
+// planDays reads a duration in days: a whole number from 1 to 3650.
+function planDays(typed: string): number | null {
+    return /^\d{1,4}$/.test(typed.trim()) && Number(typed) >= 1 && Number(typed) <= 3650 ? Number(typed) : null
+}
+
+// newPlanInput builds a new paid plan. Its limits start as those of from (another plan), to be set in the table.
+export function newPlanInput(typed: PlanTyped, others: Plan[], from?: Plan): { input: PlanInput } | { error: PlanError } {
+    const named = planName(typed.name, others)
+    if ('error' in named) return named
+    const days = planDays(typed.duration)
+    if (days === null) return { error: 'durationInvalid' }
+    if (price(typed.price) === 0) return { error: 'priceZero' }
+    const draft: Plan = { id: '', name: named.name, price: 0, duration_days: days, quotas: { ...(from?.quotas ?? {}) }, active: typed.active }
+    return planInput(draft, typed)
+}
+
+// renamedInput changes the name and the duration of a paid plan and keeps the rest as it is.
+export function renamedInput(plan: Plan, typed: { name: string; duration: string }, others: Plan[]): { input: PlanInput } | { error: PlanError } {
+    const named = planName(typed.name, others, plan.id)
+    if ('error' in named) return named
+    const days = planDays(typed.duration)
+    if (days === null) return { error: 'durationInvalid' }
+    return { input: { ...quotasInput(plan, plan.quotas ?? {}), name: named.name, duration_days: days } }
+}
+
+// switchedOn switches a plan back on: the whole plan is sent again with active true.
+export const switchedOn = (plan: Plan): PlanInput => ({ ...quotasInput(plan, plan.quotas ?? {}), active: true })
+
+// ALLOWED are rights a plan grants or not, as a box (cv_edit = 0: the CV stays read-only).
+export const ALLOWED = ['cv_edit'] as const
 
 // COUNTS are the limits written as a number: empty sets no limit, 0 allows none.
 export const COUNTS = [

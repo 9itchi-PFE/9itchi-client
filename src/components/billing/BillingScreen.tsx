@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState, type FormEvent } from 'react'
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useFormatter, useLocale, useTranslations } from 'next-intl'
@@ -12,22 +12,77 @@ import { useToast } from '@/components/ui/Toast'
 import { useCheckout, useMySubscription, usePayments, usePlans, useSetRenewal, useValidatePromo, useVerifyPayment } from '@/hooks/usePlans'
 import { cn } from '@/lib/cn'
 import { atKeptPrice, type MySubscription, type Payment, type Plan, type PromoCheck } from '@/types/plan'
-import { KEEP_DAYS, RENEW_DAYS, dayAt, daysLeft, dinars, fromReturn, millimes, months, paidPlan, promoReason, regularOf, tnd, type Return } from './billing'
+import {
+    KEEP_DAYS,
+    RENEW_DAYS,
+    dayAt,
+    daysLeft,
+    dinars,
+    fromReturn,
+    lengthOf,
+    millimes,
+    paidPlans,
+    perMonth,
+    promoReason,
+    regularOf,
+    tnd,
+    type Return,
+} from './billing'
 
 const eyebrow = 'font-mono text-[11px] font-semibold uppercase tracking-[.08em]'
 const panel = 'flex flex-col gap-4 rounded-[20px] border border-line-soft bg-white p-6'
 
-// useLength says how long a plan lasts, in months when it is a whole number of them.
+// useLength says how long a plan lasts: in years, in months, else in days.
 function useLength() {
     const t = useTranslations('billing')
     return (days: number) => {
-        const m = months(days)
-        return m === null ? t('days', { count: days }) : t('months', { count: m })
+        const l = lengthOf(days)
+        return t(l.unit, { count: l.count })
     }
 }
 
+// PlanChoice lets the student pick a plan when there are several (a month, a year): its price, its period and,
+// for a longer one, what it comes to per month.
+function PlanChoice({ plans, chosen, onChoose }: { plans: Plan[]; chosen: Plan; onChoose: (p: Plan) => void }) {
+    const t = useTranslations('billing')
+    const locale = useLocale()
+    const length = useLength()
+    return (
+        <fieldset className="m-0 flex flex-col gap-2.5 border-0 p-0">
+            <legend className="mb-2 p-0 text-[15px] font-semibold">{t('choosePlan')}</legend>
+            {plans.map((p) => {
+                const on = p.id === chosen.id
+                const each = perMonth(p)
+                const regular = regularOf(p)
+                return (
+                    <label
+                        key={p.id}
+                        className={cn(
+                            'flex cursor-pointer flex-wrap items-center justify-between gap-3 rounded-[20px] bg-white px-5 py-4',
+                            on ? 'border-[1.5px] border-ink' : 'border border-line-strong',
+                        )}
+                    >
+                        <span className="flex items-center gap-3">
+                            <input type="radio" name="plan" checked={on} onChange={() => onChoose(p)} className="h-4 w-4 accent-ink" />
+                            <span className="flex flex-col gap-0.5">
+                                <strong className="text-[16px] font-semibold">{p.name}</strong>
+                                {each ? <span className="text-sm text-ink-3">{t('perMonthEq', { amount: dinars(each, locale) })}</span> : null}
+                            </span>
+                        </span>
+                        <span className="flex items-baseline gap-2" dir="ltr">
+                            {regular ? <s className="text-sm text-ink-3">{dinars(regular / 1000, locale)} DT</s> : null}
+                            <strong className="font-display text-[26px] font-extrabold leading-none">{dinars(p.price, locale)} DT</strong>
+                            <span className="text-sm text-ink-3">/ {length(p.duration_days)}</span>
+                        </span>
+                    </label>
+                )
+            })}
+        </fieldset>
+    )
+}
+
 // Pay is the subscribe form: what the plan adds, a promo code, the amount, and the way to Flouci.
-function Pay({ plan, extending }: { plan: Plan; extending: MySubscription | null }) {
+function Pay({ plan, extending, choice }: { plan: Plan; extending: MySubscription | null; choice?: ReactNode }) {
     const t = useTranslations('billing')
     const tc = useTranslations('common')
     const locale = useLocale()
@@ -95,33 +150,35 @@ function Pay({ plan, extending }: { plan: Plan; extending: MySubscription | null
         <div className="flex flex-wrap items-start gap-7">
             {extending ? null : (
                 <div className="flex min-w-0 flex-[1_1_480px] flex-col gap-4">
-                    <div className="flex flex-wrap items-center justify-between gap-4 rounded-[20px] border-[1.5px] border-ink bg-white px-6 py-5">
-                        <div className="flex flex-col gap-1">
-                            <strong className="text-[17px] font-semibold">{plan.name}</strong>
-                            {regular ? (
-                                <span className="inline-flex h-6 flex-none items-center self-start rounded-full bg-lime px-[9px] text-xs font-bold">
-                                    {sale && saleEnd
-                                        ? t('saleUntil', { name: sale.name, percent: sale.percent, day: saleEnd })
-                                        : launchEnd
-                                          ? t('launchPriceUntil', { day: launchEnd })
-                                          : t('launchPrice')}
-                                </span>
-                            ) : null}
-                            <span className="text-sm text-ink-3">{t('oneOff', { length: length(plan.duration_days) })}</span>
+                    {choice ?? (
+                        <div className="flex flex-wrap items-center justify-between gap-4 rounded-[20px] border-[1.5px] border-ink bg-white px-6 py-5">
+                            <div className="flex flex-col gap-1">
+                                <strong className="text-[17px] font-semibold">{plan.name}</strong>
+                                {regular ? (
+                                    <span className="inline-flex h-6 flex-none items-center self-start rounded-full bg-lime px-[9px] text-xs font-bold">
+                                        {sale && saleEnd
+                                            ? t('saleUntil', { name: sale.name, percent: sale.percent, day: saleEnd })
+                                            : launchEnd
+                                              ? t('launchPriceUntil', { day: launchEnd })
+                                              : t('launchPrice')}
+                                    </span>
+                                ) : null}
+                                <span className="text-sm text-ink-3">{t('oneOff', { length: length(plan.duration_days) })}</span>
+                            </div>
+                            <span className="flex items-baseline gap-2">
+                                {regular ? (
+                                    <s dir="ltr" className="text-base text-ink-3">
+                                        <span className="sr-only">{t('regularPrice')} </span>
+                                        {dinars(plan.regular_price ?? 0, locale)} DT
+                                    </s>
+                                ) : null}
+                                <strong dir="ltr" className="font-display text-[34px] font-extrabold leading-none">
+                                    {dinars(plan.price, locale)} DT
+                                </strong>
+                                <span className="text-sm text-ink-3">/ {length(plan.duration_days)}</span>
+                            </span>
                         </div>
-                        <span className="flex items-baseline gap-2">
-                            {regular ? (
-                                <s dir="ltr" className="text-base text-ink-3">
-                                    <span className="sr-only">{t('regularPrice')} </span>
-                                    {dinars(plan.regular_price ?? 0, locale)} DT
-                                </s>
-                            ) : null}
-                            <strong dir="ltr" className="font-display text-[34px] font-extrabold leading-none">
-                                {dinars(plan.price, locale)} DT
-                            </strong>
-                            <span className="text-sm text-ink-3">/ {length(plan.duration_days)}</span>
-                        </span>
-                    </div>
+                    )}
                     <div className="flex flex-col gap-4 rounded-[20px] bg-ink p-6 text-white">
                         <span className={cn(eyebrow, 'text-[#B8BCC6]')}>{t('addsTitle')}</span>
                         <ul className="m-0 flex list-none flex-col gap-3.5 p-0">
@@ -412,9 +469,14 @@ export default function BillingScreen() {
     const toast = useToast()
     const [adding, setAdding] = useState(false)
     const [confirming, setConfirming] = useState(false)
+    // The plan the student picked (none yet: the one they had, else the shortest), and a plan to change to.
+    const [chosenId, setChosenId] = useState('')
+    const [switchTo, setSwitchTo] = useState<Plan | null>(null)
 
     const back = fromReturn(params)
-    const plan = paidPlan(plans.data?.items)
+    const offered = paidPlans(plans.data?.items)
+    const lapsedId = sub.data?.lapsed?.plan_id
+    const plan = offered.find((p) => p.id === chosenId) ?? offered.find((p) => p.id === lapsedId) ?? offered[0]
     const main = 'mx-auto box-border flex w-full max-w-[1180px] flex-1 flex-col gap-7 px-4 sm:px-8 pb-[72px] pt-6'
 
     if (back) {
@@ -473,7 +535,12 @@ export default function BillingScreen() {
                     </p>
                 ) : null}
                 {plan ? (
-                    <Pay plan={keptLapsed ? atKeptPrice(plan, sub.data.kept_price) : plan} extending={null} />
+                    <Pay
+                        key={plan.id}
+                        plan={keptLapsed ? atKeptPrice(plan, sub.data.kept_price) : plan}
+                        extending={null}
+                        choice={offered.length > 1 ? <PlanChoice plans={offered} chosen={plan} onChoose={(p) => setChosenId(p.id)} /> : undefined}
+                    />
                 ) : (
                     <p className="m-0 rounded-2xl bg-fill-3 p-5 text-base text-ink-2">{t('noPlan')}</p>
                 )}
@@ -485,8 +552,10 @@ export default function BillingScreen() {
     const subscription = active.subscription!
     const ends = new Date(subscription.ends_at)
     const left = daysLeft(subscription.ends_at)
-    // active.plan is already at the launch price the student keeps, when they keep one.
-    const same = plan && plan.id === active.plan.id ? atKeptPrice(plan, active.kept_price) : undefined
+    // The plan they have, if it is still offered, at the launch price they keep when they keep one.
+    const own = offered.find((p) => p.id === active.plan.id)
+    const same = own ? atKeptPrice(own, active.kept_price) : undefined
+    const others = offered.filter((p) => p.id !== active.plan.id)
     const date = format.dateTime(ends, { day: 'numeric', month: 'long', year: 'numeric' })
     const shortDate = format.dateTime(ends, { day: 'numeric', month: 'long' })
     const due = subscription.renews && left <= RENEW_DAYS
@@ -542,6 +611,7 @@ export default function BillingScreen() {
                             </Button>
                         </div>
                     ) : null}
+                    {own ? null : <p className="m-0 text-sm leading-[1.55] text-ink-2">{t('planGone', { date: shortDate })}</p>}
                     {confirming ? (
                         <div
                             role="alertdialog"
@@ -576,6 +646,20 @@ export default function BillingScreen() {
                 </section>
             )}
             {same && adding && subscription.renews ? <Pay plan={same} extending={active} /> : null}
+            {others.length ? (
+                <section className={panel}>
+                    <h2 className="m-0 text-xl font-extrabold">{t('switchTitle')}</h2>
+                    <p className="m-0 text-[15px] leading-[1.55] text-ink-3">{t('switchText')}</p>
+                    <div className="flex flex-wrap gap-2">
+                        {others.map((p) => (
+                            <Button key={p.id} variant={switchTo?.id === p.id ? 'primary' : 'secondary'} onClick={() => setSwitchTo(p)}>
+                                {t('switchTo', { name: p.name, price: `${dinars(p.price, locale)} DT / ${length(p.duration_days)}` })}
+                            </Button>
+                        ))}
+                    </div>
+                </section>
+            ) : null}
+            {switchTo ? <Pay key={switchTo.id} plan={switchTo} extending={null} /> : null}
             <Receipts payments={payments.data ?? []} />
         </main>
     )

@@ -1309,7 +1309,7 @@
         "plansError": "Les plans n’ont pas pu être lus. Recharge la page.",
         "freePlan": "Sans abonnement",
         "freePrice": "0 DT",
-        "freeText": "Ce qu’un étudiant a sans abonnement : il écrit et vérifie son CV, sans le télécharger. Ses limites se règlent plus bas.",
+        "freeText": "Ce qu’un étudiant a sans abonnement : il parcourt les offres et envoie ses candidatures gratuites avec le CV importé, tel quel. Ses limites se règlent plus bas.",
         "planOff": "Désactivé",
         "planSaved": "Prix enregistrés",
         "perMonth": "par mois",
@@ -1344,7 +1344,8 @@
             "ats_file": "Fichier final",
             "ai_drafts_per_month": "Lettres écrites par l’IA, par mois",
             "ai_rewrites_per_month": "Réécritures du CV par l’IA, par mois",
-            "ai_matches_per_month": "Analyses d’une offre par l’IA, par mois"
+            "ai_matches_per_month": "Analyses d’une offre par l’IA, par mois",
+            "cv_edit": "Corriger son CV dans 9itchi"
         },
         "promosTitle": "Codes promo",
         "promoNew": "+ Nouveau code",
@@ -1483,7 +1484,41 @@
         "tplNote": "Un modèle retiré n’est plus proposé ; les CV qui l’utilisent déjà ne changent pas. Ajouter un nouveau modèle demande de dessiner sa mise en page dans le code.",
         "oReplies": "{count, plural, =0 {aucune réponse} one {# réponse} other {# réponses}}",
         "mReplies": "Réponses reçues",
-        "repliesNote": "Une réponse est comptée quand l’étudiant marque sa candidature « Réponse reçue », qu’elle soit partie par 9itchi ou par lui-même."
+        "repliesNote": "Une réponse est comptée quand l’étudiant marque sa candidature « Réponse reçue », qu’elle soit partie par 9itchi ou par lui-même.",
+        "planNew": "Nouveau plan",
+        "planAddTitle": "Nouveau plan",
+        "planEditTitle": "Modifier le plan",
+        "planEdit": "Modifier",
+        "planCreate": "Créer le plan",
+        "planName": "Nom",
+        "planNameHint": "Ce que les étudiants voient, par exemple « Abonnement 3 mois ». Deux plans ne peuvent pas avoir le même nom.",
+        "planDuration": "Durée",
+        "durMonths": "{count, plural, one {# mois} other {# mois}}",
+        "durYear": "1 an",
+        "durDays": "{count, plural, one {# jour} other {# jours}}",
+        "planSoldFor": "Vendu pour {period}",
+        "newRegular": "Prix normal, en DT",
+        "newPrice": "Prix payé, en DT",
+        "planLimitsFrom": "Il reprend les limites de « {name} » ; règle-les ensuite dans le tableau « Ce que chaque plan permet ».",
+        "planLimitsEmpty": "Il commence sans limite ; règle-les ensuite dans le tableau « Ce que chaque plan permet ».",
+        "planActiveNow": "Le proposer tout de suite aux étudiants",
+        "planEditHint": "Les prix se changent sur la carte du plan. La durée ne change que si personne n’a ce plan ; sinon, crée un nouveau plan.",
+        "planCreated": "Plan « {name} » créé",
+        "planUpdated": "Plan enregistré",
+        "planOffBtn": "Désactiver",
+        "planOnBtn": "Réactiver",
+        "planOffConfirm": "Désactiver « {name} » ? Il ne sera plus proposé aux étudiants. Ses abonnés gardent leur accès jusqu’à la fin de la période payée, sans pouvoir le renouveler.",
+        "planOffDone": "« {name} » n’est plus proposé",
+        "planOnDone": "« {name} » est de nouveau proposé",
+        "planOffHint": "Plus proposé aux étudiants. Ses abonnés gardent leur accès jusqu’à la fin de la période payée.",
+        "nameMissing": "Donne un nom au plan.",
+        "nameTaken": "Un plan porte déjà ce nom.",
+        "nameFree": "Le nom « Free » est gardé pour le plan sans abonnement.",
+        "durationInvalid": "Choisis une durée.",
+        "priceZero": "Un plan payant coûte plus de 0 DT.",
+        "perYear": "par an",
+        "planOffTitle": "Désactiver « {name} » ?",
+        "durationHeld": "Des étudiants ont ce plan : sa durée ne peut plus changer. Crée un nouveau plan avec la durée voulue, puis désactive celui-ci."
     },
     "apply": {
         "back": "Retour à l’offre",
@@ -1817,7 +1852,14 @@
         "promoDuringSale": "Pas de code promo pendant une promotion : le prix réduit s’applique déjà.",
         "refundRule": "Remboursé en entier si tu le demandes dans les 7 jours après le paiement et que tu n’as téléchargé aucun CV ni envoyé de candidature avec ton CV corrigé. Sinon, pas de remboursement : si tu arrêtes, tu gardes l’accès jusqu’à la fin de la période.",
         "launchKept": "Ton prix de lancement est gardé tant que tu renouvelles.",
-        "launchKeptUntil": "Ton prix de lancement est gardé si tu renouvelles d’ici le {date}."
+        "launchKeptUntil": "Ton prix de lancement est gardé si tu renouvelles d’ici le {date}.",
+        "years": "{count, plural, one {1 an} other {# ans}}",
+        "choosePlan": "Choisis ton forfait",
+        "perMonthEq": "soit {amount} DT par mois",
+        "planGone": "Ce forfait n’est plus proposé : tu le gardes jusqu’au {date}, puis tu pourras en choisir un autre.",
+        "switchTitle": "Changer de forfait",
+        "switchText": "Le nouveau forfait commence dès le paiement, et les jours qui te restent sur le forfait actuel s’ajoutent à sa fin : tu ne perds rien.",
+        "switchTo": "Passer à {name} · {price}"
     },
     "notifications": {
         "title": "Notifications",
@@ -2071,6 +2113,7 @@
         },
         "freeLine": "Sans abonnement : parcours les offres et envoie {count} candidatures avec le CV que tu as importé, tel quel, pour essayer.",
         "freeLineCta": "Créer mon compte",
-        "paid0": "Ton CV corrigé avec les 24 règles, et le diagnostic complet"
+        "paid0": "Ton CV corrigé avec les 24 règles, et le diagnostic complet",
+        "perYear": "/ an"
     }
 }

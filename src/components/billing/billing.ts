@@ -18,6 +18,23 @@ export function paidPlan(plans: Plan[] | undefined): Plan | undefined {
     return plans?.filter((p) => p.active && p.price > 0).sort((a, b) => a.price - b.price)[0]
 }
 
+// paidPlans are the plans a student can buy, shortest first (the monthly plan, then the longer ones).
+export function paidPlans(plans: Plan[] | undefined): Plan[] {
+    return (plans ?? []).filter((p) => p.active && p.price > 0).sort((a, b) => a.duration_days - b.duration_days || a.price - b.price)
+}
+
+// lengthOf says how a period is counted on screen: in years (365 days), in months (30 days), else in days.
+export function lengthOf(days: number): { unit: 'years' | 'months' | 'days'; count: number } {
+    if (days > 0 && days % 365 === 0) return { unit: 'years', count: days / 365 }
+    if (days > 0 && days % 30 === 0) return { unit: 'months', count: days / 30 }
+    return { unit: 'days', count: days }
+}
+
+// perMonth is what a plan longer than a month comes to per month (30 days), in dinars; null for a month or less.
+export function perMonth(plan: Pick<Plan, 'price' | 'duration_days'>): number | null {
+    return plan.duration_days > 30 ? Math.round((plan.price * 30 * 1000) / plan.duration_days) / 1000 : null
+}
+
 // months says how long a plan lasts when that is a whole number of months (30 days = 1), else null: the screen then counts in days.
 export function months(days: number): number | null {
     return days > 0 && days % 30 === 0 ? days / 30 : null

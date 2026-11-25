@@ -26,6 +26,30 @@ export function useSavePlan() {
     })
 }
 
+// useCreatePlan adds a paid plan; it joins the list and the table of limits.
+export function useCreatePlan() {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: async (input: PlanInput) => (await PaymentService.createPlan(input)).data,
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: adminPlanKeys.plans })
+            qc.invalidateQueries({ queryKey: billingKeys.plans })
+        },
+    })
+}
+
+// useSwitchOffPlan stops proposing a plan to students; its subscribers keep what they paid for.
+export function useSwitchOffPlan() {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: (id: string) => PaymentService.deactivatePlan(id),
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: adminPlanKeys.plans })
+            qc.invalidateQueries({ queryKey: billingKeys.plans })
+        },
+    })
+}
+
 export function usePromos() {
     return useQuery({ queryKey: adminPlanKeys.promos, queryFn: async () => (await PaymentService.listPromos()).data.items })
 }

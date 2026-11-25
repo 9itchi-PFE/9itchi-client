@@ -1309,7 +1309,7 @@
         "plansError": "The plans could not be read. Reload the page.",
         "freePlan": "No subscription",
         "freePrice": "0 TND",
-        "freeText": "What a student has without a subscription: they write and check their CV, without downloading it. Its limits are set below.",
+        "freeText": "What a student has without a subscription: they browse the offers and send their free applications with the imported CV, as it is. Its limits are set below.",
         "planOff": "Switched off",
         "planSaved": "Prices saved",
         "perMonth": "per month",
@@ -1344,7 +1344,8 @@
             "ats_file": "Final file",
             "ai_drafts_per_month": "Letters written by the AI, per month",
             "ai_rewrites_per_month": "CV rewrites by the AI, per month",
-            "ai_matches_per_month": "Offer analyses by the AI, per month"
+            "ai_matches_per_month": "Offer analyses by the AI, per month",
+            "cv_edit": "Correct the CV in 9itchi"
         },
         "promosTitle": "Promo codes",
         "promoNew": "+ New code",
@@ -1483,7 +1484,41 @@
         "tplNote": "A withdrawn template is no longer offered; CVs already using it do not change. Adding a new template means drawing its layout in the code.",
         "oReplies": "{count, plural, =0 {no reply} one {# reply} other {# replies}}",
         "mReplies": "Replies received",
-        "repliesNote": "A reply is counted when the student marks the application « Reply received », whether it left through 9itchi or on their own."
+        "repliesNote": "A reply is counted when the student marks the application « Reply received », whether it left through 9itchi or on their own.",
+        "planNew": "New plan",
+        "planAddTitle": "New plan",
+        "planEditTitle": "Edit the plan",
+        "planEdit": "Edit",
+        "planCreate": "Create the plan",
+        "planName": "Name",
+        "planNameHint": "What students see, for example “3-month plan”. Two plans cannot have the same name.",
+        "planDuration": "Length",
+        "durMonths": "{count, plural, one {# month} other {# months}}",
+        "durYear": "1 year",
+        "durDays": "{count, plural, one {# day} other {# days}}",
+        "planSoldFor": "Sold for {period}",
+        "newRegular": "Regular price, in TND",
+        "newPrice": "Price paid, in TND",
+        "planLimitsFrom": "It takes the limits of “{name}”; set them afterwards in the “What each plan allows” table.",
+        "planLimitsEmpty": "It starts with no limit; set them afterwards in the “What each plan allows” table.",
+        "planActiveNow": "Offer it to students right away",
+        "planEditHint": "Prices are changed on the plan’s card. The length can change only while nobody holds the plan; otherwise create a new plan.",
+        "planCreated": "Plan “{name}” created",
+        "planUpdated": "Plan saved",
+        "planOffBtn": "Switch off",
+        "planOnBtn": "Switch on",
+        "planOffConfirm": "Switch off “{name}”? It will no longer be offered to students. Its subscribers keep their access until the end of the period they paid, without being able to renew it.",
+        "planOffDone": "“{name}” is no longer offered",
+        "planOnDone": "“{name}” is offered again",
+        "planOffHint": "No longer offered to students. Its subscribers keep their access until the end of the period they paid.",
+        "nameMissing": "Give the plan a name.",
+        "nameTaken": "A plan already has this name.",
+        "nameFree": "The name “Free” is kept for the plan without a subscription.",
+        "durationInvalid": "Choose a length.",
+        "priceZero": "A paid plan costs more than 0 TND.",
+        "perYear": "per year",
+        "planOffTitle": "Switch off “{name}”?",
+        "durationHeld": "Students hold this plan, so its length can no longer change. Create a new plan with the length you want, then switch this one off."
     },
     "apply": {
         "back": "Back to the offer",
@@ -1817,7 +1852,14 @@
         "promoDuringSale": "No promo code during a sale: the reduced price already applies.",
         "refundRule": "Refunded in full if you ask within 7 days of paying and have downloaded no CV and sent no application with your fixed CV. Otherwise no refund: if you stop, you keep access until the end of the period.",
         "launchKept": "Your launch price is kept as long as you renew.",
-        "launchKeptUntil": "Your launch price is kept if you renew by {date}."
+        "launchKeptUntil": "Your launch price is kept if you renew by {date}.",
+        "years": "{count, plural, one {1 year} other {# years}}",
+        "choosePlan": "Choose your plan",
+        "perMonthEq": "that is {amount} TND a month",
+        "planGone": "This plan is no longer offered: you keep it until {date}, then you can choose another one.",
+        "switchTitle": "Change plan",
+        "switchText": "The new plan starts when you pay, and the days left on your current plan are added at its end: you lose nothing.",
+        "switchTo": "Move to {name} · {price}"
     },
     "notifications": {
         "title": "Notifications",
@@ -2071,6 +2113,7 @@
         },
         "freeLine": "Without a subscription: browse the offers and send {count} applications with the CV you imported, as it is, to try.",
         "freeLineCta": "Create my account",
-        "paid0": "Your CV corrected with the 24 rules, and the full check"
+        "paid0": "Your CV corrected with the 24 rules, and the full check",
+        "perYear": "/ year"
     }
 }

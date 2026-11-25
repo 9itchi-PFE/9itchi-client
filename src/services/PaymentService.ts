@@ -17,7 +17,7 @@ import { api } from './ApiService'
 
 const PaymentService = {
     listPlans: () => api('payments').get<{ items: Plan[] }>(`/plans`),
-    createPlan: (data?: unknown) => api('payments').post(`/admin/plans`, data),
+    createPlan: (data: PlanInput) => api('payments').post<Plan>(`/admin/plans`, data),
     // listAllPlans also returns the plans that are switched off (admin).
     listAllPlans: () => api('payments').get<{ items: Plan[] }>(`/admin/plans`),
     updatePlan: (id: string, data: PlanInput) => api('payments').put<Plan>(`/admin/plans/${id}`, data),
