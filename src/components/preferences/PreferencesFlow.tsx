@@ -67,7 +67,7 @@ export default function PreferencesFlow() {
 
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState('')
-    if (!prefs) return <p className="mx-auto max-w-[1200px] px-8 py-16 text-ink-3">…</p>
+    if (!prefs) return <p className="mx-auto max-w-[1200px] px-4 sm:px-8 py-16 text-ink-3">…</p>
 
     const set = <K extends Key>(k: K, v: Preferences[K]) => {
         setPrefs({ ...prefs, [k]: v })
@@ -184,9 +184,9 @@ export default function PreferencesFlow() {
     ]
 
     return (
-        <main className="mx-auto box-border flex w-full max-w-[1200px] flex-col gap-6 px-8 pb-[72px] pt-5">
+        <main className="mx-auto box-border flex w-full max-w-[1200px] flex-col gap-6 px-4 sm:px-8 pb-[72px] pt-5">
             <div className="flex max-w-[760px] flex-col gap-2">
-                <h1 className="m-0 text-[44px] font-extrabold leading-[1.05]">{fromCv ? t('titleCv') : t('titleBlank')}</h1>
+                <h1 className="m-0 text-[30px] sm:text-[44px] font-extrabold leading-[1.05]">{fromCv ? t('titleCv') : t('titleBlank')}</h1>
                 <p className="m-0 text-base leading-[1.55] text-ink-3">{fromCv ? t('subtitleCv', { count: notInCv }) : t('subtitleBlank')}</p>
             </div>
             <div className="flex flex-wrap items-start gap-7">

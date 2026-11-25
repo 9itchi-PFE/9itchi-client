@@ -11,9 +11,9 @@ export default function BooksList() {
     const tc = useTranslations('common')
     const books = useBooks()
     return (
-        <main className="mx-auto box-border flex w-full max-w-[1320px] flex-col gap-6 px-8 pb-16 pt-7">
+        <main className="mx-auto box-border flex w-full max-w-[1320px] flex-col gap-6 px-4 sm:px-8 pb-16 pt-7">
             <div className="flex flex-col gap-2">
-                <h1 className="m-0 text-[44px] font-extrabold leading-[1.05]">{t('listTitle')}</h1>
+                <h1 className="m-0 text-[30px] sm:text-[44px] font-extrabold leading-[1.05]">{t('listTitle')}</h1>
                 <p className="m-0 max-w-[680px] text-base text-ink-3">{t('listSubtitle')}</p>
             </div>
             {books.isError ? (

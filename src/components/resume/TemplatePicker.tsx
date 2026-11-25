@@ -64,14 +64,14 @@ export default function TemplatePicker() {
     const name = picked ? t(`layouts.${picked.layout}.name`) : ''
 
     return (
-        <div className="mx-auto box-border flex w-full max-w-[1320px] flex-col gap-5 px-8 pb-16 pt-6">
+        <div className="mx-auto box-border flex w-full max-w-[1320px] flex-col gap-5 px-4 sm:px-8 pb-16 pt-6">
             <nav aria-label={th('cv')} className="flex items-center gap-2 text-sm text-ink-3">
                 <Link href={id ? `/resumes/${id}` : '/resumes'}>{th('cv')}</Link>
                 <span aria-hidden>/</span>
                 <span className="text-ink">{t('breadcrumb')}</span>
             </nav>
             <div className="flex flex-col gap-2">
-                <h1 className="m-0 text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
+                <h1 className="m-0 text-[30px] sm:text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
                 <p className="m-0 max-w-[1240px] text-[15.5px] leading-normal text-ink-3">{t('lead')}</p>
             </div>
             <Button className="h-11 self-start rounded-xl px-[18px] text-[15.5px]" disabled={!picked || !id || busy} onClick={use}>

@@ -11,7 +11,7 @@ import { cn } from '@/lib/cn'
 import type { Notification } from '@/types/notification'
 import { describe, split, when, type Glyph } from './notifications'
 
-const main = 'mx-auto box-border flex w-full max-w-[820px] flex-1 flex-col gap-[22px] px-8 pb-[72px] pt-4'
+const main = 'mx-auto box-border flex w-full max-w-[820px] flex-1 flex-col gap-[22px] px-4 sm:px-8 pb-[72px] pt-4'
 const eyebrow = 'font-mono text-[11px] font-semibold uppercase tracking-[.08em] text-ink-3'
 const tile = 'flex h-[42px] w-[42px] flex-none items-center justify-center rounded-xl text-[13px] font-bold'
 
@@ -86,7 +86,7 @@ function Empty() {
     const t = useTranslations('notifications')
     return (
         <main className={main}>
-            <h1 className="m-0 text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
+            <h1 className="m-0 text-[30px] sm:text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
             <section className="flex flex-col items-center gap-3.5 rounded-3xl border border-line-soft bg-white px-8 py-14 text-center">
                 <span className="flex h-16 w-16 items-center justify-center rounded-[20px] bg-fill">
                     <Icon name="bell" size={28} />
@@ -126,7 +126,7 @@ export default function NotificationsScreen() {
     if (list.isError) {
         return (
             <main className={cn(main, 'items-start')}>
-                <h1 className="m-0 text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
+                <h1 className="m-0 text-[30px] sm:text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
                 <p role="alert" className="m-0 text-base text-ink-3">
                     {tc('error')}
                 </p>
@@ -147,7 +147,7 @@ export default function NotificationsScreen() {
         <main className={main}>
             <div className="flex flex-wrap items-end justify-between gap-4">
                 <div className="flex flex-col gap-1.5">
-                    <h1 className="m-0 text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
+                    <h1 className="m-0 text-[30px] sm:text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
                     <span role="status" className="text-[15px] text-ink-3">
                         {unread ? t('unread', { count: unread }) : t('allRead')}
                     </span>

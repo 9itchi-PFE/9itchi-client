@@ -102,7 +102,7 @@ export default function ImportFlow() {
             />
         )
     }
-    return <main className="mx-auto box-border flex w-full max-w-[1000px] flex-col gap-7 px-8 pb-16 pt-12">{body}</main>
+    return <main className="mx-auto box-border flex w-full max-w-[1000px] flex-col gap-7 px-4 sm:px-8 pb-16 pt-12">{body}</main>
 }
 
 function Choose({ onFile, onBlank, busy, message }: { onFile: (f: File) => void; onBlank: () => void; busy: boolean; message: string }) {
@@ -113,7 +113,7 @@ function Choose({ onFile, onBlank, busy, message }: { onFile: (f: File) => void;
     return (
         <div className="flex flex-col gap-7">
             <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="m-0 text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
+                <h1 className="m-0 text-[30px] sm:text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
                 <p className="m-0 max-w-[560px] text-base leading-[1.6] text-ink-3">{t('lead')}</p>
             </div>
             <button

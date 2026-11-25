@@ -8,18 +8,19 @@ export default async function AuthLayout({ children }: PropsWithChildren) {
     const t = await getTranslations('auth')
     return (
         <div className="flex min-h-screen flex-wrap">
-            <section className="box-border flex min-w-0 flex-[1_1_480px] flex-col justify-between gap-12 bg-ink px-14 py-12 text-white">
+            <section className="box-border flex min-w-0 flex-[1_1_480px] flex-col justify-between gap-7 bg-ink px-6 py-8 text-white md:gap-12 md:px-14 md:py-12">
                 <Link href="/" className="flex items-center gap-2.5 text-white no-underline hover:text-white">
                     <LogoMark size={40} />
                     <span className="font-display text-2xl font-extrabold">9itchi</span>
                     <span className="rounded-md bg-lime px-[7px] py-[3px] font-mono text-[11px] font-semibold tracking-[.1em] text-ink">PFE</span>
                 </Link>
                 <div className="flex max-w-[520px] flex-col gap-5">
-                    <h1 className="m-0 text-[48px] font-extrabold leading-[1.08]">
+                    <h1 className="m-0 text-[34px] sm:text-[48px] font-extrabold leading-[1.08]">
                         {t.rich('heroTitle', { mark: (c) => <span className="rounded-md bg-lime px-2 text-ink">{c}</span> })}
                     </h1>
-                    <p className="m-0 text-[17px] leading-[1.6] text-[#C8CBD3]">{t('heroText')}</p>
-                    <div aria-hidden className="relative mt-3 h-[250px]">
+                    <p className="m-0 text-[15.5px] leading-[1.6] text-[#C8CBD3] sm:text-[17px]">{t('heroText')}</p>
+                    {/* On a phone the form comes right after the headline: the two sample cards are for wider screens. */}
+                    <div aria-hidden className="relative mt-3 hidden h-[250px] md:block">
                         <div className="absolute left-0 top-0 flex w-[400px] max-w-[92%] -rotate-2 flex-col gap-2.5 rounded-2xl bg-white p-[18px] text-ink shadow-[0_20px_40px_rgba(0,0,0,.35)] rtl:left-auto rtl:right-0">
                             <div className="flex items-center gap-3">
                                 <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#E9F7B0] text-[13px] font-bold">NP</span>
