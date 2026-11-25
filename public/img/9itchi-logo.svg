@@ -1,0 +1,24 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="-2 -2 36 36">
+  <defs>
+    <clipPath id="c"><path d="M8 1h15l8 8v15a7 7 0 0 1-7 7H8a7 7 0 0 1-7-7V8a7 7 0 0 1 7-7z"/></clipPath>
+    <radialGradient id="b" cx="40%" cy="35%" r="75%"><stop offset="0" stop-color="#E6F79A"/><stop offset="1" stop-color="#D6F25E"/></radialGradient>
+    <linearGradient id="r" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#A9C23A"/><stop offset=".45" stop-color="#FF9A6B"/><stop offset=".75" stop-color="#4B32E0"/><stop offset="1" stop-color="#A9C23A"/>
+    </linearGradient>
+    <filter id="s" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="2.2"/></filter>
+    <filter id="t" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="3"/></filter>
+    <filter id="g" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation=".8"/></filter>
+  </defs>
+  <g clip-path="url(#c)">
+    <rect x="-4" y="-4" width="40" height="40" fill="url(#b)"/>
+    <g filter="url(#t)">
+      <ellipse cx="9" cy="24" rx="12" ry="6" fill="#FFFFFF" opacity=".7"/>
+      <ellipse cx="24" cy="9" rx="10" ry="5" fill="#8E7BFF" opacity=".25"/>
+    </g>
+    <g filter="url(#s)"><ellipse cx="22" cy="26" rx="9" ry="3.2" fill="#FF9A6B" opacity=".35" transform="rotate(-30 16 16)"/></g>
+    <path d="M23 1v6a2 2 0 0 0 2 2h6z" fill="#A9C23A" opacity=".9"/>
+  </g>
+  <path d="M8 1h15l8 8v15a7 7 0 0 1-7 7H8a7 7 0 0 1-7-7V8a7 7 0 0 1 7-7z" fill="none" stroke="url(#r)" stroke-width="1.4" opacity=".6" filter="url(#g)"/>
+  <path d="M8 1h15l8 8v15a7 7 0 0 1-7 7H8a7 7 0 0 1-7-7V8a7 7 0 0 1 7-7z" fill="none" stroke="url(#r)" stroke-width=".7"/>
+  <text x="15.6" y="23.6" text-anchor="middle" font-family="Bricolage Grotesque, Arial Black, Arial, sans-serif" font-weight="800" font-size="21" fill="#101218">9</text>
+</svg>

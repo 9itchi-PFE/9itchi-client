@@ -37,6 +37,11 @@ export default function GmailScreen() {
             return
         }
         toast(t(outcome))
+        if (sessionStorage.getItem('outreach_return')) {
+            sessionStorage.removeItem('outreach_return')
+            router.replace('/outreach')
+            return
+        }
         router.replace('/settings/gmail')
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [outcome])
