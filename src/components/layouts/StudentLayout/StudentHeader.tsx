@@ -13,10 +13,11 @@ import AccountMenu from './AccountMenu'
 import LanguageSelect from './LanguageSelect'
 
 // also lists other sections a nav item stays active on (PFE books belong to Offres).
-const nav: { key: 'jobs' | 'cv' | 'applications'; href: string; icon: IconName; also?: string[] }[] = [
+const nav: { key: 'jobs' | 'cv' | 'applications' | 'outreach'; href: string; icon: IconName; also?: string[] }[] = [
     { key: 'jobs', href: '/jobs', icon: 'briefcase', also: ['/books'] },
     { key: 'cv', href: '/resumes', icon: 'file' },
     { key: 'applications', href: '/applications', icon: 'send' },
+    { key: 'outreach', href: '/outreach', icon: 'send' },
 ]
 
 const countOf = (data: unknown): number | undefined => {
@@ -42,7 +43,12 @@ export default function StudentHeader() {
         return () => window.removeEventListener('scroll', on)
     }, [editor])
     return (
-        <header className={cn('sticky top-0 z-20 bg-[rgba(250,250,249,.9)] backdrop-blur-[10px] transition-transform duration-200', editor && scrolled && '-translate-y-full')}>
+        <header
+            className={cn(
+                'sticky top-0 z-20 bg-[rgba(250,250,249,.9)] backdrop-blur-[10px] transition-transform duration-200',
+                editor && scrolled && '-translate-y-full',
+            )}
+        >
             <div className="mx-auto grid max-w-[1320px] grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] items-center gap-4 px-8 py-3.5">
                 <Link href="/jobs" className="justify-self-start no-underline">
                     <Logo />
