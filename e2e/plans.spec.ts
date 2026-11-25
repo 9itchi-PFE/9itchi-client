@@ -56,11 +56,17 @@ test('the team switches a plan off after confirming, then on again', async ({ pa
     })
     await signIn(page, ADMIN)
     await page.goto('/admin/plans')
-    page.once('dialog', (d) => {
-        expect(d.message()).toContain('Ses abonnés gardent leur accès jusqu’à la fin de la période payée')
-        void d.accept()
-    })
+    // The app's own dialog asks first; cancelling sends nothing.
     await page.getByRole('button', { name: 'Désactiver' }).click()
+    const ask = page.getByRole('dialog', { name: 'Désactiver « Mensuel » ?' })
+    await expect(ask.getByText('Ses abonnés gardent leur accès jusqu’à la fin de la période payée')).toBeVisible()
+    await ask.getByRole('button', { name: 'Annuler' }).click()
+    await expect(ask).toBeHidden()
+    expect(seen.some((r) => r.method === 'DELETE')).toBe(false)
+
+    await page.getByRole('button', { name: 'Désactiver' }).click()
+    await ask.getByRole('button', { name: 'Désactiver' }).click()
+    await expect(ask).toBeHidden()
     await expect(page.getByText('« Mensuel » n’est plus proposé')).toBeVisible()
     await expect(page.getByText('Plus proposé aux étudiants.')).toBeVisible()
 
@@ -68,4 +74,19 @@ test('the team switches a plan off after confirming, then on again', async ({ pa
     await expect(page.getByText('« Mensuel » est de nouveau proposé')).toBeVisible()
     const put = seen.find((r) => r.method === 'PUT' && r.path === '/payments/admin/plans/p-month')
     expect(put?.body).toMatchObject({ name: 'Mensuel', active: true, price: 35, regular_price: 50 })
+})
+
+test('the length of a plan students hold cannot change, and the team is told what to do', async ({ page }) => {
+    await mockServices(page, {
+        'GET /payments/admin/plans': () => ({ items: [FREE, MONTH] }),
+        'PUT /payments/admin/plans/p-month': () => [409, { error: 'the length of a plan with active subscribers cannot change' }],
+    })
+    await signIn(page, ADMIN)
+    await page.goto('/admin/plans')
+    await page.getByRole('region', { name: 'Mensuel' }).getByRole('button', { name: 'Modifier' }).click()
+    const dialog = page.getByRole('dialog')
+    await expect(dialog.getByText('La durée ne change que si personne n’a ce plan')).toBeVisible()
+    await dialog.getByLabel('Durée').selectOption({ label: '1 an' })
+    await dialog.getByRole('button', { name: 'Enregistrer' }).click()
+    await expect(dialog.getByText('Des étudiants ont ce plan : sa durée ne peut plus changer.')).toBeVisible()
 })

@@ -1502,7 +1502,7 @@
         "planLimitsFrom": "Il reprend les limites de « {name} » ; règle-les ensuite dans le tableau « Ce que chaque plan permet ».",
         "planLimitsEmpty": "Il commence sans limite ; règle-les ensuite dans le tableau « Ce que chaque plan permet ».",
         "planActiveNow": "Le proposer tout de suite aux étudiants",
-        "planEditHint": "Les prix se changent sur la carte du plan. Une nouvelle durée vaut pour les prochains paiements, pas pour la période déjà payée.",
+        "planEditHint": "Les prix se changent sur la carte du plan. La durée ne change que si personne n’a ce plan ; sinon, crée un nouveau plan.",
         "planCreated": "Plan « {name} » créé",
         "planUpdated": "Plan enregistré",
         "planOffBtn": "Désactiver",
@@ -1516,7 +1516,9 @@
         "nameFree": "Le nom « Free » est gardé pour le plan sans abonnement.",
         "durationInvalid": "Choisis une durée.",
         "priceZero": "Un plan payant coûte plus de 0 DT.",
-        "perYear": "par an"
+        "perYear": "par an",
+        "planOffTitle": "Désactiver « {name} » ?",
+        "durationHeld": "Des étudiants ont ce plan : sa durée ne peut plus changer. Crée un nouveau plan avec la durée voulue, puis désactive celui-ci."
     },
     "apply": {
         "back": "Retour à l’offre",

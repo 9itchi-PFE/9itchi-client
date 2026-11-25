@@ -1502,7 +1502,7 @@
         "planLimitsFrom": "It takes the limits of “{name}”; set them afterwards in the “What each plan allows” table.",
         "planLimitsEmpty": "It starts with no limit; set them afterwards in the “What each plan allows” table.",
         "planActiveNow": "Offer it to students right away",
-        "planEditHint": "Prices are changed on the plan’s card. A new length applies to the next payments, not to the period already paid.",
+        "planEditHint": "Prices are changed on the plan’s card. The length can change only while nobody holds the plan; otherwise create a new plan.",
         "planCreated": "Plan “{name}” created",
         "planUpdated": "Plan saved",
         "planOffBtn": "Switch off",
@@ -1516,7 +1516,9 @@
         "nameFree": "The name “Free” is kept for the plan without a subscription.",
         "durationInvalid": "Choose a length.",
         "priceZero": "A paid plan costs more than 0 TND.",
-        "perYear": "per year"
+        "perYear": "per year",
+        "planOffTitle": "Switch off “{name}”?",
+        "durationHeld": "Students hold this plan, so its length can no longer change. Create a new plan with the length you want, then switch this one off."
     },
     "apply": {
         "back": "Back to the offer",

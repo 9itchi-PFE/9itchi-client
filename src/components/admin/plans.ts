@@ -13,7 +13,7 @@ export function price(typed: string): number | null {
 }
 
 // PriceError says why the two prices of a plan cannot be saved.
-export type PriceError = 'priceInvalid' | 'regularInvalid' | 'regularBelow' | 'untilInvalid' | 'untilNeedsRegular'
+export type PriceError = 'priceInvalid' | 'priceZero' | 'regularInvalid' | 'regularBelow' | 'untilInvalid' | 'untilNeedsRegular'
 
 // planInput builds what is saved for a plan from what was typed. The regular price is optional: empty means
 // nothing is struck through. until is the last day of the launch price (optional); it needs a regular price to go
@@ -21,6 +21,7 @@ export type PriceError = 'priceInvalid' | 'regularInvalid' | 'regularBelow' | 'u
 export function planInput(plan: Plan, typed: { price: string; regular: string; until?: string }): { input: PlanInput } | { error: PriceError } {
     const paid = price(typed.price)
     if (paid === null) return { error: 'priceInvalid' }
+    if (paid === 0 && plan.name !== FREE_PLAN) return { error: 'priceZero' }
     const until = (typed.until ?? '').trim()
     if (until && !/^\d{4}-\d{2}-\d{2}$/.test(until)) return { error: 'untilInvalid' }
     const input: PlanInput = { name: plan.name, price: paid, duration_days: plan.duration_days, quotas: plan.quotas, active: plan.active }
@@ -43,7 +44,7 @@ export function launchIsOver(plan: Pick<Plan, 'launch_ends_on' | 'regular_price'
 export const DURATIONS = [30, 90, 180, 365] as const
 
 // PlanError says why a plan cannot be created or changed.
-export type PlanError = PriceError | 'nameMissing' | 'nameTaken' | 'nameFree' | 'durationInvalid' | 'priceZero'
+export type PlanError = PriceError | 'nameMissing' | 'nameTaken' | 'nameFree' | 'durationInvalid'
 
 // PlanTyped is what the admin typed in the plan form.
 export type PlanTyped = { name: string; duration: string; price: string; regular: string; until: string; active: boolean }

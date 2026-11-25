@@ -5,6 +5,7 @@ import { isAxiosError } from 'axios'
 import { useFormatter, useLocale, useTranslations } from 'next-intl'
 import { dayAt, dinars, months } from '@/components/billing/billing'
 import { Button } from '@/components/ui/Button'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { Field, inputClass } from '@/components/ui/Field'
 import { Modal } from '@/components/ui/Modal'
 import { useToast } from '@/components/ui/Toast'
@@ -86,6 +87,7 @@ function PlanCard({ plan, onEdit }: { plan: Plan; onEdit: () => void }) {
     const save = useSavePlan()
     const off = useSwitchOffPlan()
     const [error, setError] = useState('')
+    const [asking, setAsking] = useState(false)
     const m = months(plan.duration_days)
     const period =
         plan.duration_days === 365 ? t('perYear') : m === 1 ? t('perMonth') : m ? t('perMonths', { count: m }) : t('perDays', { count: plan.duration_days })
@@ -113,13 +115,17 @@ function PlanCard({ plan, onEdit }: { plan: Plan; onEdit: () => void }) {
         )
     }
     // Switching off asks first: students stop seeing the plan, subscribers keep it until their period ends.
-    const switchOff = () => {
-        if (!window.confirm(t('planOffConfirm', { name: plan.name }))) return
+    const switchOff = () =>
         off.mutate(plan.id, {
-            onSuccess: () => toast(t('planOffDone', { name: plan.name })),
-            onError: (err) => toast(apiError(err) ?? t('stateError')),
+            onSuccess: () => {
+                setAsking(false)
+                toast(t('planOffDone', { name: plan.name }))
+            },
+            onError: (err) => {
+                setAsking(false)
+                toast(apiError(err) ?? t('stateError'))
+            },
         })
-    }
     const switchOn = () =>
         save.mutate(
             { id: plan.id, input: switchedOn(plan) },
@@ -143,7 +149,7 @@ function PlanCard({ plan, onEdit }: { plan: Plan; onEdit: () => void }) {
                         {t('planEdit')}
                     </Button>
                     {plan.active ? (
-                        <Button variant="link" size="sm" className="text-ink-3" onClick={switchOff} disabled={off.isPending}>
+                        <Button variant="link" size="sm" className="text-ink-3" onClick={() => setAsking(true)} disabled={off.isPending}>
                             {t('planOffBtn')}
                         </Button>
                     ) : (
@@ -182,6 +188,16 @@ function PlanCard({ plan, onEdit }: { plan: Plan; onEdit: () => void }) {
                     <span className="text-[13px] text-ink-3">{hint}</span>
                 </div>
             </form>
+            <ConfirmDialog
+                open={asking}
+                title={t('planOffTitle', { name: plan.name })}
+                confirmLabel={t('planOffBtn')}
+                busy={off.isPending}
+                onConfirm={switchOff}
+                onClose={() => setAsking(false)}
+            >
+                {t('planOffConfirm', { name: plan.name })}
+            </ConfirmDialog>
         </section>
     )
 }
@@ -208,7 +224,13 @@ function PlanModal({ plan, plans, onClose }: { plan: Plan | null | undefined; pl
     const days = plan?.duration_days ?? 30
     const choices: number[] = (DURATIONS as readonly number[]).includes(days) ? [...DURATIONS] : [...DURATIONS, days]
     const busy = create.isPending || save.isPending
-    const failed = (err: unknown) => setError(isAxiosError(err) && err.response?.status === 409 ? t('nameTaken') : (apiError(err) ?? t('stateError')))
+    // 409 is a name already taken, or (payments-api says "length") a new length for a plan students hold.
+    const failed = (err: unknown) =>
+        setError(
+            isAxiosError(err) && err.response?.status === 409
+                ? t(/length/.test(apiError(err) ?? '') ? 'durationHeld' : 'nameTaken')
+                : (apiError(err) ?? t('stateError')),
+        )
 
     const submit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()

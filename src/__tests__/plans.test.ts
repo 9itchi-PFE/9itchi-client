@@ -76,6 +76,8 @@ describe('the last day of the launch price', () => {
         expect('input' in open && 'launch_ends_on' in open.input).toBe(false)
         expect(planInput(plan, { price: '35', regular: '', until: '2027-01-31' })).toEqual({ error: 'untilNeedsRegular' })
         expect(planInput(plan, { price: '35', regular: '50', until: '31/01/2027' })).toEqual({ error: 'untilInvalid' })
+        expect(planInput(plan, { price: '0', regular: '' })).toEqual({ error: 'priceZero' })
+        expect(planInput({ ...plan, name: 'Free', price: 0, regular_price: undefined }, { price: '0', regular: '' })).toMatchObject({ input: { price: 0 } })
     })
     it('is over from the next day in Tunis', () => {
         const launch = { regular_price: 50, launch_ends_on: '2027-01-31' }

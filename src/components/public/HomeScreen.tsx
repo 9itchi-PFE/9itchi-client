@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
-import { dinars, lengthOf, regularOf } from '@/components/billing/billing'
+import { dinars, lengthOf, paidPlans, regularOf } from '@/components/billing/billing'
 import { ButtonLink } from '@/components/ui/Button'
 import { usePlans } from '@/hooks/usePlans'
 import { cn } from '@/lib/cn'
@@ -68,7 +68,7 @@ export function freeApplications(plans: Plan[] | undefined): number {
 export default function HomeScreen() {
     const t = useTranslations('public')
     const plans = usePlans()
-    const paid = (plans.data?.items ?? []).filter((p) => p.active && p.price > 0).sort((a, b) => a.price - b.price)
+    const paid = paidPlans(plans.data?.items)
     const count = freeApplications(plans.data?.items)
     return (
         <div className="min-h-screen bg-page">
