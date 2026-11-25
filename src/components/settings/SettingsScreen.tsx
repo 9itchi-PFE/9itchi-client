@@ -13,6 +13,7 @@ import { useToast } from '@/components/ui/Toast'
 import { useDeleteMe, useMe, useUpdateMe } from '@/hooks/useAccount'
 import { cn } from '@/lib/cn'
 import { YEARS } from '@/types/user'
+import ProfilePhoto from './ProfilePhoto'
 import { confirmed, profileInput } from './profile'
 
 const main = 'mx-auto box-border flex w-full max-w-[760px] flex-1 flex-col gap-5 px-4 sm:px-8 pb-16 pt-8'
@@ -88,6 +89,7 @@ export default function SettingsScreen() {
                 <h2 id="profile-h" className="m-0 text-xl font-extrabold">
                     {t('profile')}
                 </h2>
+                <ProfilePhoto hasPhoto={!!user.has_photo} />
                 <form onSubmit={submit} className="flex flex-col gap-3.5" noValidate>
                     <Field name="name" label={t('name')} required maxLength={100} autoComplete="name" defaultValue={user.name} />
                     <div className="flex flex-col gap-1.5">

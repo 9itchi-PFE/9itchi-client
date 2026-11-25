@@ -33,6 +33,15 @@ export const YEARS = ['l3', 'm1', 'm2', 'ing1', 'ing2', 'ing3', 'other'] as cons
 export type Year = (typeof YEARS)[number]
 // ProfileMore is the optional rest of the profile (account-api): each value '' when not given.
 export type ProfileMore = { phone: string; city: string; speciality: string; year: Year | ''; linkedin: string; github: string }
-export type Me = { id: string; name: string; email: string; role: string; status: string; school?: string; language: string } & Partial<ProfileMore>
+export type Me = {
+    id: string
+    name: string
+    email: string
+    role: string
+    status: string
+    school?: string
+    language: string
+    has_photo?: boolean
+} & Partial<ProfileMore>
 // MeInput is what the student changes: '' clears a value, a key left out keeps it.
 export type MeInput = { name: string; school: string } & Partial<ProfileMore>
