@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { daysLeft, dinars, fromReturn, lines, millimes, months, paidPlan, promoReason, regularOf, renewal, tnd } from '@/components/billing/billing'
-import type { Plan, Subscription } from '@/types/plan'
+import { atKeptPrice, type Plan, type Subscription } from '@/types/plan'
 
 const plan = (over: Partial<Plan>): Plan => ({ id: 'p', name: 'Mensuel', price: 35, duration_days: 30, quotas: {}, active: true, ...over })
 
@@ -116,5 +116,23 @@ describe('regular price', () => {
     it('adds none for a payment opened without one', () => {
         expect(lines({ amount_millimes: 30000, discount_millimes: 5000 })).toEqual({ price: 35000, launch: 0, discount: 5000, paid: 30000 })
         expect(lines({ amount_millimes: 35000, discount_millimes: 0, regular_millimes: 35000 }).launch).toBe(0)
+    })
+})
+
+describe('atKeptPrice', () => {
+    const plan: Plan = { id: 'p', name: 'Mensuel', price: 50, duration_days: 30, quotas: {}, active: true }
+    it('shows the kept launch price with today’s price struck through', () => {
+        expect(atKeptPrice(plan, 35)).toMatchObject({ price: 35, regular_price: 50 })
+    })
+    it('keeps the highest usual price during a sale and drops the sale', () => {
+        const inSale: Plan = { ...plan, price: 45, regular_price: 50, sale: { name: 'Rentrée', percent: 10, ends_on: '2027-02-05' } }
+        const kept = atKeptPrice(inSale, 35)
+        expect(kept).toMatchObject({ price: 35, regular_price: 50 })
+        expect(kept.sale).toBeUndefined()
+    })
+    it('changes nothing when nothing is kept or today is cheaper', () => {
+        expect(atKeptPrice(plan, null)).toBe(plan)
+        expect(atKeptPrice(plan, undefined)).toBe(plan)
+        expect(atKeptPrice({ ...plan, price: 30 }, 35).price).toBe(30)
     })
 })

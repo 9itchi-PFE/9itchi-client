@@ -11,8 +11,8 @@ import { Icon } from '@/components/ui/icons'
 import { useToast } from '@/components/ui/Toast'
 import { useCheckout, useMySubscription, usePayments, usePlans, useSetRenewal, useValidatePromo, useVerifyPayment } from '@/hooks/usePlans'
 import { cn } from '@/lib/cn'
-import type { MySubscription, Payment, Plan, PromoCheck } from '@/types/plan'
-import { RENEW_DAYS, dayAt, daysLeft, dinars, fromReturn, millimes, months, paidPlan, promoReason, regularOf, tnd, type Return } from './billing'
+import { atKeptPrice, type MySubscription, type Payment, type Plan, type PromoCheck } from '@/types/plan'
+import { KEEP_DAYS, RENEW_DAYS, dayAt, daysLeft, dinars, fromReturn, millimes, months, paidPlan, promoReason, regularOf, tnd, type Return } from './billing'
 
 const eyebrow = 'font-mono text-[11px] font-semibold uppercase tracking-[.08em]'
 const panel = 'flex flex-col gap-4 rounded-[20px] border border-line-soft bg-white p-6'
@@ -447,6 +447,8 @@ export default function BillingScreen() {
     }
 
     const active = sub.data.subscription && !sub.data.is_free ? sub.data : null
+    // A lapsed student renewing the same plan within KEEP_DAYS keeps their launch price.
+    const keptLapsed = !!plan && sub.data.kept_price != null && sub.data.lapsed?.plan_id === plan.id
     if (!active) {
         return (
             <main className={main}>
@@ -457,9 +459,24 @@ export default function BillingScreen() {
                 {sub.data.lapsed ? (
                     <p role="status" className="m-0 rounded-[14px] bg-warn-bg px-4 py-3 text-[15px] leading-[1.55] text-warn-fg">
                         {t('lapsed', { date: format.dateTime(new Date(sub.data.lapsed.ends_at), { day: 'numeric', month: 'long', year: 'numeric' }) })}
+                        {keptLapsed ? (
+                            <>
+                                {' '}
+                                {t('launchKeptUntil', {
+                                    date: format.dateTime(new Date(new Date(sub.data.lapsed.ends_at).getTime() + KEEP_DAYS * 86400000), {
+                                        day: 'numeric',
+                                        month: 'long',
+                                    }),
+                                })}
+                            </>
+                        ) : null}
                     </p>
                 ) : null}
-                {plan ? <Pay plan={plan} extending={null} /> : <p className="m-0 rounded-2xl bg-fill-3 p-5 text-base text-ink-2">{t('noPlan')}</p>}
+                {plan ? (
+                    <Pay plan={keptLapsed ? atKeptPrice(plan, sub.data.kept_price) : plan} extending={null} />
+                ) : (
+                    <p className="m-0 rounded-2xl bg-fill-3 p-5 text-base text-ink-2">{t('noPlan')}</p>
+                )}
                 {payments.data?.length ? <Receipts payments={payments.data} /> : null}
             </main>
         )
@@ -468,7 +485,8 @@ export default function BillingScreen() {
     const subscription = active.subscription!
     const ends = new Date(subscription.ends_at)
     const left = daysLeft(subscription.ends_at)
-    const same = plan && plan.id === active.plan.id ? plan : undefined
+    // active.plan is already at the launch price the student keeps, when they keep one.
+    const same = plan && plan.id === active.plan.id ? atKeptPrice(plan, active.kept_price) : undefined
     const date = format.dateTime(ends, { day: 'numeric', month: 'long', year: 'numeric' })
     const shortDate = format.dateTime(ends, { day: 'numeric', month: 'long' })
     const due = subscription.renews && left <= RENEW_DAYS
@@ -500,6 +518,7 @@ export default function BillingScreen() {
                                     b: (c) => <strong className="font-semibold text-ink">{c}</strong>,
                                 })}
                             </span>
+                            {active.kept_price != null ? <span className="text-sm font-medium text-ok-fg">{t('launchKept')}</span> : null}
                         </div>
                         <div className="flex items-center gap-2.5 rounded-xl bg-fill-3 px-3.5 py-2.5 text-sm">
                             <span className="flex h-6 w-6 items-center justify-center rounded-md bg-violet-soft text-violet-hover">

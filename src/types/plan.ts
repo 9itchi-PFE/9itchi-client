@@ -65,6 +65,16 @@ export type MySubscription = {
     is_free: boolean
     // lapsed: on the free view, the last subscription when it ended unpaid without having been stopped.
     lapsed?: Subscription | null
+    // kept_price: the launch price the student keeps when they renew with no gap of more than 7 days (null: none).
+    // When it is lower than today's price, plan is already shown at it.
+    kept_price?: number | null
+}
+
+// atKeptPrice is plan at the launch price a student keeps, today's price struck through; plan as it is otherwise.
+export function atKeptPrice(plan: Plan, kept?: number | null): Plan {
+    if (kept == null || kept >= plan.price) return plan
+    const usual = plan.regular_price && plan.regular_price > plan.price ? plan.regular_price : plan.price
+    return { ...plan, price: kept, regular_price: usual, launch_ends_on: undefined, sale: undefined }
 }
 
 // Gift is a month the team gave a student: the plan and the days it added, and the admin who gave it.

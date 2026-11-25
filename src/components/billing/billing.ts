@@ -78,6 +78,8 @@ export function daysLeft(endsAt: string, now = new Date()): number {
 
 // RENEW_DAYS is how long before the end the renewal is put forward (banner, main button).
 export const RENEW_DAYS = 7
+// KEEP_DAYS: a student who renews at most this many days after the end keeps their launch price (payments-api).
+export const KEEP_DAYS = 7
 
 // Renewal says what the student should know about their subscription right now, if anything:
 // due: it renews and ends within RENEW_DAYS; lapsed: it ended unpaid without having been stopped.
