@@ -61,6 +61,14 @@ export default function OverviewScreen() {
     const sent = total(data, 'email_sent')
     const opened = total(data, 'email_opened')
     const revenue = total(data, 'revenue_millimes') / 1000
+    const steps = [
+        { label: t('fSignups'), value: signups, tone: 'bg-ink' },
+        { label: t('fCv'), value: total(data, 'first_cv'), tone: 'bg-ink' },
+        { label: t('fPreferences'), value: total(data, 'first_preferences'), tone: 'bg-ink' },
+        { label: t('fApplication'), value: total(data, 'first_application'), tone: 'bg-ink' },
+        { label: t('fPaid'), value: payments, tone: 'bg-lime-deep' },
+    ]
+    const widest = Math.max(...steps.map((s) => s.value))
     const more = signups - total(past.data, 'user_registered')
     const paid = rate(payments, signups)
     const openRate = rate(opened, sent)
@@ -114,10 +122,7 @@ export default function OverviewScreen() {
                             {t('funnelMore')}
                         </Link>
                     </div>
-                    {[
-                        { label: t('fSignups'), value: signups, tone: 'bg-ink' },
-                        { label: t('fPaid'), value: payments, tone: 'bg-lime-deep' },
-                    ].map((row) => (
+                    {steps.map((row) => (
                         <div key={row.label} className="flex flex-col gap-1.5">
                             <div className="flex items-baseline justify-between gap-3 text-[15px]">
                                 <span>{row.label}</span>
@@ -127,10 +132,7 @@ export default function OverviewScreen() {
                                 </span>
                             </div>
                             <span aria-hidden className="h-2.5 overflow-hidden rounded-full bg-fill">
-                                <span
-                                    className={cn('block h-full rounded-full', row.tone)}
-                                    style={{ width: `${share(row.value, Math.max(signups, payments))}%` }}
-                                />
+                                <span className={cn('block h-full rounded-full', row.tone)} style={{ width: `${share(row.value, widest)}%` }} />
                             </span>
                         </div>
                     ))}
