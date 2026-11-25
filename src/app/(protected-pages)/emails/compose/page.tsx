@@ -1,5 +1,6 @@
-import PagePlaceholder from '@/components/ui/PagePlaceholder'
+import { redirect } from 'next/navigation'
 
+// An application is written from its offer (« Postuler »); this old address leads to the applications.
 export default function Page() {
-    return <PagePlaceholder title="Compose application email" description="AI draft, send now or schedule." />
+    redirect('/applications')
 }
