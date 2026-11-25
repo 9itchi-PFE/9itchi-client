@@ -51,12 +51,6 @@ export default async function AuthLayout({ children }: PropsWithChildren) {
                         </div>
                     </div>
                 </div>
-                <span className="inline-flex flex-wrap items-center gap-2.5 text-sm text-[#C8CBD3]">
-                    <span className="rounded-md bg-lime px-2 py-1 font-mono text-xs font-semibold text-ink">
-                        <s>{t('priceOld')}</s> {t('priceNew')}
-                    </span>
-                    {t('priceText')}
-                </span>
             </section>
             <section className="box-border flex min-w-0 flex-[1_1_480px] items-center justify-center px-6 py-12">
                 <div className="flex w-full max-w-[420px] flex-col gap-[22px]">{children}</div>
