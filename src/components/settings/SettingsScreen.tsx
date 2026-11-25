@@ -12,6 +12,7 @@ import { Modal } from '@/components/ui/Modal'
 import { useToast } from '@/components/ui/Toast'
 import { useDeleteMe, useMe, useUpdateMe } from '@/hooks/useAccount'
 import { cn } from '@/lib/cn'
+import { YEARS } from '@/types/user'
 import { confirmed, profileInput } from './profile'
 
 const main = 'mx-auto box-border flex w-full max-w-[760px] flex-1 flex-col gap-5 px-4 sm:px-8 pb-16 pt-8'
@@ -64,7 +65,15 @@ export default function SettingsScreen() {
     const submit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const f = new FormData(e.currentTarget)
-        const built = profileInput(String(f.get('name') ?? ''), String(f.get('school') ?? ''))
+        const get = (k: string) => String(f.get(k) ?? '')
+        const built = profileInput(get('name'), get('school'), {
+            phone: get('phone'),
+            city: get('city'),
+            speciality: get('speciality'),
+            year: get('year'),
+            linkedin: get('linkedin'),
+            github: get('github'),
+        })
         if ('error' in built) return setError(t(built.error))
         setError('')
         save.mutate(built.input, { onSuccess: () => toast(t('saved')), onError: () => setError(tc('error')) })
@@ -96,6 +105,28 @@ export default function SettingsScreen() {
                             ))}
                         </select>
                     </label>
+                    <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+                        <Field name="speciality" label={t('speciality')} maxLength={120} defaultValue={user.speciality ?? ''} />
+                        <label className="flex min-w-0 flex-col gap-1.5 text-[13.5px] font-medium text-ink-2">
+                            {t('year')}
+                            <select name="year" defaultValue={user.year ?? ''} className={inputClass}>
+                                <option value="">{t('yearNone')}</option>
+                                {YEARS.map((y) => (
+                                    <option key={y} value={y}>
+                                        {t(`years.${y}`)}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+                        <Field name="city" label={t('city')} maxLength={80} autoComplete="address-level2" defaultValue={user.city ?? ''} />
+                        <div className="flex min-w-0 flex-col gap-1.5">
+                            <Field name="phone" label={t('phone')} type="tel" dir="ltr" maxLength={30} autoComplete="tel" defaultValue={user.phone ?? ''} />
+                            <span className="text-[12.5px] text-ink-3">{t('phoneHint')}</span>
+                        </div>
+                        <Field name="linkedin" label="LinkedIn" dir="ltr" maxLength={200} placeholder="linkedin.com/in/…" defaultValue={user.linkedin ?? ''} />
+                        <Field name="github" label="GitHub" dir="ltr" maxLength={200} placeholder="github.com/…" defaultValue={user.github ?? ''} />
+                    </div>
+                    <span className="text-[12.5px] text-ink-3">{t('optionalHint')}</span>
                     {error ? (
                         <p role="alert" className="m-0 text-sm text-[#B42318]">
                             {error}

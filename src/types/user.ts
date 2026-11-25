@@ -29,6 +29,10 @@ export type LastUse = { count: number; last_at: string | null }
 export type UserCV = { resume_id: string; title: string; resumes: number; version: number; passed: number; total: number; to_fix: number; updated_at: string }
 
 // Me is the signed-in student's own account, as account-api returns it.
-export type Me = { id: string; name: string; email: string; role: string; status: string; school?: string; language: string }
-// MeInput is what the student changes: school '' clears it.
-export type MeInput = { name: string; school: string }
+export const YEARS = ['l3', 'm1', 'm2', 'ing1', 'ing2', 'ing3', 'other'] as const
+export type Year = (typeof YEARS)[number]
+// ProfileMore is the optional rest of the profile (account-api): each value '' when not given.
+export type ProfileMore = { phone: string; city: string; speciality: string; year: Year | ''; linkedin: string; github: string }
+export type Me = { id: string; name: string; email: string; role: string; status: string; school?: string; language: string } & Partial<ProfileMore>
+// MeInput is what the student changes: '' clears a value, a key left out keeps it.
+export type MeInput = { name: string; school: string } & Partial<ProfileMore>
