@@ -146,6 +146,8 @@ export type Resume = {
     has_photo: boolean
     // locked: beyond the plan's CV limit, the CV can be read and downloaded, not changed.
     locked?: boolean
+    // locked_reason: "subscription" (editing the CV is part of the subscription) or "limit" (beyond the plan's CV limit).
+    locked_reason?: 'subscription' | 'limit'
     content: ResumeContent
     created_at: string
     updated_at: string

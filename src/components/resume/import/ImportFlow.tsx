@@ -7,6 +7,7 @@ import { useQueryClient } from '@tanstack/react-query'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/icons'
 import { LogoReading } from '@/components/ui/Logo'
+import { useMySubscription } from '@/hooks/usePlans'
 import { useResume, resumeKeys } from '@/hooks/useResumes'
 import { cn } from '@/lib/cn'
 import ResumeService from '@/services/ResumeService'
@@ -17,7 +18,7 @@ import ImportResult from './ImportResult'
 export const MAX_UPLOAD = 10 * 1024 * 1024
 const ACCEPT = '.pdf,.docx,.jpg,.jpeg,.png,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png'
 
-type Failure = { file: string; reason: 'read' | 'size' | 'type' | 'quota' | 'other' }
+type Failure = { file: string; reason: 'read' | 'size' | 'type' | 'quota' | 'plan' | 'other' }
 
 // ImportFlow drives choose -> reading -> done (or the error card). The resume id lives in ?cv= so a reload
 // keeps waiting for the same reading.
@@ -75,19 +76,23 @@ export default function ImportFlow() {
         setUrl('', '')
     }
 
+    // Writing a CV in 9itchi is part of the subscription: without one, the blank CV leads to it.
+    const sub = useMySubscription().data
+    const canWrite = !sub?.is_free
     const blank = async () => {
+        if (!canWrite) return router.push('/settings/billing')
         try {
             const { data } = await ResumeService.createResume({ title: t('blankTitleDefault') })
             qc.invalidateQueries({ queryKey: resumeKeys.list })
             router.push(`/resumes/${data.id}`)
         } catch (err) {
-            setFailure({ file: '', reason: errorStatus(err) === 402 ? 'quota' : 'other' })
+            setFailure({ file: '', reason: errorStatus(err) === 402 ? (sub?.is_free ? 'plan' : 'quota') : 'other' })
         }
     }
 
     let body
     if (failure && (failure.reason === 'read' || failure.reason === 'size')) {
-        body = <ImportError fileName={failure.file} onRetry={reset} onBlank={blank} />
+        body = <ImportError fileName={failure.file} onRetry={reset} onBlank={canWrite ? blank : undefined} />
     } else if (id && (uploading || !resume.data || status === 'pending')) {
         body = <Reading fileName={fileName} onCancel={reset} />
     } else if (id && resume.data && (status === 'done' || status === 'none')) {
@@ -97,15 +102,32 @@ export default function ImportFlow() {
             <Choose
                 onFile={upload}
                 onBlank={blank}
+                canWrite={canWrite}
                 busy={uploading}
-                message={failure ? t(failure.reason === 'type' ? 'errType' : failure.reason === 'quota' ? 'errQuota' : 'errFile') : ''}
+                message={
+                    failure
+                        ? t(failure.reason === 'type' ? 'errType' : failure.reason === 'quota' ? 'errQuota' : failure.reason === 'plan' ? 'errPlan' : 'errFile')
+                        : ''
+                }
             />
         )
     }
     return <main className="mx-auto box-border flex w-full max-w-[1000px] flex-col gap-7 px-4 sm:px-8 pb-16 pt-12">{body}</main>
 }
 
-function Choose({ onFile, onBlank, busy, message }: { onFile: (f: File) => void; onBlank: () => void; busy: boolean; message: string }) {
+function Choose({
+    onFile,
+    onBlank,
+    canWrite = true,
+    busy,
+    message,
+}: {
+    onFile: (f: File) => void
+    onBlank: () => void
+    canWrite?: boolean
+    busy: boolean
+    message: string
+}) {
     const t = useTranslations('import')
     const tc = useTranslations('common')
     const input = useRef<HTMLInputElement>(null)
@@ -170,7 +192,12 @@ function Choose({ onFile, onBlank, busy, message }: { onFile: (f: File) => void;
                         <Icon name="pencil" />
                     </span>
                     <span className="flex flex-col gap-1">
-                        <strong className="text-[15px]">{t('blankTitle')}</strong>
+                        <strong className="flex items-center gap-2 text-[15px]">
+                            {t('blankTitle')}
+                            {canWrite ? null : (
+                                <span className="rounded-full bg-fill px-2 py-0.5 text-[11.5px] font-semibold text-ink-2">{t('blankPlan')}</span>
+                            )}
+                        </strong>
                         <span className="text-sm leading-normal text-ink-3">{t('blankText')}</span>
                     </span>
                 </button>

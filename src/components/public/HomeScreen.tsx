@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useLocale, useTranslations } from 'next-intl'
 import { dinars, months, regularOf } from '@/components/billing/billing'
 import { ButtonLink } from '@/components/ui/Button'
@@ -8,8 +9,7 @@ import { cn } from '@/lib/cn'
 import type { Plan } from '@/types/plan'
 import PublicHeader, { PublicFooter } from './PublicHeader'
 
-const FREE = ['free1', 'free2', 'free3', 'free4', 'free5'] as const
-const PAID = ['paid1', 'paid2', 'paid3', 'paid4', 'paid5'] as const
+const PAID = ['paid0', 'paid1', 'paid2', 'paid3', 'paid4', 'paid5'] as const
 const STEPS = [1, 2, 3] as const
 const FAQ = [1, 2, 3, 4] as const
 const section = 'mx-auto box-border w-full max-w-[1200px] px-4 sm:px-8'
@@ -52,11 +52,18 @@ function PlanCard({ plan }: { plan: Plan }) {
     )
 }
 
+// freeApplications is how many applications the plan of a student with no subscription sends (Free plan in
+// payments-api, set in the admin); 3 until /plans answers.
+export function freeApplications(plans: Plan[] | undefined): number {
+    return plans?.find((p) => p.price <= 0)?.quotas?.free_applications ?? 3
+}
+
 // HomeScreen is the public home page (screen 7.1): what 9itchi does, how it works, the prices, the questions.
 export default function HomeScreen() {
     const t = useTranslations('public')
     const plans = usePlans()
     const paid = (plans.data?.items ?? []).filter((p) => p.active && p.price > 0).sort((a, b) => a.price - b.price)
+    const count = freeApplications(plans.data?.items)
     return (
         <div className="min-h-screen bg-page">
             <PublicHeader />
@@ -107,7 +114,7 @@ export default function HomeScreen() {
                                     {n}
                                 </span>
                                 <h3 className="m-0 text-lg font-extrabold">{t(`step${n}Title`)}</h3>
-                                <p className="m-0 text-[15px] leading-relaxed text-ink-2">{t(`step${n}Text`)}</p>
+                                <p className="m-0 text-[15px] leading-relaxed text-ink-2">{t(`step${n}Text`, { count })}</p>
                             </li>
                         ))}
                     </ol>
@@ -120,23 +127,8 @@ export default function HomeScreen() {
                         </h2>
                         <p className="m-0 text-[17px] text-ink-2">{t('pricingText')}</p>
                     </div>
-                    <div className="grid gap-5 md:grid-cols-2">
-                        <div className="flex flex-col gap-4 rounded-[20px] border border-line-soft bg-white p-7">
-                            <span className="font-mono text-[11px] font-semibold uppercase tracking-[.08em] text-ink-3">{t('freeName')}</span>
-                            <b className="font-display text-[44px] font-extrabold leading-none">{t('freePrice')}</b>
-                            <span className="text-sm text-ink-3">{t('freeFor')}</span>
-                            <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
-                                {FREE.map((k) => (
-                                    <li key={k} className="flex gap-2.5 text-[15px] text-ink-2">
-                                        <Check />
-                                        <span>{t(k)}</span>
-                                    </li>
-                                ))}
-                            </ul>
-                            <ButtonLink href="/auth/signup" variant="secondary" className="mt-auto">
-                                {t('freeCta')}
-                            </ButtonLink>
-                        </div>
+                    {/* Only the subscription is a price: without one, a student tries with a few applications. */}
+                    <div className="grid gap-5 md:grid-cols-[minmax(0,560px)]">
                         {paid.length ? (
                             paid.map((p) => <PlanCard key={p.id} plan={p} />)
                         ) : (
@@ -145,6 +137,12 @@ export default function HomeScreen() {
                             </div>
                         )}
                     </div>
+                    <p className="m-0 flex flex-wrap items-center gap-x-3 gap-y-1 text-[15px] text-ink-2">
+                        {t('freeLine', { count })}
+                        <Link href="/auth/signup" className="font-semibold">
+                            {t('freeLineCta')}
+                        </Link>
+                    </p>
                 </section>
 
                 <section aria-labelledby="faq-h" className={cn(section, 'flex max-w-[860px] flex-col gap-4')}>
@@ -154,7 +152,7 @@ export default function HomeScreen() {
                     {FAQ.map((n) => (
                         <details key={n} className="group rounded-2xl border border-line-soft bg-white px-5 py-4">
                             <summary className="cursor-pointer list-none text-base font-semibold marker:hidden">{t(`q${n}`)}</summary>
-                            <p className="m-0 mt-3 text-[15px] leading-relaxed text-ink-2">{t(`a${n}`)}</p>
+                            <p className="m-0 mt-3 text-[15px] leading-relaxed text-ink-2">{t(`a${n}`, { count })}</p>
                         </details>
                     ))}
                 </section>

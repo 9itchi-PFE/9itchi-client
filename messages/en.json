@@ -120,7 +120,9 @@
         "errRetry": "Try another file",
         "errType": "Import a PDF, a Word file or a photo (JPG or PNG).",
         "errQuota": "Without a subscription you have one CV. Subscribe to have several.",
-        "blankTitleDefault": "My CV"
+        "blankTitleDefault": "My CV",
+        "blankPlan": "Subscription",
+        "errPlan": "Writing your CV in 9itchi is part of the subscription. Without one, import the CV you already have."
     },
     "wishes": {
         "title": "What you want",
@@ -332,11 +334,14 @@
         "hideEntry": "Hide {name}",
         "addEntry": "+ Add entry",
         "editEntry": "Edit entry",
-        "done": "Done"
+        "done": "Done",
+        "scorePlanTitle": "Your CV check is part of the subscription",
+        "scorePlanText": "Subscribe to see your score out of 24 and what to fix.",
+        "scorePlanCta": "See the subscription"
     },
     "download": {
         "payTitle": "Downloading your CV comes with the subscription",
-        "payText": "You can write, import and check your CV without a subscription. Subscribe to download it as PDF or Word, in every template. You also get the letter for each offer and one-click sending.",
+        "payText": "Without a subscription, your imported CV goes as it is with your applications. Subscribe to correct it in 9itchi and download it as PDF or Word, in every template. You also get the letter for each offer and one-click sending.",
         "payPrice": "{price} DT",
         "payPer": "/ month",
         "payButton": "Subscribe and download",
@@ -416,7 +421,9 @@
         "lockedTitle": "Subscribe to edit your other versions",
         "lockedText": "This version can still be read and downloaded. Without a subscription, you edit one version only: the one you choose.",
         "choose": "Edit this one instead",
-        "toastChosen": "You now edit “{name}”"
+        "toastChosen": "You now edit “{name}”",
+        "planTitle": "Correcting your CV in 9itchi is part of the subscription",
+        "planText": "Without a subscription, your imported CV can be read here and goes as it is with your applications. Subscribe to correct it, see the check and download it."
     },
     "check": {
         "breadcrumb": "CV check",
@@ -1609,7 +1616,7 @@
         "noFile": "This CV has no imported file. Import your CV to apply without a subscription.",
         "draftUsedTitle": "This month’s AI letter is used",
         "draftPlanTitle": "The AI letter is part of the subscription",
-        "draftLimitText": "Write your letter yourself from a template: you can still apply. With the subscription, the AI writes more of them.",
+        "draftLimitText": "Write your letter yourself from a template: you can still apply. With the subscription, the AI writes it for you.",
         "draftUsedToast": "No more AI letters this month: the letter shown stays, edit it yourself.",
         "draftPlanToast": "The AI letter is part of the subscription: the letter shown stays.",
         "seePlans": "See the plans",
@@ -1702,7 +1709,7 @@
     "billing": {
         "title": "Subscription",
         "sellTitle": "Send faster, with a letter for every offer.",
-        "sellText": "The subscription adds downloading your CV, the full diagnosis, the letter, 1-click sending and tracking. It renews every period until you stop it, and you pay each renewal yourself on Flouci.",
+        "sellText": "The subscription adds the correction of your CV, the full diagnosis, downloading it, the letter, 1-click sending and tracking. It renews every period until you stop it, and you pay each renewal yourself on Flouci.",
         "months": "{count, plural, one {1 month} other {# months}}",
         "days": "{count, plural, one {1 day} other {# days}}",
         "oneOff": "Renewed every {length} · stop whenever you want",
@@ -1715,7 +1722,7 @@
         "adds3Text": "The downloads of your plan, every version",
         "adds4": "You know when it is opened",
         "adds4Text": "Open tracking and follow-up reminders",
-        "withoutIt": "Without the subscription, you can browse offers, import and fix your CV, see a part of the diagnosis and send a few applications with the CV you imported.",
+        "withoutIt": "Without a subscription, you can browse the offers and send a few applications with the CV you imported, as it is.",
         "summary": "Summary",
         "flouciTitle": "You pay on Flouci’s secure page",
         "flouciText": "By bank card or with your Flouci wallet. Then you come straight back here. 9itchi never sees your card.",
@@ -1783,7 +1790,7 @@
         "renewNow": "Renew now · {amount}",
         "stop": "Stop the subscription",
         "stopTitle": "Stop your subscription?",
-        "stopText": "You keep everything until {date}. After that you can still browse offers, fix your CV and apply yourself with your CV. Your applications and your CV are kept.",
+        "stopText": "You keep everything until {date}. Then you can still browse the offers and apply yourself. Your applications and your CV are kept.",
         "keep": "Keep my subscription",
         "stopYes": "Yes, stop",
         "stopped": "Your subscription will stop on {date}.",
@@ -1986,7 +1993,7 @@
         "heroText": "Every PFE offer in Tunisia in one place, a CV corrected to the rules recruiters expect, and a letter for each offer that you make your own.",
         "heroCta": "Create my account",
         "heroSecondary": "I already have an account",
-        "heroNote": "No bank card. Browsing offers and correcting your CV cost nothing.",
+        "heroNote": "No bank card. Browsing the offers costs nothing.",
         "demoLabel": "Example",
         "demoCompany": "A company · Sfax",
         "demoTitle": "Offline sync for payment terminals",
@@ -2001,18 +2008,9 @@
         "step2Title": "See the offers for you",
         "step2Text": "Every PFE offer and the companies’ PFE books, in one place.",
         "step3Title": "Apply in one click",
-        "step3Text": "With your letter written for the offer, from your Gmail. Without a subscription: 5 applications with the CV you imported.",
+        "step3Text": "With your letter written for the offer, from your Gmail. Without a subscription: {count} applications with the CV you imported.",
         "pricingTitle": "Pricing",
-        "pricingText": "No subscription to look and try. The subscription to apply fast and well.",
-        "freeName": "Without a subscription",
-        "freePrice": "0 DT",
-        "freeFor": "Forever",
-        "free1": "Every offer and PFE book",
-        "free2": "Your CV imported and corrected",
-        "free3": "Part of the CV check",
-        "free4": "5 applications with the CV you imported, and 1 AI letter a month",
-        "free5": "1 CV version, with its history",
-        "freeCta": "Create my account",
+        "pricingText": "One subscription to correct your CV, write your letters and apply fast.",
         "paidName": "Subscriber",
         "perMonth": "/ month",
         "perDays": "/ {count} days",
@@ -2027,7 +2025,7 @@
         "noPlan": "Prices are coming soon.",
         "faqTitle": "Questions",
         "q1": "Can I apply without paying?",
-        "a1": "Yes, 5 times, with the CV you imported, as it is. You can also always apply yourself through the offer’s link. The subscription adds your corrected CV, the letter for each offer, one-click sending and tracking.",
+        "a1": "Yes, {count} times, with the CV you imported, as it is. You can also always apply yourself through the offer’s link. The subscription adds the correction of your CV, the letter for each offer, one-click sending and tracking.",
         "q2": "Why connect my Gmail?",
         "a2": "So your application leaves from your own address. We ask at your first application, with the right to send only: 9itchi does not read your emails. You can also send it yourself.",
         "q3": "Where do the offers come from?",
@@ -2056,7 +2054,7 @@
             "sourceOther": "Offer posted on {source}. We always name the source.",
             "ctaTag": "Apply in 1 click",
             "ctaTitle": "Create your account to apply",
-            "ctaText": "Import your CV, we correct it, and you apply to this topic. Without a subscription: 5 applications with the CV you imported.",
+            "ctaText": "Import your CV and apply to this topic. Without a subscription: {count} applications with the CV you imported, as it is.",
             "ctaClosedTitle": "This offer is closed",
             "ctaClosedText": "Create your account to see the PFE offers still open, ranked for you.",
             "signUp": "Create my account",
@@ -2070,6 +2068,9 @@
             "error": "The offer could not be loaded.",
             "retry": "Try again",
             "loading": "Loading the offer"
-        }
+        },
+        "freeLine": "Without a subscription: browse the offers and send {count} applications with the CV you imported, as it is, to try.",
+        "freeLineCta": "Create my account",
+        "paid0": "Your CV corrected with the 24 rules, and the full check"
     }
 }

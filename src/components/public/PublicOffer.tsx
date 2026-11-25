@@ -9,7 +9,9 @@ import { sourceName } from '@/components/jobs/offer'
 import { Button, ButtonLink } from '@/components/ui/Button'
 import { useToast } from '@/components/ui/Toast'
 import { usePublicJob } from '@/hooks/useJobs'
+import { usePlans } from '@/hooks/usePlans'
 import { errorStatus } from '@/services/ApiService'
+import { freeApplications } from './HomeScreen'
 import PublicHeader, { PublicFooter } from './PublicHeader'
 
 const main = 'mx-auto box-border flex w-full max-w-[1200px] flex-1 flex-col gap-8 px-4 pb-20 pt-8 sm:px-8 lg:flex-row lg:items-start'
@@ -22,6 +24,7 @@ export default function PublicOffer({ id }: { id: string }) {
     const format = useFormatter()
     const toast = useToast()
     const offer = usePublicJob(id)
+    const count = freeApplications(usePlans().data?.items)
     const [copied, setCopied] = useState(false)
     const inside = `/jobs/${id}`
 
@@ -144,7 +147,7 @@ export default function PublicOffer({ id }: { id: string }) {
             <aside className="flex w-full flex-none flex-col gap-4 rounded-[20px] border-[1.5px] border-ink bg-white p-6 shadow-card lg:sticky lg:top-[92px] lg:w-[380px]">
                 {o.closed ? null : <span className="self-start rounded-full bg-lime px-2.5 py-1 text-[13px] font-semibold">{t('ctaTag')}</span>}
                 <h2 className="m-0 text-[22px] font-extrabold leading-tight">{o.closed ? t('ctaClosedTitle') : t('ctaTitle')}</h2>
-                <p className="m-0 text-[15px] leading-relaxed text-ink-2">{o.closed ? t('ctaClosedText') : t('ctaText')}</p>
+                <p className="m-0 text-[15px] leading-relaxed text-ink-2">{o.closed ? t('ctaClosedText') : t('ctaText', { count })}</p>
                 <ButtonLink href="/auth/signup" size="lg">
                     {t('signUp')}
                 </ButtonLink>

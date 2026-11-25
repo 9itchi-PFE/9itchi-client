@@ -219,7 +219,8 @@ function replaceAt<T>(xs: T[], i: number, v: T) {
 
 type Rowish = { hidden?: boolean }
 
-const iconBtn = 'inline-flex h-10 w-10 flex-none cursor-pointer items-center justify-center rounded-xl border border-line-strong bg-white text-ink-2 transition-colors hover:bg-fill-3'
+const iconBtn =
+    'inline-flex h-10 w-10 flex-none cursor-pointer items-center justify-center rounded-xl border border-line-strong bg-white text-ink-2 transition-colors hover:bg-fill-3'
 
 // RowsEditor lists the entries of a section as draggable rows with an eye toggle; a click opens one for editing.
 function RowsEditor<T extends Rowish>({
@@ -328,14 +329,23 @@ function RowsEditor<T extends Rowish>({
                                 setDrag(null)
                                 setOver(null)
                             }}
-                            className={cn('rounded-xl border bg-white', over === i && drag !== null && drag !== i ? 'border-ink' : 'border-line-soft', drag === i && 'opacity-50')}
+                            className={cn(
+                                'rounded-xl border bg-white',
+                                over === i && drag !== null && drag !== i ? 'border-ink' : 'border-line-soft',
+                                drag === i && 'opacity-50',
+                            )}
                         >
                             <div className="flex min-h-14 items-center gap-2.5 px-3 py-2">
-                                <span aria-hidden className="cursor-grab select-none text-ink-3">⠿</span>
+                                <span aria-hidden className="cursor-grab select-none text-ink-3">
+                                    ⠿
+                                </span>
                                 <button
                                     type="button"
                                     onClick={() => setItem(i)}
-                                    className={cn('min-w-0 flex-1 cursor-pointer truncate border-0 bg-transparent p-0 text-start text-sm font-semibold', x.hidden && 'text-ink-3 line-through')}
+                                    className={cn(
+                                        'min-w-0 flex-1 cursor-pointer truncate border-0 bg-transparent p-0 text-start text-sm font-semibold',
+                                        x.hidden && 'text-ink-3 line-through',
+                                    )}
                                 >
                                     {name}
                                 </button>
@@ -561,7 +571,12 @@ export function ProjectsEditor(p: EditorProps) {
                     <Field label={t('fields.projectName')} value={e.name} onChange={(x) => set({ ...e, name: x.target.value })} />
                     <Grid>
                         <Field label={t('fields.tech')} value={e.tech} onChange={(x) => set({ ...e, tech: x.target.value })} />
-                        <Field label={t('fields.start')} placeholder="02/2023" value={e.start ?? e.year} onChange={(x) => set({ ...e, start: x.target.value })} />
+                        <Field
+                            label={t('fields.start')}
+                            placeholder="02/2023"
+                            value={e.start ?? e.year}
+                            onChange={(x) => set({ ...e, start: x.target.value })}
+                        />
                         <Field label={t('fields.end')} placeholder="06/2023" value={e.end ?? ''} onChange={(x) => set({ ...e, end: x.target.value })} />
                         <Field label={t('fields.place')} value={e.location ?? ''} onChange={(x) => set({ ...e, location: x.target.value })} />
                     </Grid>

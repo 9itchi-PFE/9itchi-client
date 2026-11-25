@@ -92,6 +92,8 @@ function Editor({ resume: initial }: { resume: Resume }) {
     const choose = useChooseEditable()
     // locked: beyond the plan's CV limit this CV is read and downloaded, not changed (resume-api answers 402).
     const locked = !!resume.locked
+    // byPlan: no editing without a subscription (nothing to choose); otherwise beyond the plan's CV limit.
+    const byPlan = resume.locked_reason === 'subscription'
     const toFix = useMemo(() => sectionsToFix(check.data?.rules), [check.data])
 
     // Autosave: the content goes to resume-api SAVE_DELAY after the last keystroke.
@@ -297,29 +299,31 @@ function Editor({ resume: initial }: { resume: Resume }) {
                 <div role="status" className="flex flex-col gap-2.5 rounded-[14px] border border-dashed border-[#C9CDD5] bg-white p-4">
                     <span className="flex items-center gap-2.5">
                         <Icon name="lock" />
-                        <strong className="text-[15px]">{tv('lockedTitle')}</strong>
+                        <strong className="text-[15px]">{byPlan ? tv('planTitle') : tv('lockedTitle')}</strong>
                     </span>
-                    <span className="text-sm leading-normal text-ink-3">{tv('lockedText')}</span>
+                    <span className="text-sm leading-normal text-ink-3">{byPlan ? tv('planText') : tv('lockedText')}</span>
                     <div className="flex flex-wrap items-center gap-3">
                         <ButtonLink href="/settings/billing" size="sm">
                             {tv('freeLink')}
                         </ButtonLink>
-                        <Button
-                            variant="secondary"
-                            size="sm"
-                            disabled={choose.isPending}
-                            onClick={() =>
-                                choose.mutate(id, {
-                                    onSuccess: (data) => {
-                                        setResume((r) => ({ ...r, locked: data.locked }))
-                                        toast(tv('toastChosen', { name: resume.title }))
-                                    },
-                                    onError: () => toast(tc('error')),
-                                })
-                            }
-                        >
-                            {tv('choose')}
-                        </Button>
+                        {byPlan ? null : (
+                            <Button
+                                variant="secondary"
+                                size="sm"
+                                disabled={choose.isPending}
+                                onClick={() =>
+                                    choose.mutate(id, {
+                                        onSuccess: (data) => {
+                                            setResume((r) => ({ ...r, locked: data.locked }))
+                                            toast(tv('toastChosen', { name: resume.title }))
+                                        },
+                                        onError: () => toast(tc('error')),
+                                    })
+                                }
+                            >
+                                {tv('choose')}
+                            </Button>
+                        )}
                     </div>
                 </div>
             ) : null}

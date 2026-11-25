@@ -25,12 +25,12 @@ const PUBLIC = {
 }
 const PLANS = {
     items: [
-        { id: 'p-free', name: 'Free', price: 0, duration_days: 36500, quotas: {}, active: true },
+        { id: 'p-free', name: 'Free', price: 0, duration_days: 36500, quotas: { free_applications: 4 }, active: true },
         { id: 'p-month', name: 'Abonnement étudiant', price: 35, regular_price: 50, duration_days: 30, quotas: {}, active: true },
     ],
 }
 
-test('the home page shows what 9itchi does and the real prices, without an account', async ({ page }) => {
+test('the home page shows the subscription as the only price, and the free applications the admin set', async ({ page }) => {
     await mockServices(page, { 'GET /payments/plans': PLANS })
     await page.goto('/')
     await expect(page).toHaveURL(/\/$/)
@@ -39,7 +39,8 @@ test('the home page shows what 9itchi does and the real prices, without an accou
     await expect(page.getByText('35 DT', { exact: true })).toBeVisible()
     await expect(page.getByText('50 DT', { exact: true })).toBeVisible()
     await expect(page.getByText(/gardé tant que tu renouvelles/)).toBeVisible()
-    await expect(page.getByText('5 candidatures avec le CV que tu as importé, et 1 lettre par l’IA par mois')).toBeVisible()
+    await expect(page.getByText('0 DT', { exact: true })).toHaveCount(0)
+    await expect(page.getByText(/Sans abonnement : parcours les offres et envoie 4 candidatures avec le CV que tu as importé/)).toBeVisible()
     await page.getByRole('link', { name: 'Créer mon compte' }).first().click()
     await expect(page).toHaveURL(/\/auth\/signup$/)
 })
@@ -52,7 +53,7 @@ test('a signed-in student going to the home page lands on the offers', async ({ 
 })
 
 test('a shared offer opens without an account and leads back to it after signing in', async ({ page }) => {
-    await mockServices(page, { [`GET /job/public/jobs/${OFFER}`]: PUBLIC })
+    await mockServices(page, { [`GET /job/public/jobs/${OFFER}`]: PUBLIC, 'GET /payments/plans': PLANS })
     await page.goto(`/offres/${OFFER}`)
     await expect(page.getByRole('heading', { name: 'Portail web des marchands' })).toBeVisible()
     await expect(page.getByText('800 DT / mois')).toBeVisible()

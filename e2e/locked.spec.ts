@@ -47,3 +47,28 @@ test('beyond the plan, the other CV is read-only until the student chooses it', 
     await expect(page.getByText('Lecture seule')).toHaveCount(1)
     await expect(page.getByRole('button', { name: 'Modifier celle-ci à la place' })).toHaveCount(1)
 })
+
+test('without a subscription, the imported CV is read-only and its diagnostic is hidden', async ({ page }) => {
+    const free = { ...RESUME, locked: true, locked_reason: 'subscription' }
+    const seen = await mockServices(page, {
+        'GET /resume/resumes': { items: [{ ...free, content: undefined }], total: 1, page: 1, page_size: 100 },
+        [`GET /resume/resumes/${RESUME_ID}`]: free,
+        [`POST /resume/resumes/${RESUME_ID}/ats-check`]: {
+            passed: 0,
+            total: 24,
+            to_fix: 0,
+            rules: [
+                { id: 'contact.email', group: 'contact', status: 'locked' },
+                { id: 'skills.list', group: 'skills', status: 'locked' },
+            ],
+        },
+    })
+    await signIn(page, STUDENT)
+    await page.goto(`/resumes/${RESUME_ID}?section=contact`)
+    await expect(page.getByText('Corriger ton CV dans 9itchi fait partie de l’abonnement')).toBeVisible()
+    await expect(page.getByLabel('Nom complet')).toBeDisabled()
+    // Nothing to choose: no other version would be editable either.
+    await expect(page.getByRole('button', { name: 'Modifier celle-ci à la place' })).toHaveCount(0)
+    await expect(page.getByText('Le diagnostic de ton CV fait partie de l’abonnement')).toBeVisible()
+    expect(seen.some((r) => r.method === 'PUT' && r.path.endsWith('/editable'))).toBe(false)
+})
