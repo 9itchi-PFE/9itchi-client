@@ -15,6 +15,7 @@ import type {
     Source,
     SourceInput,
     SourceList,
+    PublicJob,
 } from '@/types/job'
 import type { Preferences, SavedPreferences } from '@/types/preferences'
 import { api } from './ApiService'
@@ -33,7 +34,9 @@ export function toParams(q: JobQuery): URLSearchParams {
 const JobService = {
     listJobs: (q: JobQuery = {}) => api('job').get<JobList>(`/jobs`, { params: toParams(q) }),
     counts: () => api('job').get<JobCounts>(`/jobs/counts`),
-    recommendedJobs: () => api('job').get(`/jobs/recommended`),
+    recommendedJobs: () => api('job').get<JobList>(`/jobs/recommended`),
+    // publicJob needs no account: the page of an offer shared by link.
+    publicJob: (id: string) => api('job').get<PublicJob>(`/public/jobs/${id}`),
     getJob: (id: string) => api('job').get<Job>(`/jobs/${id}`),
     similarJobs: (id: string, limit = 3) => api('job').get<JobList>(`/jobs/${id}/similar`, { params: { limit } }),
     saveJob: (id: string) => api('job').put(`/jobs/${id}/save`),

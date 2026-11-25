@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { auth } from '@/auth'
 import appConfig from '@/configs/app.config'
-import { authRoutes, protectedRoutes, publicRoutes } from '@/configs/routes.config'
+import { authRoutes, protectedRoutes, publicPrefixes, publicRoutes } from '@/configs/routes.config'
 import { REDIRECT_URL_KEY } from '@/constants/app.constant'
 
 export default auth((req) => {
@@ -14,7 +14,7 @@ export default auth((req) => {
     if (path in authRoutes) {
         return isSignedIn ? NextResponse.redirect(new URL(appConfig.authenticatedEntryPath, nextUrl)) : NextResponse.next()
     }
-    if (path in publicRoutes || path.startsWith(appConfig.apiPrefix)) return NextResponse.next()
+    if (path in publicRoutes || publicPrefixes.some((p) => path.startsWith(p)) || path.startsWith(appConfig.apiPrefix)) return NextResponse.next()
     if (!isSignedIn) {
         const callback = encodeURIComponent(nextUrl.pathname + nextUrl.search)
         return NextResponse.redirect(new URL(`${appConfig.unAuthenticatedEntryPath}?${REDIRECT_URL_KEY}=${callback}`, nextUrl))

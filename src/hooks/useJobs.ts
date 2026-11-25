@@ -1,3 +1,4 @@
+import { errorStatus } from '@/services/ApiService'
 import { keepPreviousData, useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
 import JobService from '@/services/JobService'
 import type { Book, Job, JobList, JobQuery } from '@/types/job'
@@ -29,6 +30,15 @@ export function useJobCounts() {
 
 export function useJob(id: string | undefined) {
     return useQuery({ queryKey: jobKeys.one(id ?? ''), queryFn: async () => (await JobService.getJob(id!)).data, enabled: !!id })
+}
+
+// usePublicJob reads an offer for someone with no account (a link that was shared).
+export function usePublicJob(id: string) {
+    return useQuery({
+        queryKey: [...jobKeys.all, 'public', id],
+        queryFn: async () => (await JobService.publicJob(id)).data,
+        retry: (count, err) => errorStatus(err) !== 404 && count < 2,
+    })
 }
 
 export function useSimilarJobs(id: string, enabled: boolean) {

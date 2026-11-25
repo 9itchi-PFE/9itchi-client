@@ -188,3 +188,26 @@ export type JobEdit = {
 }
 
 export type PostImport = { url: string; text: string; company?: string }
+
+// PublicJob is a published offer as anyone with its link sees it, with no account (screen 7.2).
+export type PublicJob = {
+    id: string
+    title: string
+    company: string
+    location: string
+    contract_type: string
+    source: string
+    description: string
+    stipend_tnd: number | null
+    duration_months: number | null
+    work_mode: string | null
+    closes_on: string | null
+    starts_on: string | null
+    skills: string[] | null
+    pair_ok: boolean
+    easy_apply: boolean
+    topic: string | null
+    book_company: string
+    book_title: string
+    closed: boolean
+}

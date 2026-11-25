@@ -2,7 +2,9 @@
 
 import Link from 'next/link'
 import { useFormatter, useTranslations } from 'next-intl'
+import { Button } from '@/components/ui/Button'
 import { Bolt, Icon } from '@/components/ui/icons'
+import { useToast } from '@/components/ui/Toast'
 import { useJob } from '@/hooks/useJobs'
 import { cn } from '@/lib/cn'
 import type { JobSummary } from '@/types/job'
@@ -29,6 +31,7 @@ export function BookCover({ year, color = '#D6F25E', className }: { year: number
 // OfferDetail is the sticky side panel of the offers screen: facts, how to apply, what fits the CV, the topic, its book.
 export default function OfferDetail({ summary, cvSkills, hasCv, resumeId }: { summary: JobSummary; cvSkills: string[]; hasCv: boolean; resumeId?: string }) {
     const t = useTranslations('offers')
+    const toast = useToast()
     const tm = useTranslations('prefs.modes')
     const format = useFormatter()
     const full = useJob(summary.id).data
@@ -101,6 +104,20 @@ export default function OfferDetail({ summary, cvSkills, hasCv, resumeId }: { su
                             {t('applyOn', { source })}
                         </a>
                     )}
+                    <Button
+                        variant="link"
+                        size="sm"
+                        className="self-center text-ink-3 hover:text-ink"
+                        onClick={() =>
+                            // The public page of the offer: someone with no account can open it (screen 7.2).
+                            navigator.clipboard
+                                .writeText(`${window.location.origin}/offres/${summary.id}`)
+                                .then(() => toast(t('linkCopied')))
+                                .catch(() => toast(t('copyFailed')))
+                        }
+                    >
+                        {t('copyLink')}
+                    </Button>
                 </div>
             </div>
 
