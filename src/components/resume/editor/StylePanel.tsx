@@ -54,46 +54,10 @@ export default function StylePanel({ style, layout, onChange }: Props) {
                     <FontPicker value={look.bodyFont} onChange={(v) => set({ body_font: v === 'sourcesans' ? undefined : v })} />
                 </Field>
                 <Range label={t('base')} unit="pt" min={7} max={14} step={0.5} value={look.base} onChange={(v) => set({ base_size: v })} />
-                <Range
-                    label={t('name')}
-                    unit="pt"
-                    prefix="+"
-                    min={-3}
-                    max={20}
-                    step={0.5}
-                    value={look.name - look.base}
-                    onChange={(v) => set({ name_delta: v })}
-                />
-                <Range
-                    label={t('jobTitle')}
-                    unit="pt"
-                    prefix="+"
-                    min={-3}
-                    max={20}
-                    step={0.5}
-                    value={look.title - look.base}
-                    onChange={(v) => set({ title_delta: v })}
-                />
-                <Range
-                    label={t('headings')}
-                    unit="pt"
-                    prefix="+"
-                    min={-3}
-                    max={20}
-                    step={0.5}
-                    value={look.head - look.base}
-                    onChange={(v) => set({ heading_delta: v })}
-                />
-                <Range
-                    label={t('entry')}
-                    unit="pt"
-                    prefix="+"
-                    min={-3}
-                    max={10}
-                    step={0.5}
-                    value={look.entry - look.base}
-                    onChange={(v) => set({ entry_delta: v })}
-                />
+                <Range label={t('name')} unit="pt" prefix="+" min={-3} max={20} step={0.5} value={look.name - look.base} onChange={(v) => set({ name_delta: v })} />
+                <Range label={t('jobTitle')} unit="pt" prefix="+" min={-3} max={20} step={0.5} value={look.title - look.base} onChange={(v) => set({ title_delta: v })} />
+                <Range label={t('headings')} unit="pt" prefix="+" min={-3} max={20} step={0.5} value={look.head - look.base} onChange={(v) => set({ heading_delta: v })} />
+                <Range label={t('entry')} unit="pt" prefix="+" min={-3} max={10} step={0.5} value={look.entry - look.base} onChange={(v) => set({ entry_delta: v })} />
             </Group>
             <Group id="spacing" cat={cat}>
                 <Range label={t('lineHeight')} min={1} max={2} step={0.05} value={look.lineHeight} onChange={(v) => set({ line_height: v })} />
@@ -226,11 +190,7 @@ export default function StylePanel({ style, layout, onChange }: Props) {
                 <fieldset className="m-0 flex flex-col gap-1 border-0 p-0">
                     <legend className="mb-1 p-0 font-medium">{t('applyAccent')}</legend>
                     {TARGETS.filter((k) => k !== 'subtitle' || layout === 'classic').map((k) => (
-                        <Check
-                            key={k}
-                            checked={targets.includes(k)}
-                            onChange={(on) => set({ accent_on: TARGETS.filter((x) => (x === k ? on : targets.includes(x))) })}
-                        >
+                        <Check key={k} checked={targets.includes(k)} onChange={(on) => set({ accent_on: TARGETS.filter((x) => (x === k ? on : targets.includes(x))) })}>
                             {t(`target.${k}`)}
                         </Check>
                     ))}
@@ -346,25 +306,7 @@ const Field = ({ label, children }: { label: string; children: ReactNode }) => (
 
 const fmt = (n: number) => String(Math.round(n * 100) / 100)
 
-function Range({
-    label,
-    value,
-    min,
-    max,
-    step,
-    unit = '',
-    prefix = '',
-    onChange,
-}: {
-    label: string
-    value: number
-    min: number
-    max: number
-    step: number
-    unit?: string
-    prefix?: string
-    onChange: (v: number) => void
-}) {
+function Range({ label, value, min, max, step, unit = '', prefix = '', onChange }: { label: string; value: number; min: number; max: number; step: number; unit?: string; prefix?: string; onChange: (v: number) => void }) {
     return (
         <label className="flex items-center justify-between gap-3">
             <span className="w-[42%] font-medium">{label}</span>
@@ -394,13 +336,7 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
                 <span className="font-medium">{label}</span>
                 <span className="flex items-center gap-2">
                     <span className="font-mono text-[12px] text-ink-3">{value.toUpperCase()}</span>
-                    <input
-                        type="color"
-                        aria-label={label}
-                        value={value}
-                        onChange={(e) => onChange(e.target.value)}
-                        className="h-8 w-10 cursor-pointer rounded border border-line-strong bg-white p-0.5"
-                    />
+                    <input type="color" aria-label={label} value={value} onChange={(e) => onChange(e.target.value)} className="h-8 w-10 cursor-pointer rounded border border-line-strong bg-white p-0.5" />
                 </span>
             </label>
             <div className="grid grid-cols-8 gap-2">
@@ -420,24 +356,7 @@ function ColorField({ label, value, onChange }: { label: string; value: string; 
 }
 
 // the FlowCV palette, plus black and the template blues
-const SWATCHES = [
-    '#111111',
-    '#485A66',
-    '#527A7E',
-    '#93B5BF',
-    '#3589A9',
-    '#355C7D',
-    '#3A72A8',
-    '#689AC4',
-    '#5BA6D9',
-    '#84D2F6',
-    '#46226F',
-    '#6A2B50',
-    '#C16A82',
-    '#C94179',
-    '#F55C6A',
-    '#2F5597',
-]
+const SWATCHES = ['#111111', '#485A66', '#527A7E', '#93B5BF', '#3589A9', '#355C7D', '#3A72A8', '#689AC4', '#5BA6D9', '#84D2F6', '#46226F', '#6A2B50', '#C16A82', '#C94179', '#F55C6A', '#2F5597']
 
 const TextStyle = ({ label, value, onChange }: { label: string; value?: TextStyleT; onChange: (v: TextStyleT | undefined) => void }) => (
     <div role="radiogroup" aria-label={label} className="grid grid-cols-3 gap-1.5">
