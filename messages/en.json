@@ -1706,7 +1706,8 @@
         "toFill": "to be completed",
         "saleUntil": "{name} · −{percent}% until {day, date, ::dMMMM}",
         "saleLine": "Sale “{name}”",
-        "promoDuringSale": "No promo code during a sale: the reduced price already applies."
+        "promoDuringSale": "No promo code during a sale: the reduced price already applies.",
+        "refundRule": "Refunded in full if you ask within 7 days of paying and have downloaded no CV and sent no application with your fixed CV. Otherwise no refund: if you stop, you keep access until the end of the period."
     },
     "notifications": {
         "title": "Notifications",
@@ -1832,7 +1833,7 @@
         "deleteGone": "What is erased, at once and for good",
         "deleteGoneText": "Your account, your CV with its versions and your photo, your applications and their tracking, your saved offers, what you are looking for, your notifications, your messages to the team. The connection to your Gmail is removed and scheduled emails do not leave.",
         "deleteKept": "What stays",
-        "deleteKeptText": "The receipts of your payments, kept for the accounts, without your name. Your subscription stops. Emails already sent stay in your Gmail and with the recruiters.",
+        "deleteKeptText": "The receipts of your payments, kept for the accounts, without your name. Your subscription stops. No refund for the current period, except within 7 days of your payment if you have downloaded no CV and sent no application with your fixed CV. Emails already sent stay in your Gmail and with the recruiters.",
         "deleteType": "Type {word} to confirm",
         "deleteWord": "DELETE",
         "deleteCancel": "Cancel",
