@@ -78,8 +78,49 @@ export type Book = {
     open_jobs: number
     for_you: number
     created_at: string
+    // has_pdf: 9itchi keeps the PDF and serves it to signed-in users (GET /books/:id only).
+    has_pdf?: boolean
     jobs?: JobSummary[]
 }
+
+// Admin: a PFE book imported from its PDF (job-api /admin/books). importing: the PDF is being read; draft: to
+// check; failed: import_error says why; published: students see it.
+export type BookStatus = 'importing' | 'draft' | 'failed' | 'published'
+export type BookImportError = '' | 'ai_unavailable' | 'no_topics' | 'storage_error' | 'partial'
+
+// BookTopic is one topic on the check screen; ready is false when the subject is short or names no skill.
+export type BookTopic = {
+    id: string
+    ref: string | null
+    title: string
+    topic: string | null
+    skills: string[]
+    pdf_page: number | null
+    review_status: ReviewStatus
+    ready: boolean
+}
+
+// BookCommon is what « Informations communes » applies to the topics not published yet; empty leaves them alone.
+export type BookCommon = {
+    location: string
+    starts_on: string
+    closes_on: string
+    duration_months: number | null
+    stipend_tnd: number | null
+    work_mode: WorkMode | ''
+}
+
+export type AdminBook = Book & {
+    status: BookStatus
+    import_error: BookImportError
+    file_name: string | null
+    file_size: number | null
+    counts: { pending: number; published: number; hidden: number }
+    topics?: BookTopic[]
+    common?: BookCommon | null
+}
+
+export type BookEdit = { company: string; sector: string | null; city: string | null; title: string; summary: string; year: number; topics: BookCommon }
 
 export type BookList = { items: Book[]; total: number; page: number; page_size: number }
 

@@ -159,7 +159,8 @@ function Detail({ job, onEdit }: { job: ReviewJob; onEdit: () => void }) {
     )
 }
 
-function EditDrawer({ job, onClose }: { job: ReviewJob; onClose: () => void }) {
+// EditDrawer is « Modifier » for one offer; the check screen of a PFE book opens it on a topic.
+export function EditDrawer({ job, onClose }: { job: ReviewJob; onClose: () => void }) {
     const t = useTranslations('admin')
     const p = useTranslations('prefs')
     const toast = useToast()

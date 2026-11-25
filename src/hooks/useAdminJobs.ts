@@ -7,6 +7,8 @@ export const adminKeys = {
     review: (tab: ReviewTab) => ['admin', 'review', tab] as const,
     reviewAll: ['admin', 'review'] as const,
     job: (id: string) => ['admin', 'job', id] as const,
+    books: ['admin', 'books'] as const,
+    book: (id: string) => ['admin', 'books', id] as const,
 }
 
 // useSources lists the sources with the KPIs; while one runs, it asks again every 3 seconds.
@@ -57,6 +59,7 @@ function settle(qc: QueryClient, j: ReviewJob) {
     qc.invalidateQueries({ queryKey: adminKeys.sources })
     qc.invalidateQueries({ queryKey: ['jobs'] })
     qc.invalidateQueries({ queryKey: ['books'] })
+    qc.invalidateQueries({ queryKey: adminKeys.books })
 }
 
 export function useReviewAction() {

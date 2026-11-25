@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useFormatter, useTranslations } from 'next-intl'
 import { isAxiosError } from 'axios'
 import { Bolt, Icon } from '@/components/ui/icons'
+import { useBookPdf } from '@/hooks/useAdminBooks'
 import { useBook } from '@/hooks/useJobs'
 import { useMyCv } from '@/hooks/useResumes'
 import { cn } from '@/lib/cn'
@@ -192,6 +193,8 @@ export default function BookScreen({ id }: { id: string }) {
     const ts = useTranslations('book.topicShort')
     const format = useFormatter()
     const res = useBook(id)
+    // A PDF kept by 9itchi is read with the session; one the company hosts is linked as it is.
+    const kept = useBookPdf(id, !!res.data?.has_pdf && !res.data?.pdf_url)
     const cv = useMyCv()
     const [field, setField] = useState<Topic | 'all'>('all')
     const [selectedId, setSelectedId] = useState<string>()
@@ -208,7 +211,7 @@ export default function BookScreen({ id }: { id: string }) {
             </main>
         )
     }
-    const book = res.data
+    const book = res.data ? { ...res.data, pdf_url: res.data.pdf_url ?? kept.url ?? null } : undefined
     const topics = book?.jobs ?? []
     const counts = TOPICS.map((tp) => [tp, topics.filter((j) => j.topic === tp).length] as const).filter(([, n]) => n > 0)
     const list = field === 'all' ? topics : topics.filter((j) => j.topic === field)
@@ -249,7 +252,13 @@ export default function BookScreen({ id }: { id: string }) {
                                     {book.summary ? <p className="m-0 max-w-[680px] text-[15px] leading-relaxed text-ink-3">{book.summary}</p> : null}
                                     {book.pdf_url ? (
                                         <div className="mt-1 flex flex-wrap gap-2.5">
-                                            <a href={book.pdf_url} target="_blank" rel="noopener noreferrer" download className={btn2}>
+                                            <a
+                                                href={book.pdf_url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                download={`${book.company} - ${book.title}.pdf`}
+                                                className={btn2}
+                                            >
                                                 <Icon name="download" size={16} />
                                                 {book.pages ? t('downloadPages', { count: book.pages }) : t('download')}
                                             </a>
