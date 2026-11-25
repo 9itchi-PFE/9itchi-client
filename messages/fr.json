@@ -883,7 +883,32 @@
         "similarSee": "Voir l’offre →",
         "similarNone": "Pas d’offre proche ouverte pour l’instant.",
         "notFound": "Cette offre n’existe plus.",
-        "back": "Retour à l’offre"
+        "back": "Retour à l’offre",
+        "ai": {
+            "title": "Analyse de l’IA",
+            "intro": "L’IA lit ton CV et l’offre en entier, et te dit ce qui colle, ce qui manque et quoi mettre en avant.",
+            "run": "Analyser avec l’IA",
+            "reading": "L’IA lit l’offre et ton CV…",
+            "score": "{score}/100",
+            "level": {
+                "strong": "Très bon match",
+                "good": "Bon match",
+                "partial": "Match partiel",
+                "weak": "Peu adapté"
+            },
+            "strengths": "Ce qui colle",
+            "gaps": "Ce que ton CV ne montre pas",
+            "madeOn": "Analysé le {date}",
+            "left": "{count, plural, =0 {plus aucune analyse ce mois-ci} one {encore # analyse ce mois-ci} other {encore # analyses ce mois-ci}}",
+            "seePlans": "Voir les abonnements",
+            "error": {
+                "plan": "L’analyse par l’IA fait partie de l’abonnement.",
+                "used": "Tu as utilisé toutes les analyses de ce mois-ci.",
+                "emptyCv": "Ton CV est vide : remplis-le d’abord.",
+                "busy": "L’IA ne répond pas pour le moment. Réessaie dans un instant.",
+                "failed": "L’analyse n’a pas pu se faire. Réessaie."
+            }
+        }
     },
     "book": {
         "crumbs": "Fil d’Ariane",

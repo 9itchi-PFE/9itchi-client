@@ -883,7 +883,32 @@
         "similarSee": "See the offer →",
         "similarNone": "No close offer is open right now.",
         "notFound": "This offer no longer exists.",
-        "back": "Back to the offer"
+        "back": "Back to the offer",
+        "ai": {
+            "title": "AI analysis",
+            "intro": "The AI reads your CV and the whole offer, and tells you what fits, what is missing and what to put forward.",
+            "run": "Analyse with AI",
+            "reading": "The AI is reading the offer and your CV…",
+            "score": "{score}/100",
+            "level": {
+                "strong": "Strong match",
+                "good": "Good match",
+                "partial": "Partial match",
+                "weak": "Weak match"
+            },
+            "strengths": "What fits",
+            "gaps": "What your CV does not show",
+            "madeOn": "Analysed on {date}",
+            "left": "{count, plural, =0 {no analysis left this month} one {# analysis left this month} other {# analyses left this month}}",
+            "seePlans": "See the plans",
+            "error": {
+                "plan": "The AI analysis is part of the subscription.",
+                "used": "You have used all the analyses of this month.",
+                "emptyCv": "Your CV is empty: fill it in first.",
+                "busy": "The AI is not answering right now. Try again in a moment.",
+                "failed": "The analysis could not be made. Try again."
+            }
+        }
     },
     "book": {
         "crumbs": "Breadcrumb",

@@ -296,7 +296,7 @@ export default function OffersScreen() {
                             </button>
                         ) : null}
                     </section>
-                    {selected ? <OfferDetail summary={selected} cvSkills={cv.skills} hasCv={!!cv.id} /> : null}
+                    {selected ? <OfferDetail summary={selected} cvSkills={cv.skills} hasCv={!!cv.id} resumeId={cv.id} /> : null}
                 </div>
             )}
 

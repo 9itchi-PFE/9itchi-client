@@ -1,4 +1,4 @@
-import type { Allowance, Application, ApplicationList, ApplyInput, Draft, DraftInput, Email, GmailStatus } from '@/types/application'
+import type { Allowance, Application, ApplicationList, ApplyInput, Draft, DraftInput, Email, GmailStatus, JobMatch, MatchInput } from '@/types/application'
 import type { LastUse } from '@/types/user'
 import { api } from './ApiService'
 
@@ -21,6 +21,9 @@ const EmailService = {
     // allowance says how the next application leaves (the CV built here, or the imported file without a
     // subscription) and how many are left.
     allowance: () => e().get<Allowance>(`/applications/allowance`),
+    // findMatch is the AI's reading of the CV against an offer already made (404: none); match makes it.
+    findMatch: (input: MatchInput) => e().get<JobMatch>(`/applications/match`, { params: input }),
+    match: (input: MatchInput) => e().post<JobMatch>(`/applications/match`, input),
     // userApplications and userGmail are what the team sees of one student (admin): no recipient, no subject, no address.
     userApplications: (userId: string) => e().get<ApplicationList>(`/admin/users/${userId}/applications`),
     // userBuiltSends is how many applications a student sent with the CV built in 9itchi, and the last time (admin).
