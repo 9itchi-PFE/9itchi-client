@@ -6,6 +6,10 @@ export type EmailBrief = { id: string; recipient: string; subject: string; statu
 
 export type Email = EmailBrief & { job_id: string | null; resume_id: string | null; body: string; created_at: string }
 
+// Allowance is what the plan lets the student send through 9itchi. plan: the CV built in 9itchi, limit per month;
+// original: no subscription, the imported file, limit over the life of the account; none: nothing. limit null: none.
+export type Allowance = { mode: 'plan' | 'original' | 'none'; limit: number | null; used: number }
+
 // failed is only shown: a scheduled application whose email could not leave.
 export type ApplicationStatus = 'scheduled' | 'sent' | 'opened' | 'replied' | 'withdrawn' | 'closed' | 'failed'
 

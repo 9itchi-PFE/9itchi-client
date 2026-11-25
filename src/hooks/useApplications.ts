@@ -5,6 +5,8 @@ import type { Application, ApplicationList, ApplyInput, DraftInput } from '@/typ
 
 export const applicationKeys = {
     list: ['applications'] as const,
+    // Under the list key: an application sent or cancelled reads it again with the list.
+    allowance: ['applications', 'allowance'] as const,
     gmail: ['gmail'] as const,
     email: (id: string) => ['emails', id] as const,
     opens: (id: string) => ['emails', id, 'opens'] as const,
@@ -12,6 +14,10 @@ export const applicationKeys = {
 
 export function useApplications() {
     return useQuery({ queryKey: applicationKeys.list, queryFn: async () => (await EmailService.listApplications()).data })
+}
+
+export function useAllowance() {
+    return useQuery({ queryKey: applicationKeys.allowance, queryFn: async () => (await EmailService.allowance()).data })
 }
 
 export function useGmailStatus() {

@@ -1,4 +1,4 @@
-import type { Application, ApplicationList, ApplyInput, Draft, DraftInput, Email, GmailStatus } from '@/types/application'
+import type { Allowance, Application, ApplicationList, ApplyInput, Draft, DraftInput, Email, GmailStatus } from '@/types/application'
 import { api } from './ApiService'
 
 const e = () => api('email')
@@ -17,6 +17,9 @@ const EmailService = {
     cancelEmail: (id: string) => e().delete(`/emails/${id}`),
     apply: (data: ApplyInput) => e().post<Application>(`/applications`, data),
     listApplications: () => e().get<ApplicationList>(`/applications`),
+    // allowance says how the next application leaves (the CV built here, or the imported file without a
+    // subscription) and how many are left.
+    allowance: () => e().get<Allowance>(`/applications/allowance`),
     // userApplications and userGmail are what the team sees of one student (admin): no recipient, no subject, no address.
     userApplications: (userId: string) => e().get<ApplicationList>(`/admin/users/${userId}/applications`),
     userGmail: (userId: string) => e().get<GmailStatus>(`/admin/users/${userId}/gmail`),
