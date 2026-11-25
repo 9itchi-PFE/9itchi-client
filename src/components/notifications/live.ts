@@ -11,14 +11,15 @@ export type LiveOptions = { authCallback: (params: unknown, callback: TokenCallb
 export const channelOf = (userId: string) => `user:${userId}`
 export const LIVE_EVENT = 'notification'
 
-// connectLive opens the link and calls onNotification each time one arrives. The token comes from notification-api
-// (a signed request for this user's channel only). When no token can be had — Ably is not configured, the session
-// ended — the link is closed for good: the bell keeps its poll, and nothing asks again in a loop. It returns the
-// function that closes the link.
-export function connectLive(input: {
-    userId: string
+// connectChannels opens one link and listens to an event on several channels. onMessage gets the channel a message
+// came on. The token comes from the service that owns the channels (a signed request for these channels only).
+// When no token can be had (Ably is not configured, the session ended) the link is closed for good: the page keeps
+// its poll, and nothing asks again in a loop. It returns the function that closes the link.
+export function connectChannels(input: {
+    channels: string[]
+    event: string
     getToken: () => Promise<unknown>
-    onNotification: () => void
+    onMessage: (channel: string, message: unknown) => void
     create: (options: LiveOptions) => LiveClient
 }): () => void {
     let client: LiveClient | null = null
@@ -41,9 +42,27 @@ export function connectLive(input: {
     })
     if (closed) client.close()
     else {
-        // Subscribing attaches the channel and answers with a promise. It fails when the link never opens or is closed
-        // meanwhile: nothing is lost, the bell keeps its poll.
-        Promise.resolve(client.channels.get(channelOf(input.userId)).subscribe(LIVE_EVENT, () => input.onNotification())).catch(() => {})
+        for (const name of input.channels) {
+            // Subscribing attaches the channel and answers with a promise. It fails when the link never opens or is
+            // closed meanwhile: nothing is lost, the page keeps its poll.
+            Promise.resolve(client.channels.get(name).subscribe(input.event, (message) => input.onMessage(name, message))).catch(() => {})
+        }
     }
     return close
+}
+
+// connectLive listens to one user's notifications and calls onNotification each time one arrives.
+export function connectLive(input: {
+    userId: string
+    getToken: () => Promise<unknown>
+    onNotification: () => void
+    create: (options: LiveOptions) => LiveClient
+}): () => void {
+    return connectChannels({
+        channels: [channelOf(input.userId)],
+        event: LIVE_EVENT,
+        getToken: input.getToken,
+        onMessage: () => input.onNotification(),
+        create: input.create,
+    })
 }

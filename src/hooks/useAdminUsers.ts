@@ -1,14 +1,16 @@
+import { isAxiosError } from 'axios'
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import AccountService from '@/services/AccountService'
 import EmailService from '@/services/EmailService'
 import PaymentService from '@/services/PaymentService'
-import type { AdminUser, UserQuery } from '@/types/user'
+import ResumeService from '@/services/ResumeService'
+import type { AdminUser, UserNote, UserQuery } from '@/types/user'
 
 export const adminUserKeys = {
     all: ['admin', 'users'] as const,
     list: (query: UserQuery) => ['admin', 'users', 'list', query] as const,
     one: (id: string) => ['admin', 'users', 'one', id] as const,
-    part: (id: string, what: 'subscription' | 'payments' | 'applications' | 'gmail') => ['admin', 'users', 'one', id, what] as const,
+    part: (id: string, what: 'subscription' | 'payments' | 'applications' | 'gmail' | 'cv' | 'note' | 'gifts') => ['admin', 'users', 'one', id, what] as const,
 }
 
 // useAdminUsers lists the students; while a new page or search loads, the rows already shown stay.
@@ -75,4 +77,54 @@ export function useStudentApplications(id: string) {
 
 export function useStudentGmail(id: string) {
     return useQuery({ queryKey: adminUserKeys.part(id, 'gmail'), queryFn: async () => (await EmailService.userGmail(id)).data, enabled: !!id, retry: 1 })
+}
+
+// useStudentCV reads where the student's CV stands; a student without a CV is not an error (null).
+export function useStudentCV(id: string) {
+    return useQuery({
+        queryKey: adminUserKeys.part(id, 'cv'),
+        queryFn: async () => {
+            try {
+                return (await ResumeService.userCV(id)).data
+            } catch (e) {
+                if (isAxiosError(e) && e.response?.status === 404) return null
+                throw e
+            }
+        },
+        enabled: !!id,
+        retry: 1,
+    })
+}
+
+export function useStudentNote(id: string) {
+    return useQuery({ queryKey: adminUserKeys.part(id, 'note'), queryFn: async () => (await AccountService.getUserNote(id)).data, enabled: !!id, retry: 1 })
+}
+
+export function useSaveStudentNote(id: string) {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: async (note: string) => (await AccountService.setUserNote(id, note)).data,
+        onSuccess: (saved) => qc.setQueryData<UserNote>(adminUserKeys.part(id, 'note'), saved),
+    })
+}
+
+export function useStudentGifts(id: string) {
+    return useQuery({
+        queryKey: adminUserKeys.part(id, 'gifts'),
+        queryFn: async () => (await PaymentService.userGifts(id)).data.items,
+        enabled: !!id,
+        retry: 1,
+    })
+}
+
+// useGiveMonth gives the student 30 days; the plan and the gifts of the file are read again.
+export function useGiveMonth(id: string) {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: async () => (await PaymentService.giveMonth(id)).data,
+        onSuccess: () => {
+            qc.invalidateQueries({ queryKey: adminUserKeys.part(id, 'subscription') })
+            qc.invalidateQueries({ queryKey: adminUserKeys.part(id, 'gifts') })
+        },
+    })
 }

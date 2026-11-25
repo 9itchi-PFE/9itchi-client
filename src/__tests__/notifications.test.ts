@@ -76,6 +76,16 @@ suite('describe', () => {
         expect(describe(n('cv_tip', { resume_id: cv })).title).toBe('raw')
     })
 
+    it('says until when a given month runs and leads to the subscription', () => {
+        const s = describe(n('month_gifted', { ends_at: '2026-12-24T09:00:00Z', days: 30 }))
+        expect(s.title).toBe('gifted')
+        expect(s.values.day?.toISOString()).toBe('2026-12-24T09:00:00.000Z')
+        expect(s.action).toBe('seeBilling')
+        expect(s.href).toBe('/settings/billing')
+        expect(describe(n('month_gifted', { ends_at: 'soon' })).title).toBe('raw')
+        expect(describe(n('month_gifted', {})).href).toBe('/settings/billing')
+    })
+
     it('shows a type it has no sentence for as the server wrote it, without a button', () => {
         const s = describe(n('admin_message', { body: 'Maintenance ce soir.' }, 'Message de l’équipe'))
         expect(s.title).toBe('raw')

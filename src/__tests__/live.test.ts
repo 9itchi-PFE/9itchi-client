@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from 'vitest'
-import { LIVE_EVENT, channelOf, connectLive, type LiveOptions, type TokenCallback } from '@/components/notifications/live'
+import { LIVE_EVENT, channelOf, connectChannels, connectLive, type LiveOptions, type TokenCallback } from '@/components/notifications/live'
 
 // fakeAbly records what the link asks of Ably and lets a test play Ably's part.
 function fakeAbly() {
@@ -84,5 +84,47 @@ describe('connectLive', () => {
         connectLive({ userId: 'u-1', getToken: async () => ({}), onNotification: () => {}, create })
         // An unhandled rejection would fail the test run.
         await new Promise((resolve) => setTimeout(resolve, 0))
+    })
+})
+
+describe('connectChannels', () => {
+    // manyChannels plays Ably with one listener per channel.
+    function manyChannels() {
+        const listeners: Record<string, (m: unknown) => void> = {}
+        const events: string[] = []
+        let closed = 0
+        const create = () => ({
+            channels: {
+                get: (name: string) => ({
+                    subscribe: (event: string, listener: (m: unknown) => void) => {
+                        events.push(`${name}:${event}`)
+                        listeners[name] = listener
+                    },
+                }),
+            },
+            close: () => {
+                closed++
+            },
+        })
+        return { listeners, events, create, closed: () => closed }
+    }
+
+    it('listens to every conversation and says which one a message came on', () => {
+        const ably = manyChannels()
+        const onMessage = vi.fn()
+        const close = connectChannels({ channels: ['conv-1', 'conv-2'], event: 'message', getToken: async () => ({}), onMessage, create: ably.create })
+        expect(ably.events).toEqual(['conv-1:message', 'conv-2:message'])
+        ably.listeners['conv-2']({ data: { content: 'Bonjour' } })
+        expect(onMessage).toHaveBeenCalledTimes(1)
+        expect(onMessage).toHaveBeenCalledWith('conv-2', { data: { content: 'Bonjour' } })
+        close()
+        close()
+        expect(ably.closed()).toBe(1)
+    })
+
+    it('opens nothing to listen to when there is no conversation', () => {
+        const ably = manyChannels()
+        connectChannels({ channels: [], event: 'message', getToken: async () => ({}), onMessage: vi.fn(), create: ably.create })
+        expect(ably.events).toEqual([])
     })
 })

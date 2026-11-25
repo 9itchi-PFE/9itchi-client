@@ -1,4 +1,16 @@
-import type { Checkout, MySubscription, Payment, Plan, PlanInput, PromoCheck, PromoCode, PromoInput, ReceiptIssuer, ReceiptIssuerInput } from '@/types/plan'
+import type {
+    Checkout,
+    Gift,
+    MySubscription,
+    Payment,
+    Plan,
+    PlanInput,
+    PromoCheck,
+    PromoCode,
+    PromoInput,
+    ReceiptIssuer,
+    ReceiptIssuerInput,
+} from '@/types/plan'
 import { api } from './ApiService'
 
 const PaymentService = {
@@ -19,6 +31,9 @@ const PaymentService = {
     // userSubscription and userPayments are the plan and the completed payments of one student (admin).
     userSubscription: (userId: string) => api('payments').get<MySubscription>(`/admin/users/${userId}/subscription`),
     userPayments: (userId: string) => api('payments').get<{ items: Payment[] }>(`/admin/users/${userId}/payments`),
+    // userGifts are the months the team gave a student; giveMonth adds one (30 days, no payment).
+    userGifts: (userId: string) => api('payments').get<{ items: Gift[] }>(`/admin/users/${userId}/gifts`),
+    giveMonth: (userId: string) => api('payments').post<Gift>(`/admin/users/${userId}/gifts`),
     // verifyPayment asks where a payment stands after the return from Flouci (payments-api re-checks it with Flouci).
     verifyPayment: (id: string) => api('payments').post<Payment>(`/payments/${id}/verify`),
     // receiptIssuer is who issues the receipts (legal name, address, tax id, VAT wording), as the admin filled it in.

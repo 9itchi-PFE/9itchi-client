@@ -1,13 +1,14 @@
 import type { Notification } from '@/types/notification'
 
 // Shown is how one notification is written on the page: which sentence, with which names, and where its button leads.
-export type TitleKey = 'openedBy' | 'opened' | 'sentTo' | 'sent' | 'failedTo' | 'failed' | 'matches' | 'closingAt' | 'closing' | 'tips' | 'raw'
-export type ActionKey = 'follow' | 'see' | 'seeOffers' | 'seeOffer' | 'checkCv'
+export type TitleKey = 'openedBy' | 'opened' | 'sentTo' | 'sent' | 'failedTo' | 'failed' | 'matches' | 'closingAt' | 'closing' | 'tips' | 'gifted' | 'raw'
+export type ActionKey = 'follow' | 'see' | 'seeOffers' | 'seeOffer' | 'checkCv' | 'seeBilling'
 export type Glyph = { kind: 'company'; company: string } | { kind: 'count'; count: number } | { kind: 'alert' } | { kind: 'bell' }
 
 export type Shown = {
     title: TitleKey
-    // day is the day an offer closes, at noon UTC so that it is the same day wherever it is written.
+    // day is the day an offer closes, at noon UTC so that it is the same day wherever it is written, or the instant a
+    // subscription runs until after a gift.
     values: { company: string; count: number; day?: Date }
     // raw is the title as notification-api wrote it, for the types the page has no sentence for.
     raw: string
@@ -79,6 +80,19 @@ export function describe(n: Pick<Notification, 'type' | 'title' | 'data'>): Show
                 action: 'checkCv',
                 href: cv ? `/resumes/${cv}/check` : '/resumes',
                 glyph: c ? { kind: 'count', count: c } : { kind: 'bell' },
+            }
+        }
+        case 'month_gifted': {
+            const until = typeof d.ends_at === 'string' ? new Date(d.ends_at) : null
+            const known = until && !Number.isNaN(until.getTime())
+            return {
+                ...base,
+                values: { company: '', count: 0, ...(known ? { day: until } : {}) },
+                title: known ? 'gifted' : 'raw',
+                detail: '',
+                action: 'seeBilling',
+                href: '/settings/billing',
+                glyph: { kind: 'bell' },
             }
         }
         default:

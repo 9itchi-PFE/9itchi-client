@@ -8,16 +8,23 @@ import { useFormatter, useLocale, useTranslations } from 'next-intl'
 import { tnd } from '@/components/billing/billing'
 import { initials } from '@/components/layouts/StudentLayout/AccountMenu'
 import { Button } from '@/components/ui/Button'
+import { TextArea } from '@/components/ui/Field'
 import { useToast } from '@/components/ui/Toast'
 import {
     useAdminUser,
     useDeleteUser,
+    useGiveMonth,
+    useSaveStudentNote,
     useStudentApplications,
+    useStudentCV,
+    useStudentGifts,
     useStudentGmail,
+    useStudentNote,
     useStudentPayments,
     useStudentSubscription,
     useSuspendUser,
 } from '@/hooks/useAdminUsers'
+import { useStartConversation } from '@/hooks/useChat'
 import { cn } from '@/lib/cn'
 import type { Application, ApplicationStatus } from '@/types/application'
 import { apiError } from './SourcesScreen'
@@ -92,6 +99,53 @@ function Applications({ id }: { id: string }) {
     )
 }
 
+// Note is what the team writes about the student for itself. The student never sees it.
+function Note({ id }: { id: string }) {
+    const t = useTranslations('admin')
+    const toast = useToast()
+    const { data, isLoading, isError } = useStudentNote(id)
+    const save = useSaveStudentNote(id)
+    const [failed, setFailed] = useState(false)
+    return (
+        <section aria-labelledby="note-h" className={panel}>
+            <h2 id="note-h" className="m-0 text-xl font-extrabold">
+                {t('sNote')}
+            </h2>
+            {isLoading ? <div className="sk h-24 rounded-lg" /> : null}
+            {isError ? <p className="m-0 text-sm text-[#B42318]">{t('sPartError')}</p> : null}
+            {data ? (
+                <form
+                    key={data.updated_at ?? 'new'}
+                    className="flex flex-col gap-3"
+                    onSubmit={(e) => {
+                        e.preventDefault()
+                        setFailed(false)
+                        save.mutate(String(new FormData(e.currentTarget).get('note') ?? ''), {
+                            onSuccess: () => toast(t('sNoteSaved')),
+                            onError: () => setFailed(true),
+                        })
+                    }}
+                >
+                    <label className="flex flex-col gap-1.5">
+                        <span className="sr-only">{t('sNote')}</span>
+                        <TextArea name="note" rows={3} maxLength={2000} defaultValue={data.note} placeholder={t('sNoteHint')} />
+                    </label>
+                    {failed ? (
+                        <p role="alert" className="m-0 text-sm text-[#B42318]">
+                            {t('stateError')}
+                        </p>
+                    ) : null}
+                    <div>
+                        <Button type="submit" variant="secondary" disabled={save.isPending}>
+                            {t('save')}
+                        </Button>
+                    </div>
+                </form>
+            ) : null}
+        </section>
+    )
+}
+
 function Payments({ id }: { id: string }) {
     const t = useTranslations('admin')
     const format = useFormatter()
@@ -143,7 +197,12 @@ export default function StudentScreen({ id }: { id: string }) {
     const { data: user, isLoading, error } = useAdminUser(studentId(id))
     const sub = useStudentSubscription(user?.id ?? '')
     const gmail = useStudentGmail(user?.id ?? '')
+    const cv = useStudentCV(user?.id ?? '')
+    const gifts = useStudentGifts(user?.id ?? '')
+    const give = useGiveMonth(user?.id ?? '')
     const suspend = useSuspendUser()
+    const write = useStartConversation()
+    const tc = useTranslations('chat')
     const remove = useDeleteUser()
     const [problem, setProblem] = useState('')
     const missing = !studentId(id) || (isAxiosError(error) && error.response?.status === 404)
@@ -158,6 +217,14 @@ export default function StudentScreen({ id }: { id: string }) {
             { id: user.id, suspended },
             { onSuccess: () => toast(suspended ? t('suspended') : t('reactivated')), onError: (e) => setProblem(apiError(e) ?? t('stateError')) },
         )
+    }
+    const gift = () => {
+        if (!user || !window.confirm(t('giftConfirm', { name: user.name || user.email }))) return
+        setProblem('')
+        give.mutate(undefined, {
+            onSuccess: () => toast(t('gifted')),
+            onError: (e) => setProblem(isAxiosError(e) && e.response?.status === 409 ? t('giftRefused') : (apiError(e) ?? t('stateError'))),
+        })
     }
     const del = () => {
         if (!user || !window.confirm(t('deleteStudentConfirm', { name: user.name || user.email }))) return
@@ -223,6 +290,18 @@ export default function StudentScreen({ id }: { id: string }) {
                                         ? t('sPlanFree')
                                         : t(paid.renews ? 'sPlanPaid' : 'sPlanStopped', { name: sub.data.plan.name, day: new Date(paid.ends_at) })}
                             </Row>
+                            {gifts.data?.length ? (
+                                <Row label={t('sGifts')}>{t('sGiftsValue', { count: gifts.data.length, day: new Date(gifts.data[0].created_at) })}</Row>
+                            ) : null}
+                            <Row label={t('sCv')}>
+                                {cv.isLoading
+                                    ? '…'
+                                    : cv.isError
+                                      ? t('sUnknown')
+                                      : cv.data
+                                        ? t('sCvScore', { passed: cv.data.passed, total: cv.data.total, count: cv.data.resumes })
+                                        : t('sCvNone')}
+                            </Row>
                             <Row label={t('sGmail')}>
                                 {gmail.isLoading ? '…' : !gmail.data ? t('sUnknown') : gmail.data.connected ? t('sGmailOn') : t('sGmailOff')}
                             </Row>
@@ -234,6 +313,21 @@ export default function StudentScreen({ id }: { id: string }) {
                             </p>
                         ) : null}
                         <div className="flex flex-col gap-2.5">
+                            <Button
+                                variant="secondary"
+                                disabled={write.isPending}
+                                onClick={() =>
+                                    write.mutate(user.id, {
+                                        onSuccess: (c) => router.push(`/admin/support?c=${c.id}`),
+                                        onError: (e) => setProblem(apiError(e) ?? t('stateError')),
+                                    })
+                                }
+                            >
+                                {tc('writeTo', { name: (user.name || user.email).split(' ')[0] })}
+                            </Button>
+                            <Button variant="secondary" disabled={give.isPending} onClick={gift}>
+                                {t('gift')}
+                            </Button>
                             {user.status === 'active' ? (
                                 <Button
                                     variant="secondary"
@@ -261,6 +355,7 @@ export default function StudentScreen({ id }: { id: string }) {
                     <div className="flex min-w-0 flex-col gap-5">
                         <Applications id={user.id} />
                         <Payments id={user.id} />
+                        <Note id={user.id} />
                     </div>
                 </div>
             ) : null}
