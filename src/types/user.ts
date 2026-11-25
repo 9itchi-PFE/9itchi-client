@@ -23,3 +23,8 @@ export type UserNote = { user_id: string; note: string; updated_at: string | nul
 
 // UserCV is where a student's CV stands for the team: counts only (resume-api).
 export type UserCV = { resume_id: string; title: string; resumes: number; version: number; passed: number; total: number; to_fix: number; updated_at: string }
+
+// Me is the signed-in student's own account, as account-api returns it.
+export type Me = { id: string; name: string; email: string; role: string; status: string; school?: string; language: string }
+// MeInput is what the student changes: school '' clears it.
+export type MeInput = { name: string; school: string }

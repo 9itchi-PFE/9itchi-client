@@ -1,5 +1,6 @@
-import PagePlaceholder from '@/components/ui/PagePlaceholder'
+import SettingsScreen from '@/components/settings/SettingsScreen'
 
+// Screen 5.2 « Paramètres ».
 export default function Page() {
-    return <PagePlaceholder title="Settings" description="Profile and privacy, delete account." />
+    return <SettingsScreen />
 }

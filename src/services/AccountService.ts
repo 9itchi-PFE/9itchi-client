@@ -1,4 +1,4 @@
-import type { AdminUser, UserList, UserNote, UserQuery } from '@/types/user'
+import type { AdminUser, Me, MeInput, UserList, UserNote, UserQuery } from '@/types/user'
 import { api } from './ApiService'
 
 const AccountService = {
@@ -10,8 +10,8 @@ const AccountService = {
     resetPassword: (data?: unknown) => api('account').post(`/auth/reset-password`, data),
     googleSignIn: () => api('account').get(`/auth/google`),
     googleCallback: () => api('account').get(`/auth/google/callback`),
-    getMe: () => api('account').get(`/users/me`),
-    updateMe: (data?: unknown) => api('account').put(`/users/me`, data),
+    getMe: () => api('account').get<Me>(`/users/me`),
+    updateMe: (data: MeInput) => api('account').put<Me>(`/users/me`, data),
     // setLanguage tells account-api which language to write to the user in (emails, notifications).
     setLanguage: (language: string) => api('account').put(`/users/me/language`, { language }),
     deleteMe: () => api('account').delete(`/users/me`),
