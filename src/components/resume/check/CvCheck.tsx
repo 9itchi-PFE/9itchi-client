@@ -333,7 +333,7 @@ function RuleCard({
                             ) : limited ? (
                                 <span role="alert" className="text-sm text-[#B42318]">
                                     {t(limited === 'used' ? 'rewriteUsed' : 'rewritePlan')}{' '}
-                                    <Link href="/billing" className="font-semibold underline">
+                                    <Link href="/settings/billing" className="font-semibold underline">
                                         {t('seePlans')}
                                     </Link>
                                 </span>

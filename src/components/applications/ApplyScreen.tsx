@@ -370,7 +370,7 @@ export default function ApplyScreen({ id }: { id: string }) {
                         text={why ? t('draftLimitText') : t('draftErrorText')}
                     >
                         {why ? (
-                            <ButtonLink variant="secondary" href="/billing">
+                            <ButtonLink variant="secondary" href="/settings/billing">
                                 {t('seePlans')}
                             </ButtonLink>
                         ) : (
