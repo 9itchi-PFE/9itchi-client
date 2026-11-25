@@ -34,9 +34,9 @@ import {
     promoInput,
     promoState,
     quotaKeys,
+    inSale,
     quotasInput,
     saleInput,
-    salePrice,
     sameQuotas,
     shows,
     stopped,
@@ -316,15 +316,21 @@ function SaleModal({ sale, plans, onClose }: { sale: Sale | null | undefined; pl
                 </fieldset>
                 {preview && covered.length ? (
                     <ul className="m-0 flex list-none flex-col gap-1 rounded-xl bg-fill-3 px-4 py-3 text-[14px]">
-                        {covered.map((p) => (
-                            <li key={p.id} className="flex flex-wrap items-baseline justify-between gap-2">
-                                <span>{p.name}</span>
-                                <span dir="ltr" className="tabular-nums">
-                                    <s className="text-ink-3">{dinars(p.regular_price ?? p.price, locale)} DT</s>{' '}
-                                    <strong>{dinars(salePrice(launchIsOver(p) ? (p.regular_price ?? p.price) : p.price, off), locale)} DT</strong>
-                                </span>
-                            </li>
-                        ))}
+                        {covered.map((p) => {
+                            const cost = inSale(p, off)
+                            return (
+                                <li key={p.id} className="flex flex-wrap items-baseline justify-between gap-2">
+                                    <span>{p.name}</span>
+                                    {cost.kept ? (
+                                        <span className="text-ink-3">{t('saleKept', { price: dinars(cost.price, locale) })}</span>
+                                    ) : (
+                                        <span dir="ltr" className="tabular-nums">
+                                            <s className="text-ink-3">{dinars(cost.usual, locale)} DT</s> <strong>{dinars(cost.price, locale)} DT</strong>
+                                        </span>
+                                    )}
+                                </li>
+                            )
+                        })}
                     </ul>
                 ) : null}
                 <Problem>{error}</Problem>

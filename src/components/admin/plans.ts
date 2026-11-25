@@ -174,3 +174,13 @@ export function saleInput(typed: SaleTyped, planIds: string[], now = new Date())
 export function salePrice(price: number, percent: number): number {
     return Math.floor((Math.round(price * 1000) * (100 - percent)) / 100) / 1000
 }
+
+// inSale is what a plan costs during a sale, the way payments-api counts it: the percentage comes off the usual
+// price (the regular price while a launch price runs), and a launch price that is already lower stays. usual is
+// the price struck through; kept says the launch price stays and the sale changes nothing for this plan.
+export function inSale(plan: Pick<Plan, 'price' | 'regular_price' | 'launch_ends_on'>, percent: number, now = new Date()) {
+    const current = launchIsOver(plan, now) ? (plan.regular_price ?? plan.price) : plan.price
+    const usual = Math.max(current, launchIsOver(plan, now) ? 0 : (plan.regular_price ?? 0))
+    const reduced = salePrice(usual, percent)
+    return reduced < current ? { usual, price: reduced, kept: false } : { usual, price: current, kept: true }
+}

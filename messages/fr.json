@@ -1353,7 +1353,7 @@
         "limitsSaved": "Limites enregistrées",
         "limitsInvalid": "Une limite est un nombre entier, 0 ou plus.",
         "salesTitle": "Promotions",
-        "salesHint": "Une réduction sans code, entre deux dates. Pendant la promotion, tous les étudiants voient le prix réduit avec le prix habituel barré, et paient le prix réduit. Le lendemain du dernier jour, le prix habituel revient tout seul. Un abonnement déjà payé ne change pas.",
+        "salesHint": "Une réduction sans code, entre deux dates. Pendant la promotion, tous les étudiants voient le prix réduit avec le prix habituel barré, et paient le prix réduit. Le lendemain du dernier jour, le prix habituel revient tout seul. Un abonnement déjà payé ne change pas. La réduction se calcule sur le prix normal, jamais sur le prix de lancement, et aucun code promo n’est accepté pendant une promotion.",
         "saleNew": "+ Nouvelle promotion",
         "saleAdd": "Nouvelle promotion",
         "saleEdit": "Modifier la promotion",
@@ -1384,7 +1384,8 @@
         },
         "saleNameInvalid": "Donne un nom à la promotion, 60 caractères au plus.",
         "salePercentRange": "La réduction est un nombre entier entre 1 et 90.",
-        "saleOver": "Le dernier jour est déjà passé."
+        "saleOver": "Le dernier jour est déjà passé.",
+        "saleKept": "{price} DT : le prix de lancement est déjà plus bas, il reste."
     },
     "apply": {
         "back": "Retour à l’offre",
@@ -1704,7 +1705,8 @@
         "vat": "TVA",
         "toFill": "à compléter",
         "saleUntil": "{name} · −{percent} % jusqu’au {day, date, ::dMMMM}",
-        "saleLine": "Promotion « {name} »"
+        "saleLine": "Promotion « {name} »",
+        "promoDuringSale": "Pas de code promo pendant une promotion : le prix réduit s’applique déjà."
     },
     "notifications": {
         "title": "Notifications",

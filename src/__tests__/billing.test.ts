@@ -43,6 +43,7 @@ describe('plans', () => {
 
 describe('promoReason', () => {
     it('reads why payments-api refused a code', () => {
+        expect(promoReason('promo codes cannot be used during a sale')).toBe('promoDuringSale')
         expect(promoReason('promo code has expired')).toBe('promoExpired')
         expect(promoReason('promo code is not yet valid')).toBe('promoNotYet')
         expect(promoReason('promo code usage limit reached')).toBe('promoUsedUp')
