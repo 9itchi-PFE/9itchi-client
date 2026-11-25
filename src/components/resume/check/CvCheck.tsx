@@ -9,8 +9,8 @@ import { Button, ButtonLink } from '@/components/ui/Button'
 import { useToast } from '@/components/ui/Toast'
 import { resumeKeys, useAtsCheck, useResume } from '@/hooks/useResumes'
 import { cn } from '@/lib/cn'
-import AiService from '@/services/AiService'
 import ResumeService from '@/services/ResumeService'
+import { quotaReason } from '@/utils/quota'
 import { normalize, type ResumeContent, type RuleGroup, type RuleResult } from '@/types/resume'
 import { fileBase } from '../editor/fileBase'
 import { itemOfPath, sectionOfPath } from '../editor/sections'
@@ -200,15 +200,20 @@ function RuleCard({
     const isSummary = rule.status === 'fix' && rule.id === 'summary' && rule.where === 'summary' && !!rule.was
     const lang = (language === 'en' || language === 'ar' ? language : 'fr') as 'fr' | 'en' | 'ar'
 
-    // A proposal for a line comes from ai-api; numbers it cannot know stay as [NOMBRE].
+    // A proposal for a line comes from the AI, asked only when the student presses the button: each one counts
+    // against the plan (resume-api gives back one already made without counting it). Numbers it cannot know stay
+    // as [NOMBRE].
+    const [asked, setAsked] = useState(false)
     const suggestion = useQuery({
         queryKey: ['rewrite', resumeId, rule.id, rule.where, rule.was],
         queryFn: async () =>
-            (await AiService.rewriteSection({ section: isSummary ? 'summary' : 'bullet', text: rule.was ?? '', language: lang })).data.suggestions[0] ?? '',
-        enabled: (isBullet || isSummary) && !!rule.was,
+            (await ResumeService.rewrite(resumeId, { section: isSummary ? 'summary' : 'bullet', text: rule.was ?? '', language: lang })).data.suggestions[0] ??
+            '',
+        enabled: asked && (isBullet || isSummary) && !!rule.was,
         staleTime: Infinity,
         retry: false,
     })
+    const limited = quotaReason(suggestion.error)
 
     const section =
         sectionOfPath(rule.where) ?? (rule.id === 'certifications' ? 'certifications' : rule.group === 'contact' || rule.id === 'file_name' ? 'contact' : null)
@@ -325,10 +330,22 @@ function RuleCard({
                                 </span>
                             ) : pending ? (
                                 <span className="text-sm text-ink-3">{t('suggesting')}</span>
+                            ) : limited ? (
+                                <span role="alert" className="text-sm text-[#B42318]">
+                                    {t(limited === 'used' ? 'rewriteUsed' : 'rewritePlan')}{' '}
+                                    <Link href="/billing" className="font-semibold underline">
+                                        {t('seePlans')}
+                                    </Link>
+                                </span>
                             ) : (isBullet || isSummary) && suggestion.isFetched ? (
                                 <span className="text-sm text-ink-3">{t('noSuggestion')}</span>
                             ) : null}
                             <div className="flex flex-wrap gap-2">
+                                {(isBullet || isSummary) && !asked ? (
+                                    <Button variant="secondary" className="h-9 rounded-lg px-3.5 text-[13.5px]" onClick={() => setAsked(true)}>
+                                        {t('askRewrite')}
+                                    </Button>
+                                ) : null}
                                 <Button className="h-9 rounded-lg px-3.5 text-[13.5px]" disabled={busy || pending} onClick={apply}>
                                     {found.now || !(isBullet || isSummary) ? found.action : t('actions.edit')}
                                 </Button>

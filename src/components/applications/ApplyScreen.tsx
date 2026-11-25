@@ -20,6 +20,7 @@ import { useAllowance, useApplications, useApply, useDraft, useGmailStatus } fro
 import { useJob, useSimilarJobs } from '@/hooks/useJobs'
 import { useMyCv, useResume } from '@/hooks/useResumes'
 import { cn } from '@/lib/cn'
+import { quotaReason } from '@/utils/quota'
 import EmailService from '@/services/EmailService'
 import ResumeService from '@/services/ResumeService'
 import type { Application, LetterLanguage, Tone } from '@/types/application'
@@ -256,6 +257,8 @@ export default function ApplyScreen({ id }: { id: string }) {
 
     // Back from Google: the letter the student left with is put back instead of being written again.
     const asked = useRef('')
+    const hasLetter = useRef(false)
+    hasLetter.current = paras.length > 0
     const key = `${id}|${tone}|${language}|${nonce}`
     useEffect(() => {
         const p = takePending(id)
@@ -287,7 +290,7 @@ export default function ApplyScreen({ id }: { id: string }) {
         if (!job || !my.ready || !my.id || apps.isLoading || already || byHand || asked.current === key) return
         asked.current = key
         write(
-            { job_id: id, resume_id: my.id, language, tone },
+            { job_id: id, resume_id: my.id, language, tone, fresh: nonce > 0 },
             {
                 onSuccess: (d) => {
                     if (asked.current !== key) return
@@ -295,9 +298,15 @@ export default function ApplyScreen({ id }: { id: string }) {
                     setParas(paragraphs(d.body))
                     setRead(false)
                 },
+                onError: (e) => {
+                    // With a letter already on screen, it stays: the student is told why no new one came.
+                    if (asked.current !== key || !hasLetter.current) return
+                    const why = quotaReason(e)
+                    toast(why === 'used' ? t('draftUsedToast') : why === 'plan' ? t('draftPlanToast') : t('draftErrorTitle'))
+                },
             },
         )
-    }, [job, my.ready, my.id, apps.isLoading, already, byHand, key, id, language, tone, write])
+    }, [job, my.ready, my.id, apps.isLoading, already, byHand, key, id, language, tone, nonce, write, toast, t])
 
     const closed = job ? deadline(job.closes_on)?.kind === 'closed' : false
     useEffect(() => {
@@ -353,10 +362,20 @@ export default function ApplyScreen({ id }: { id: string }) {
     }
     if (!paras.length && !byHand) {
         if (draft.isError) {
+            const why = quotaReason(draft.error)
             return (
                 <Shell id={id}>
-                    <Notice title={t('draftErrorTitle')} text={t('draftErrorText')}>
-                        <Button onClick={() => setNonce((n) => n + 1)}>{tc('retry')}</Button>
+                    <Notice
+                        title={why === 'used' ? t('draftUsedTitle') : why === 'plan' ? t('draftPlanTitle') : t('draftErrorTitle')}
+                        text={why ? t('draftLimitText') : t('draftErrorText')}
+                    >
+                        {why ? (
+                            <ButtonLink variant="secondary" href="/billing">
+                                {t('seePlans')}
+                            </ButtonLink>
+                        ) : (
+                            <Button onClick={() => setNonce((n) => n + 1)}>{tc('retry')}</Button>
+                        )}
                         <Button
                             variant="secondary"
                             onClick={() => {

@@ -16,6 +16,9 @@ const ResumeService = {
     // userCV is where a student's CV stands with the 24 rules, for the team (admin). 404: no CV.
     // userDownloads is how many CV downloads a student made and when the last one was (admin).
     userDownloads: (userId: string) => r().get<LastUse>(`/admin/users/${userId}/downloads`),
+    // rewrite asks the AI for a better version of one line (or the summary) of the student's CV, within the plan.
+    rewrite: (id: string, data: { section: 'bullet' | 'summary'; text: string; language: 'fr' | 'en' | 'ar'; job_title?: string }) =>
+        r().post<{ suggestions: string[]; limit: number | null; used: number }>(`/resumes/${id}/rewrite`, data),
     userCV: (userId: string) => r().get<UserCV>(`/admin/users/${userId}/cv`),
     updateResume: (id: string, data: { title?: string; template_id?: string; content?: ResumeContent }) => r().put<Resume>(`/resumes/${id}`, data),
     deleteResume: (id: string) => r().delete(`/resumes/${id}`),
