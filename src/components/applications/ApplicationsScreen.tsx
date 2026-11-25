@@ -88,8 +88,8 @@ function LetterModal({ a, onClose }: { a: Application; onClose: () => void }) {
 function Empty() {
     const t = useTranslations('applications')
     return (
-        <main className="mx-auto box-border flex w-full max-w-[1000px] flex-1 flex-col gap-6 px-8 pb-16 pt-8">
-            <h1 className="m-0 text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
+        <main className="mx-auto box-border flex w-full max-w-[1000px] flex-1 flex-col gap-6 px-4 sm:px-8 pb-16 pt-8">
+            <h1 className="m-0 text-[30px] sm:text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
             <section className="flex flex-col items-center gap-3.5 rounded-3xl border-[1.5px] border-ink bg-white px-8 py-12 text-center shadow-pop">
                 <span className="flex h-16 w-16 items-center justify-center rounded-[20px] bg-lime">
                     <Icon name="send" size={28} />
@@ -139,7 +139,7 @@ export default function ApplicationsScreen() {
 
     if (list.isLoading) {
         return (
-            <main aria-busy="true" className="mx-auto box-border flex w-full max-w-[1320px] flex-1 flex-col gap-4 px-8 pb-16 pt-4">
+            <main aria-busy="true" className="mx-auto box-border flex w-full max-w-[1320px] flex-1 flex-col gap-4 px-4 sm:px-8 pb-16 pt-4">
                 <Sk className="h-12 w-80 rounded-lg" />
                 <Sk className="h-40 w-full max-w-[860px] rounded-[18px]" />
                 <Sk className="h-40 w-full max-w-[860px] rounded-[18px]" />
@@ -148,8 +148,8 @@ export default function ApplicationsScreen() {
     }
     if (list.isError) {
         return (
-            <main className="mx-auto box-border flex w-full max-w-[1000px] flex-1 flex-col items-start gap-4 px-8 pb-16 pt-8">
-                <h1 className="m-0 text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
+            <main className="mx-auto box-border flex w-full max-w-[1000px] flex-1 flex-col items-start gap-4 px-4 sm:px-8 pb-16 pt-8">
+                <h1 className="m-0 text-[30px] sm:text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
                 <p role="alert" className="m-0 text-base text-ink-3">
                     {tc('error')}
                 </p>
@@ -184,10 +184,10 @@ export default function ApplicationsScreen() {
     )
 
     return (
-        <main className="mx-auto box-border flex w-full max-w-[1320px] flex-1 flex-wrap items-start gap-8 px-8 pb-[72px] pt-4">
+        <main className="mx-auto box-border flex w-full max-w-[1320px] flex-1 flex-wrap items-start gap-8 px-4 sm:px-8 pb-[72px] pt-4">
             <div className="flex min-w-0 flex-[999_1_640px] flex-col gap-7">
                 <div className="flex flex-col gap-2">
-                    <h1 className="m-0 text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
+                    <h1 className="m-0 text-[30px] sm:text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
                     <p className="m-0 text-base text-ink-3">
                         <strong className="font-semibold text-ink">{t('todoCount', { count: todo.length })}</strong> ·{' '}
                         {t('sentMonth', { count: sentThisMonth(items, now) })}

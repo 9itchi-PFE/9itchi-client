@@ -11,11 +11,16 @@ export default async function OnboardingHeader({ step }: { step: 1 | 2 | 3 }) {
     const steps = [t('stepAccount'), t('stepCv'), t('stepWishes')]
     const last = step === 3
     return (
-        <header className={cn('mx-auto flex max-w-[1320px]', last ? 'h-[72px]' : 'h-[68px]', 'flex-wrap items-center justify-between gap-6 px-8')}>
+        <header
+            className={cn(
+                'mx-auto flex max-w-[1320px] flex-wrap items-center justify-between gap-x-6 gap-y-2 px-4 py-3 sm:px-8',
+                last ? 'min-h-[72px]' : 'min-h-[68px]',
+            )}
+        >
             <Link href="/jobs" className="no-underline">
                 <Logo tag={!last} />
             </Link>
-            <ol aria-label={t('steps')} className={cn('m-0 flex list-none flex-wrap items-center p-0', last ? 'gap-2.5' : 'gap-5')}>
+            <ol aria-label={t('steps')} className={cn('m-0 flex list-none flex-wrap items-center gap-y-1.5 p-0', last ? 'gap-x-2.5' : 'gap-x-5')}>
                 {steps.map((label, i) => {
                     const n = i + 1
                     const done = n < step

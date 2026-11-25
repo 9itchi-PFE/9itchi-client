@@ -84,7 +84,7 @@ function Para({ value, onChange, label }: { value: string; onChange: (v: string)
 function Shell({ id, done = false, children }: { id: string; done?: boolean; children: React.ReactNode }) {
     const t = useTranslations('apply')
     return (
-        <main className="mx-auto box-border flex w-full max-w-[1240px] flex-1 flex-col gap-6 px-8 pb-[72px] pt-3">
+        <main className="mx-auto box-border flex w-full max-w-[1240px] flex-1 flex-col gap-6 px-4 sm:px-8 pb-[72px] pt-3">
             <div className="flex flex-wrap items-center justify-between gap-4">
                 <Link
                     href={`/jobs?tab=all&job=${id}`}

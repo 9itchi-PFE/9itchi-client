@@ -9,7 +9,8 @@ export default function StudentLayout({ children }: PropsWithChildren) {
             <div className="flex min-h-screen flex-col">
                 <StudentHeader />
                 <RenewalBanner />
-                <main className="flex-1">{children}</main>
+                {/* Room for the bar of sections at the bottom of a phone. */}
+                <main className="flex-1 pb-[76px] lg:pb-0">{children}</main>
             </div>
         </NotificationsProvider>
     )

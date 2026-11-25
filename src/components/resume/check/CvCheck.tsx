@@ -50,14 +50,14 @@ export default function CvCheck({ id }: { id: string }) {
         return m
     }, [rules])
     if (!resume.data || !check.data) {
-        return <p className="mx-auto max-w-[1320px] px-8 py-16 text-ink-3">{check.isError || resume.isError ? tc('error') : tc('loading')}</p>
+        return <p className="mx-auto max-w-[1320px] px-4 sm:px-8 py-16 text-ink-3">{check.isError || resume.isError ? tc('error') : tc('loading')}</p>
     }
     const { passed, total, to_fix } = check.data
     const shown = rules.filter((r) => (group === 'all' || r.group === group) && (!onlyFix || r.status !== 'ok'))
     const content = normalize(resume.data.content)
 
     return (
-        <div className="mx-auto box-border flex w-full max-w-[1320px] flex-col gap-[22px] px-8 pb-16 pt-6">
+        <div className="mx-auto box-border flex w-full max-w-[1320px] flex-col gap-[22px] px-4 sm:px-8 pb-16 pt-6">
             <nav aria-label={t('breadcrumbLabel')} className="flex items-center gap-2 text-sm text-ink-3">
                 <Link href={`/resumes/${id}`}>{th('cv')}</Link>
                 <span aria-hidden>/</span>
@@ -113,7 +113,9 @@ export default function CvCheck({ id }: { id: string }) {
                 <section aria-label={t('rulesLabel')} className="flex min-w-0 flex-[999_1_640px] flex-col gap-3.5">
                     <div className="flex flex-wrap items-end justify-between gap-3">
                         <div className="flex flex-col gap-1">
-                            <h1 className="m-0 text-[40px] font-extrabold leading-[1.08]">{onlyFix ? t('titleFix', { count: to_fix }) : t('titleAll')}</h1>
+                            <h1 className="m-0 text-[30px] sm:text-[40px] font-extrabold leading-[1.08]">
+                                {onlyFix ? t('titleFix', { count: to_fix }) : t('titleAll')}
+                            </h1>
                             <p className="m-0 text-[15px] text-ink-3">{onlyFix ? t('subtitleFix') : t('subtitleAll')}</p>
                         </div>
                         <div role="group" aria-label={t('filterLabel')} className="flex overflow-hidden rounded-lg border border-line-strong bg-white">
