@@ -13,10 +13,25 @@ import { useReceiptIssuer } from '@/hooks/usePlans'
 import { cn } from '@/lib/cn'
 import type { Plan, PromoCode } from '@/types/plan'
 import { apiError } from './SourcesScreen'
-import { FREE_PLAN, dayOf, launchIsOver, planInput, promoInput, promoState, quotaKeys, stopped, type PromoState } from './plans'
-
-const KNOWN_QUOTAS = ['resumes', 'cv_downloads', 'emails_per_month'] as const
-const isKnown = (k: string): k is (typeof KNOWN_QUOTAS)[number] => (KNOWN_QUOTAS as readonly string[]).includes(k)
+import {
+    COUNTS,
+    FREE_PLAN,
+    SHOWN,
+    countOf,
+    dayOf,
+    launchIsOver,
+    planInput,
+    promoInput,
+    promoState,
+    quotaKeys,
+    quotasInput,
+    sameQuotas,
+    shows,
+    stopped,
+    withCount,
+    withShown,
+    type PromoState,
+} from './plans'
 
 const pill: Record<PromoState, string> = {
     active: 'bg-ok-bg text-ok-fg',
@@ -255,6 +270,117 @@ function IssuerCard() {
 }
 
 // PlansScreen is « Plans et codes promo »: the prices, the limits payments-api checks for each plan, the promo
+// Limits is « Ce que chaque plan permet »: the number limits and the groups of the CV diagnosis each plan shows,
+// for a student with no subscription first. An empty number sets no limit; 0 allows none.
+function Limits({ plans }: { plans: Plan[] }) {
+    const t = useTranslations('admin')
+    const toast = useToast()
+    const save = useSavePlan()
+    const [draft, setDraft] = useState<Record<string, Record<string, number>>>(() => Object.fromEntries(plans.map((p) => [p.id, { ...(p.quotas ?? {}) }])))
+    const [typed, setTyped] = useState<Record<string, string>>({})
+    const [error, setError] = useState('')
+    const others = quotaKeys(plans).filter((k) => !(COUNTS as readonly string[]).includes(k) && !(SHOWN as readonly string[]).includes(k))
+    const changed = plans.filter((p) => !sameQuotas(p.quotas ?? {}, draft[p.id]))
+    const bad = Object.keys(typed).some((cell) => {
+        const [id, key] = cell.split('|')
+        return withCount(draft[id] ?? {}, key, typed[cell]) === null
+    })
+    const cols = { gridTemplateColumns: `minmax(220px,1.6fr) repeat(${Math.max(plans.length, 1)}, minmax(130px,1fr))` }
+    const row = 'grid min-w-[560px] items-center gap-3 px-4'
+    const nameOf = (p: Plan) => (p.name === FREE_PLAN ? t('freePlan') : p.name)
+    const setCount = (p: Plan, key: string, value: string) => {
+        setTyped({ ...typed, [`${p.id}|${key}`]: value })
+        const next = withCount(draft[p.id] ?? {}, key, value)
+        if (next) setDraft({ ...draft, [p.id]: next })
+    }
+    const submit = async () => {
+        setError('')
+        try {
+            for (const p of changed) await save.mutateAsync({ id: p.id, input: quotasInput(p, draft[p.id]) })
+            toast(t('limitsSaved'))
+        } catch (err) {
+            setError(apiError(err) ?? t('stateError'))
+        }
+    }
+    return (
+        <section aria-labelledby="quotas-h" className={card}>
+            <div className="flex flex-col gap-1">
+                <h2 id="quotas-h" className="m-0 text-xl font-extrabold">
+                    {t('quotasTitle')}
+                </h2>
+                <p className="m-0 max-w-[820px] text-[14.5px] leading-[1.55] text-ink-3">{t('limitsHint')}</p>
+            </div>
+            <div role="table" aria-labelledby="quotas-h" className="overflow-x-auto">
+                <div role="row" style={cols} className={cn(row, head)}>
+                    <span role="columnheader">{t('colLimit')}</span>
+                    {plans.map((p) => (
+                        <span role="columnheader" key={p.id}>
+                            {nameOf(p)}
+                        </span>
+                    ))}
+                </div>
+                {COUNTS.map((k) => (
+                    <div role="row" key={k} style={cols} className={cn(row, line)}>
+                        <span role="rowheader">{t(`quota.${k}`)}</span>
+                        {plans.map((p) => (
+                            <span role="cell" key={p.id}>
+                                <input
+                                    type="text"
+                                    inputMode="numeric"
+                                    aria-label={`${t(`quota.${k}`)} · ${nameOf(p)}`}
+                                    placeholder={t('noLimit')}
+                                    value={typed[`${p.id}|${k}`] ?? countOf(draft[p.id], k)}
+                                    onChange={(e) => setCount(p, k, e.target.value)}
+                                    className={cn(inputClass, 'h-9 max-w-[130px] tabular-nums')}
+                                />
+                            </span>
+                        ))}
+                    </div>
+                ))}
+                <div role="row" style={cols} className={cn(row, 'pb-1 pt-4 font-mono text-[11px] font-semibold uppercase tracking-[.1em] text-ink-3')}>
+                    <span role="rowheader">{t('limitsDiagnosis')}</span>
+                </div>
+                {SHOWN.map((k) => (
+                    <div role="row" key={k} style={cols} className={cn(row, line)}>
+                        <span role="rowheader">{t(`quota.${k}`)}</span>
+                        {plans.map((p) => (
+                            <span role="cell" key={p.id}>
+                                <input
+                                    type="checkbox"
+                                    aria-label={`${t(`quota.${k}`)} · ${nameOf(p)}`}
+                                    checked={shows(draft[p.id], k)}
+                                    onChange={(e) => setDraft({ ...draft, [p.id]: withShown(draft[p.id] ?? {}, k, e.target.checked) })}
+                                    className="h-4 w-4 accent-ink"
+                                />
+                            </span>
+                        ))}
+                    </div>
+                ))}
+                {others.map((k) => (
+                    <div role="row" key={k} style={cols} className={cn(row, line)}>
+                        <span role="rowheader">
+                            <code className="font-mono text-[13px]">{k}</code>
+                        </span>
+                        {plans.map((p) => (
+                            <span role="cell" key={p.id} className="tabular-nums">
+                                {countOf(p.quotas, k) || '—'}
+                            </span>
+                        ))}
+                    </div>
+                ))}
+            </div>
+            {error || bad ? (
+                <p role="alert" className="m-0 text-sm text-[#B42318]">
+                    {error || t('limitsInvalid')}
+                </p>
+            ) : null}
+            <Button className="self-start" disabled={save.isPending || bad || changed.length === 0} onClick={submit}>
+                {t('limitsSave')}
+            </Button>
+        </section>
+    )
+}
+
 // codes, and the legal information of the receipts.
 export default function PlansScreen() {
     const t = useTranslations('admin')
@@ -270,8 +396,6 @@ export default function PlansScreen() {
     const all = plans.data ?? []
     const free = all.find((p) => p.name === FREE_PLAN)
     const paid = all.filter((p) => p.name !== FREE_PLAN)
-    const keys = quotaKeys(all)
-    const quotaCols = { gridTemplateColumns: `minmax(220px,1.6fr) repeat(${Math.max(all.length, 1)}, minmax(120px,1fr))` }
     const promoCols = 'grid grid-cols-[1.2fr_1fr_1fr_1fr_.8fr_110px] items-center gap-3 px-4'
     const now = new Date()
 
@@ -308,33 +432,7 @@ export default function PlansScreen() {
                     ))}
                 </div>
             ) : null}
-            {plans.data && keys.length ? (
-                <section aria-labelledby="quotas-h" className={card}>
-                    <h2 id="quotas-h" className="m-0 text-xl font-extrabold">
-                        {t('quotasTitle')}
-                    </h2>
-                    <div role="table" aria-labelledby="quotas-h" className="overflow-x-auto">
-                        <div role="row" style={quotaCols} className={cn('grid min-w-[560px] items-center gap-3 px-4', head)}>
-                            <span role="columnheader">{t('colLimit')}</span>
-                            {all.map((p) => (
-                                <span role="columnheader" key={p.id}>
-                                    {p.name === FREE_PLAN ? t('freePlan') : p.name}
-                                </span>
-                            ))}
-                        </div>
-                        {keys.map((k) => (
-                            <div role="row" key={k} style={quotaCols} className={cn('grid min-w-[560px] items-center gap-3 px-4', line)}>
-                                <span role="rowheader">{isKnown(k) ? t(`quota.${k}`) : <code className="font-mono text-[13px]">{k}</code>}</span>
-                                {all.map((p) => (
-                                    <span role="cell" key={p.id} className={cn('tabular-nums', p.name !== FREE_PLAN && 'font-bold')}>
-                                        {k in (p.quotas ?? {}) ? (p.quotas[k] === 0 ? '—' : format.number(p.quotas[k])) : '—'}
-                                    </span>
-                                ))}
-                            </div>
-                        ))}
-                    </div>
-                </section>
-            ) : null}
+            {plans.data && all.length ? <Limits key={all.map((p) => `${p.id}:${JSON.stringify(p.quotas ?? {})}`).join('|')} plans={all} /> : null}
             <section aria-labelledby="promos-h" id="codes" className={card}>
                 <div className="flex items-center justify-between gap-3">
                     <h2 id="promos-h" className="m-0 text-xl font-extrabold">

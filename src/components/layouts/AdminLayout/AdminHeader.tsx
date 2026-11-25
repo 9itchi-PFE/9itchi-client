@@ -80,7 +80,7 @@ function AdminAccount() {
 export default function AdminHeader() {
     const t = useTranslations('admin')
     const path = usePathname()
-    const pending = useReviewList('pending').data?.counts.pending
+    const pending = useReviewList('pending').data?.counts?.pending
     return (
         <header className="sticky top-0 z-20 bg-[rgba(242,243,245,.9)] backdrop-blur-[10px]">
             <div className="mx-auto flex max-w-[1376px] flex-wrap items-center gap-x-4 gap-y-2.5 px-4 py-3.5 sm:px-8">

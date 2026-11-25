@@ -20,7 +20,7 @@ import { normalize, sectionOrder, type Resume, type ResumeContent } from '@/type
 import CvPreview, { type SectionKey } from '../CvPreview'
 import StylePanel from './StylePanel'
 import { phonePlaceholder } from '../cvText'
-import DownloadDialogs, { type DownloadMode } from './DownloadDialogs'
+import DownloadDialogs, { downloadMode, type DownloadMode } from './DownloadDialogs'
 import PhotoControl from './PhotoControl'
 import ScoreBanner from './ScoreBanner'
 import {
@@ -155,8 +155,8 @@ function Editor({ resume: initial }: { resume: Resume }) {
                 : t('savedAt', { time: format.dateTime(savedAt, { hour: '2-digit', minute: '2-digit' }) })
 
     const openDownload = () => {
-        if (isSubscriber || process.env.NEXT_PUBLIC_UNLIMITED_DOWNLOADS === 'true') setDownload('sub')
-        else setDownload((downloads?.used ?? 0) >= 1 ? 'pay' : 'free')
+        if (process.env.NEXT_PUBLIC_UNLIMITED_DOWNLOADS === 'true') setDownload('sub')
+        else setDownload(downloadMode(isSubscriber, downloads))
     }
 
     const addExtra = (kind: (typeof EXTRA_KINDS)[number]) => {
@@ -417,7 +417,14 @@ function Editor({ resume: initial }: { resume: Resume }) {
                 </section>
             </div>
 
-            <DownloadDialogs mode={download} setMode={setDownload} resume={{ ...resume, content }} templateName={templateName} />
+            <DownloadDialogs
+                mode={download}
+                setMode={setDownload}
+                resume={{ ...resume, content }}
+                templateName={templateName}
+                subscriber={isSubscriber}
+                downloads={downloads}
+            />
             <VersionsDrawer
                 open={versionsOpen}
                 onClose={() => setVersionsOpen(false)}

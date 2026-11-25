@@ -39,8 +39,62 @@ export function launchIsOver(plan: Pick<Plan, 'launch_ends_on' | 'regular_price'
     return !!plan.launch_ends_on && !!plan.regular_price && today(now) > plan.launch_ends_on
 }
 
+// COUNTS are the limits written as a number: empty sets no limit, 0 allows none.
+export const COUNTS = ['resumes', 'cv_downloads', 'emails_per_month'] as const
+// SHOWN are the groups of the CV diagnosis a plan shows or hides (ats_<group> = 0 hides it).
+export const SHOWN = ['ats_contact', 'ats_summary', 'ats_experience', 'ats_education', 'ats_skills', 'ats_layout', 'ats_file'] as const
+export type CountKey = (typeof COUNTS)[number]
+export type ShownKey = (typeof SHOWN)[number]
+
+// countOf reads a number limit as the field shows it: '' when the plan sets none.
+export const countOf = (quotas: Record<string, number> | undefined, key: string) => (quotas && key in quotas ? String(quotas[key]) : '')
+
+// shows says whether a plan shows a group of the diagnosis: hidden only when its key is 0.
+export const shows = (quotas: Record<string, number> | undefined, key: string) => !(quotas && key in quotas && quotas[key] === 0)
+
+// withCount writes a number limit: an empty field removes the key (no limit). null: not a whole number from 0.
+export function withCount(quotas: Record<string, number>, key: string, typed: string): Record<string, number> | null {
+    const next = { ...quotas }
+    const s = typed.trim()
+    if (s === '') {
+        delete next[key]
+        return next
+    }
+    if (!/^\d{1,6}$/.test(s)) return null
+    next[key] = Number(s)
+    return next
+}
+
+// withShown shows or hides a group of the diagnosis; shown is written as no key, so that it reads "no limit".
+export function withShown(quotas: Record<string, number>, key: string, shown: boolean): Record<string, number> {
+    const next = { ...quotas }
+    if (shown) delete next[key]
+    else next[key] = 0
+    return next
+}
+
+// quotasInput is what is saved when only the limits of a plan change: payments-api replaces the row, so the
+// prices and the end of the launch price are sent back as they are.
+export function quotasInput(plan: Plan, quotas: Record<string, number>): PlanInput {
+    return {
+        name: plan.name,
+        price: plan.price,
+        duration_days: plan.duration_days,
+        quotas,
+        active: plan.active,
+        ...(plan.regular_price ? { regular_price: plan.regular_price } : {}),
+        ...(plan.regular_price && plan.launch_ends_on ? { launch_ends_on: plan.launch_ends_on } : {}),
+    }
+}
+
+// sameQuotas says whether two sets of limits are the same.
+export const sameQuotas = (a: Record<string, number> = {}, b: Record<string, number> = {}) => {
+    const ka = Object.keys(a)
+    return ka.length === Object.keys(b).length && ka.every((k) => a[k] === b[k])
+}
+
 // quotaKeys lists the limits payments-api checks, the known ones first, in the order of the page.
-const KNOWN = ['resumes', 'cv_downloads', 'emails_per_month']
+const KNOWN: string[] = [...COUNTS, ...SHOWN]
 export function quotaKeys(plans: Pick<Plan, 'quotas'>[]): string[] {
     const all = new Set(plans.flatMap((p) => Object.keys(p.quotas ?? {})))
     return [...KNOWN.filter((k) => all.has(k)), ...[...all].filter((k) => !KNOWN.includes(k)).sort()]

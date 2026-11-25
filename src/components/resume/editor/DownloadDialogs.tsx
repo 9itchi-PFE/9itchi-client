@@ -5,7 +5,6 @@ import { useLocale, useTranslations } from 'next-intl'
 import { useQueryClient } from '@tanstack/react-query'
 import Link from 'next/link'
 import { Button, ButtonLink } from '@/components/ui/Button'
-import { Icon } from '@/components/ui/icons'
 import { Modal } from '@/components/ui/Modal'
 import { useToast } from '@/components/ui/Toast'
 import { resumeKeys } from '@/hooks/useResumes'
@@ -13,23 +12,43 @@ import { usePlans } from '@/hooks/usePlans'
 import { cn } from '@/lib/cn'
 import { errorStatus } from '@/services/ApiService'
 import ResumeService from '@/services/ResumeService'
-import type { Resume } from '@/types/resume'
+import type { Downloads, Resume } from '@/types/resume'
 import { saveBlob } from '@/utils/saveBlob'
 import { fileBase } from './fileBase'
 
-export type DownloadMode = 'free' | 'pay' | 'sub' | ''
+export type DownloadMode = 'pay' | 'limit' | 'sub' | ''
 
-// DownloadDialogs are the three download dialogs of screen 4.1: first free PDF, free one used, subscriber.
+// downloadMode picks the dialog: without a subscription the CV cannot be downloaded; with one, the plan may limit
+// the downloads of a period.
+export function downloadMode(subscriber: boolean, downloads: Downloads | undefined): DownloadMode {
+    if (!subscriber) return 'pay'
+    const limit = downloads?.limit
+    if (limit !== null && limit !== undefined && (downloads?.used ?? 0) >= limit) return 'limit'
+    return 'sub'
+}
+
+// downloadsLeft is how many downloads the period still allows, null when the plan sets no limit.
+export function downloadsLeft(downloads: Downloads | undefined): number | null {
+    const limit = downloads?.limit
+    if (limit === null || limit === undefined) return null
+    return Math.max(0, limit - (downloads?.used ?? 0))
+}
+
+// DownloadDialogs are the download dialogs of screen 4.1: no subscription, the period's downloads used, subscriber.
 export default function DownloadDialogs({
     mode,
     setMode,
     resume,
     templateName,
+    subscriber,
+    downloads,
 }: {
     mode: DownloadMode
     setMode: (m: DownloadMode) => void
     resume: Resume
     templateName: string
+    subscriber: boolean
+    downloads: Downloads | undefined
 }) {
     const t = useTranslations('download')
     const tc = useTranslations('common')
@@ -43,16 +62,18 @@ export default function DownloadDialogs({
     const base = fileBase(resume.content.contact.name, resume.title)
     const paid = plans?.filter((p) => p.active && p.price > 0).sort((a, b) => a.price - b.price)[0]
 
-    const download = async (fmt: 'pdf' | 'docx', branded: boolean) => {
+    const left = downloadsLeft(downloads)
+
+    const download = async (fmt: 'pdf' | 'docx') => {
         setBusy(true)
         try {
             const { data: file } = await ResumeService.exportResume(resume.id, fmt)
             const { data: blob } = await ResumeService.downloadFile(resume.id, file.id)
             saveBlob(blob, file.filename)
-            toast(t(branded ? 'toastFree' : 'toastSub', { file: file.filename, template: templateName }))
+            toast(t('toastSub', { file: file.filename, template: templateName }))
             close()
         } catch (err) {
-            if (errorStatus(err) === 402) setMode('pay')
+            if (errorStatus(err) === 402) setMode(subscriber ? 'limit' : 'pay')
             else toast(tc('error'))
         } finally {
             setBusy(false)
@@ -75,37 +96,6 @@ export default function DownloadDialogs({
 
     return (
         <>
-            <Modal open={mode === 'free'} onClose={close} eyebrow={t('freeEyebrow')} title={t('freeTitle')}>
-                <div className="flex items-center gap-3.5 rounded-[14px] border border-line-soft p-3.5">
-                    <div
-                        aria-hidden
-                        className="relative box-border flex h-24 w-[70px] flex-none flex-col gap-1 rounded border border-line-strong bg-white px-[7px] py-2"
-                    >
-                        <span className="h-[5px] w-3/5 rounded-sm bg-ink" />
-                        {[80, 70, 85, 60].map((w) => (
-                            <span key={w} className="h-[3px] bg-line-strong" style={{ width: `${w}%` }} />
-                        ))}
-                        <span className="absolute inset-x-1.5 bottom-1.5 flex items-center gap-[3px] text-[6px] text-ink-3">
-                            <span className="h-2 w-2 rounded-sm bg-lime" />
-                            9itchi
-                        </span>
-                    </div>
-                    <div className="flex flex-col gap-1 text-sm leading-normal">
-                        <strong>{t('freeWhat', { name: templateName })}</strong>
-                        <span className="text-ink-3">{t('freeMark')}</span>
-                    </div>
-                </div>
-                <div className="flex items-center gap-2.5 rounded-xl bg-fill-3 px-3.5 py-2.5 text-[13.5px] text-ink-3">
-                    <span className="inline-flex h-[22px] items-center rounded-md bg-line px-[7px] text-[11.5px] font-bold text-ink-2">DOCX</span>
-                    {t('freeWord')}
-                </div>
-                <Button size="lg" disabled={busy} onClick={() => download('pdf', true)}>
-                    <Icon name="download" />
-                    {t('freeButton')}
-                </Button>
-                <p className="m-0 text-center text-[13px] text-ink-3">{t('freeNote')}</p>
-            </Modal>
-
             <Modal open={mode === 'pay'} onClose={close} title={t('payTitle')}>
                 <p className="m-0 text-[15px] leading-[1.6] text-ink-3">{t('payText')}</p>
                 {price ? (
@@ -116,6 +106,20 @@ export default function DownloadDialogs({
                 ) : null}
                 <ButtonLink href="/settings/billing" size="lg">
                     {t('payButton')}
+                </ButtonLink>
+                <button
+                    type="button"
+                    onClick={original}
+                    className="cursor-pointer self-center border-0 bg-transparent p-0 text-sm font-semibold text-violet hover:text-violet-hover"
+                >
+                    {t('payOriginal')}
+                </button>
+            </Modal>
+
+            <Modal open={mode === 'limit'} onClose={close} title={t('limitTitle', { count: downloads?.limit ?? 0 })}>
+                <p className="m-0 text-[15px] leading-[1.6] text-ink-3">{t('limitText')}</p>
+                <ButtonLink href="/settings/billing" size="lg">
+                    {t('limitButton')}
                 </ButtonLink>
                 <button
                     type="button"
@@ -167,10 +171,12 @@ export default function DownloadDialogs({
                         {t('change')}
                     </Link>
                 </div>
-                <Button size="lg" disabled={busy} onClick={() => download(format, false)}>
+                <Button size="lg" disabled={busy} onClick={() => download(format)}>
                     {t('subButton', { file: `${base}.${format}` })}
                 </Button>
-                <span className="text-center text-[13px] text-ink-3">{t('subNote')}</span>
+                <span className="text-center text-[13px] text-ink-3">
+                    {left === null ? t('subNote') : t('subNoteLeft', { left, limit: downloads?.limit ?? 0 })}
+                </span>
             </Modal>
         </>
     )

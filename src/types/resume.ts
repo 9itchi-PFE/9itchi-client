@@ -11,7 +11,16 @@ export type Contact = {
 export type Entry = { url?: string; hidden?: boolean }
 export type Experience = Entry & { company: string; title: string; kind?: string; location?: string; start: string; end: string; description: string[] }
 export type Education = Entry & { school: string; degree: string; location?: string; start: string; end: string }
-export type Project = Entry & { hide_tech?: boolean; name: string; tech: string; year: string; start?: string; end?: string; location?: string; description: string[] }
+export type Project = Entry & {
+    hide_tech?: boolean
+    name: string
+    tech: string
+    year: string
+    start?: string
+    end?: string
+    location?: string
+    description: string[]
+}
 export type SkillGroup = { label: string; items: string[] }
 export type Certification = Entry & { name: string; issuer: string; year: string }
 export type ExtraSection = { title: string; items: string[] }
@@ -95,7 +104,10 @@ const META_SEPARATORS = { bullet: ' · ', hyphen: ' - ', bar: ' | ' } as const
 
 // metaText is the right-hand text of an entry: its dates and, when the style asks for it, the location beside them.
 export function metaText(start: string | undefined, end: string | undefined, loc: string | undefined, style?: CVStyle): string {
-    const dates = [start, end].map((x) => (x ?? '').trim()).filter(Boolean).join(' — ')
+    const dates = [start, end]
+        .map((x) => (x ?? '').trim())
+        .filter(Boolean)
+        .join(' — ')
     const l = (loc ?? '').trim()
     if (!l || style?.location_position !== 'date') return dates
     const marked = LOC_MARK + l + LOC_MARK
@@ -157,10 +169,15 @@ export type ResumeFile = {
     created_at: string
 }
 
-export type RuleStatus = 'ok' | 'fix' | 'tip'
+// locked: the student's plan does not show the rule's group; nothing is said of how the CV does on it.
+export type RuleStatus = 'ok' | 'fix' | 'tip' | 'locked'
 export type RuleGroup = 'contact' | 'summary' | 'experience' | 'education' | 'skills' | 'layout' | 'file'
 export type RuleResult = { id: string; group: RuleGroup; status: RuleStatus; where?: string; was?: string; now?: string }
-export type ATSCheck = { passed: number; total: number; to_fix: number; rules: RuleResult[] }
+// locked_groups are the groups the plan does not show; passed, total and to_fix still count the whole CV.
+export type ATSCheck = { passed: number; total: number; to_fix: number; rules: RuleResult[]; locked_groups?: RuleGroup[] }
+
+// Downloads: how many downloads in the current period and what the plan allows (null: no limit, 0: none).
+export type Downloads = { used: number; limit?: number | null }
 
 export const emptyContent = (): ResumeContent => ({
     contact: { name: '', headline: '', email: '', phone: '', location: '', links: [] },

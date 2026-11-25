@@ -1,4 +1,4 @@
-import type { ATSCheck, Resume, ResumeContent, ResumeFile, ResumeList, Template, Version, VersionWithContent } from '@/types/resume'
+import type { ATSCheck, Downloads, Resume, ResumeContent, ResumeFile, ResumeList, Template, Version, VersionWithContent } from '@/types/resume'
 import { api } from './ApiService'
 import type { UserCV } from '@/types/user'
 
@@ -30,7 +30,7 @@ const ResumeService = {
     getPhoto: (id: string) => r().get<Blob>(`/resumes/${id}/photo`, { responseType: 'blob' }),
     deletePhoto: (id: string) => r().delete(`/resumes/${id}/photo`),
     exportResume: (id: string, format: 'pdf' | 'docx') => r().post<ResumeFile>(`/resumes/${id}/export`, { format }),
-    downloads: () => r().get<{ used: number }>(`/me/downloads`),
+    downloads: () => r().get<Downloads>(`/me/downloads`),
     aTSCheck: (id: string, targetLanguage?: string) =>
         r().post<ATSCheck>(`/resumes/${id}/ats-check`, targetLanguage ? { target_language: targetLanguage } : {}),
     listFiles: (id: string) => r().get<{ items: ResumeFile[] }>(`/resumes/${id}/files`),
