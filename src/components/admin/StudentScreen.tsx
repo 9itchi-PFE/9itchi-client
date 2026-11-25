@@ -16,7 +16,9 @@ import {
     useGiveMonth,
     useSaveStudentNote,
     useStudentApplications,
+    useStudentBuiltSends,
     useStudentCV,
+    useStudentDownloads,
     useStudentGifts,
     useStudentGmail,
     useStudentNote,
@@ -29,7 +31,7 @@ import { cn } from '@/lib/cn'
 import type { Application, ApplicationStatus } from '@/types/application'
 import { apiError } from './SourcesScreen'
 import { statusPill } from './StudentsScreen'
-import { studentId } from './students'
+import { refund, studentId, type Refund } from './students'
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
     return (
@@ -151,14 +153,26 @@ function Payments({ id }: { id: string }) {
     const format = useFormatter()
     const locale = useLocale()
     const { data, isLoading, isError } = useStudentPayments(id)
-    const cols = 'grid grid-cols-[1.2fr_1fr_1fr_.7fr] items-center gap-3 px-4'
+    const downloads = useStudentDownloads(id)
+    const sends = useStudentBuiltSends(id)
+    const now = new Date()
+    const cols = 'grid grid-cols-[1fr_.9fr_.8fr_1.7fr] items-center gap-3 px-4'
+    const pill = 'inline-block rounded-full px-2.5 py-[3px] text-[13px] font-semibold'
+    const refundPill = (r: Refund) =>
+        r.state === 'open' ? (
+            <span className={cn(pill, 'bg-violet-soft text-violet-hover')}>
+                {t('refundOpen', { date: format.dateTime(r.until, { day: 'numeric', month: 'short' }) })}
+            </span>
+        ) : (
+            <span className={cn(pill, 'bg-fill text-ink-3')}>{r.state === 'used' ? t(`refundUsed.${r.by}`) : t('refundUnknown')}</span>
+        )
     return (
         <section aria-labelledby="pays-h" className={panel}>
             <h2 id="pays-h" className="m-0 text-xl font-extrabold">
                 {t('sPayments')}
             </h2>
             <div role="table" aria-labelledby="pays-h" className="overflow-x-auto">
-                <div role="row" className={cn(cols, 'min-w-[560px]', head)}>
+                <div role="row" className={cn(cols, 'min-w-[680px]', head)}>
                     <span role="columnheader">{t('colReceipt')}</span>
                     <span role="columnheader">{t('colDate')}</span>
                     <span role="columnheader">{t('colAmount')}</span>
@@ -167,23 +181,28 @@ function Payments({ id }: { id: string }) {
                 {isLoading ? <div className="sk m-4 h-12 rounded-lg" /> : null}
                 {isError ? <p className="m-0 px-4 py-6 text-sm text-[#B42318]">{t('sPartError')}</p> : null}
                 {data && data.length === 0 ? <p className="m-0 px-4 py-6 text-sm text-ink-3">{t('sNoPayments')}</p> : null}
-                {data?.map((p) => (
-                    <div role="row" key={p.id} className={cn(cols, 'min-w-[560px]', line)}>
-                        <span role="cell" className="tabular-nums">
-                            <bdi dir="ltr">{p.receipt_no || '–'}</bdi>
-                        </span>
-                        <span role="cell">
-                            {p.completed_at ? format.dateTime(new Date(p.completed_at), { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
-                        </span>
-                        <span role="cell" className="tabular-nums">
-                            {t('amountTnd', { amount: tnd(p.amount_millimes, locale) })}
-                        </span>
-                        <span role="cell">
-                            <span className="inline-block rounded-full bg-ok-bg px-2.5 py-[3px] text-[13px] font-semibold text-ok-fg">{t('paid')}</span>
-                        </span>
-                    </div>
-                ))}
+                {data?.map((p) => {
+                    const r = refund(p, downloads.data?.last_at, sends.data?.last_at, now)
+                    return (
+                        <div role="row" key={p.id} className={cn(cols, 'min-w-[680px]', line)}>
+                            <span role="cell" className="tabular-nums">
+                                <bdi dir="ltr">{p.receipt_no || '–'}</bdi>
+                            </span>
+                            <span role="cell">
+                                {p.completed_at ? format.dateTime(new Date(p.completed_at), { day: 'numeric', month: 'short', year: 'numeric' }) : '—'}
+                            </span>
+                            <span role="cell" className="tabular-nums">
+                                {t('amountTnd', { amount: tnd(p.amount_millimes, locale) })}
+                            </span>
+                            <span role="cell" className="flex flex-wrap gap-1.5">
+                                <span className={cn(pill, 'bg-ok-bg text-ok-fg')}>{t('paid')}</span>
+                                {r ? refundPill(r) : null}
+                            </span>
+                        </div>
+                    )
+                })}
             </div>
+            <p className="m-0 text-[13.5px] leading-[1.55] text-ink-3">{t('refundRule')}</p>
         </section>
     )
 }

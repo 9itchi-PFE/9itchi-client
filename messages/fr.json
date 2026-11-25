@@ -1102,6 +1102,14 @@
         },
         "sPayments": "Paiements",
         "sNoPayments": "Aucun paiement.",
+        "refundOpen": "Remboursable jusqu’au {date}",
+        "refundUsed": {
+            "download": "Non remboursable : CV téléchargé",
+            "application": "Non remboursable : candidature envoyée",
+            "both": "Non remboursable : CV téléchargé et candidature envoyée"
+        },
+        "refundUnknown": "Remboursement à vérifier",
+        "refundRule": "Remboursement intégral dans les 7 jours si rien n’a été utilisé depuis le paiement : aucun CV téléchargé, aucune candidature envoyée avec le CV corrigé. Double paiement ou offre non activée : toujours remboursé. Le remboursement se fait à la main chez Flouci.",
         "colReceipt": "Reçu",
         "colDate": "Date",
         "colAmount": "Montant",
