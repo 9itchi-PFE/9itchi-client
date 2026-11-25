@@ -10,7 +10,8 @@ export const adminUserKeys = {
     all: ['admin', 'users'] as const,
     list: (query: UserQuery) => ['admin', 'users', 'list', query] as const,
     one: (id: string) => ['admin', 'users', 'one', id] as const,
-    part: (id: string, what: 'subscription' | 'payments' | 'applications' | 'gmail' | 'cv' | 'note' | 'gifts') => ['admin', 'users', 'one', id, what] as const,
+    part: (id: string, what: 'subscription' | 'payments' | 'applications' | 'gmail' | 'cv' | 'note' | 'gifts' | 'downloads' | 'sent-with-cv') =>
+        ['admin', 'users', 'one', id, what] as const,
 }
 
 // useAdminUsers lists the students; while a new page or search loads, the rows already shown stay.
@@ -77,6 +78,26 @@ export function useStudentApplications(id: string) {
 
 export function useStudentGmail(id: string) {
     return useQuery({ queryKey: adminUserKeys.part(id, 'gmail'), queryFn: async () => (await EmailService.userGmail(id)).data, enabled: !!id, retry: 1 })
+}
+
+// useStudentDownloads and useStudentBuiltSends say when the student last used what a subscription pays for: the
+// payments table needs both to tell whether a recent payment can still be refunded.
+export function useStudentDownloads(id: string) {
+    return useQuery({
+        queryKey: adminUserKeys.part(id, 'downloads'),
+        queryFn: async () => (await ResumeService.userDownloads(id)).data,
+        enabled: !!id,
+        retry: 1,
+    })
+}
+
+export function useStudentBuiltSends(id: string) {
+    return useQuery({
+        queryKey: adminUserKeys.part(id, 'sent-with-cv'),
+        queryFn: async () => (await EmailService.userBuiltSends(id)).data,
+        enabled: !!id,
+        retry: 1,
+    })
 }
 
 // useStudentCV reads where the student's CV stands; a student without a CV is not an error (null).

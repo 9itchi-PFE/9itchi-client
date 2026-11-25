@@ -243,6 +243,7 @@ function Pay({ plan, extending }: { plan: Plan; extending: MySubscription | null
                     {due > 0 && !leaving ? <Icon name="arrow" size={16} stroke="#D6F25E" className="-rotate-45 rtl:rotate-[225deg]" /> : null}
                 </Button>
                 <p className="m-0 text-center text-[13px] leading-[1.5] text-ink-3">{t('payNote')}</p>
+                <p className="m-0 text-center text-[13px] leading-[1.5] text-ink-3">{t('refundRule')}</p>
             </section>
         </div>
     )

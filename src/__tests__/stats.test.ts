@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { rangeOf, rate, share, total, weekOf, weekly } from '@/components/admin/stats'
+import { rangeOf, rate, share, total, weekOf, weekly, before } from '@/components/admin/stats'
 
 describe('rangeOf', () => {
     const now = new Date('2026-11-24T21:30:00Z')
@@ -51,5 +51,15 @@ describe('weeks', () => {
             { week: 48, monday: '2026-11-23', values: [5, 2] },
         ])
         expect(weekly([undefined, undefined])).toEqual([])
+    })
+})
+
+describe('the period before', () => {
+    it('has the same length and ends the day before', () => {
+        expect(before({ from: '2026-11-19', to: '2026-11-25' })).toEqual({ from: '2026-11-12', to: '2026-11-18' })
+        expect(before({ from: '2026-11-25', to: '2026-11-25' })).toEqual({ from: '2026-11-24', to: '2026-11-24' })
+    })
+    it('crosses a month and a year', () => {
+        expect(before({ from: '2027-01-01', to: '2027-01-30' })).toEqual({ from: '2026-12-02', to: '2026-12-31' })
     })
 })
