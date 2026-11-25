@@ -1,6 +1,6 @@
-import { redirect } from 'next/navigation'
+import OverviewScreen from '@/components/admin/OverviewScreen'
 
-// The team starts on the figures until the overview of the canvas is built.
+// Admin « Vue d'ensemble »: where the team starts.
 export default function Page() {
-    redirect('/admin/stats')
+    return <OverviewScreen />
 }

@@ -21,6 +21,10 @@ export type UserList = { items: AdminUser[]; total: number; page: number; page_s
 // UserNote is the team's internal note about a student. updated_at is null when nothing was ever written.
 export type UserNote = { user_id: string; note: string; updated_at: string | null }
 
+// LastUse is how many times a student used something a subscription pays for, and when they last did (resume-api:
+// CV downloads; email-api: applications sent with the CV built in 9itchi).
+export type LastUse = { count: number; last_at: string | null }
+
 // UserCV is where a student's CV stands for the team: counts only (resume-api).
 export type UserCV = { resume_id: string; title: string; resumes: number; version: number; passed: number; total: number; to_fix: number; updated_at: string }
 

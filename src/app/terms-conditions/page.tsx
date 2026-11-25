@@ -162,7 +162,10 @@ export default function Page() {
                                 'Some features require a paid plan or have usage limits. Prices and limits are shown in the app before you pay.',
                                 'Payments are handled by third-party payment providers; we do not store your card details.',
                                 'Promo codes are single-purpose, may expire and cannot be exchanged for cash.',
-                                'Unless required by law, payments for digital services already delivered are non-refundable. Where mandatory consumer law gives you a withdrawal or refund right, it is not affected.',
+                                'Refund within 7 days: a payment is refunded in full when you ask within 7 days of paying and, since that payment, you have downloaded no resume and sent no application with the resume built in the service.',
+                                'A payment taken twice, or taken without your plan being activated, is always refunded.',
+                                'Otherwise payments are not refunded, in whole or in part. If you stop your plan you keep access until the end of the period you paid for; if you delete your account, the rest of the period is given up.',
+                                'To ask for a refund, write to us from the Help page. Where mandatory consumer law gives you a wider withdrawal or refund right, it is not affected.',
                             ]}
                         />
                     ),

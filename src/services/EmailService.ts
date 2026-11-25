@@ -1,4 +1,5 @@
 import type { Allowance, Application, ApplicationList, ApplyInput, Draft, DraftInput, Email, GmailStatus } from '@/types/application'
+import type { LastUse } from '@/types/user'
 import { api } from './ApiService'
 
 const e = () => api('email')
@@ -22,6 +23,8 @@ const EmailService = {
     allowance: () => e().get<Allowance>(`/applications/allowance`),
     // userApplications and userGmail are what the team sees of one student (admin): no recipient, no subject, no address.
     userApplications: (userId: string) => e().get<ApplicationList>(`/admin/users/${userId}/applications`),
+    // userBuiltSends is how many applications a student sent with the CV built in 9itchi, and the last time (admin).
+    userBuiltSends: (userId: string) => e().get<LastUse>(`/admin/users/${userId}/sent-with-cv`),
     userGmail: (userId: string) => e().get<GmailStatus>(`/admin/users/${userId}/gmail`),
     updateApplication: (id: string, status: 'sent' | 'replied' | 'withdrawn' | 'closed') => e().patch<Application>(`/applications/${id}`, { status }),
     sendApplicationNow: (id: string) => e().post<Application>(`/applications/${id}/send`),
