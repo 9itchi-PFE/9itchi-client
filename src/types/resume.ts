@@ -144,6 +144,8 @@ export type Resume = {
     language: 'fr' | 'en' | 'ar' | null
     parse_report: ParseReport | null
     has_photo: boolean
+    // locked: beyond the plan's CV limit, the CV can be read and downloaded, not changed.
+    locked?: boolean
     content: ResumeContent
     created_at: string
     updated_at: string

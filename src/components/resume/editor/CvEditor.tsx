@@ -10,7 +10,7 @@ import { Modal } from '@/components/ui/Modal'
 import { Segmented } from '@/components/ui/Segmented'
 import { useToast } from '@/components/ui/Toast'
 import { useMySubscription } from '@/hooks/usePlans'
-import { resumeKeys, useAtsCheck, useDownloads, usePhoto, useResume, useResumes, useSaveVersion } from '@/hooks/useResumes'
+import { resumeKeys, useAtsCheck, useChooseEditable, useDownloads, usePhoto, useResume, useResumes, useSaveVersion } from '@/hooks/useResumes'
 import { useTemplates } from '@/hooks/useTemplates'
 import { cn } from '@/lib/cn'
 import ShowSwitch from './ShowSwitch'
@@ -56,6 +56,8 @@ export default function CvEditor({ id }: { id: string }) {
 
 function Editor({ resume: initial }: { resume: Resume }) {
     const t = useTranslations('cv')
+    const tv = useTranslations('versions')
+    const tc = useTranslations('common')
     const tl = useTranslations('templates.layouts')
     const format = useFormatter()
     const toast = useToast()
@@ -87,6 +89,9 @@ function Editor({ resume: initial }: { resume: Resume }) {
     const photo = usePhoto(id, resume.has_photo).data
     const check = useAtsCheck(id)
     const snapshot = useSaveVersion(id)
+    const choose = useChooseEditable()
+    // locked: beyond the plan's CV limit this CV is read and downloaded, not changed (resume-api answers 402).
+    const locked = !!resume.locked
     const toFix = useMemo(() => sectionsToFix(check.data?.rules), [check.data])
 
     // Autosave: the content goes to resume-api SAVE_DELAY after the last keystroke.
@@ -112,6 +117,7 @@ function Editor({ resume: initial }: { resume: Resume }) {
         [id, qc],
     )
     const change = (c: ResumeContent) => {
+        if (locked) return
         setContent(c)
         latest.current = c
         dirtySince.current = section
@@ -250,13 +256,15 @@ function Editor({ resume: initial }: { resume: Resume }) {
                 <div className="flex flex-wrap items-center gap-2">
                     <Button variant="secondary" onClick={() => setVersionsOpen(true)}>
                         <Icon name="history" />
-                        {t('versions', { count: isSubscriber ? (resumes?.total ?? 1) : 1 })}
+                        {t('versions', { count: resumes?.total ?? 1 })}
                     </Button>
                     <ButtonLink
                         variant="secondary"
-                        href={`/resumes/templates?cv=${id}`}
-                        className="hover:text-ink"
+                        href={locked ? '#' : `/resumes/templates?cv=${id}`}
+                        className={cn('hover:text-ink', locked && 'pointer-events-none opacity-50')}
                         aria-label={t('template', { name: templateName })}
+                        aria-disabled={locked || undefined}
+                        tabIndex={locked ? -1 : undefined}
                     >
                         <span
                             className={cn(
@@ -285,6 +293,37 @@ function Editor({ resume: initial }: { resume: Resume }) {
                 </div>
             </div>
 
+            {locked ? (
+                <div role="status" className="flex flex-col gap-2.5 rounded-[14px] border border-dashed border-[#C9CDD5] bg-white p-4">
+                    <span className="flex items-center gap-2.5">
+                        <Icon name="lock" />
+                        <strong className="text-[15px]">{tv('lockedTitle')}</strong>
+                    </span>
+                    <span className="text-sm leading-normal text-ink-3">{tv('lockedText')}</span>
+                    <div className="flex flex-wrap items-center gap-3">
+                        <ButtonLink href="/settings/billing" size="sm">
+                            {tv('freeLink')}
+                        </ButtonLink>
+                        <Button
+                            variant="secondary"
+                            size="sm"
+                            disabled={choose.isPending}
+                            onClick={() =>
+                                choose.mutate(id, {
+                                    onSuccess: (data) => {
+                                        setResume((r) => ({ ...r, locked: data.locked }))
+                                        toast(tv('toastChosen', { name: resume.title }))
+                                    },
+                                    onError: () => toast(tc('error')),
+                                })
+                            }
+                        >
+                            {tv('choose')}
+                        </Button>
+                    </div>
+                </div>
+            ) : null}
+
             <div role="tablist" aria-label={t('tabs.label')} className="flex gap-1 self-start rounded-xl bg-fill-3 p-1">
                 {(['content', 'customize'] as const).map((k) => (
                     <button
@@ -304,7 +343,11 @@ function Editor({ resume: initial }: { resume: Resume }) {
             </div>
 
             <div className="flex flex-wrap items-start gap-6">
-                <div className="flex min-w-0 flex-[1_1_380px] flex-col gap-3 lg:max-w-[460px]">
+                <fieldset
+                    disabled={locked}
+                    aria-label={locked ? tv('locked') : undefined}
+                    className="m-0 flex min-w-0 flex-[1_1_380px] flex-col gap-3 border-0 p-0 disabled:opacity-60 lg:max-w-[460px]"
+                >
                     {tab === 'customize' ? (
                         <div className="rounded-[14px] border border-line-soft bg-white p-4">
                             <StylePanel style={content.style} layout={layout} onChange={(style) => change({ ...content, style })} />
@@ -389,7 +432,7 @@ function Editor({ resume: initial }: { resume: Resume }) {
                             </nav>
                         </>
                     )}
-                </div>
+                </fieldset>
 
                 <section
                     aria-label={t('previewAria')}
