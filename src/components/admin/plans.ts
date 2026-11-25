@@ -1,4 +1,4 @@
-import type { Plan, PlanInput, PromoCode, PromoInput } from '@/types/plan'
+import type { Plan, PlanInput, PromoCode, PromoInput, SaleInput } from '@/types/plan'
 
 // The free plan keeps this name in payments-api; the page writes it in the language of the admin.
 export const FREE_PLAN = 'Free'
@@ -151,4 +151,26 @@ export function stopped(p: PromoCode, now = new Date()): PromoInput {
         usage_limit: p.usage_limit,
         plan_ids: p.plan_ids,
     }
+}
+
+export type SaleError = 'saleNameInvalid' | 'salePercentRange' | 'datesInvalid' | 'saleOver'
+
+export type SaleTyped = { name: string; percent: string; from: string; until: string }
+
+// saleInput builds what is saved for a sale from the form. planIds empty: every paid plan. A sale whose last day
+// is already past is refused, as payments-api refuses it.
+export function saleInput(typed: SaleTyped, planIds: string[], now = new Date()): { input: SaleInput } | { error: SaleError } {
+    const name = typed.name.trim()
+    if (!name || name.length > 60) return { error: 'saleNameInvalid' }
+    const percent = Number(typed.percent.trim())
+    if (!Number.isInteger(percent) || percent < 1 || percent > 90) return { error: 'salePercentRange' }
+    const day = /^\d{4}-\d{2}-\d{2}$/
+    if (!day.test(typed.from) || !day.test(typed.until) || typed.from > typed.until) return { error: 'datesInvalid' }
+    if (typed.until < today(now)) return { error: 'saleOver' }
+    return { input: { name, percent, starts_on: typed.from, ends_on: typed.until, plan_ids: planIds } }
+}
+
+// salePrice is what a price becomes in a sale, the way payments-api counts it: in whole millimes, rounded down.
+export function salePrice(price: number, percent: number): number {
+    return Math.floor((Math.round(price * 1000) * (100 - percent)) / 100) / 1000
 }

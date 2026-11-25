@@ -18,6 +18,8 @@ import {
     stopped,
     withCount,
     withShown,
+    saleInput,
+    salePrice,
 } from '@/components/admin/plans'
 import { dayAt } from '@/components/billing/billing'
 import type { Plan, PromoCode } from '@/types/plan'
@@ -226,5 +228,34 @@ describe('what each plan allows', () => {
         expect(sameQuotas({ a: 1 }, { a: 1, b: 0 })).toBe(false)
         expect(sameQuotas({ a: 1 }, { a: 2 })).toBe(false)
         expect(sameQuotas(undefined, {})).toBe(true)
+    })
+})
+
+describe('a sale', () => {
+    const now = new Date('2027-02-10T09:00:00Z')
+    const typed = { name: ' Rentrée ', percent: '30', from: '2027-02-15', until: '2027-02-28' }
+    it('is built from the form', () => {
+        expect(saleInput(typed, [], now)).toEqual({ input: { name: 'Rentrée', percent: 30, starts_on: '2027-02-15', ends_on: '2027-02-28', plan_ids: [] } })
+        expect(saleInput({ ...typed, from: '2027-02-10', until: '2027-02-10' }, ['p1'], now)).toEqual({
+            input: { name: 'Rentrée', percent: 30, starts_on: '2027-02-10', ends_on: '2027-02-10', plan_ids: ['p1'] },
+        })
+    })
+    it('says what is wrong', () => {
+        expect(saleInput({ ...typed, name: '  ' }, [], now)).toEqual({ error: 'saleNameInvalid' })
+        expect(saleInput({ ...typed, name: 'x'.repeat(61) }, [], now)).toEqual({ error: 'saleNameInvalid' })
+        for (const percent of ['0', '91', '12.5', 'dix', '']) expect(saleInput({ ...typed, percent }, [], now)).toEqual({ error: 'salePercentRange' })
+        expect(saleInput({ ...typed, from: '2027-03-01' }, [], now)).toEqual({ error: 'datesInvalid' })
+        expect(saleInput({ ...typed, until: '' }, [], now)).toEqual({ error: 'datesInvalid' })
+        expect(saleInput({ ...typed, from: '2027-01-01', until: '2027-02-09' }, [], now)).toEqual({ error: 'saleOver' })
+    })
+    it('counts a day in Tunis', () => {
+        // 23:30 UTC on the 9th is already the 10th in Tunis: a sale ending on the 9th is over.
+        expect(saleInput({ ...typed, from: '2027-02-01', until: '2027-02-09' }, [], new Date('2027-02-09T23:30:00Z'))).toEqual({ error: 'saleOver' })
+    })
+    it('prices like payments-api: whole millimes, rounded down', () => {
+        expect(salePrice(50, 30)).toBe(35)
+        expect(salePrice(35, 30)).toBe(24.5)
+        expect(salePrice(49.99, 33)).toBe(33.493)
+        expect(salePrice(35, 90)).toBe(3.5)
     })
 })

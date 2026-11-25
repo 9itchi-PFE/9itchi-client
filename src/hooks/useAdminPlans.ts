@@ -1,11 +1,12 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import PaymentService from '@/services/PaymentService'
-import type { PlanInput, PromoInput, ReceiptIssuer, ReceiptIssuerInput } from '@/types/plan'
+import type { PlanInput, PromoInput, ReceiptIssuer, ReceiptIssuerInput, SaleInput } from '@/types/plan'
 import { billingKeys } from './usePlans'
 
 export const adminPlanKeys = {
     plans: ['admin', 'plans'] as const,
     promos: ['admin', 'promo-codes'] as const,
+    sales: ['admin', 'sales'] as const,
 }
 
 // useAllPlans lists every plan, the ones that are switched off too.
@@ -44,6 +45,33 @@ export function useDeletePromo() {
         mutationFn: (id: string) => PaymentService.deletePromo(id),
         onSuccess: () => qc.invalidateQueries({ queryKey: adminPlanKeys.promos }),
     })
+}
+
+export function useSales() {
+    return useQuery({ queryKey: adminPlanKeys.sales, queryFn: async () => (await PaymentService.listSales()).data.items })
+}
+
+// A sale changes the prices students see: they are read again with the list.
+function useSalesChanged() {
+    const qc = useQueryClient()
+    return () => {
+        qc.invalidateQueries({ queryKey: adminPlanKeys.sales })
+        qc.invalidateQueries({ queryKey: billingKeys.plans })
+    }
+}
+
+export function useSaveSale() {
+    const changed = useSalesChanged()
+    return useMutation({
+        mutationFn: async ({ id, input }: { id?: string; input: SaleInput }) =>
+            (await (id ? PaymentService.updateSale(id, input) : PaymentService.createSale(input))).data,
+        onSuccess: changed,
+    })
+}
+
+export function useDeleteSale() {
+    const changed = useSalesChanged()
+    return useMutation({ mutationFn: (id: string) => PaymentService.deleteSale(id), onSuccess: changed })
 }
 
 // useSaveReceiptIssuer saves the legal information of the receipts; the receipts read it again.

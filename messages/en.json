@@ -1351,7 +1351,40 @@
         "noLimit": "No limit",
         "limitsSave": "Save the limits",
         "limitsSaved": "Limits saved",
-        "limitsInvalid": "A limit is a whole number, 0 or more."
+        "limitsInvalid": "A limit is a whole number, 0 or more.",
+        "salesTitle": "Sales",
+        "salesHint": "A reduction without a code, between two dates. During the sale every student sees the reduced price with the usual price struck through, and pays the reduced price. The day after the last day the usual price comes back by itself. A subscription already paid does not change.",
+        "saleNew": "+ New sale",
+        "saleAdd": "New sale",
+        "saleEdit": "Edit the sale",
+        "sName": "Name",
+        "sNameHint": "Students see it next to the price. Example: Back to school.",
+        "sPercent": "Reduction in %",
+        "sFrom": "First day",
+        "sUntil": "Last day",
+        "sPlans": "Plans",
+        "sPlansHint": "No plan ticked: the sale applies to every paid plan.",
+        "saleSaved": "Sale saved",
+        "saleDeleted": "Sale deleted",
+        "saleDelete": "Delete the sale",
+        "saleStopNow": "Stop now",
+        "saleStopConfirm": "Stop “{name}” now? The usual price comes back at once and the sale leaves the list.",
+        "saleDeleteConfirm": "Delete “{name}”?",
+        "colSale": "Sale",
+        "colFrom": "First day",
+        "colLastDay": "Last day",
+        "colPlans": "Plans",
+        "salesError": "The sales could not be loaded.",
+        "noSales": "No sale yet.",
+        "saleAllPlans": "Every paid plan",
+        "saleState": {
+            "running": "Running",
+            "upcoming": "Upcoming",
+            "over": "Over"
+        },
+        "saleNameInvalid": "Give the sale a name, 60 characters at most.",
+        "salePercentRange": "The reduction is a whole number between 1 and 90.",
+        "saleOver": "The last day is already past."
     },
     "apply": {
         "back": "Back to the offer",
@@ -1669,7 +1702,9 @@
         "taxId": "Tax ID",
         "taxIdShort": "Tax ID",
         "vat": "VAT",
-        "toFill": "to be completed"
+        "toFill": "to be completed",
+        "saleUntil": "{name} · −{percent}% until {day, date, ::dMMMM}",
+        "saleLine": "Sale “{name}”"
     },
     "notifications": {
         "title": "Notifications",

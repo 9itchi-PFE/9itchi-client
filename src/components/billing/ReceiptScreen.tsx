@@ -136,7 +136,7 @@ export default function ReceiptScreen({ id }: { id: string }) {
                     </div>
                     {l.launch > 0 ? (
                         <div className={row}>
-                            <span>{t('launchPrice')}</span>
+                            <span>{p.sale_name ? t('saleLine', { name: p.sale_name }) : t('launchPrice')}</span>
                             <span className="tabular-nums">−{tnd(l.launch, locale)}</span>
                         </div>
                     ) : null}
