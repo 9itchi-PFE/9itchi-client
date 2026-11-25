@@ -10,3 +10,6 @@ export function profileInput(name: string, school: string): { input: MeInput } |
     if (n.length > 100) return { error: 'nameLong' }
     return { input: { name: n, school: school.trim() } }
 }
+
+// confirmed says the student typed the word that confirms the deletion (case and spaces around it do not count).
+export const confirmed = (typed: string, word: string) => typed.trim().toLocaleUpperCase() === word.trim().toLocaleUpperCase()

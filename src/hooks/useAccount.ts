@@ -16,3 +16,9 @@ export function useUpdateMe() {
         onSuccess: (me) => qc.setQueryData<Me>(accountKeys.me, me),
     })
 }
+
+// useDeleteMe deletes the account and everything 9itchi keeps about its owner. account-api answers 502 when one
+// of the services could not erase its part: nothing is lost, the student can ask again.
+export function useDeleteMe() {
+    return useMutation({ mutationFn: async () => (await AccountService.deleteMe()).data })
+}

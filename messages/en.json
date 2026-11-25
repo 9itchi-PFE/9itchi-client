@@ -1824,8 +1824,18 @@
             "supportText": "Write to the 9itchi team."
         },
         "session": "Session and account",
-        "deleteText": "To delete your account and your data, write to the team: we take care of it and confirm.",
         "signOut": "Sign out",
-        "deleteAsk": "Ask for my account to be deleted"
+        "deleteOpen": "Delete my account",
+        "deleteTitle": "Delete your account?",
+        "deleteGone": "What is erased, at once and for good",
+        "deleteGoneText": "Your account, your CV with its versions and your photo, your applications and their tracking, your saved offers, what you are looking for, your notifications, your messages to the team. The connection to your Gmail is removed and scheduled emails do not leave.",
+        "deleteKept": "What stays",
+        "deleteKeptText": "The receipts of your payments, kept for the accounts, without your name. Your subscription stops. Emails already sent stay in your Gmail and with the recruiters.",
+        "deleteType": "Type {word} to confirm",
+        "deleteWord": "DELETE",
+        "deleteCancel": "Cancel",
+        "deleteConfirm": "Delete my account",
+        "deleteBusy": "Deleting…",
+        "deleteFailed": "The deletion could not finish. Nothing is lost: try again in a moment."
     }
 }
