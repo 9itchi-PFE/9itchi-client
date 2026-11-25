@@ -23,13 +23,34 @@ export function ownIndex(paras: string[]): number {
 }
 
 // compose is the body that leaves: the paragraphs, with the student's sentence at the end of the first real one.
-export function compose(paras: string[], own: string): string {
+export function compose(paras: string[], own: string, sig: string[] = []): string {
     const kept = paras.map((p) => p.trim()).filter(Boolean)
     const o = sentence(own)
-    if (!o) return kept.join('\n\n')
     const i = ownIndex(kept)
-    if (i < 0) return o
-    return kept.map((p, k) => (k === i ? `${p} ${o}` : p)).join('\n\n')
+    const text = !o ? kept.join('\n\n') : i < 0 ? o : kept.map((p, k) => (k === i ? `${p} ${o}` : p)).join('\n\n')
+    // The signature goes right under the last line of the letter (the name), one line each.
+    return sig.length ? `${text}\n${sig.join('\n')}` : text
+}
+
+export type SignatureSource = { speciality?: string; year?: string; school?: string; phone?: string; linkedin?: string; github?: string }
+
+// signature is what goes under every letter, from « Mon profil » (as the design draws it): « speciality, year »,
+// « school · phone », then the LinkedIn and GitHub pages without https://www. Empty parts are left out; the
+// name is not repeated, the letter already ends with it. yearLabel turns a year code into words.
+export function signature(p: SignatureSource | undefined, yearLabel: (code: string) => string): string[] {
+    if (!p) return []
+    const clean = (v?: string) => (v ?? '').trim()
+    const school = clean(p.school) === 'OTHER' ? '' : clean(p.school)
+    const link = (v?: string) =>
+        clean(v)
+            .replace(/^https?:\/\/(www\.)?/i, '')
+            .replace(/\/$/, '')
+    return [
+        [clean(p.speciality), clean(p.year) ? yearLabel(clean(p.year)) : ''].filter(Boolean).join(', '),
+        [school, clean(p.phone)].filter(Boolean).join(' · '),
+        link(p.linkedin),
+        link(p.github),
+    ].filter(Boolean)
 }
 
 // Slot is a suggested time to send: recruiters read more in the morning.

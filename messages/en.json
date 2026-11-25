@@ -1600,7 +1600,11 @@
         "draftLimitText": "Write your letter yourself from a template: you can still apply. With the subscription, the AI writes more of them.",
         "draftUsedToast": "No more AI letters this month: the letter shown stays, edit it yourself.",
         "draftPlanToast": "The AI letter is part of the subscription: the letter shown stays.",
-        "seePlans": "See the plans"
+        "seePlans": "See the plans",
+        "signature": "Signature",
+        "signatureFrom": "Under your letter: your details from My profile.",
+        "signatureNone": "Add your speciality, phone or LinkedIn in My profile: they will go under your letters.",
+        "signatureEdit": "Edit My profile"
     },
     "applications": {
         "title": "My applications",

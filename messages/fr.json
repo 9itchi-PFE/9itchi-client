@@ -1600,7 +1600,11 @@
         "draftLimitText": "Écris ta lettre toi-même à partir d’un modèle : tu peux toujours postuler. Avec l’abonnement, l’IA en écrit davantage.",
         "draftUsedToast": "Plus de lettre par l’IA ce mois-ci : la lettre affichée reste, modifie-la toi-même.",
         "draftPlanToast": "La lettre par l’IA fait partie de l’abonnement : la lettre affichée reste.",
-        "seePlans": "Voir les abonnements"
+        "seePlans": "Voir les abonnements",
+        "signature": "Signature",
+        "signatureFrom": "Sous ta lettre : tes infos de Mon profil.",
+        "signatureNone": "Ajoute ta spécialité, ton téléphone ou ton LinkedIn dans Mon profil : ils iront sous tes lettres.",
+        "signatureEdit": "Modifier Mon profil"
     },
     "applications": {
         "title": "Mes candidatures",

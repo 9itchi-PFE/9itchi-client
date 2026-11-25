@@ -16,6 +16,7 @@ import { LogoReading } from '@/components/ui/Logo'
 import { Modal } from '@/components/ui/Modal'
 import { Segmented } from '@/components/ui/Segmented'
 import { useToast } from '@/components/ui/Toast'
+import { useMe } from '@/hooks/useAccount'
 import { useAllowance, useApplications, useApply, useDraft, useGmailStatus } from '@/hooks/useApplications'
 import { useJob, useSimilarJobs } from '@/hooks/useJobs'
 import { useMyCv, useResume } from '@/hooks/useResumes'
@@ -26,7 +27,22 @@ import ResumeService from '@/services/ResumeService'
 import type { Application, LetterLanguage, Tone } from '@/types/application'
 import type { Job } from '@/types/job'
 import { saveBlob } from '@/utils/saveBlob'
-import { applyError, compose, followUpOn, live, localInput, ownIndex, paragraphs, savePending, sending, sentence, slots, takePending, validTime } from './apply'
+import {
+    applyError,
+    compose,
+    followUpOn,
+    live,
+    localInput,
+    ownIndex,
+    paragraphs,
+    savePending,
+    sending,
+    sentence,
+    slots,
+    takePending,
+    validTime,
+    signature,
+} from './apply'
 
 const eyebrow = 'font-mono text-[11px] font-semibold uppercase tracking-[.08em] text-ink-3'
 const dot = 'flex h-6 w-6 flex-none items-center justify-center rounded-full'
@@ -227,6 +243,8 @@ export default function ApplyScreen({ id }: { id: string }) {
     const params = useSearchParams()
     const toast = useToast()
     const { user } = useSessionContext()
+    const me = useMe()
+    const ts = useTranslations('settings')
 
     const jobQ = useJob(id)
     const job = jobQ.data
@@ -407,7 +425,8 @@ export default function ApplyScreen({ id }: { id: string }) {
     const at = !later ? null : slot === 'custom' ? (custom ? new Date(custom) : null) : (suggested.find((s) => s.key === slot)?.at ?? null)
     const timeOk = !later || validTime(at)
     const ready = read && timeOk && !!subject.trim() && paras.some((p) => p.trim())
-    const body = compose(paras, own)
+    const sig = signature(me.data, (y) => ts(`years.${y}` as 'years.l3'))
+    const body = compose(paras, own, sig)
     const ownAt = ownIndex(paras)
     const slotLabel = (d: Date, tomorrow: boolean) => {
         const day = format.dateTime(d, { weekday: 'long', day: 'numeric', month: 'short' })
@@ -635,7 +654,22 @@ export default function ApplyScreen({ id }: { id: string }) {
                                 ) : null}
                             </div>
                         ))}
+                        {sig.length ? (
+                            <div aria-label={t('signature')} className="flex flex-col text-[14.5px] leading-[1.5] text-ink-2">
+                                {sig.map((l) => (
+                                    <span key={l} dir="auto">
+                                        {l}
+                                    </span>
+                                ))}
+                            </div>
+                        ) : null}
                     </article>
+                    <p className="m-0 text-[13px] text-ink-3">
+                        {sig.length ? t('signatureFrom') : t('signatureNone')}{' '}
+                        <Link href="/settings" className="font-medium underline">
+                            {t('signatureEdit')}
+                        </Link>
+                    </p>
                     <div className="flex flex-wrap gap-[18px] text-[13px] text-ink-3">
                         <span className="inline-flex items-center gap-2">
                             <span className="inline-block h-2.5 w-[18px] rounded-sm bg-violet-soft shadow-[inset_0_-2px_0_#4B32E0]" />
