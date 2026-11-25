@@ -16,7 +16,7 @@ import { LogoReading } from '@/components/ui/Logo'
 import { Modal } from '@/components/ui/Modal'
 import { Segmented } from '@/components/ui/Segmented'
 import { useToast } from '@/components/ui/Toast'
-import { useApplications, useApply, useDraft, useGmailStatus } from '@/hooks/useApplications'
+import { useAllowance, useApplications, useApply, useDraft, useGmailStatus } from '@/hooks/useApplications'
 import { useJob, useSimilarJobs } from '@/hooks/useJobs'
 import { useMyCv, useResume } from '@/hooks/useResumes'
 import { cn } from '@/lib/cn'
@@ -25,7 +25,7 @@ import ResumeService from '@/services/ResumeService'
 import type { Application, LetterLanguage, Tone } from '@/types/application'
 import type { Job } from '@/types/job'
 import { saveBlob } from '@/utils/saveBlob'
-import { applyError, compose, followUpOn, live, localInput, ownIndex, paragraphs, savePending, sentence, slots, takePending, validTime } from './apply'
+import { applyError, compose, followUpOn, live, localInput, ownIndex, paragraphs, savePending, sending, sentence, slots, takePending, validTime } from './apply'
 
 const eyebrow = 'font-mono text-[11px] font-semibold uppercase tracking-[.08em] text-ink-3'
 const dot = 'flex h-6 w-6 flex-none items-center justify-center rounded-full'
@@ -233,6 +233,7 @@ export default function ApplyScreen({ id }: { id: string }) {
     const resume = useResume(my.id ?? '').data
     const gmail = useGmailStatus()
     const apps = useApplications()
+    const allowance = useAllowance()
     const draft = useDraft()
     const apply = useApply()
 
@@ -394,10 +395,16 @@ export default function ApplyScreen({ id }: { id: string }) {
         return `${tomorrow ? t('tomorrow', { day }) : day} · ${format.dateTime(d, { hour: 'numeric', minute: '2-digit' })}`
     }
 
+    // way: how this application leaves. Without a subscription it carries the imported file, a few times.
+    const way = sending(allowance.data)
+
     const failed = (e: unknown) => {
         const { status, message } = errorOf(e)
         const kind = applyError(status, message)
-        if (kind === 'plan') setModal('plan')
+        if (kind === 'plan') {
+            allowance.refetch()
+            setModal('plan')
+        } else if (kind === 'noFile') toast(t('noFile'))
         else if (kind === 'gmail') setModal('gmail')
         else if (kind === 'noEmail') {
             setSelf(true)
@@ -409,6 +416,7 @@ export default function ApplyScreen({ id }: { id: string }) {
 
     const send = async () => {
         if (!ready || busy) return
+        if (way.kind === 'blocked') return setModal('plan')
         if (!gmail.data?.connected) return setModal('gmail')
         setBusy(true)
         try {
@@ -577,7 +585,9 @@ export default function ApplyScreen({ id }: { id: string }) {
                             <dt>{t('to')}</dt>
                             <dd className="m-0 text-ink">{t('recruiter', { company: job.company })}</dd>
                             <dt>{t('attached')}</dt>
-                            <dd className="m-0 text-ink">{t('attachedCv', { title: resume?.title ?? 'CV' })}</dd>
+                            <dd className="m-0 text-ink">
+                                {way.kind === 'original' ? t('attachedOriginal') : t('attachedCv', { title: resume?.title ?? 'CV' })}
+                            </dd>
                         </dl>
                         <div className="flex items-baseline gap-2 font-semibold text-ink">
                             <span className="flex-none">{t('subject')}</span>
@@ -734,6 +744,18 @@ export default function ApplyScreen({ id }: { id: string }) {
                                     <span className="text-[12.5px] font-normal text-ink-3">{timeOk ? t('laterHint') : t('laterInvalid')}</span>
                                 </label>
                             ) : null}
+                            {way.kind === 'original' ? (
+                                <div
+                                    role="note"
+                                    className="flex flex-col gap-1.5 rounded-xl border border-line bg-page px-4 py-3.5 text-[13.5px] leading-[1.55] text-ink-2"
+                                >
+                                    <strong className="text-sm font-semibold text-ink">{t('freeLeft', { count: way.left, limit: way.limit })}</strong>
+                                    <span>{t('freeText')}</span>
+                                    <Link href="/settings/billing" className="self-start font-medium underline">
+                                        {t('planSee')}
+                                    </Link>
+                                </div>
+                            ) : null}
                             <button
                                 type="button"
                                 onClick={send}
@@ -788,8 +810,13 @@ export default function ApplyScreen({ id }: { id: string }) {
                 </Button>
             </Modal>
 
-            <Modal open={modal === 'plan'} onClose={() => setModal('')} eyebrow={t('planEyebrow')} title={t('planTitle')}>
-                <p className="m-0 text-[15px] leading-[1.6] text-ink-3">{t('planText')}</p>
+            <Modal
+                open={modal === 'plan'}
+                onClose={() => setModal('')}
+                eyebrow={t('planEyebrow')}
+                title={way.kind === 'blocked' && way.limit > 0 ? t('freeUsedTitle', { count: way.limit }) : t('planTitle')}
+            >
+                <p className="m-0 text-[15px] leading-[1.6] text-ink-3">{way.kind === 'blocked' && way.limit > 0 ? t('freeUsedText') : t('planText')}</p>
                 <ButtonLink href="/settings/billing" size="lg" className="w-full">
                     {t('planSee')}
                 </ButtonLink>

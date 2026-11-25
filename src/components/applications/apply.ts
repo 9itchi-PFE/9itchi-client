@@ -1,4 +1,4 @@
-import type { Application, LetterLanguage, Tone } from '@/types/application'
+import type { Allowance, Application, LetterLanguage, Tone } from '@/types/application'
 
 const DAY = 86_400_000
 
@@ -63,17 +63,31 @@ export function validTime(at: Date | null, now = new Date()): at is Date {
 }
 
 // ApplyError is what went wrong when sending, as the screen reacts to it.
-export type ApplyError = 'gmail' | 'plan' | 'already' | 'closed' | 'noEmail' | 'other'
+export type ApplyError = 'gmail' | 'plan' | 'already' | 'closed' | 'noEmail' | 'noFile' | 'other'
 
 export function applyError(status: number | undefined, message = ''): ApplyError {
     if (status === 402) return 'plan'
-    if (status === 422) return 'noEmail'
+    // 422 is also a CV with no imported file, when the application would leave with it (no subscription).
+    if (status === 422) return /imported file/i.test(message) ? 'noFile' : 'noEmail'
     if (status === 409) {
         if (/gmail/i.test(message)) return 'gmail'
         if (/closed/i.test(message)) return 'closed'
         return 'already'
     }
     return 'other'
+}
+
+// Sending is how the next application leaves: with the CV built in 9itchi ('built'), with the imported file
+// because the student has no subscription ('original', and how many of those are left), or not at all ('blocked').
+// Until the allowance is known the screen behaves as before and lets email-api decide.
+export type Sending = { kind: 'built' } | { kind: 'original'; left: number; limit: number } | { kind: 'blocked'; limit: number }
+
+export function sending(a: Allowance | undefined): Sending {
+    if (!a) return { kind: 'built' }
+    if (a.mode === 'none') return { kind: 'blocked', limit: 0 }
+    const left = a.limit === null ? Infinity : Math.max(0, a.limit - a.used)
+    if (a.mode === 'original') return left > 0 ? { kind: 'original', left, limit: a.limit ?? left } : { kind: 'blocked', limit: a.limit ?? 0 }
+    return left > 0 ? { kind: 'built' } : { kind: 'blocked', limit: 0 }
 }
 
 export const FOLLOW_UP_DAYS = 14

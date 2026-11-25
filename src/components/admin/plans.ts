@@ -40,7 +40,7 @@ export function launchIsOver(plan: Pick<Plan, 'launch_ends_on' | 'regular_price'
 }
 
 // COUNTS are the limits written as a number: empty sets no limit, 0 allows none.
-export const COUNTS = ['resumes', 'cv_downloads', 'emails_per_month'] as const
+export const COUNTS = ['resumes', 'cv_downloads', 'emails_per_month', 'free_applications'] as const
 // SHOWN are the groups of the CV diagnosis a plan shows or hides (ats_<group> = 0 hides it).
 export const SHOWN = ['ats_contact', 'ats_summary', 'ats_experience', 'ats_education', 'ats_skills', 'ats_layout', 'ats_file'] as const
 export type CountKey = (typeof COUNTS)[number]
