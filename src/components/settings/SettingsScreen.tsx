@@ -8,10 +8,11 @@ import { SCHOOLS } from '@/components/auth/SignUp'
 import { Sk } from '@/components/jobs/OfferStates'
 import { Button } from '@/components/ui/Button'
 import { Field, inputClass } from '@/components/ui/Field'
+import { Modal } from '@/components/ui/Modal'
 import { useToast } from '@/components/ui/Toast'
-import { useMe, useUpdateMe } from '@/hooks/useAccount'
+import { useDeleteMe, useMe, useUpdateMe } from '@/hooks/useAccount'
 import { cn } from '@/lib/cn'
-import { profileInput } from './profile'
+import { confirmed, profileInput } from './profile'
 
 const main = 'mx-auto box-border flex w-full max-w-[760px] flex-1 flex-col gap-5 px-4 sm:px-8 pb-16 pt-8'
 const card = 'flex flex-col gap-4 rounded-[20px] border border-line-soft bg-white p-6'
@@ -31,7 +32,11 @@ export default function SettingsScreen() {
     const toast = useToast()
     const me = useMe()
     const save = useUpdateMe()
+    const remove = useDeleteMe()
     const [error, setError] = useState('')
+    const [deleting, setDeleting] = useState(false)
+    const [typed, setTyped] = useState('')
+    const [deleteError, setDeleteError] = useState('')
 
     if (me.isLoading) {
         return (
@@ -120,16 +125,70 @@ export default function SettingsScreen() {
                 <h2 id="session-h" className="m-0 text-xl font-extrabold">
                     {t('session')}
                 </h2>
-                <p className="m-0 text-[14.5px] leading-[1.55] text-ink-3">{t('deleteText')}</p>
-                <div className="flex flex-wrap gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                     <Button variant="secondary" onClick={() => signOut()}>
                         {t('signOut')}
                     </Button>
-                    <Link href="/support" className="inline-flex h-11 items-center text-sm font-medium underline">
-                        {t('deleteAsk')}
-                    </Link>
+                    <Button
+                        variant="link"
+                        className="text-[#B42318] hover:text-[#912018]"
+                        onClick={() => {
+                            setTyped('')
+                            setDeleteError('')
+                            setDeleting(true)
+                        }}
+                    >
+                        {t('deleteOpen')}
+                    </Button>
                 </div>
             </section>
+            <Modal open={deleting} onClose={() => setDeleting(false)} title={t('deleteTitle')} width={520}>
+                <div className="flex flex-col gap-1.5 text-[14.5px] leading-[1.55] text-ink-2">
+                    <strong className="text-ink">{t('deleteGone')}</strong>
+                    <p className="m-0">{t('deleteGoneText')}</p>
+                </div>
+                <div className="flex flex-col gap-1.5 text-[14.5px] leading-[1.55] text-ink-2">
+                    <strong className="text-ink">{t('deleteKept')}</strong>
+                    <p className="m-0">{t('deleteKeptText')}</p>
+                </div>
+                <form
+                    className="flex flex-col gap-3.5"
+                    onSubmit={(e) => {
+                        e.preventDefault()
+                        if (!confirmed(typed, t('deleteWord')) || remove.isPending) return
+                        setDeleteError('')
+                        remove.mutate(undefined, {
+                            onSuccess: () => signOut({ callbackUrl: '/auth/signin' }),
+                            onError: () => setDeleteError(t('deleteFailed')),
+                        })
+                    }}
+                >
+                    <Field
+                        label={t('deleteType', { word: t('deleteWord') })}
+                        value={typed}
+                        onChange={(e) => setTyped(e.target.value)}
+                        autoComplete="off"
+                        autoCapitalize="characters"
+                    />
+                    {deleteError ? (
+                        <p role="alert" className="m-0 text-sm text-[#B42318]">
+                            {deleteError}
+                        </p>
+                    ) : null}
+                    <div className="flex flex-wrap justify-end gap-3">
+                        <Button variant="secondary" onClick={() => setDeleting(false)}>
+                            {t('deleteCancel')}
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={!confirmed(typed, t('deleteWord')) || remove.isPending}
+                            className="bg-[#B42318] hover:bg-[#912018] disabled:bg-line disabled:text-ink-3"
+                        >
+                            {remove.isPending ? t('deleteBusy') : t('deleteConfirm')}
+                        </Button>
+                    </div>
+                </form>
+            </Modal>
         </main>
     )
 }

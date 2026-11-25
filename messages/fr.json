@@ -1826,8 +1826,18 @@
             "supportText": "Écrire à l’équipe 9itchi."
         },
         "session": "Session et compte",
-        "deleteText": "Pour supprimer ton compte et tes données, écris à l’équipe : on s’en occupe et on te confirme.",
         "signOut": "Se déconnecter",
-        "deleteAsk": "Demander la suppression de mon compte"
+        "deleteOpen": "Supprimer mon compte",
+        "deleteTitle": "Supprimer ton compte ?",
+        "deleteGone": "Ce qui est effacé, tout de suite et pour de bon",
+        "deleteGoneText": "Ton compte, ton CV avec ses versions et ta photo, tes candidatures et leur suivi, tes offres sauvegardées, ce que tu cherches, tes notifications, tes messages à l’équipe. La connexion à ton Gmail est retirée et les envois programmés ne partent pas.",
+        "deleteKept": "Ce qui reste",
+        "deleteKeptText": "Les reçus de tes paiements, gardés pour la comptabilité, sans ton nom. Ton abonnement s’arrête. Les emails déjà partis restent dans ton Gmail et chez les recruteurs.",
+        "deleteType": "Écris {word} pour confirmer",
+        "deleteWord": "SUPPRIMER",
+        "deleteCancel": "Annuler",
+        "deleteConfirm": "Supprimer mon compte",
+        "deleteBusy": "Suppression…",
+        "deleteFailed": "La suppression n’a pas pu se terminer. Rien n’est perdu : réessaie dans un instant."
     }
 }
