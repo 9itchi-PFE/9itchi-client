@@ -1706,7 +1706,8 @@
         "toFill": "à compléter",
         "saleUntil": "{name} · −{percent} % jusqu’au {day, date, ::dMMMM}",
         "saleLine": "Promotion « {name} »",
-        "promoDuringSale": "Pas de code promo pendant une promotion : le prix réduit s’applique déjà."
+        "promoDuringSale": "Pas de code promo pendant une promotion : le prix réduit s’applique déjà.",
+        "refundRule": "Remboursé en entier si tu le demandes dans les 7 jours après le paiement et que tu n’as téléchargé aucun CV ni envoyé de candidature avec ton CV corrigé. Sinon, pas de remboursement : si tu arrêtes, tu gardes l’accès jusqu’à la fin de la période."
     },
     "notifications": {
         "title": "Notifications",
@@ -1832,7 +1833,7 @@
         "deleteGone": "Ce qui est effacé, tout de suite et pour de bon",
         "deleteGoneText": "Ton compte, ton CV avec ses versions et ta photo, tes candidatures et leur suivi, tes offres sauvegardées, ce que tu cherches, tes notifications, tes messages à l’équipe. La connexion à ton Gmail est retirée et les envois programmés ne partent pas.",
         "deleteKept": "Ce qui reste",
-        "deleteKeptText": "Les reçus de tes paiements, gardés pour la comptabilité, sans ton nom. Ton abonnement s’arrête. Les emails déjà partis restent dans ton Gmail et chez les recruteurs.",
+        "deleteKeptText": "Les reçus de tes paiements, gardés pour la comptabilité, sans ton nom. Ton abonnement s’arrête. Pas de remboursement de la période en cours, sauf dans les 7 jours après ton paiement si tu n’as téléchargé aucun CV ni envoyé de candidature avec ton CV corrigé. Les emails déjà partis restent dans ton Gmail et chez les recruteurs.",
         "deleteType": "Écris {word} pour confirmer",
         "deleteWord": "SUPPRIMER",
         "deleteCancel": "Annuler",
