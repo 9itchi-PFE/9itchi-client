@@ -60,6 +60,7 @@ export default function OverviewScreen() {
     const payments = total(data, 'payment_completed')
     const sent = total(data, 'email_sent')
     const opened = total(data, 'email_opened')
+    const replies = total(data, 'replies')
     const revenue = total(data, 'revenue_millimes') / 1000
     const steps = [
         { label: t('fSignups'), value: signups, tone: 'bg-ink' },
@@ -110,7 +111,11 @@ export default function OverviewScreen() {
                 />
                 <Kpi label={t('kPayments')} value={figure(payments)} sub={paid === null ? t('kPaymentsSub') : t('oPaidRate', { rate: paid })} />
                 <Kpi label={t('kRevenue')} value={data ? t('revenueDt', { amount: dinars(revenue, locale) }) : undefined} sub={t('kRevenueSub')} />
-                <Kpi label={t('kSent')} value={figure(sent)} sub={openRate === null ? t('kOpenedNone') : t('oOpened', { rate: openRate })} />
+                <Kpi
+                    label={t('kSent')}
+                    value={figure(sent)}
+                    sub={openRate === null ? t('kOpenedNone') : `${t('oOpened', { rate: openRate })} · ${t('oReplies', { count: replies })}`}
+                />
             </div>
             <div className="grid grid-cols-1 items-start gap-5 lg:grid-cols-[1.7fr_1fr]">
                 <section aria-labelledby="funnel-h" className={card}>

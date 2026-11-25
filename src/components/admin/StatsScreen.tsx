@@ -34,6 +34,7 @@ export default function StatsScreen() {
     const sent = total(data, 'email_sent')
     const opened = total(data, 'email_opened')
     const failed = total(data, 'email_failed')
+    const replies = total(data, 'replies')
     const payments = total(data, 'payment_completed')
     const revenue = total(data, 'revenue_millimes') / 1000
     const openRate = rate(opened, sent)
@@ -80,7 +81,10 @@ export default function StatsScreen() {
                         <Bar label={t('mSent')} value={sent} max={sent} tone="bg-ink" />
                         <Bar label={t('mOpened')} value={opened} max={sent} tone="bg-violet" />
                         <Bar label={t('mFailed')} value={failed} max={sent} tone="bg-[#F04438]" />
-                        <p className="m-0 text-[13px] text-ink-3">{openRate === null ? t('mailsNone') : t('mailsNote', { rate: openRate })}</p>
+                        <Bar label={t('mReplies')} value={replies} max={Math.max(sent, replies)} tone="bg-lime-deep" />
+                        <p className="m-0 text-[13px] text-ink-3">
+                            {openRate === null ? t('mailsNone') : t('mailsNote', { rate: openRate })} {t('repliesNote')}
+                        </p>
                     </section>
                     <section aria-labelledby="weeks-h" className={card}>
                         <div className="flex flex-wrap items-center justify-between gap-3">
