@@ -1,5 +1,6 @@
-import PagePlaceholder from '@/components/ui/PagePlaceholder'
+import { redirect } from 'next/navigation'
 
+// There is no dashboard: a student starts on the offers.
 export default function Page() {
-    return <PagePlaceholder title="Dashboard" description="Overview: resumes, applications, notifications." />
+    redirect('/jobs')
 }
