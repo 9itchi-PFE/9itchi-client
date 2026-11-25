@@ -7,6 +7,9 @@ export type Plan = {
     // launch_ends_on: the last day (YYYY-MM-DD) price is charged; from the next day the plan costs regular_price.
     // Absent: the launch price has no end, or is already over (payments-api then returns the regular price as price).
     launch_ends_on?: string
+    // sale: the sale the plan is in today (students only). price is then the price of the sale and regular_price
+    // the usual one; ends_on is its last day (YYYY-MM-DD).
+    sale?: { name: string; percent: number; ends_on: string }
     duration_days: number
     quotas: Record<string, number>
     active: boolean
@@ -24,6 +27,19 @@ export type PromoCode = {
     used_count: number
     plan_ids: string[]
 }
+
+// Sale is a reduction without a code between two days, both included (YYYY-MM-DD, counted in Tunis).
+// plan_ids empty: every paid plan. state is where it stands today.
+export type Sale = {
+    id: string
+    name: string
+    percent: number
+    starts_on: string
+    ends_on: string
+    plan_ids: string[]
+    state: 'upcoming' | 'running' | 'over'
+}
+export type SaleInput = Omit<Sale, 'id' | 'state'>
 
 // PlanInput and PromoInput are what the admin saves (payments-api replaces the whole row).
 export type PlanInput = Pick<Plan, 'name' | 'price' | 'duration_days' | 'quotas' | 'active'> & { regular_price?: number; launch_ends_on?: string }
@@ -81,6 +97,8 @@ export type Payment = {
     discount_millimes: number
     // regular_millimes: the plan's regular price the day the payment was opened, when it had one.
     regular_millimes?: number | null
+    // sale_name: the sale the payment was opened in, when there was one.
+    sale_name?: string
     promo_code: string
     provider: string
     provider_ref: string

@@ -8,6 +8,8 @@ import type {
     PromoCheck,
     PromoCode,
     PromoInput,
+    Sale,
+    SaleInput,
     ReceiptIssuer,
     ReceiptIssuerInput,
 } from '@/types/plan'
@@ -25,6 +27,11 @@ const PaymentService = {
     createPromo: (data: PromoInput) => api('payments').post<PromoCode>(`/admin/promo-codes`, data),
     updatePromo: (id: string, data: PromoInput) => api('payments').put<PromoCode>(`/admin/promo-codes/${id}`, data),
     deletePromo: (id: string) => api('payments').delete(`/admin/promo-codes/${id}`),
+    // Sales: reductions without a code, between two days (admin).
+    listSales: () => api('payments').get<{ items: Sale[] }>(`/admin/sales`),
+    createSale: (data: SaleInput) => api('payments').post<Sale>(`/admin/sales`, data),
+    updateSale: (id: string, data: SaleInput) => api('payments').put<Sale>(`/admin/sales/${id}`, data),
+    deleteSale: (id: string) => api('payments').delete(`/admin/sales/${id}`),
     checkout: (data: { plan_id: string; promo_code?: string }) => api('payments').post<Checkout>(`/subscriptions/checkout`, data),
     mySubscription: () => api('payments').get<MySubscription>(`/subscriptions/me`),
     listPayments: () => api('payments').get<{ items: Payment[] }>(`/payments`),

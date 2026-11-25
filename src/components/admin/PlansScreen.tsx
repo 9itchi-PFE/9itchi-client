@@ -8,10 +8,20 @@ import { Button } from '@/components/ui/Button'
 import { Field, inputClass } from '@/components/ui/Field'
 import { Modal } from '@/components/ui/Modal'
 import { useToast } from '@/components/ui/Toast'
-import { useAllPlans, useDeletePromo, usePromos, useSavePlan, useSavePromo, useSaveReceiptIssuer } from '@/hooks/useAdminPlans'
+import {
+    useAllPlans,
+    useDeletePromo,
+    useDeleteSale,
+    usePromos,
+    useSales,
+    useSavePlan,
+    useSavePromo,
+    useSaveReceiptIssuer,
+    useSaveSale,
+} from '@/hooks/useAdminPlans'
 import { useReceiptIssuer } from '@/hooks/usePlans'
 import { cn } from '@/lib/cn'
-import type { Plan, PromoCode } from '@/types/plan'
+import type { Plan, PromoCode, Sale } from '@/types/plan'
 import { apiError } from './SourcesScreen'
 import {
     COUNTS,
@@ -25,9 +35,12 @@ import {
     promoState,
     quotaKeys,
     quotasInput,
+    saleInput,
+    salePrice,
     sameQuotas,
     shows,
     stopped,
+    today,
     withCount,
     withShown,
     type PromoState,
@@ -38,6 +51,12 @@ const pill: Record<PromoState, string> = {
     upcoming: 'bg-violet-soft text-violet-hover',
     expired: 'bg-fill text-ink-3',
     usedUp: 'bg-fill text-ink-3',
+}
+
+const salePill: Record<Sale['state'], string> = {
+    running: 'bg-ok-bg text-ok-fg',
+    upcoming: 'bg-violet-soft text-violet-hover',
+    over: 'bg-fill text-ink-3',
 }
 
 const card = 'flex flex-col gap-4 rounded-[22px] border border-line bg-white p-5'
@@ -212,6 +231,190 @@ function PromoModal({ promo, onClose }: { promo: PromoCode | null | undefined; o
                 </div>
             </form>
         </Modal>
+    )
+}
+
+// SaleModal writes a sale: a percentage off, without a code, from a first to a last day. No plan ticked: every
+// paid plan. The price each plan will cost is shown as the percentage is typed.
+function SaleModal({ sale, plans, onClose }: { sale: Sale | null | undefined; plans: Plan[]; onClose: () => void }) {
+    const t = useTranslations('admin')
+    const locale = useLocale()
+    const toast = useToast()
+    const save = useSaveSale()
+    const remove = useDeleteSale()
+    const [error, setError] = useState('')
+    const [percent, setPercent] = useState(sale ? String(sale.percent) : '')
+    const [only, setOnly] = useState<string[]>(sale?.plan_ids ?? [])
+    if (sale === undefined) return null
+
+    const off = Number(percent)
+    const preview = Number.isInteger(off) && off >= 1 && off <= 90
+    const covered = plans.filter((p) => only.length === 0 || only.includes(p.id))
+
+    const submit = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        const f = new FormData(e.currentTarget)
+        const get = (k: string) => String(f.get(k) ?? '')
+        const built = saleInput({ name: get('name'), percent, from: get('from'), until: get('until') }, only)
+        if ('error' in built) return setError(t(built.error))
+        setError('')
+        save.mutate(
+            { id: sale?.id, input: built.input },
+            {
+                onSuccess: () => {
+                    toast(t('saleSaved'))
+                    onClose()
+                },
+                onError: (err) => setError(apiError(err) ?? t('stateError')),
+            },
+        )
+    }
+    const del = () => {
+        if (!sale || !window.confirm(t(sale.state === 'running' ? 'saleStopConfirm' : 'saleDeleteConfirm', { name: sale.name }))) return
+        remove.mutate(sale.id, {
+            onSuccess: () => {
+                toast(t('saleDeleted'))
+                onClose()
+            },
+            onError: (err) => setError(apiError(err) ?? t('stateError')),
+        })
+    }
+    return (
+        <Modal open onClose={onClose} title={sale ? t('saleEdit') : t('saleAdd')} width={560}>
+            <form onSubmit={submit} className="flex flex-col gap-3.5">
+                <div className="flex flex-col gap-1.5">
+                    <Field name="name" label={t('sName')} required maxLength={60} defaultValue={sale?.name} />
+                    <span className="text-[12.5px] text-ink-3">{t('sNameHint')}</span>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                    <Field
+                        name="percent"
+                        label={t('sPercent')}
+                        required
+                        inputMode="numeric"
+                        dir="ltr"
+                        value={percent}
+                        onChange={(e) => setPercent(e.target.value)}
+                    />
+                    <Field name="from" type="date" label={t('sFrom')} required dir="ltr" defaultValue={sale?.starts_on ?? today()} />
+                    <Field name="until" type="date" label={t('sUntil')} required dir="ltr" defaultValue={sale?.ends_on ?? ''} />
+                </div>
+                <fieldset className="m-0 flex flex-col gap-2 border-0 p-0">
+                    <legend className="mb-1.5 p-0 text-[13.5px] font-medium text-ink-2">{t('sPlans')}</legend>
+                    {plans.map((p) => (
+                        <label key={p.id} className="flex items-center gap-2.5 text-[14.5px]">
+                            <input
+                                type="checkbox"
+                                className="h-4 w-4 accent-ink"
+                                checked={only.includes(p.id)}
+                                onChange={(e) => setOnly((ids) => (e.target.checked ? [...ids, p.id] : ids.filter((id) => id !== p.id)))}
+                            />
+                            {p.name}
+                        </label>
+                    ))}
+                    <span className="text-[12.5px] text-ink-3">{t('sPlansHint')}</span>
+                </fieldset>
+                {preview && covered.length ? (
+                    <ul className="m-0 flex list-none flex-col gap-1 rounded-xl bg-fill-3 px-4 py-3 text-[14px]">
+                        {covered.map((p) => (
+                            <li key={p.id} className="flex flex-wrap items-baseline justify-between gap-2">
+                                <span>{p.name}</span>
+                                <span dir="ltr" className="tabular-nums">
+                                    <s className="text-ink-3">{dinars(p.regular_price ?? p.price, locale)} DT</s>{' '}
+                                    <strong>{dinars(salePrice(launchIsOver(p) ? (p.regular_price ?? p.price) : p.price, off), locale)} DT</strong>
+                                </span>
+                            </li>
+                        ))}
+                    </ul>
+                ) : null}
+                <Problem>{error}</Problem>
+                <div className="flex items-center justify-between gap-3 pt-1">
+                    {sale ? (
+                        <Button variant="link" className="text-[#B42318] hover:text-[#912018]" onClick={del} disabled={remove.isPending}>
+                            {t(sale.state === 'running' ? 'saleStopNow' : 'saleDelete')}
+                        </Button>
+                    ) : (
+                        <span />
+                    )}
+                    <Button type="submit" disabled={save.isPending}>
+                        {t('save')}
+                    </Button>
+                </div>
+            </form>
+        </Modal>
+    )
+}
+
+// Sales lists the reductions without a code: what is running or to come first, then what is over.
+function Sales({ plans }: { plans: Plan[] }) {
+    const t = useTranslations('admin')
+    const format = useFormatter()
+    const sales = useSales()
+    // undefined: closed; null: a new sale; a sale: editing it.
+    const [editing, setEditing] = useState<Sale | null | undefined>(undefined)
+    const cols = 'grid grid-cols-[1.4fr_.7fr_1fr_1fr_1.2fr_.8fr_110px] items-center gap-3 px-4'
+    const day = (d: string) => format.dateTime(dayAt(d) ?? new Date(d), { day: 'numeric', month: 'short', year: 'numeric', timeZone: 'UTC' })
+    const names = (s: Sale) =>
+        s.plan_ids.length === 0
+            ? t('saleAllPlans')
+            : s.plan_ids
+                  .map((id) => plans.find((p) => p.id === id)?.name)
+                  .filter(Boolean)
+                  .join(', ') || t('saleAllPlans')
+    return (
+        <section aria-labelledby="sales-h" id="sales" className={card}>
+            <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="flex min-w-0 flex-col gap-1.5">
+                    <h2 id="sales-h" className="m-0 text-xl font-extrabold">
+                        {t('salesTitle')}
+                    </h2>
+                    <p className="m-0 max-w-[820px] text-[14.5px] leading-[1.55] text-ink-3">{t('salesHint')}</p>
+                </div>
+                <Button onClick={() => setEditing(null)}>{t('saleNew')}</Button>
+            </div>
+            <div role="table" aria-labelledby="sales-h" className="overflow-x-auto">
+                <div role="row" className={cn(cols, 'min-w-[900px]', head)}>
+                    <span role="columnheader">{t('colSale')}</span>
+                    <span role="columnheader">{t('colDiscount')}</span>
+                    <span role="columnheader">{t('colFrom')}</span>
+                    <span role="columnheader">{t('colLastDay')}</span>
+                    <span role="columnheader">{t('colPlans')}</span>
+                    <span role="columnheader">{t('colState')}</span>
+                    <span role="columnheader" className="sr-only">
+                        {t('colAction')}
+                    </span>
+                </div>
+                {sales.isLoading ? <div className="sk m-4 h-12 rounded-lg" /> : null}
+                {sales.isError ? <p className="m-0 px-4 py-6 text-sm text-[#B42318]">{t('salesError')}</p> : null}
+                {sales.data && sales.data.length === 0 ? <p className="m-0 px-4 py-6 text-sm text-ink-3">{t('noSales')}</p> : null}
+                {sales.data?.map((s) => (
+                    <div role="row" key={s.id} className={cn(cols, 'min-w-[900px]', line)}>
+                        <span role="cell" className="min-w-0 truncate font-semibold">
+                            {s.name}
+                        </span>
+                        <span role="cell" className="tabular-nums">
+                            {t('offPercent', { value: s.percent })}
+                        </span>
+                        <span role="cell">{day(s.starts_on)}</span>
+                        <span role="cell">{day(s.ends_on)}</span>
+                        <span role="cell" className="min-w-0 truncate">
+                            {names(s)}
+                        </span>
+                        <span role="cell">
+                            <span className={cn('inline-block rounded-full px-2.5 py-[3px] text-[13px] font-semibold', salePill[s.state])}>
+                                {t(`saleState.${s.state}`)}
+                            </span>
+                        </span>
+                        <span role="cell" className="flex justify-end">
+                            <Button variant="secondary" size="sm" onClick={() => setEditing(s)}>
+                                {s.state === 'over' ? t('promoRestart') : t('promoChange')}
+                            </Button>
+                        </span>
+                    </div>
+                ))}
+            </div>
+            <SaleModal key={editing === undefined ? 'closed' : (editing?.id ?? 'new')} sale={editing} plans={plans} onClose={() => setEditing(undefined)} />
+        </section>
     )
 }
 
@@ -433,6 +636,7 @@ export default function PlansScreen() {
                 </div>
             ) : null}
             {plans.data && all.length ? <Limits key={all.map((p) => `${p.id}:${JSON.stringify(p.quotas ?? {})}`).join('|')} plans={all} /> : null}
+            {plans.data ? <Sales plans={paid} /> : null}
             <section aria-labelledby="promos-h" id="codes" className={card}>
                 <div className="flex items-center justify-between gap-3">
                     <h2 id="promos-h" className="m-0 text-xl font-extrabold">

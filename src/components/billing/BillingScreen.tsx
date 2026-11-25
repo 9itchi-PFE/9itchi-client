@@ -45,6 +45,8 @@ function Pay({ plan, extending }: { plan: Plan; extending: MySubscription | null
     const price = millimes(plan.price)
     const regular = regularOf(plan)
     const launchEnd = dayAt(plan.launch_ends_on)
+    const sale = plan.sale
+    const saleEnd = dayAt(sale?.ends_on)
     const due = promo ? millimes(promo.check.final_price) : price
     const amount = `${tnd(due, locale)} TND`
 
@@ -98,7 +100,11 @@ function Pay({ plan, extending }: { plan: Plan; extending: MySubscription | null
                             <strong className="text-[17px] font-semibold">{plan.name}</strong>
                             {regular ? (
                                 <span className="inline-flex h-6 flex-none items-center self-start rounded-full bg-lime px-[9px] text-xs font-bold">
-                                    {launchEnd ? t('launchPriceUntil', { day: launchEnd }) : t('launchPrice')}
+                                    {sale && saleEnd
+                                        ? t('saleUntil', { name: sale.name, percent: sale.percent, day: saleEnd })
+                                        : launchEnd
+                                          ? t('launchPriceUntil', { day: launchEnd })
+                                          : t('launchPrice')}
                                 </span>
                             ) : null}
                             <span className="text-sm text-ink-3">{t('oneOff', { length: length(plan.duration_days) })}</span>

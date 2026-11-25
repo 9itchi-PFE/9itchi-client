@@ -1351,7 +1351,40 @@
         "noLimit": "Sans limite",
         "limitsSave": "Enregistrer les limites",
         "limitsSaved": "Limites enregistrées",
-        "limitsInvalid": "Une limite est un nombre entier, 0 ou plus."
+        "limitsInvalid": "Une limite est un nombre entier, 0 ou plus.",
+        "salesTitle": "Promotions",
+        "salesHint": "Une réduction sans code, entre deux dates. Pendant la promotion, tous les étudiants voient le prix réduit avec le prix habituel barré, et paient le prix réduit. Le lendemain du dernier jour, le prix habituel revient tout seul. Un abonnement déjà payé ne change pas.",
+        "saleNew": "+ Nouvelle promotion",
+        "saleAdd": "Nouvelle promotion",
+        "saleEdit": "Modifier la promotion",
+        "sName": "Nom",
+        "sNameHint": "Les étudiants le voient à côté du prix. Exemple : Rentrée.",
+        "sPercent": "Réduction en %",
+        "sFrom": "Premier jour",
+        "sUntil": "Dernier jour",
+        "sPlans": "Plans concernés",
+        "sPlansHint": "Aucun plan coché : la promotion vaut pour tous les plans payants.",
+        "saleSaved": "Promotion enregistrée",
+        "saleDeleted": "Promotion supprimée",
+        "saleDelete": "Supprimer la promotion",
+        "saleStopNow": "Arrêter maintenant",
+        "saleStopConfirm": "Arrêter « {name} » maintenant ? Le prix habituel revient tout de suite et la promotion disparaît de la liste.",
+        "saleDeleteConfirm": "Supprimer « {name} » ?",
+        "colSale": "Promotion",
+        "colFrom": "Premier jour",
+        "colLastDay": "Dernier jour",
+        "colPlans": "Plans",
+        "salesError": "Les promotions ne se chargent pas.",
+        "noSales": "Aucune promotion pour l’instant.",
+        "saleAllPlans": "Tous les plans payants",
+        "saleState": {
+            "running": "En cours",
+            "upcoming": "À venir",
+            "over": "Terminée"
+        },
+        "saleNameInvalid": "Donne un nom à la promotion, 60 caractères au plus.",
+        "salePercentRange": "La réduction est un nombre entier entre 1 et 90.",
+        "saleOver": "Le dernier jour est déjà passé."
     },
     "apply": {
         "back": "Retour à l’offre",
@@ -1669,7 +1702,9 @@
         "taxId": "Matricule fiscal",
         "taxIdShort": "MF",
         "vat": "TVA",
-        "toFill": "à compléter"
+        "toFill": "à compléter",
+        "saleUntil": "{name} · −{percent} % jusqu’au {day, date, ::dMMMM}",
+        "saleLine": "Promotion « {name} »"
     },
     "notifications": {
         "title": "Notifications",
