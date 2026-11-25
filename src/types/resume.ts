@@ -157,6 +157,8 @@ export type VersionWithContent = Version & { content: ResumeContent }
 
 export type Layout = 'classic' | 'modern' | 'compact'
 export type Template = { id: string; name: string; layout: Layout; preview_url: string; active: boolean }
+// AdminTemplate is a template as the team sees it: published or not, and how many CVs use it.
+export type AdminTemplate = Template & { resumes: number }
 
 export type ResumeFile = {
     id: string

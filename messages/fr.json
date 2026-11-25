@@ -1385,7 +1385,21 @@
         "saleNameInvalid": "Donne un nom à la promotion, 60 caractères au plus.",
         "salePercentRange": "La réduction est un nombre entier entre 1 et 90.",
         "saleOver": "Le dernier jour est déjà passé.",
-        "saleKept": "{price} DT : le prix de lancement est déjà plus bas, il reste."
+        "saleKept": "{price} DT : le prix de lancement est déjà plus bas, il reste.",
+        "tplTitle": "Modèles de CV",
+        "tplSubtitle": "Les modèles proposés aux étudiants dans l’éditeur de CV, et combien de CV utilisent chacun.",
+        "tplPublished": "Publié",
+        "tplOff": "Retiré",
+        "tplUse": "{count, plural, =0 {Aucun CV} one {# CV} other {# CV}}",
+        "tplPublish": "Publier",
+        "tplWithdraw": "Retirer",
+        "tplWithdrawConfirm": "{count, plural, =0 {Retirer le modèle {name} des choix ?} other {Retirer le modèle {name} des choix ? Les # CV qui l’utilisent le gardent ; il n’est plus proposé aux autres.}}",
+        "tplPublishedToast": "{name} publié",
+        "tplWithdrawn": "{name} retiré des choix",
+        "tplLast": "Dernier modèle publié : il en faut toujours un.",
+        "tplError": "Les modèles n’ont pas pu être lus.",
+        "tplEmpty": "Aucun modèle.",
+        "tplNote": "Un modèle retiré n’est plus proposé ; les CV qui l’utilisent déjà ne changent pas. Ajouter un nouveau modèle demande de dessiner sa mise en page dans le code."
     },
     "apply": {
         "back": "Retour à l’offre",

@@ -1,4 +1,4 @@
-import type { ATSCheck, Downloads, Resume, ResumeContent, ResumeFile, ResumeList, Template, Version, VersionWithContent } from '@/types/resume'
+import type { AdminTemplate, ATSCheck, Downloads, Resume, ResumeContent, ResumeFile, ResumeList, Template, Version, VersionWithContent } from '@/types/resume'
 import { api } from './ApiService'
 import type { UserCV } from '@/types/user'
 
@@ -37,8 +37,10 @@ const ResumeService = {
     downloadFile: (id: string, fileId: string) => r().get<Blob>(`/resumes/${id}/files/${fileId}`, { responseType: 'blob' }),
     listTemplates: () => r().get<{ items: Template[] }>(`/templates`),
     getTemplate: (id: string) => r().get<Template>(`/templates/${id}`),
+    // listAllTemplates is every template, published or not, with how many CVs use it (admin).
+    listAllTemplates: () => r().get<{ items: AdminTemplate[] }>(`/admin/templates`),
     createTemplate: (data?: unknown) => r().post(`/admin/templates`, data),
-    updateTemplate: (id: string, data?: unknown) => r().put(`/admin/templates/${id}`, data),
+    updateTemplate: (id: string, data: Partial<Pick<Template, 'name' | 'layout' | 'active'>>) => r().put<Template>(`/admin/templates/${id}`, data),
 }
 
 export default ResumeService

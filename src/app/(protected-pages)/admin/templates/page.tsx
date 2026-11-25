@@ -1,7 +1,5 @@
-import { getTranslations } from 'next-intl/server'
-import PagePlaceholder from '@/components/ui/PagePlaceholder'
+import TemplatesScreen from '@/components/admin/TemplatesScreen'
 
-export default async function Page() {
-    const t = await getTranslations('admin')
-    return <PagePlaceholder title={t('navTemplates')} description={t('comingSoon')} />
+export default function Page() {
+    return <TemplatesScreen />
 }
