@@ -1805,7 +1805,9 @@
         "saleUntil": "{name} · −{percent} % jusqu’au {day, date, ::dMMMM}",
         "saleLine": "Promotion « {name} »",
         "promoDuringSale": "Pas de code promo pendant une promotion : le prix réduit s’applique déjà.",
-        "refundRule": "Remboursé en entier si tu le demandes dans les 7 jours après le paiement et que tu n’as téléchargé aucun CV ni envoyé de candidature avec ton CV corrigé. Sinon, pas de remboursement : si tu arrêtes, tu gardes l’accès jusqu’à la fin de la période."
+        "refundRule": "Remboursé en entier si tu le demandes dans les 7 jours après le paiement et que tu n’as téléchargé aucun CV ni envoyé de candidature avec ton CV corrigé. Sinon, pas de remboursement : si tu arrêtes, tu gardes l’accès jusqu’à la fin de la période.",
+        "launchKept": "Ton prix de lancement est gardé tant que tu renouvelles.",
+        "launchKeptUntil": "Ton prix de lancement est gardé si tu renouvelles d’ici le {date}."
     },
     "notifications": {
         "title": "Notifications",

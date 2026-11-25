@@ -82,3 +82,33 @@ test('a code that does not exist is refused before going to Flouci', async ({ pa
     await expect(page.getByText('Ce code n’existe pas. Vérifie l’orthographe.')).toBeVisible()
     expect(seen.filter((r) => r.path === '/payments/subscriptions/checkout')).toHaveLength(0)
 })
+
+test('the launch price is kept for a subscriber, and for 7 days after a lapse', async ({ page }) => {
+    const after = { ...MONTH, price: 50 }
+    const sub = (endsIn: number) => ({
+        id: 's1',
+        plan_id: MONTH.id,
+        promo_code_id: null,
+        status: 'active',
+        amount: 35,
+        starts_at: new Date(Date.now() - 30 * 86_400_000).toISOString(),
+        ends_at: new Date(Date.now() + endsIn * 86_400_000).toISOString(),
+        renews: true,
+        stopped_at: null,
+    })
+    let me: unknown = { subscription: sub(20), plan: { ...after, price: 35, regular_price: 50 }, is_free: false, kept_price: 35 }
+    await mockServices(page, free({ 'GET /payments/plans': { items: [FREE, after] }, 'GET /payments/subscriptions/me': () => me }))
+    await signIn(page, STUDENT)
+    await page.goto('/settings/billing')
+    await expect(page.getByText('Ton prix de lancement est gardé tant que tu renouvelles.')).toBeVisible()
+    await expect(page.getByRole('button', { name: /Renouveler.*35/ })).toBeVisible()
+
+    me = { subscription: null, plan: FREE, is_free: true, lapsed: sub(-3), kept_price: 35 }
+    await page.reload()
+    await expect(page.getByText(/Ton prix de lancement est gardé si tu renouvelles d’ici le/)).toBeVisible()
+    await expect(page.getByText('35 DT').first()).toBeVisible()
+
+    me = { subscription: null, plan: FREE, is_free: true, lapsed: sub(-9), kept_price: null }
+    await page.reload()
+    await expect(page.getByText(/prix de lancement est gardé/)).toHaveCount(0)
+})

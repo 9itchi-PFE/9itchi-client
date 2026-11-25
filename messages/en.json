@@ -1805,7 +1805,9 @@
         "saleUntil": "{name} · −{percent}% until {day, date, ::dMMMM}",
         "saleLine": "Sale “{name}”",
         "promoDuringSale": "No promo code during a sale: the reduced price already applies.",
-        "refundRule": "Refunded in full if you ask within 7 days of paying and have downloaded no CV and sent no application with your fixed CV. Otherwise no refund: if you stop, you keep access until the end of the period."
+        "refundRule": "Refunded in full if you ask within 7 days of paying and have downloaded no CV and sent no application with your fixed CV. Otherwise no refund: if you stop, you keep access until the end of the period.",
+        "launchKept": "Your launch price is kept as long as you renew.",
+        "launchKeptUntil": "Your launch price is kept if you renew by {date}."
     },
     "notifications": {
         "title": "Notifications",
