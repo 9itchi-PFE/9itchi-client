@@ -21,7 +21,7 @@ export const job = (id: string, title: string, company: string, extra: Record<st
     posted_at: new Date().toISOString(),
     stipend_tnd: 400,
     duration_months: 6,
-    work_mode: 'onsite',
+    work_mode: 'on_site',
     starts_on: day(60),
     closes_on: day(30),
     skills: ['React', 'Go'],
@@ -64,7 +64,8 @@ export const RESUME = {
 }
 
 type Handler = (req: Request, url: URL) => unknown | Promise<unknown>
-// A key is "METHOD /service/path"; a value is the JSON body, or a function that returns it. [status, body] sets the status.
+// A key is "METHOD /service/path"; a value is the JSON body (or a Buffer, sent as an image), or a function that returns it.
+// [status, body] sets the status.
 export type Answers = Record<string, unknown>
 
 const defaults = (): Answers => ({
@@ -117,6 +118,8 @@ export async function mockServices(page: Page, answers: Answers = {}) {
         if (typeof answer === 'function') answer = await (answer as Handler)(req, url)
         let status = 200
         if (Array.isArray(answer) && answer.length === 2 && typeof answer[0] === 'number') [status, answer] = answer as [number, unknown]
+        // Bytes (a photo) are sent as they are.
+        if (Buffer.isBuffer(answer)) return route.fulfill({ status, headers: cors, contentType: 'image/png', body: answer })
         if (answer === undefined) {
             // Anything not listed: an empty answer, so a page that reads more than the test cares about still opens.
             answer = req.method() === 'GET' ? { items: [], total: 0 } : {}

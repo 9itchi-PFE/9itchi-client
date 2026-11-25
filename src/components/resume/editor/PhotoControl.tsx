@@ -4,7 +4,9 @@ import { useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/Button'
 import { useToast } from '@/components/ui/Toast'
+import { useMe } from '@/hooks/useAccount'
 import { useSaveVersion } from '@/hooks/useResumes'
+import AccountService from '@/services/AccountService'
 import { errorStatus } from '@/services/ApiService'
 import ResumeService from '@/services/ResumeService'
 import ShowSwitch from './ShowSwitch'
@@ -33,6 +35,19 @@ export default function PhotoControl({
     const input = useRef<HTMLInputElement>(null)
     const [busy, setBusy] = useState(false)
     const snapshot = useSaveVersion(resumeId)
+    const profileHasPhoto = !!useMe().data?.has_photo
+    // fromProfile puts the profile photo on this CV (already square and under 2 MB).
+    const fromProfile = async () => {
+        setBusy(true)
+        try {
+            const blob = (await AccountService.getPhoto()).data
+            setBusy(false)
+            await upload(new File([blob], 'profile.jpg', { type: 'image/jpeg' }))
+        } catch {
+            toast(tc('error'))
+            setBusy(false)
+        }
+    }
     const upload = async (f: File) => {
         if (!/^image\/(jpeg|png)$/.test(f.type)) return toast(t('photoType'))
         if (f.size > MAX_PHOTO) return toast(t('photoTooBig'))
@@ -62,6 +77,11 @@ export default function PhotoControl({
                 <Button variant="secondary" size="sm" disabled={busy} onClick={() => input.current?.click()}>
                     {hasPhoto ? t('fields.photoChange') : t('fields.photoAdd')}
                 </Button>
+                {!hasPhoto && profileHasPhoto ? (
+                    <Button variant="link" size="sm" disabled={busy} onClick={fromProfile}>
+                        {t('fields.photoFromProfile')}
+                    </Button>
+                ) : null}
                 {hasPhoto ? (
                     <Button
                         variant="link"

@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { signOut } from 'next-auth/react'
 import { useSessionContext } from '@/components/auth/AuthProvider'
+import { useMe, useProfilePhoto } from '@/hooks/useAccount'
 
 export const initials = (name?: string) =>
     (name ?? '')
@@ -19,6 +20,7 @@ export const initials = (name?: string) =>
 export default function AccountMenu() {
     const t = useTranslations('header')
     const { user } = useSessionContext()
+    const photo = useProfilePhoto(useMe().data?.has_photo).data
     const [open, setOpen] = useState(false)
     const ref = useRef<HTMLDivElement>(null)
     useEffect(() => {
@@ -42,9 +44,14 @@ export default function AccountMenu() {
                 aria-expanded={open}
                 aria-haspopup="menu"
                 onClick={() => setOpen((o) => !o)}
-                className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full border-0 bg-[#E4DEFF] text-sm font-semibold text-violet-hover"
+                className="flex h-10 w-10 cursor-pointer items-center justify-center overflow-hidden rounded-full border-0 bg-[#E4DEFF] p-0 text-sm font-semibold text-violet-hover"
             >
-                {initials(user?.name)}
+                {photo ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={photo} alt="" className="h-full w-full object-cover" />
+                ) : (
+                    initials(user?.name)
+                )}
             </button>
             {open ? (
                 <div role="menu" className="absolute end-0 top-12 z-30 flex w-56 flex-col gap-0.5 rounded-2xl border border-line bg-white p-1.5 shadow-nav">
