@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/Button'
 import { Icon, type IconName } from '@/components/ui/icons'
 import FileBadge from './FileBadge'
 
-// ImportError is ErrCVImport: the file that failed, the usual reasons, and two ways on.
-export default function ImportError({ fileName, onRetry, onBlank }: { fileName: string; onRetry: () => void; onBlank: () => void }) {
+// ImportError is ErrCVImport: the file that failed, the usual reasons, and the ways on. Writing a CV from a
+// blank page is part of the subscription, so without one onBlank is left out and only retrying is offered.
+export default function ImportError({ fileName, onRetry, onBlank }: { fileName: string; onRetry: () => void; onBlank?: () => void }) {
     const t = useTranslations('import')
     const reasons: [IconName, string, string][] = [
         ['file', t('errBlurryTitle'), t('errBlurryText')],
@@ -43,9 +44,11 @@ export default function ImportError({ fileName, onRetry, onBlank }: { fileName: 
                 <Button size="lg" onClick={onRetry}>
                     {t('errRetry')}
                 </Button>
-                <Button size="lg" variant="secondary" onClick={onBlank}>
-                    {t('blankTitle')}
-                </Button>
+                {onBlank ? (
+                    <Button size="lg" variant="secondary" onClick={onBlank}>
+                        {t('blankTitle')}
+                    </Button>
+                ) : null}
             </div>
         </div>
     )

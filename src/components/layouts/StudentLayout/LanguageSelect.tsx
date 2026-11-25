@@ -11,7 +11,7 @@ const flags = { fr: 'FR', en: 'UK', ar: 'SA' } as const
 
 // LanguageSelect stores the choice in a cookie read by i18n/request.ts, then re-renders the page. It also tells
 // account-api, so that the emails 9itchi sends are written in the same language; the page does not wait for it.
-export default function LanguageSelect() {
+export default function LanguageSelect({ remember = true }: { remember?: boolean }) {
     const t = useTranslations('header')
     const locale = useLocale()
     const router = useRouter()
@@ -33,9 +33,11 @@ export default function LanguageSelect() {
                     const next = e.target.value
                     if (!isLocale(next)) return
                     document.cookie = `${LOCALE_COOKIE}=${next}; path=/; max-age=31536000; samesite=lax`
-                    AccountService.setLanguage(next).catch(() => {
-                        /* The interface changes anyway; the emails keep the previous language until the next change. */
-                    })
+                    // Signed out (public pages): only the cookie; there is no account to tell.
+                    if (remember)
+                        AccountService.setLanguage(next).catch(() => {
+                            /* The interface changes anyway; the emails keep the previous language until the next change. */
+                        })
                     start(() => router.refresh())
                 }}
                 className="h-10 cursor-pointer rounded-full border border-line bg-white ps-9 pe-2.5 text-[13.5px] font-medium text-ink-2"

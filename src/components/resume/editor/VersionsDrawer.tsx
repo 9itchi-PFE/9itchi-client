@@ -192,7 +192,7 @@ export default function VersionsDrawer({
                                             {t('duplicate')}
                                         </Button>
                                     ) : null}
-                                    {v.locked ? (
+                                    {v.locked && v.locked_reason === 'subscription' ? null : v.locked ? (
                                         <Button
                                             variant="secondary"
                                             size="sm"
