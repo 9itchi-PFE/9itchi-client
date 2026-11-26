@@ -24,6 +24,14 @@ const paths = {
             <path d="m22 2-7 20-4-9-9-4z" />
         </>
     ),
+    // radar: concentric arcs around a dot (Recruiter Radar).
+    radar: (
+        <>
+            <circle cx="12" cy="12" r="1.5" />
+            <path d="M16.2 7.8a6 6 0 0 1 0 8.4M7.8 16.2a6 6 0 0 1 0-8.4" />
+            <path d="M19.1 4.9a10 10 0 0 1 0 14.2M4.9 19.1a10 10 0 0 1 0-14.2" />
+        </>
+    ),
     bell: (
         <>
             <path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8" />
