@@ -40,6 +40,9 @@ export function match(skills: string[], cv: string[]): Match | null {
     return { fits, others, strong: fits.length / skills.length >= 0.5 }
 }
 
+// strongFit says « Fait pour toi »: job-api's match_score from 50, or, without one, the CV covers half the skills.
+export const strongFit = (matchScore: number | null | undefined, m: Match | null) => (matchScore != null ? matchScore >= 50 : !!m?.strong)
+
 const DAY = 24 * 60 * 60 * 1000
 
 // daysLeft counts whole days from today to a YYYY-MM-DD closing date (0 = closes today, negative = closed).
