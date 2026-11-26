@@ -20,6 +20,7 @@ Next.js 15.1 (App Router, standalone, turbopack dev), React 19, TypeScript, Tail
 - Paywall: 402 from services means quota/subscription; show the subscription UI, don't treat it as an error.
 - Book PDF: `PdfPage` reads it page by page with pdf.js over byte ranges straight from job-api `/books/:id/pdf` (needs job-api `http.ServeContent` and CORS `Range`; the doc cache is keyed by URL + token because pdf.js fixes its headers at open and the access token lives 15 min). Company logos come from job-api `/public/logos` (`useLogos`, `logoUrl`, key = `companyKey`). Both need the job-api `offers/company-logo` branch deployed first; without it logos are absent and the PDF falls back to a full download.
 - Metadata: set `alternates.canonical` per page, never in the root layout (every page would inherit it).
+- SEO: `siteUrl()` (`lib/site.ts`) is read at run time (`NEXTAUTH_URL`, production fallback `https://9itchi-pfe.com`); `robots.ts` and `sitemap.ts` are `force-dynamic` so a build never freezes localhost in them. The sitemap lists open offers from job-api `GET /public/jobs`; `/offres/[id]` builds its metadata and JobPosting JSON-LD server side (`lib/publicJob.ts`, `JOB_API_URL`). `GOOGLE_SITE_VERIFICATION` = Search Console HTML-tag code.
 - Plan texts for students come from `plan.details[locale]` (label, tagline, features) via `planText(plan, locale)` in `components/billing/billing.ts` (fallback fr, then `plan.name`); the admin edits them per language in PlanModal.
 
 ## UI style
