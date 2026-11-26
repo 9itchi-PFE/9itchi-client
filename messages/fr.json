@@ -1140,11 +1140,26 @@
                 "emptyCv": "Ton CV est vide : remplis-le d’abord.",
                 "busy": "L’IA ne répond pas pour le moment. Réessaie dans un instant.",
                 "failed": "L’analyse n’a pas pu se faire. Réessaie."
-            }
+            },
+            "quick": "Score rapide de la liste, sans conseil.",
+            "full": "Analyse complète",
+            "quickLocked": "Plus de score rapide aujourd’hui : l’abonnement en donne davantage."
         },
         "copyLink": "Copier le lien",
         "linkCopied": "Lien de l’offre copié : tu peux le partager",
-        "copyFailed": "Le lien n’a pas pu être copié"
+        "copyFailed": "Le lien n’a pas pu être copié",
+        "fitScore": "{score} % de compétences en commun",
+        "fitScoreStrong": "Fait pour toi · {score} %",
+        "scores": {
+            "badge": "IA {score}",
+            "badgeLabel": "Score de l’IA : {score}/100",
+            "locked": "IA",
+            "lockedLabel": "Score de l’IA réservé à l’abonnement",
+            "today": "{used}/{limit} analyses IA aujourd’hui",
+            "todayNoLimit": "{used} analyses IA aujourd’hui",
+            "reading": "L’IA note les premières offres…",
+            "usedUp": "Tes analyses IA du jour sont épuisées."
+        }
     },
     "book": {
         "crumbs": "Fil d’Ariane",
@@ -1567,7 +1582,8 @@
             "ai_rewrites_per_month": "Réécritures du CV par l’IA, par mois",
             "ai_matches_per_month": "Analyses d’une offre par l’IA, par mois",
             "recruiter_searches_per_day": "Recherches de recruteurs, par jour",
-            "cv_edit": "Corriger son CV dans 9itchi"
+            "cv_edit": "Corriger son CV dans 9itchi",
+            "ai_scores_per_day": "Scores IA des offres, par jour"
         },
         "promosTitle": "Codes promo",
         "promoNew": "+ Nouveau code",
@@ -1773,7 +1789,20 @@
         "bookClear": "Vider la liste",
         "booksReceived": "{count, plural, one {# PDF reçu} other {# PDF reçus}}, lecture en cours",
         "bookBatchOverflow": "{count, plural, one {# fichier n’a pas été ajouté} other {# fichiers n’ont pas été ajoutés}} : {max} au plus par import.",
-        "bookQueueError": "Envoi impossible. Réessaie."
+        "bookQueueError": "Envoi impossible. Réessaie.",
+        "fKind": "Type",
+        "kindAuto": "Détecté depuis l’URL",
+        "fCap": "Plafond d’appels par mois",
+        "fCapHint": "0 : sans plafond. Pour les sites d’emploi payants (Adzuna, JSearch…).",
+        "blockedUntil": "En pause jusqu’au {date}",
+        "fails": "{count, plural, one {# échec} other {# échecs}}",
+        "calls": "{used}/{cap} appels ce mois",
+        "callsNoCap": "{used} appels ce mois",
+        "originBoard": "D’un site d’emploi",
+        "filterSource": "Source",
+        "allSources": "Toutes les sources",
+        "filterOrigin": "Origine",
+        "allOrigins": "Toutes les origines"
     },
     "apply": {
         "back": "Retour à l’offre",

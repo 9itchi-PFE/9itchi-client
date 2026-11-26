@@ -1,4 +1,4 @@
-import type { JobEdit, ReviewJob, ReviewStatus, Source } from '@/types/job'
+import { BOARD_KINDS, type BoardKind, type JobEdit, type ReviewJob, type ReviewStatus, type Source } from '@/types/job'
 
 const HOUR = 3600_000
 
@@ -32,6 +32,44 @@ export function sourceLook(s: Pick<Source, 'enabled' | 'state'>): SourceLook {
     if (s.state === 'error') return 'error'
     if (!s.enabled) return 'off'
     return s.state === 'ok' ? 'ok' : 'idle'
+}
+
+// KIND_NAMES are the job boards as their sites write them, for the « Type » list of the source form.
+export const KIND_NAMES: Record<BoardKind, string> = {
+    tanitjobs: 'Tanitjobs',
+    keejob: 'Keejob',
+    remoteok: 'Remote OK',
+    remotive: 'Remotive',
+    himalayas: 'Himalayas',
+    jobicy: 'Jobicy',
+    arbeitnow: 'Arbeitnow',
+    landingjobs: 'Landing.jobs',
+    weworkremotely: 'We Work Remotely',
+    adzuna: 'Adzuna',
+    jsearch: 'JSearch',
+    theirstack: 'TheirStack',
+    careerjet: 'Careerjet',
+}
+
+// boardKind is the kind the source form starts on: a board keeps its kind, anything else is read from the URL ('').
+export const boardKind = (kind: string | undefined): BoardKind | '' => ((BOARD_KINDS as readonly string[]).includes(kind ?? '') ? (kind as BoardKind) : '')
+
+// Health is what the sources table adds under the state of a board: paused until when, failures in a row, paid calls.
+export type Health = { blockedUntil: Date | null; fails: number; calls: { used: number; cap: number } | null }
+
+export function health(s: Pick<Source, 'blocked_until' | 'fail_count' | 'monthly_cap' | 'calls_used'>, now = new Date()): Health {
+    const until = s.blocked_until ? new Date(s.blocked_until) : null
+    return {
+        blockedUntil: until && until.getTime() > now.getTime() ? until : null,
+        fails: s.fail_count ?? 0,
+        calls: s.monthly_cap > 0 || s.calls_used > 0 ? { used: s.calls_used ?? 0, cap: s.monthly_cap ?? 0 } : null,
+    }
+}
+
+// cap reads the monthly cap field: empty or not a whole number above zero means no cap (0).
+export function cap(v: string): number {
+    const n = Number.parseInt(v, 10)
+    return Number.isNaN(n) || n < 0 ? 0 : n
 }
 
 // places reads the comma-separated cities of the source form.

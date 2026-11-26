@@ -7,6 +7,7 @@ import { Bolt, Icon } from '@/components/ui/icons'
 import { useToast } from '@/components/ui/Toast'
 import { useJob } from '@/hooks/useJobs'
 import { cn } from '@/lib/cn'
+import type { ScoreItem } from '@/types/application'
 import type { JobSummary } from '@/types/job'
 import AiMatch from './AiMatch'
 import { CompanyBadge } from './OfferCard'
@@ -29,7 +30,19 @@ export function BookCover({ year, color = '#D6F25E', className }: { year: number
 }
 
 // OfferDetail is the sticky side panel of the offers screen: facts, how to apply, what fits the CV, the topic, its book.
-export default function OfferDetail({ summary, cvSkills, hasCv, resumeId }: { summary: JobSummary; cvSkills: string[]; hasCv: boolean; resumeId?: string }) {
+export default function OfferDetail({
+    summary,
+    cvSkills,
+    hasCv,
+    resumeId,
+    ai,
+}: {
+    summary: JobSummary
+    cvSkills: string[]
+    hasCv: boolean
+    resumeId?: string
+    ai?: ScoreItem
+}) {
     const t = useTranslations('offers')
     const toast = useToast()
     const tm = useTranslations('prefs.modes')
@@ -156,7 +169,7 @@ export default function OfferDetail({ summary, cvSkills, hasCv, resumeId }: { su
                         {!m ? t('fitNone') : !hasCv ? t('fitNoCv') : m.others.length === 0 ? t('fitAll') : t('fitMissing', { skills: m.others.join(t('or')) })}
                     </p>
                 </div>
-                {hasCv && resumeId ? <AiMatch key={summary.id} jobId={summary.id} resumeId={resumeId} /> : null}
+                {hasCv && resumeId ? <AiMatch key={summary.id} jobId={summary.id} resumeId={resumeId} quick={ai} /> : null}
                 <div className="flex flex-col gap-2">
                     <h3 className="m-0 font-display text-[17px] font-extrabold tracking-tightish">{t('about')}</h3>
                     <p className="m-0 whitespace-pre-line text-[15px] leading-[1.65] text-ink-2">

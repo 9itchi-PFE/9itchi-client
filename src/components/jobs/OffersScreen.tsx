@@ -3,9 +3,10 @@
 import { Fragment, useMemo, useState } from 'react'
 import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { useFormatter, useTranslations } from 'next-intl'
+import { useFormatter, useLocale, useTranslations } from 'next-intl'
 import { useQueries } from '@tanstack/react-query'
 import { Icon } from '@/components/ui/icons'
+import { useScores } from '@/hooks/useApplications'
 import { jobKeys, useBooks, useJob, useJobCounts, useJobList, useToggleSave } from '@/hooks/useJobs'
 import { useMyCv } from '@/hooks/useResumes'
 import { cn } from '@/lib/cn'
@@ -34,7 +35,9 @@ export default function OffersScreen() {
     const tc = useTranslations('common')
     const tt = useTranslations('prefs.topics')
     const tm = useTranslations('prefs.modes')
+    const ts = useTranslations('offers.scores')
     const format = useFormatter()
+    const locale = useLocale()
     const router = useRouter()
     const params = useSearchParams()
     const filters = useMemo(() => fromSearch(params), [params])
@@ -61,6 +64,18 @@ export default function OffersScreen() {
 
     const items = list.data?.items ?? []
     const empty = list.isSuccess && !list.isPlaceholderData && items.length === 0
+
+    // On « Pour toi » sorted by match, the AI scores the first offers once a day; the list never waits for it.
+    const scoring = filters.tab === 'for_you' && cv.skills.length > 0 && list.isSuccess && !list.isPlaceholderData
+    const scores = useScores(
+        cv.id,
+        items.slice(0, 10).map((j) => j.id),
+        locale === 'en' || locale === 'ar' ? locale : 'fr',
+        scoring,
+    )
+    const aiItems = scores.data?.items ?? {}
+    const allowance = scores.data?.allowance ?? null
+    const usedUp = Object.values(aiItems).some((s) => s.status === 'quota')
     const relax = relaxations(filters)
     const relaxCounts = useQueries({
         queries: relax.map((r) => {
@@ -262,12 +277,37 @@ export default function OffersScreen() {
                             </div>
                             {items.length ? <span className="text-sm text-ink-3">{cv.skills.length ? t('sortMatch') : t('sortNewest')}</span> : null}
                         </div>
+                        {scoring && (scores.isFetching || allowance || usedUp) ? (
+                            <p aria-live="polite" className="m-0 flex flex-wrap items-center gap-x-2 gap-y-1 text-[13px] text-ink-3">
+                                {scores.isFetching && !scores.data ? (
+                                    ts('reading')
+                                ) : (
+                                    <>
+                                        {allowance
+                                            ? allowance.limit == null
+                                                ? ts('todayNoLimit', { used: allowance.used })
+                                                : ts('today', { used: allowance.used, limit: allowance.limit })
+                                            : null}
+                                        {usedUp ? (
+                                            <span className="inline-flex items-center gap-1">
+                                                <Icon name="lock" size={12} />
+                                                {ts('usedUp')}{' '}
+                                                <Link href="/settings/billing" className="hit font-semibold text-ink underline">
+                                                    {t('ai.seePlans')}
+                                                </Link>
+                                            </span>
+                                        ) : null}
+                                    </>
+                                )}
+                            </p>
+                        ) : null}
 
                         {items.map((job, i) => (
                             <Fragment key={job.id}>
                                 <OfferCard
                                     job={job}
                                     cvSkills={cv.skills}
+                                    ai={aiItems[job.id]}
                                     selected={job.id === selected?.id}
                                     onSelect={() => selectOffer(job.id)}
                                     onToggleSave={() => save.mutate({ id: job.id, saved: !job.saved })}
@@ -303,7 +343,7 @@ export default function OffersScreen() {
                             </button>
                         ) : null}
                     </section>
-                    {selected ? <OfferDetail summary={selected} cvSkills={cv.skills} hasCv={!!cv.id} resumeId={cv.id} /> : null}
+                    {selected ? <OfferDetail summary={selected} cvSkills={cv.skills} hasCv={!!cv.id} resumeId={cv.id} ai={aiItems[selected.id]} /> : null}
                 </div>
             )}
 

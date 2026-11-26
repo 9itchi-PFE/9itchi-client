@@ -10,9 +10,9 @@ import { Drawer, Modal } from '@/components/ui/Modal'
 import { Segmented } from '@/components/ui/Segmented'
 import { useToast } from '@/components/ui/Toast'
 import { Select } from '@/components/ui/Select'
-import { useEditReview, useImportPost, useReviewAction, useReviewJob, useReviewList } from '@/hooks/useAdminJobs'
+import { useEditReview, useImportPost, useReviewAction, useReviewJob, useReviewList, useSources } from '@/hooks/useAdminJobs'
 import { cn } from '@/lib/cn'
-import type { JobEdit, Origin, ReviewItem, ReviewJob, ReviewTab } from '@/types/job'
+import { ORIGINS, type JobEdit, type Origin, type ReviewFilter, type ReviewItem, type ReviewJob, type ReviewTab } from '@/types/job'
 import { TOPICS, type WorkMode } from '@/types/preferences'
 import LogoField from './LogoField'
 import { apiError, WhenText } from './SourcesScreen'
@@ -39,6 +39,7 @@ function useOrigin() {
         if (origin === 'site') return t('originSite')
         if (origin === 'book') return t('originBook')
         if (origin === 'feed') return t('originFeed')
+        if (origin === 'board') return t('originBoard')
         return t('originLink') + (sourceUrl && /linkedin\.com|lnkd\.in/i.test(sourceUrl) ? ' · LinkedIn' : '')
     }
 }
@@ -315,7 +316,11 @@ export default function ReviewScreen() {
     const [picked, setPicked] = useState<string>()
     const [editing, setEditing] = useState(false)
     const [importing, setImporting] = useState(false)
-    const list = useReviewList(tab)
+    // The source and origin filters narrow the queue and its tab counts.
+    const [filter, setFilter] = useState<ReviewFilter>({})
+    const sources = useSources()
+    const origin = useOrigin()
+    const list = useReviewList(tab, filter)
     const items = list.data?.items ?? []
     const counts = list.data?.counts
     // The picked offer stays shown after an action moves it to another queue; otherwise the first of the queue.
@@ -338,21 +343,61 @@ export default function ReviewScreen() {
                     </Button>
                 </div>
             </div>
-            <Segmented
-                label={t('tabs')}
-                value={tab}
-                onChange={(v) => {
-                    setTab(v)
-                    setPicked(undefined)
-                }}
-                className="self-start"
-                itemClassName="px-4 h-10 text-[15px]"
-                options={[
-                    { value: 'pending', label: t('tabPending', { count: counts?.pending ?? 0 }) },
-                    { value: 'expired', label: t('tabExpired', { count: counts?.expired ?? 0 }) },
-                    { value: 'hidden', label: t('tabHidden', { count: counts?.hidden ?? 0 }) },
-                ]}
-            />
+            <div className="flex flex-wrap items-end gap-3">
+                <Segmented
+                    label={t('tabs')}
+                    value={tab}
+                    onChange={(v) => {
+                        setTab(v)
+                        setPicked(undefined)
+                    }}
+                    className="self-start"
+                    itemClassName="px-4 h-10 text-[15px]"
+                    options={[
+                        { value: 'pending', label: t('tabPending', { count: counts?.pending ?? 0 }) },
+                        { value: 'expired', label: t('tabExpired', { count: counts?.expired ?? 0 }) },
+                        { value: 'hidden', label: t('tabHidden', { count: counts?.hidden ?? 0 }) },
+                    ]}
+                />
+                <label className="flex w-full max-w-[240px] flex-col gap-1 text-[13px] font-medium text-ink-3">
+                    {t('filterSource')}
+                    <Select
+                        name="source_id"
+                        value={filter.source_id ?? ''}
+                        onChange={(e) => {
+                            setFilter({ ...filter, source_id: e.target.value || undefined })
+                            setPicked(undefined)
+                        }}
+                        className={inputClass}
+                    >
+                        <option value="">{t('allSources')}</option>
+                        {(sources.data?.items ?? []).map((s) => (
+                            <option key={s.id} value={s.id}>
+                                {s.company}
+                            </option>
+                        ))}
+                    </Select>
+                </label>
+                <label className="flex w-full max-w-[220px] flex-col gap-1 text-[13px] font-medium text-ink-3">
+                    {t('filterOrigin')}
+                    <Select
+                        name="origin"
+                        value={filter.origin ?? ''}
+                        onChange={(e) => {
+                            setFilter({ ...filter, origin: (e.target.value || undefined) as Origin | undefined })
+                            setPicked(undefined)
+                        }}
+                        className={inputClass}
+                    >
+                        <option value="">{t('allOrigins')}</option>
+                        {ORIGINS.map((o) => (
+                            <option key={o} value={o}>
+                                {origin(o)}
+                            </option>
+                        ))}
+                    </Select>
+                </label>
+            </div>
             <div className="grid items-start gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.6fr)]">
                 <div className="overflow-hidden rounded-[18px] border border-line bg-white">
                     {list.isLoading ? <div className="sk m-4 h-14 rounded-lg" /> : null}
