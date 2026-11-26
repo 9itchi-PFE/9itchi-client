@@ -74,7 +74,8 @@ const JobService = {
         const form = new FormData()
         form.append('file', file)
         if (company) form.append('company', company)
-        return api('job').post<AdminBook>(`/admin/books/import`, form)
+        // A 20 MB PDF on a slow line takes longer than the default 50 s.
+        return api('job').post<AdminBook>(`/admin/books/import`, form, { timeout: 5 * 60_000 })
     },
     editBook: (id: string, e: BookEdit) => api('job').patch<AdminBook>(`/admin/books/${id}`, e),
     publishBook: (id: string, jobIds: string[]) => api('job').post<AdminBook>(`/admin/books/${id}/publish`, { job_ids: jobIds }),

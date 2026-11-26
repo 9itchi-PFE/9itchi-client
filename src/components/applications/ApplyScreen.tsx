@@ -19,7 +19,8 @@ import { useToast } from '@/components/ui/Toast'
 import { useMe } from '@/hooks/useAccount'
 import { useAllowance, useApplications, useApply, useDraft, useGmailStatus } from '@/hooks/useApplications'
 import { useJob, useSimilarJobs } from '@/hooks/useJobs'
-import { useMyCv, useResume } from '@/hooks/useResumes'
+import { useMyCv, useResume, useResumes } from '@/hooks/useResumes'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { cn } from '@/lib/cn'
 import { quotaReason } from '@/utils/quota'
 import EmailService from '@/services/EmailService'
@@ -42,6 +43,7 @@ import {
     takePending,
     validTime,
     signature,
+    validEmail,
 } from './apply'
 
 const eyebrow = 'font-mono text-[11px] font-semibold uppercase tracking-[.08em] text-ink-3'
@@ -249,7 +251,13 @@ export default function ApplyScreen({ id }: { id: string }) {
     const jobQ = useJob(id)
     const job = jobQ.data
     const my = useMyCv()
-    const resume = useResume(my.id ?? '').data
+    const cvs = useResumes()
+    // The CV sent: the latest one unless the student picks another. letterCv is the one the letter was written with.
+    const [cvId, setCvId] = useState('')
+    const [letterCv, setLetterCv] = useState('')
+    const [askCv, setAskCv] = useState('')
+    const cv = cvId || my.id || ''
+    const resume = useResume(cv).data
     const gmail = useGmailStatus()
     const apps = useApplications()
     const allowance = useAllowance()
@@ -272,12 +280,16 @@ export default function ApplyScreen({ id }: { id: string }) {
     const [busy, setBusy] = useState(false)
     const [sent, setSent] = useState<SentInfo | null>(null)
     const [byHand, setByHand] = useState(false)
+    // byEmail: an offer with no application address, sent from Gmail to the address the student found.
+    const [byEmail, setByEmail] = useState(false)
+    const [to, setTo] = useState('')
+    const edited = useRef(false)
 
     // Back from Google: the letter the student left with is put back instead of being written again.
     const asked = useRef('')
     const hasLetter = useRef(false)
     hasLetter.current = paras.length > 0
-    const key = `${id}|${tone}|${language}|${nonce}`
+    const key = `${id}|${tone}|${language}|${nonce}|${letterCv}`
     useEffect(() => {
         const p = takePending(id)
         if (!p) return
@@ -288,6 +300,16 @@ export default function ApplyScreen({ id }: { id: string }) {
         setParas(p.paras)
         setOwn(p.own)
         setLater(p.later)
+        if (p.cv) {
+            setCvId(p.cv)
+            setLetterCv(p.cv)
+            asked.current = `${id}|${p.tone}|${p.language}|0|${p.cv}`
+        }
+        if (p.to) {
+            setTo(p.to)
+            setByEmail(true)
+        }
+        edited.current = true
         if (p.at) {
             setSlot('custom')
             setCustom(p.at)
@@ -308,13 +330,14 @@ export default function ApplyScreen({ id }: { id: string }) {
         if (!job || !my.ready || !my.id || apps.isLoading || already || byHand || asked.current === key) return
         asked.current = key
         write(
-            { job_id: id, resume_id: my.id, language, tone, fresh: nonce > 0 },
+            { job_id: id, resume_id: letterCv || my.id, language, tone, fresh: nonce > 0 },
             {
                 onSuccess: (d) => {
                     if (asked.current !== key) return
                     setSubject(d.subject)
                     setParas(paragraphs(d.body))
                     setRead(false)
+                    edited.current = false
                 },
                 onError: (e) => {
                     // With a letter already on screen, it stays: the student is told why no new one came.
@@ -324,7 +347,7 @@ export default function ApplyScreen({ id }: { id: string }) {
                 },
             },
         )
-    }, [job, my.ready, my.id, apps.isLoading, already, byHand, key, id, language, tone, nonce, write, toast, t])
+    }, [job, my.ready, my.id, apps.isLoading, already, byHand, key, id, language, tone, nonce, letterCv, write, toast, t])
 
     const closed = job ? deadline(job.closes_on)?.kind === 'closed' : false
     useEffect(() => {
@@ -418,13 +441,13 @@ export default function ApplyScreen({ id }: { id: string }) {
     // onSite: the offer only takes applications on the site it was found on; external also covers a student who
     // chose to send a 1-click offer from their own mailbox.
     const onSite = !job.easy_apply
-    const external = self || onSite
+    const external = self || (onSite && !byEmail)
     const source = sourceName(job.source)
     const place = city(job, o('remote'))
     const suggested = slots()
     const at = !later ? null : slot === 'custom' ? (custom ? new Date(custom) : null) : (suggested.find((s) => s.key === slot)?.at ?? null)
     const timeOk = !later || validTime(at)
-    const ready = read && timeOk && !!subject.trim() && paras.some((p) => p.trim())
+    const ready = read && timeOk && !!subject.trim() && paras.some((p) => p.trim()) && (!onSite || validEmail(to))
     const sig = signature(me.data, (y) => ts(`years.${y}` as 'years.l3'))
     const body = compose(paras, own, sig)
     const ownAt = ownIndex(paras)
@@ -460,7 +483,8 @@ export default function ApplyScreen({ id }: { id: string }) {
         try {
             const app = await apply.mutateAsync({
                 job_id: id,
-                resume_id: my.id,
+                resume_id: cv,
+                to: onSite ? to.trim() : undefined,
                 subject: subject.trim(),
                 body,
                 scheduled_at: at ? at.toISOString() : undefined,
@@ -474,7 +498,18 @@ export default function ApplyScreen({ id }: { id: string }) {
     }
 
     const connect = async () => {
-        savePending({ jobId: id, subject, paras, own, tone, language, later, at: at && later ? localInput(at) : '' })
+        savePending({
+            jobId: id,
+            subject,
+            paras,
+            own,
+            tone,
+            language,
+            later,
+            at: at && later ? localInput(at) : '',
+            cv: letterCv || cv,
+            to: onSite ? to.trim() : undefined,
+        })
         setBusy(true)
         try {
             const { data } = await EmailService.connectGmail()
@@ -488,8 +523,8 @@ export default function ApplyScreen({ id }: { id: string }) {
     const downloadCv = async () => {
         setBusy(true)
         try {
-            const { data: file } = await ResumeService.exportResume(my.id!, 'pdf')
-            const { data: blob } = await ResumeService.downloadFile(my.id!, file.id)
+            const { data: file } = await ResumeService.exportResume(cv, 'pdf')
+            const { data: blob } = await ResumeService.downloadFile(cv, file.id)
             saveBlob(blob, file.filename)
             setDid((d) => ({ ...d, cv: true }))
         } catch (e) {
@@ -513,7 +548,7 @@ export default function ApplyScreen({ id }: { id: string }) {
     const sentMyself = async () => {
         setBusy(true)
         try {
-            const app = await apply.mutateAsync({ job_id: id, resume_id: my.id, via: 'self' })
+            const app = await apply.mutateAsync({ job_id: id, resume_id: cv, via: 'self' })
             setSent({ app, later: null })
         } catch (e) {
             failed(e)
@@ -521,6 +556,17 @@ export default function ApplyScreen({ id }: { id: string }) {
             setBusy(false)
         }
     }
+
+    // choose sends another CV. The letter was written from the CV: it is written again from the new one, unless the
+    // student changed it, who is asked first (keeping the letter keeps the new CV too).
+    const choose = (v: string) => {
+        setCvId(v)
+        if (byHand || v === (letterCv || my.id)) return
+        if (edited.current) setAskCv(v)
+        else setLetterCv(v)
+    }
+    const cvItems = cvs.data?.items ?? []
+    const toBad = onSite && byEmail && to.trim() !== '' && !validEmail(to)
 
     const rewriting = draft.isPending
     const doneCount = [did.cv, did.letter, did.site].filter(Boolean).length
@@ -533,10 +579,10 @@ export default function ApplyScreen({ id }: { id: string }) {
                     <div className="flex flex-col gap-2">
                         <span className={eyebrow}>{[job.company, onSite ? t('offerOn', { source }) : place].filter(Boolean).join(' · ')}</span>
                         <h1 className="m-0 text-[38px] font-extrabold leading-[1.08]">
-                            {onSite ? t('titleExternal', { source }) : external ? t('titleSelf') : t('title')}
+                            {onSite && !byEmail ? t('titleExternal', { source }) : external ? t('titleSelf') : t('title')}
                         </h1>
                         <p className="m-0 max-w-[620px] text-base leading-[1.55] text-ink-3">
-                            {onSite ? t('introExternal', { source }) : external ? t('introSelf') : t('intro')}
+                            {onSite && !byEmail ? t('introExternal', { source }) : external ? t('introSelf') : t('intro')}
                         </p>
                     </div>
 
@@ -621,7 +667,9 @@ export default function ApplyScreen({ id }: { id: string }) {
                             <dt>{t('from')}</dt>
                             <dd className="m-0 text-ink">{gmail.data?.connected ? gmail.data.email : (user?.name ?? t('you'))}</dd>
                             <dt>{t('to')}</dt>
-                            <dd className="m-0 text-ink">{t('recruiter', { company: job.company })}</dd>
+                            <dd className="m-0 text-ink" dir={byEmail && to ? 'ltr' : undefined}>
+                                {byEmail && to.trim() ? to.trim() : t('recruiter', { company: job.company })}
+                            </dd>
                             <dt>{t('attached')}</dt>
                             <dd className="m-0 text-ink">
                                 {way.kind === 'original' ? t('attachedOriginal') : t('attachedCv', { title: resume?.title ?? 'CV' })}
@@ -630,7 +678,14 @@ export default function ApplyScreen({ id }: { id: string }) {
                         <div className="flex items-baseline gap-2 font-semibold text-ink">
                             <span className="flex-none">{t('subject')}</span>
                             <div className="min-w-0 flex-1">
-                                <Para value={subject} label={t('subjectLabel')} onChange={(v) => setSubject(v.replace(/\n/g, ' ').slice(0, 200))} />
+                                <Para
+                                    value={subject}
+                                    label={t('subjectLabel')}
+                                    onChange={(v) => {
+                                        edited.current = true
+                                        setSubject(v.replace(/\n/g, ' ').slice(0, 200))
+                                    }}
+                                />
                             </div>
                         </div>
                         {paras.map((p, i) => (
@@ -639,6 +694,7 @@ export default function ApplyScreen({ id }: { id: string }) {
                                     value={p}
                                     label={t('paragraph', { n: i + 1 })}
                                     onChange={(v) => {
+                                        edited.current = true
                                         setParas((all) => all.map((x, k) => (k === i ? v : x)))
                                         setRead(false)
                                     }}
@@ -695,6 +751,30 @@ export default function ApplyScreen({ id }: { id: string }) {
                         </div>
                     </div>
 
+                    {cvItems.length > 1 ? (
+                        <label className="flex flex-col gap-1.5 text-[13.5px] font-medium text-ink-2">
+                            {t('cvPick')}
+                            <span className="flex items-center gap-2">
+                                <select
+                                    value={cv}
+                                    disabled={busy}
+                                    onChange={(e) => choose(e.target.value)}
+                                    className="h-11 min-w-0 flex-1 rounded-xl border border-line-strong bg-white px-3 text-[14.5px] text-ink"
+                                >
+                                    {cvItems.map((r) => (
+                                        <option key={r.id} value={r.id}>
+                                            {r.title}
+                                        </option>
+                                    ))}
+                                </select>
+                                <Link href={`/resumes/${cv}`} className="hit flex-none text-[13.5px] font-medium">
+                                    {t('see')}
+                                </Link>
+                            </span>
+                            <span className="text-[12.5px] font-normal text-ink-3">{t('cvPickHint')}</span>
+                        </label>
+                    ) : null}
+
                     {external ? (
                         <>
                             <ol className="m-0 flex list-none flex-col gap-2.5 p-0">
@@ -730,6 +810,12 @@ export default function ApplyScreen({ id }: { id: string }) {
                                 {onSite ? t('selfDone', { source }) : t('selfSent')}
                             </Button>
                             <p className="-mt-2 mb-0 text-center text-[13px] leading-[1.5] text-ink-3">{t('selfNote')}</p>
+                            {onSite && !self ? (
+                                <Button variant="secondary" className="w-full gap-2" disabled={busy} onClick={() => setByEmail(true)}>
+                                    <Icon name="send" size={16} />
+                                    {t('byEmail')}
+                                </Button>
+                            ) : null}
                             {job.easy_apply ? (
                                 <Button variant="link" className="self-center text-sm" onClick={() => setSelf(false)}>
                                     {t('selfBack')}
@@ -738,9 +824,28 @@ export default function ApplyScreen({ id }: { id: string }) {
                         </>
                     ) : (
                         <>
+                            {onSite ? (
+                                <div className="flex flex-col gap-1.5">
+                                    <label className="flex flex-col gap-1.5 text-[13.5px] font-medium text-ink-2">
+                                        {t('toLabel')}
+                                        <input
+                                            type="email"
+                                            dir="ltr"
+                                            autoComplete="off"
+                                            value={to}
+                                            maxLength={254}
+                                            aria-invalid={toBad}
+                                            placeholder={t('toPlaceholder')}
+                                            onChange={(e) => setTo(e.target.value)}
+                                            className={cn(inputClass, toBad && 'border-[#B42318]')}
+                                        />
+                                    </label>
+                                    <span className={cn('text-[12.5px]', toBad ? 'text-[#B42318]' : 'text-ink-3')}>{toBad ? t('toBad') : t('toHint')}</span>
+                                </div>
+                            ) : null}
                             <ul className="m-0 flex list-none flex-col gap-3.5 p-0">
                                 <Line ok title={t('lineCv')} hint={resume?.title ?? ''}>
-                                    <Link href={`/resumes/${my.id}`} className="text-[13.5px] font-medium">
+                                    <Link href={`/resumes/${cv}`} className="text-[13.5px] font-medium">
                                         {t('see')}
                                     </Link>
                                 </Line>
@@ -822,19 +927,42 @@ export default function ApplyScreen({ id }: { id: string }) {
                                 {busy ? t('sending') : later ? t('scheduleSend') : t('sendTo', { company: job.company })}
                             </button>
                             <p className="-mt-2 mb-0 text-center text-[13px] leading-[1.5] text-ink-3">
-                                {!read
-                                    ? t('noteCheck')
-                                    : gmail.data?.connected
-                                      ? t('noteFrom', { gmail: gmail.data.email ?? 'Gmail', company: job.company })
-                                      : t('noteConnect')}
+                                {onSite && !validEmail(to)
+                                    ? t('noteTo')
+                                    : !read
+                                      ? t('noteCheck')
+                                      : gmail.data?.connected
+                                        ? t('noteFrom', { gmail: gmail.data.email ?? 'Gmail', company: job.company })
+                                        : t('noteConnect')}
                             </p>
-                            <Button variant="link" className="self-center text-sm" onClick={() => setSelf(true)}>
-                                {t('preferSelf')}
-                            </Button>
+                            {onSite ? (
+                                <Button variant="link" className="self-center text-sm" onClick={() => setByEmail(false)}>
+                                    {t('byEmailBack', { source })}
+                                </Button>
+                            ) : (
+                                <Button variant="link" className="self-center text-sm" onClick={() => setSelf(true)}>
+                                    {t('preferSelf')}
+                                </Button>
+                            )}
                         </>
                     )}
                 </aside>
             </div>
+
+            <ConfirmDialog
+                open={!!askCv}
+                title={t('cvRewriteTitle')}
+                confirmLabel={t('cvRewriteYes')}
+                cancelLabel={t('cvRewriteKeep')}
+                onConfirm={() => {
+                    edited.current = false
+                    setLetterCv(askCv)
+                    setAskCv('')
+                }}
+                onClose={() => setAskCv('')}
+            >
+                {t('cvRewriteText')}
+            </ConfirmDialog>
 
             <Modal open={modal === 'gmail'} onClose={() => setModal('')} eyebrow={t('gmailEyebrow')} title={t('gmailTitle')}>
                 <ul className="m-0 flex list-none flex-col gap-3 p-0">
@@ -890,7 +1018,7 @@ export default function ApplyScreen({ id }: { id: string }) {
                 <ButtonLink href="/settings/billing" size="lg" className="w-full">
                     {t('planSee')}
                 </ButtonLink>
-                <Link href={`/resumes/${my.id}`} className="self-center text-sm font-semibold no-underline">
+                <Link href={`/resumes/${cv}`} className="self-center text-sm font-semibold no-underline">
                     {t('downloadOpen')}
                 </Link>
             </Modal>

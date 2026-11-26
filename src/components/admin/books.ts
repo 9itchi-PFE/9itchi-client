@@ -62,3 +62,47 @@ export function bookInput(f: FormData, year: number): BookEdit {
         topics: common,
     }
 }
+
+// MAX_BATCH is how many PDFs one import takes: they are sent one after the other, and job-api reads two at a time.
+export const MAX_BATCH = 20
+
+export type QueueState = 'waiting' | 'sending' | 'sent' | 'failed'
+export type QueueError = 'notPdf' | 'tooLarge' | 'scanned' | 'other'
+export type QueueItem<F> = { key: string; file: F; company: string; state: QueueState; error?: QueueError; message?: string; bookId?: string }
+
+type FileLike = { name: string; size: number; type: string; lastModified?: number }
+
+const fileKey = (f: FileLike) => `${f.name}|${f.size}|${f.lastModified ?? 0}`
+
+// addToQueue adds the chosen files to the import list: a file already listed is not added twice, the list stops at
+// MAX_BATCH (overflow says how many were left out), and a file that is not a PDF or is too large is listed as failed
+// so the admin sees why it will not be sent.
+export function addToQueue<F extends FileLike>(queue: QueueItem<F>[], files: F[]): { queue: QueueItem<F>[]; overflow: number } {
+    const next = [...queue]
+    const seen = new Set(queue.map((q) => q.key))
+    let overflow = 0
+    for (const file of files) {
+        const key = fileKey(file)
+        if (seen.has(key)) continue
+        if (next.length >= MAX_BATCH) {
+            overflow++
+            continue
+        }
+        seen.add(key)
+        const problem = pdfProblem(file)
+        const error = problem === 'notPdf' || problem === 'tooLarge' ? problem : undefined
+        next.push({ key, file, company: '', state: problem ? 'failed' : 'waiting', error: problem === 'missing' ? 'other' : error })
+    }
+    return { queue: next, overflow }
+}
+
+// importFailure reads why job-api refused one PDF: 422 is a PDF without text, 413 one too large.
+export function importFailure(status: number | undefined): QueueError {
+    if (status === 422) return 'scanned'
+    if (status === 413) return 'tooLarge'
+    return 'other'
+}
+
+// sendable is what an import run sends: the files still waiting, and those that failed on the way (not those refused
+// before sending, which would fail again).
+export const sendable = <F>(q: QueueItem<F>) => q.state === 'waiting' || (q.state === 'failed' && (q.error === 'other' || q.error === undefined))

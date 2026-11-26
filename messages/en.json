@@ -1760,7 +1760,20 @@
         "logoSaved": "Logo of {company} saved",
         "logoRemoved": "Logo of {company} removed",
         "logoType": "Choose a PNG, JPEG or WebP image.",
-        "logoTooBig": "The logo is over 2 MB."
+        "logoTooBig": "The logo is over 2 MB.",
+        "bookFiles": "PDF files",
+        "bookDrop": "Choose PDFs or drop them here",
+        "bookDropHint": "Up to {max} files per import, 20 MB each. They are sent one after the other and read two at a time.",
+        "bookCompanyOf": "Company of {file}",
+        "bookCompanyPlaceholder": "Company (read from the PDF if empty)",
+        "bookQueueWaiting": "Ready to send",
+        "bookQueueSent": "Received, being read",
+        "bookQueueRemove": "Remove {file}",
+        "bookImportMany": "{count, plural, =0 {Import} one {Import # PDF} other {Import # PDFs}}",
+        "bookClear": "Clear the list",
+        "booksReceived": "{count, plural, one {# PDF received} other {# PDFs received}}, being read",
+        "bookBatchOverflow": "{count, plural, one {# file was not added} other {# files were not added}}: {max} at most per import.",
+        "bookQueueError": "Could not send. Try again."
     },
     "apply": {
         "back": "Back to the offer",
@@ -1900,7 +1913,20 @@
         "signature": "Signature",
         "signatureFrom": "Under your letter: your details from My profile.",
         "signatureNone": "Add your speciality, phone or LinkedIn in My profile: they will go under your letters.",
-        "signatureEdit": "Edit My profile"
+        "signatureEdit": "Edit My profile",
+        "cvPick": "CV sent",
+        "cvPickHint": "The letter is written from this CV.",
+        "cvRewriteTitle": "Rewrite the letter with this CV?",
+        "cvRewriteText": "You changed the letter. Rewriting it from the new CV will replace your changes.",
+        "cvRewriteYes": "Rewrite the letter",
+        "cvRewriteKeep": "Keep my letter",
+        "byEmail": "I have the recruiter’s email: send from Gmail",
+        "byEmailBack": "Apply on {source} instead",
+        "toLabel": "Recruiter’s email",
+        "toPlaceholder": "firstname.lastname@company.tn",
+        "toHint": "This offer gives no address: paste the one you found (post, careers page).",
+        "toBad": "This address is not valid.",
+        "noteTo": "Type the recruiter’s email to send."
     },
     "applications": {
         "title": "My applications",
