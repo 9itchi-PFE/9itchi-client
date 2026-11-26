@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useFormatter, useTranslations } from 'next-intl'
 import { isAxiosError } from 'axios'
 import { Bolt, Icon } from '@/components/ui/icons'
+import { Button } from '@/components/ui/Button'
 import { useBookPdf } from '@/hooks/useAdminBooks'
 import { useBook } from '@/hooks/useJobs'
 import { useMyCv } from '@/hooks/useResumes'
@@ -13,10 +14,12 @@ import type { Book, JobSummary } from '@/types/job'
 import { TOPICS, type Topic } from '@/types/preferences'
 import { Sk } from './OfferStates'
 import { bookFacts } from './bookFacts'
+import { megabytes, pdfState, type PdfState } from './bookPdf'
 import { daysLeft, match } from './offer'
 
 const SHOWN = 5
 const label = 'font-mono text-[11px] font-semibold uppercase tracking-[.08em] text-ink-3'
+const paperNote = 'm-0 flex aspect-[210/297] w-full max-w-[360px] flex-col items-center justify-center gap-3 bg-white p-6 text-center text-sm text-ink-3'
 const btn2 =
     'inline-flex h-[42px] items-center gap-2 rounded-[10px] border border-line-strong bg-white px-4 text-sm font-semibold text-ink-2 no-underline hover:text-ink-2'
 
@@ -145,8 +148,8 @@ function TopicCard({ job, cvSkills, selected, onSelect }: { job: JobSummary; cvS
     )
 }
 
-// PdfPanel shows the book's PDF at the selected topic's page, as the company published it.
-function PdfPanel({ book, page, onPage }: { book: Book; page: number; onPage: (p: number) => void }) {
+// PdfPanel shows the book's PDF at the selected topic's page, as the company published it. The PDF can take a minute to arrive, so it also has a wait and a failure state.
+function PdfPanel({ book, state, loaded, onRetry, page, onPage }: { book: Book; state: PdfState; loaded: number; onRetry: () => void; page: number; onPage: (p: number) => void }) {
     const t = useTranslations('book')
     const total = book.pages ?? 0
     const arrow =
@@ -168,17 +171,28 @@ function PdfPanel({ book, page, onPage }: { book: Book; page: number; onPage: (p
                 ) : null}
             </div>
             <div className="flex justify-center bg-[#EAECF0] p-[22px]">
-                {book.pdf_url ? (
+                {state === 'ready' ? (
                     <iframe
                         key={page}
                         title={t('pdfTitle')}
                         src={`${book.pdf_url}#page=${page}&view=FitH&toolbar=0`}
                         className="aspect-[210/297] w-full max-w-[360px] border-0 bg-white shadow-[0_2px_8px_rgba(16,24,40,.12)]"
                     />
+                ) : state === 'loading' ? (
+                    <div role="status" className={paperNote}>
+                        <span aria-hidden className="h-6 w-6 animate-spin rounded-full border-2 border-line-strong border-t-ink" />
+                        <span>{t('pdfLoading')}</span>
+                        {loaded > 0 ? <span className="text-[13px]">{t('pdfLoaded', { size: megabytes(loaded) })}</span> : null}
+                    </div>
+                ) : state === 'error' ? (
+                    <div role="alert" className={paperNote}>
+                        <span>{t('pdfError')}</span>
+                        <Button variant="secondary" size="sm" onClick={onRetry}>
+                            {t('pdfRetry')}
+                        </Button>
+                    </div>
                 ) : (
-                    <p className="m-0 flex aspect-[210/297] w-full max-w-[360px] items-center justify-center bg-white p-6 text-center text-sm text-ink-3">
-                        {t('noPdf')}
-                    </p>
+                    <p className={paperNote}>{t('noPdf')}</p>
                 )}
             </div>
             <p className="m-0 border-t border-line px-4 py-3 text-[13px] text-ink-3">{t('pdfHint')}</p>
@@ -329,7 +343,14 @@ export default function BookScreen({ id }: { id: string }) {
                             </span>
                         ) : null}
                     </section>
-                    <PdfPanel book={book} page={current} onPage={setPage} />
+                    <PdfPanel
+                        book={book}
+                        state={pdfState({ hostedUrl: res.data?.pdf_url, hasKept: !!res.data?.has_pdf, keptUrl: kept.url, failed: kept.isError })}
+                        loaded={kept.loaded}
+                        onRetry={kept.retry}
+                        page={current}
+                        onPage={setPage}
+                    />
                 </main>
             ) : null}
         </>
