@@ -147,6 +147,7 @@ export const COUNTS = [
     'ai_drafts_per_month',
     'ai_rewrites_per_month',
     'ai_matches_per_month',
+    'recruiter_searches_per_day',
 ] as const
 // SHOWN are the groups of the CV diagnosis a plan shows or hides (ats_<group> = 0 hides it).
 export const SHOWN = ['ats_contact', 'ats_summary', 'ats_experience', 'ats_education', 'ats_skills', 'ats_layout', 'ats_file'] as const

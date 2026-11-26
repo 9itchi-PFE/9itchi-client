@@ -41,6 +41,34 @@ export const JOBS = [
     job('0e2e0000-0000-4000-8000-0000000000a2', 'Tableau de bord IoT', 'Entreprise Beta', { skills: ['Python', 'MQTT'] }),
 ]
 
+// RECRUITERS are invented people of an invented company (the demo provider's .example domains), one without an email.
+export const RECRUITERS = [
+    {
+        id: '0e2e0000-0000-4000-8000-0000000000d1',
+        name: 'Amira Ben Salah',
+        title: 'Responsable recrutement',
+        company: 'Entreprise Alpha',
+        domain: 'entreprise-alpha.example',
+        email: 'amira.bensalah@entreprise-alpha.example',
+        linkedin_url: 'https://www.linkedin.com/in/amira-ben-salah-0e2e',
+        confidence: 86,
+        created_at: new Date().toISOString(),
+    },
+    {
+        id: '0e2e0000-0000-4000-8000-0000000000d2',
+        name: 'Karim Trabelsi',
+        title: 'Talent Acquisition',
+        company: 'Entreprise Alpha',
+        domain: 'entreprise-alpha.example',
+        email: '',
+        linkedin_url: '',
+        confidence: 40,
+        created_at: new Date().toISOString(),
+    },
+]
+export const EMAIL_ID = '0e2e0000-0000-4000-8000-0000000000e1'
+const recruiterAllowance = { limit: 6, used: 1, remaining: 5, resets_at: new Date(Date.now() + 86_400_000).toISOString() }
+
 export const RESUME = {
     id: RESUME_ID,
     title: 'Mon CV',
@@ -88,6 +116,26 @@ const defaults = (): Answers => ({
     'GET /email/applications': { items: [] },
     'GET /email/applications/allowance': { mode: 'plan', limit: null, used: 0 },
     'GET /email/applications/match': [404, { error: 'no analysis yet' }],
+    'GET /email/emails': [],
+    [`PATCH /email/emails/${EMAIL_ID}`]: { id: EMAIL_ID, status: 'scheduled' },
+    'POST /email/emails/draft-from-link': {
+        subject: 'Candidature : Stage PFE',
+        body: 'Madame, Monsieur,',
+        limit: null,
+        used: 0,
+        job_id: null,
+        offer: { source: 'exemple.tn', title: 'Stage PFE', company: 'Entreprise Alpha' },
+    },
+    'GET /email/recruiters': { items: RECRUITERS },
+    'GET /email/recruiters/allowance': recruiterAllowance,
+    'POST /email/recruiters/search': {
+        search_id: '0e2e0000-0000-4000-8000-0000000000f1',
+        provider: 'fake',
+        cached: false,
+        items: RECRUITERS,
+        allowance: recruiterAllowance,
+    },
+    [`POST /email/recruiters/${RECRUITERS[0].id}/draft`]: { subject: 'Candidature spontanée', body: 'Madame, Monsieur,', limit: null, used: 0 },
     'GET /payments/subscriptions/me': { subscription: null, plan: null },
     'GET /notification/notifications': { items: [], unread: 0 },
 })

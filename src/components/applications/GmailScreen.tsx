@@ -37,9 +37,11 @@ export default function GmailScreen() {
             return
         }
         toast(t(outcome))
-        if (sessionStorage.getItem('outreach_return')) {
+        // outreach_return holds the outreach page to go back to ('1' from before /outreach/link existed).
+        const back = sessionStorage.getItem('outreach_return')
+        if (back) {
             sessionStorage.removeItem('outreach_return')
-            router.replace('/outreach')
+            router.replace(back.startsWith('/outreach') ? back : '/outreach')
             return
         }
         router.replace('/settings/gmail')

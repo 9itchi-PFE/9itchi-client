@@ -111,13 +111,9 @@ describe('the last day of the launch price', () => {
 
 describe('quotaKeys', () => {
     it('lists the known limits first, then the others by name', () => {
-        expect(quotaKeys([{ quotas: { zeta: 1, emails_per_month: 0, resumes: 1 } }, { quotas: { cv_downloads: 5, alpha: 2 } }])).toEqual([
-            'resumes',
-            'cv_downloads',
-            'emails_per_month',
-            'alpha',
-            'zeta',
-        ])
+        expect(
+            quotaKeys([{ quotas: { zeta: 1, recruiter_searches_per_day: 6, emails_per_month: 0, resumes: 1 } }, { quotas: { cv_downloads: 5, alpha: 2 } }]),
+        ).toEqual(['resumes', 'cv_downloads', 'emails_per_month', 'recruiter_searches_per_day', 'alpha', 'zeta'])
         expect(quotaKeys([])).toEqual([])
     })
 })
