@@ -5,8 +5,10 @@ import { useFormatter, useTranslations } from 'next-intl'
 import { logoUrl, useLogos } from '@/hooks/useJobs'
 import { Icon } from '@/components/ui/icons'
 import { cn } from '@/lib/cn'
+import type { ScoreItem } from '@/types/application'
 import type { JobSummary } from '@/types/job'
-import { city, deadline, fresh, initials, match, sourceName, tint } from './offer'
+import { city, deadline, fresh, initials, match, sourceName, strongFit, tint } from './offer'
+import { known } from './scores'
 
 // CompanyBadge is the company's logo when the team gave one, else the tinted square with its initials. A logo
 // that fails to load falls back to the initials too.
@@ -81,22 +83,47 @@ export function Facts({ job }: { job: Pick<JobSummary, 'stipend_tnd' | 'duration
     )
 }
 
+// AiBadge is the AI's quick score of an offer (« IA 78 »), or a lock when the day's scores of the plan are used up.
+export function AiBadge({ ai }: { ai: ScoreItem | undefined }) {
+    const t = useTranslations('offers.scores')
+    if (known(ai)) {
+        return (
+            <span
+                aria-label={t('badgeLabel', { score: ai!.score })}
+                className="inline-flex h-6 items-center rounded-full bg-violet-soft px-[9px] font-semibold tabular-nums text-violet-hover"
+            >
+                {t('badge', { score: ai!.score })}
+            </span>
+        )
+    }
+    if (ai?.status !== 'quota') return null
+    return (
+        <span aria-label={t('lockedLabel')} className="inline-flex h-6 items-center gap-1 rounded-full bg-fill px-[9px] font-semibold text-ink-3">
+            <Icon name="lock" size={12} />
+            {t('locked')}
+        </span>
+    )
+}
+
 // OfferCard is one offer of the list (screen 2.1): company, title, facts, how it fits the CV, how to apply, deadline, bookmark.
 export default function OfferCard({
     job,
     cvSkills,
+    ai,
     selected,
     onSelect,
     onToggleSave,
 }: {
     job: JobSummary
     cvSkills: string[]
+    ai?: ScoreItem
     selected: boolean
     onSelect: () => void
     onToggleSave: () => void
 }) {
     const t = useTranslations('offers')
     const m = cvSkills.length ? match(job.skills, cvSkills) : null
+    const strong = strongFit(job.match_score, m)
     const place = city(job, t('remote'))
     return (
         <article
@@ -130,18 +157,21 @@ export default function OfferCard({
                     </span>
                     <Facts job={job} />
                     <span className="flex flex-wrap items-center gap-2.5 text-[13px]">
-                        {m ? (
+                        {job.match_score != null || m ? (
                             <span
                                 className={cn(
                                     'inline-flex h-6 items-center rounded-full px-[9px]',
-                                    m.strong ? 'bg-lime font-semibold text-ink' : 'bg-fill font-medium text-ink-2',
+                                    strong ? 'bg-lime font-semibold text-ink' : 'bg-fill font-medium text-ink-2',
                                 )}
                             >
-                                {m.strong
-                                    ? t('fitStrong', { n: m.fits.length, total: job.skills.length })
-                                    : t('fit', { n: m.fits.length, total: job.skills.length })}
+                                {job.match_score != null
+                                    ? t(strong ? 'fitScoreStrong' : 'fitScore', { score: job.match_score })
+                                    : strong
+                                      ? t('fitStrong', { n: m!.fits.length, total: job.skills.length })
+                                      : t('fit', { n: m!.fits.length, total: job.skills.length })}
                             </span>
                         ) : null}
+                        <AiBadge ai={ai} />
                         <span className="text-ink-3">{job.easy_apply ? t('easyApply') : t('onSite', { source: sourceName(job.source) })}</span>
                         <DeadlineText closesOn={job.closes_on} className="ms-auto" />
                     </span>
