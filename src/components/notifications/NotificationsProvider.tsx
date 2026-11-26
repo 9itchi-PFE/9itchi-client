@@ -2,8 +2,10 @@
 
 import { useEffect, type PropsWithChildren } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
+import { useChatBadge } from '@/components/chat/useLiveChat'
 import { useSessionContext } from '@/components/auth/AuthProvider'
 import { NotificationsContext } from '@/context/NotificationsContext'
+import { useTitleCount } from '@/hooks/useTitleCount'
 import { notificationKeys, useUnreadCount } from '@/hooks/useNotifications'
 import NotificationService from '@/services/NotificationService'
 import { connectLive } from './live'
@@ -14,6 +16,8 @@ import { loadRealtime } from './realtime'
 // nothing new.
 export default function NotificationsProvider({ children }: PropsWithChildren) {
     const unread = useUnreadCount().data ?? 0
+    const chatUnread = useChatBadge()
+    useTitleCount(unread + chatUnread)
     const qc = useQueryClient()
     const userId = useSessionContext().user?.id
 
@@ -41,5 +45,5 @@ export default function NotificationsProvider({ children }: PropsWithChildren) {
         }
     }, [userId, qc])
 
-    return <NotificationsContext.Provider value={{ unread }}>{children}</NotificationsContext.Provider>
+    return <NotificationsContext.Provider value={{ unread, chatUnread }}>{children}</NotificationsContext.Provider>
 }
