@@ -6,8 +6,11 @@ import { useTranslations } from 'next-intl'
 import { signOut } from 'next-auth/react'
 import { useEffect, useRef, useState } from 'react'
 import { useSessionContext } from '@/components/auth/AuthProvider'
+import { useChatBadge } from '@/components/chat/useLiveChat'
+import { CountBadge } from '@/components/ui/CountBadge'
 import { Logo } from '@/components/ui/Logo'
 import { useReviewList } from '@/hooks/useAdminJobs'
+import { useTitleCount } from '@/hooks/useTitleCount'
 import { cn } from '@/lib/cn'
 import { initials } from '../StudentLayout/AccountMenu'
 import LanguageSelect from '../StudentLayout/LanguageSelect'
@@ -79,8 +82,11 @@ function AdminAccount() {
 // AdminHeader is the sticky header of the admin pages: logo with the ADMIN tag, pill nav, account.
 export default function AdminHeader() {
     const t = useTranslations('admin')
+    const th = useTranslations('header')
     const path = usePathname()
     const pending = useReviewList('pending').data?.counts?.pending
+    const chatUnread = useChatBadge()
+    useTitleCount(chatUnread)
     return (
         <header className="sticky top-0 z-20 bg-[rgba(242,243,245,.9)] backdrop-blur-[10px]">
             <div className="mx-auto flex max-w-[1376px] flex-wrap items-center gap-x-4 gap-y-2.5 px-4 py-3.5 sm:px-8">
@@ -110,6 +116,7 @@ export default function AdminHeader() {
                                     {n.key === 'navOffers' && pending ? (
                                         <span className="rounded-full bg-lime px-[7px] py-px text-xs font-bold text-ink">{pending}</span>
                                     ) : null}
+                                    {n.key === 'navSupport' ? <CountBadge count={chatUnread} label={th('messagesUnread', { count: chatUnread })} /> : null}
                                 </Link>
                             )
                         })}

@@ -5,13 +5,13 @@ import { useRouter } from 'next/navigation'
 import { useFormatter, useTranslations } from 'next-intl'
 import { useQueryClient } from '@tanstack/react-query'
 import Link from 'next/link'
-import { Button } from '@/components/ui/Button'
+import { Button, ButtonLink } from '@/components/ui/Button'
 import { inputClass } from '@/components/ui/Field'
 import { Icon } from '@/components/ui/icons'
 import { Drawer } from '@/components/ui/Modal'
 import { Segmented } from '@/components/ui/Segmented'
 import { useToast } from '@/components/ui/Toast'
-import { resumeKeys, useChooseEditable, useResumes, useVersions } from '@/hooks/useResumes'
+import { resumeKeys, useChooseEditable, useResumes, useResumeSlots, useVersions } from '@/hooks/useResumes'
 import { useTemplates } from '@/hooks/useTemplates'
 import { cn } from '@/lib/cn'
 import { errorStatus } from '@/services/ApiService'
@@ -62,6 +62,7 @@ export default function VersionsDrawer({
     const [renaming, setRenaming] = useState<string | null>(null)
     const [name, setName] = useState('')
     const resumes = useResumes().data?.items ?? []
+    const slots = useResumeSlots()
     const choose = useChooseEditable()
     const history = useVersions(resume.id, open && tab === 'history').data ?? []
     const templates = useTemplates().data
@@ -123,6 +124,36 @@ export default function VersionsDrawer({
             {tab === 'versions' ? (
                 <div className="flex flex-col gap-2.5">
                     <span className="text-sm leading-normal text-ink-3">{isSubscriber ? t('introSub') : t('introFree')}</span>
+                    <div className="flex flex-col gap-2.5 rounded-[14px] border border-line-soft bg-white p-4">
+                        <div className="flex flex-wrap items-center justify-between gap-2.5">
+                            <strong className="text-[15px]">{t('importTitle')}</strong>
+                            <span className="rounded-full bg-fill px-2.5 py-0.5 text-[12.5px] font-semibold text-ink-2">
+                                {slots.limit === null ? t('slotsUnlimited', { used: slots.used }) : t('slots', { used: slots.used, limit: slots.limit })}
+                            </span>
+                        </div>
+                        {slots.full ? (
+                            <>
+                                <span className="text-sm leading-normal text-ink-3">
+                                    {slots.isFree ? t('importFullFree') : t('importFull', { limit: slots.limit ?? slots.used })}
+                                </span>
+                                <ButtonLink href="/settings/billing" size="sm" className="self-start">
+                                    {t('freeLink')}
+                                </ButtonLink>
+                            </>
+                        ) : (
+                            <Button
+                                size="sm"
+                                className="self-start"
+                                onClick={() => {
+                                    onClose()
+                                    router.push('/resumes/import')
+                                }}
+                            >
+                                <Icon name="upload" size={16} />
+                                {t('importCv')}
+                            </Button>
+                        )}
+                    </div>
                     {shown.map((v) => {
                         const current = v.id === resume.id
                         return (

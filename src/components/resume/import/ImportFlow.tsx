@@ -4,25 +4,29 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { useQueryClient } from '@tanstack/react-query'
-import { Button } from '@/components/ui/Button'
+import { Button, ButtonLink } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/icons'
 import { LogoReading } from '@/components/ui/Logo'
 import { useMySubscription } from '@/hooks/usePlans'
-import { useResume, resumeKeys } from '@/hooks/useResumes'
+import { useResume, useResumes, useResumeSlots, resumeKeys } from '@/hooks/useResumes'
 import { cn } from '@/lib/cn'
 import ResumeService from '@/services/ResumeService'
 import { errorStatus } from '@/services/ApiService'
+import { uploadFailure } from '@/utils/resumeSlots'
 import ImportError from './ImportError'
 import ImportResult from './ImportResult'
 
 export const MAX_UPLOAD = 10 * 1024 * 1024
 const ACCEPT = '.pdf,.docx,.jpg,.jpeg,.png,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,image/jpeg,image/png'
 
-type Failure = { file: string; reason: 'read' | 'size' | 'type' | 'quota' | 'plan' | 'other' }
+type Failure = { file: string; reason: 'read' | 'size' | 'type' | 'quota' | 'full' | 'plan' | 'other' }
 
 // ImportFlow drives choose -> reading -> done (or the error card). The resume id lives in ?cv= so a reload
-// keeps waiting for the same reading.
-export default function ImportFlow() {
+// keeps waiting for the same reading. mode 'add' is a student who already has a CV (no stepper, no result card:
+// the new CV opens in the editor once read).
+export default function ImportFlow({ mode = 'onboarding' }: { mode?: 'onboarding' | 'add' }) {
+    const add = mode === 'add'
+    const base = add ? '/resumes/import' : '/resumes/upload'
     const t = useTranslations('import')
     const router = useRouter()
     const params = useSearchParams()
@@ -33,18 +37,27 @@ export default function ImportFlow() {
     const [failure, setFailure] = useState<Failure | null>(null)
     const resume = useResume(id)
     const status = resume.data?.parse_status
+    const list = useResumes().data
+    const sub = useMySubscription().data
+    const slots = useResumeSlots()
 
     const setUrl = useCallback(
         (cv: string, file: string) => {
             const q = cv ? `?cv=${encodeURIComponent(cv)}&file=${encodeURIComponent(file)}` : ''
-            router.replace(`/resumes/upload${q}`)
+            router.replace(`${base}${q}`)
         },
-        [router],
+        [router, base],
     )
 
     useEffect(() => {
         if (status === 'failed') setFailure({ file: fileName, reason: 'read' })
     }, [status, fileName])
+
+    useEffect(() => {
+        if (!add || !id || (status !== 'done' && status !== 'none')) return
+        qc.invalidateQueries({ queryKey: resumeKeys.list })
+        router.replace(`/resumes/${id}`)
+    }, [add, id, status, qc, router])
 
     const upload = async (file: File) => {
         setFailure(null)
@@ -60,15 +73,18 @@ export default function ImportFlow() {
             setUrl(data.resume.id, file.name)
         } catch (err) {
             const s = errorStatus(err)
-            setFailure({ file: file.name, reason: s === 413 ? 'size' : s === 400 ? 'type' : s === 402 ? 'quota' : 'other' })
+            setFailure({ file: file.name, reason: uploadFailure(s, !!sub?.is_free) })
         } finally {
             setUploading(false)
         }
     }
 
-    // reset forgets the current file; the half-read CV is deleted so the free plan's one CV stays available.
+    // reset forgets the current file. A half-read or failed CV is deleted; a read one only when it is the student's
+    // only CV (the free plan's single slot stays available). With other CVs, a finished import is never deleted.
     const reset = async () => {
-        if (id) await ResumeService.deleteResume(id).catch(() => undefined)
+        const finished = status === 'done' || status === 'none'
+        const alone = !!list && !list.items.some((r) => r.id !== id)
+        if (id && (alone || !finished)) await ResumeService.deleteResume(id).catch(() => undefined)
         qc.invalidateQueries({ queryKey: resumeKeys.list })
         setId('')
         setFileName('')
@@ -77,7 +93,6 @@ export default function ImportFlow() {
     }
 
     // Writing a CV in 9itchi is part of the subscription: without one, the blank CV leads to it.
-    const sub = useMySubscription().data
     const canWrite = !sub?.is_free
     const blank = async () => {
         if (!canWrite) return router.push('/settings/billing')
@@ -86,14 +101,14 @@ export default function ImportFlow() {
             qc.invalidateQueries({ queryKey: resumeKeys.list })
             router.push(`/resumes/${data.id}`)
         } catch (err) {
-            setFailure({ file: '', reason: errorStatus(err) === 402 ? (sub?.is_free ? 'plan' : 'quota') : 'other' })
+            setFailure({ file: '', reason: errorStatus(err) === 402 ? (sub?.is_free ? 'plan' : 'full') : 'other' })
         }
     }
 
     let body
     if (failure && (failure.reason === 'read' || failure.reason === 'size')) {
         body = <ImportError fileName={failure.file} onRetry={reset} onBlank={canWrite ? blank : undefined} />
-    } else if (id && (uploading || !resume.data || status === 'pending')) {
+    } else if (id && (uploading || !resume.data || status === 'pending' || (add && status !== 'failed'))) {
         body = <Reading fileName={fileName} onCancel={reset} />
     } else if (id && resume.data && (status === 'done' || status === 'none')) {
         body = <ImportResult resume={resume.data} fileName={fileName} onOther={reset} />
@@ -104,15 +119,28 @@ export default function ImportFlow() {
                 onBlank={blank}
                 canWrite={canWrite}
                 busy={uploading}
+                add={add}
+                billing={failure?.reason === 'quota' || failure?.reason === 'full' || failure?.reason === 'plan'}
                 message={
                     failure
-                        ? t(failure.reason === 'type' ? 'errType' : failure.reason === 'quota' ? 'errQuota' : failure.reason === 'plan' ? 'errPlan' : 'errFile')
+                        ? failure.reason === 'full'
+                            ? t('errFull', { limit: slots.limit ?? slots.used })
+                            : t(
+                                  failure.reason === 'type'
+                                      ? 'errType'
+                                      : failure.reason === 'quota'
+                                        ? 'errQuota'
+                                        : failure.reason === 'plan'
+                                          ? 'errPlan'
+                                          : 'errFile',
+                              )
                         : ''
                 }
             />
         )
     }
-    return <main className="mx-auto box-border flex w-full max-w-[1000px] flex-col gap-7 px-4 sm:px-8 pb-16 pt-12">{body}</main>
+    const Root = add ? 'div' : 'main'
+    return <Root className="mx-auto box-border flex w-full max-w-[1000px] flex-col gap-7 px-4 sm:px-8 pb-16 pt-12">{body}</Root>
 }
 
 function Choose({
@@ -121,12 +149,16 @@ function Choose({
     canWrite = true,
     busy,
     message,
+    add = false,
+    billing = false,
 }: {
     onFile: (f: File) => void
     onBlank: () => void
     canWrite?: boolean
     busy: boolean
     message: string
+    add?: boolean
+    billing?: boolean
 }) {
     const t = useTranslations('import')
     const tc = useTranslations('common')
@@ -135,8 +167,8 @@ function Choose({
     return (
         <div className="flex flex-col gap-7">
             <div className="flex flex-col items-center gap-2 text-center">
-                <h1 className="m-0 text-[30px] sm:text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
-                <p className="m-0 max-w-[560px] text-base leading-[1.6] text-ink-3">{t('lead')}</p>
+                <h1 className="m-0 text-[30px] sm:text-[44px] font-extrabold leading-[1.05]">{add ? t('addTitle') : t('title')}</h1>
+                <p className="m-0 max-w-[560px] text-base leading-[1.6] text-ink-3">{add ? t('addLead') : t('lead')}</p>
             </div>
             <button
                 type="button"
@@ -178,9 +210,14 @@ function Choose({
                 }}
             />
             {message ? (
-                <p role="alert" className="m-0 rounded-xl bg-warn-bg px-4 py-3 text-center text-sm text-warn-fg">
-                    {message}
-                </p>
+                <div role="alert" className="flex flex-col items-center gap-3 rounded-xl bg-warn-bg px-4 py-3 text-center text-sm text-warn-fg">
+                    <p className="m-0">{message}</p>
+                    {billing ? (
+                        <ButtonLink href="/settings/billing" size="sm">
+                            {t('billingLink')}
+                        </ButtonLink>
+                    ) : null}
+                </div>
             ) : null}
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <button

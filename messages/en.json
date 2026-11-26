@@ -51,6 +51,9 @@
         "language": "Language",
         "notifications": "Notifications",
         "notificationsUnread": "Notifications, {count, plural, one {# new} other {# new}}",
+        "messagesUnread": "{count, plural, one {# new message} other {# new messages}}",
+        "accountUnread": "My account, news waiting",
+        "premium": "Premium",
         "account": "My account",
         "dashboard": "Dashboard",
         "settings": "Settings",
@@ -122,7 +125,11 @@
         "errQuota": "Without a subscription you have one CV. Subscribe to have several.",
         "blankTitleDefault": "My CV",
         "blankPlan": "Subscription",
-        "errPlan": "Writing your CV in 9itchi is part of the subscription. Without one, import the CV you already have."
+        "errPlan": "Writing your CV in 9itchi is part of the subscription. Without one, import the CV you already have.",
+        "addTitle": "Import another CV",
+        "addLead": "It is added to your versions. You then choose which one to send with each offer.",
+        "errFull": "You have reached your plan’s limit of {limit} CVs. Upgrade to add more.",
+        "billingLink": "See the subscription →"
     },
     "wishes": {
         "title": "What you want",
@@ -337,7 +344,8 @@
         "done": "Done",
         "scorePlanTitle": "Your CV check is part of the subscription",
         "scorePlanText": "Subscribe to see your score out of 24 and what to fix.",
-        "scorePlanCta": "See the subscription"
+        "scorePlanCta": "See the subscription",
+        "import": "Import"
     },
     "download": {
         "payTitle": "Downloading your CV comes with the subscription",
@@ -423,7 +431,13 @@
         "choose": "Edit this one instead",
         "toastChosen": "You now edit “{name}”",
         "planTitle": "Correcting your CV in 9itchi is part of the subscription",
-        "planText": "Without a subscription, your imported CV can be read here and goes as it is with your applications. Subscribe to correct it, see the check and download it."
+        "planText": "Without a subscription, your imported CV can be read here and goes as it is with your applications. Subscribe to correct it, see the check and download it.",
+        "importTitle": "Import a CV",
+        "importCv": "Import a CV",
+        "slots": "{used} / {limit} CVs",
+        "slotsUnlimited": "{used} CVs",
+        "importFullFree": "With a subscription, import several CVs.",
+        "importFull": "You have reached your plan’s limit of {limit} CVs. Upgrade to import another one."
     },
     "check": {
         "breadcrumb": "CV check",

@@ -2,7 +2,7 @@ import { useEffect } from 'react'
 import { useQueryClient } from '@tanstack/react-query'
 import { connectChannels } from '@/components/notifications/live'
 import { loadRealtime } from '@/components/notifications/realtime'
-import { chatKeys } from '@/hooks/useChat'
+import { chatKeys, useChatUnread, useConversations } from '@/hooks/useChat'
 import ChatService from '@/services/ChatService'
 
 // CHAT_EVENT is the event chat-api publishes a stored message under; the channel is the conversation id.
@@ -28,6 +28,7 @@ export function useLiveChat(conversationIds: string[]) {
                     onMessage: (conversationId) => {
                         qc.invalidateQueries({ queryKey: chatKeys.messages(conversationId) })
                         qc.invalidateQueries({ queryKey: chatKeys.conversations })
+                        qc.invalidateQueries({ queryKey: chatKeys.unread })
                     },
                     create,
                 })
@@ -40,4 +41,13 @@ export function useLiveChat(conversationIds: string[]) {
             close()
         }
     }, [key, qc])
+}
+
+// useChatBadge gives the header its count of unread messages, kept live on every page: it listens to the caller's
+// conversations (a student's own, all of them for the team) and asks again when one gets a message.
+export function useChatBadge() {
+    const unread = useChatUnread().data ?? 0
+    const ids = (useConversations().data?.items ?? []).map((c) => c.id)
+    useLiveChat(ids)
+    return unread
 }

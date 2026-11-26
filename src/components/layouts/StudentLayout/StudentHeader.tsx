@@ -4,6 +4,7 @@ import { useContext, useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import { CountBadge } from '@/components/ui/CountBadge'
 import { Icon, type IconName } from '@/components/ui/icons'
 import { Logo } from '@/components/ui/Logo'
 import { NotificationsContext } from '@/context/NotificationsContext'
@@ -86,7 +87,7 @@ export default function StudentHeader() {
                             className="relative flex h-10 w-10 flex-none items-center justify-center rounded-full border border-line bg-white text-ink-2"
                         >
                             <Icon name="bell" />
-                            {unread ? <span className="absolute end-[9px] top-2 h-2 w-2 rounded-full border-2 border-white bg-violet" /> : null}
+                            <CountBadge count={unread} label={t('notificationsUnread', { count: unread })} className="absolute -end-1 -top-1" />
                         </Link>
                         <AccountMenu />
                     </div>

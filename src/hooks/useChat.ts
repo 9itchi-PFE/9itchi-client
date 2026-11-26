@@ -5,12 +5,24 @@ import type { ConversationList, Message } from '@/types/chat'
 export const chatKeys = {
     conversations: ['chat', 'conversations'] as const,
     support: ['chat', 'support'] as const,
+    unread: ['chat', 'unread'] as const,
     messages: (id: string) => ['chat', 'messages', id] as const,
 }
 
 // How often an open page asks again: a new message shows within a few seconds without anyone reloading.
 const LIST_EVERY = 15 * 1000
 const THREAD_EVERY = 5 * 1000
+
+// useChatUnread is the number behind the Support badge: the messages the caller has not read, in every conversation.
+export function useChatUnread() {
+    return useQuery({
+        queryKey: chatKeys.unread,
+        queryFn: async () => (await ChatService.globalUnreadCount()).data.unread_count ?? 0,
+        refetchInterval: LIST_EVERY * 2,
+        refetchOnWindowFocus: true,
+        retry: false,
+    })
+}
 
 // useConversations lists the inbox (admin): every student's conversation, the one written to last first.
 export function useConversations() {
@@ -53,10 +65,12 @@ export function useMarkRead() {
     const qc = useQueryClient()
     return useMutation({
         mutationFn: (id: string) => ChatService.markConversationRead(id),
-        onSuccess: (_res, id) =>
+        onSuccess: (_res, id) => {
             qc.setQueryData<ConversationList>(chatKeys.conversations, (old) =>
                 old ? { ...old, items: old.items.map((c) => (c.id === id ? { ...c, unread_count: 0 } : c)) } : old,
-            ),
+            )
+            qc.invalidateQueries({ queryKey: chatKeys.unread })
+        },
     })
 }
 

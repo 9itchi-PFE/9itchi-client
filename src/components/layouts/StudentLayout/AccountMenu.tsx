@@ -1,10 +1,13 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useContext, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { signOut } from 'next-auth/react'
 import { useSessionContext } from '@/components/auth/AuthProvider'
+import PremiumBadge from '@/components/billing/PremiumBadge'
+import { AttentionDot, CountBadge } from '@/components/ui/CountBadge'
+import { NotificationsContext } from '@/context/NotificationsContext'
 import { useMe, useProfilePhoto } from '@/hooks/useAccount'
 
 export const initials = (name?: string) =>
@@ -21,6 +24,7 @@ export default function AccountMenu() {
     const t = useTranslations('header')
     const { user } = useSessionContext()
     const photo = useProfilePhoto(useMe().data?.has_photo).data
+    const { unread, chatUnread } = useContext(NotificationsContext)
     const [open, setOpen] = useState(false)
     const ref = useRef<HTMLDivElement>(null)
     useEffect(() => {
@@ -40,7 +44,7 @@ export default function AccountMenu() {
         <div ref={ref} className="relative">
             <button
                 type="button"
-                aria-label={t('account')}
+                aria-label={unread + chatUnread > 0 ? t('accountUnread') : t('account')}
                 aria-expanded={open}
                 aria-haspopup="menu"
                 onClick={() => setOpen((o) => !o)}
@@ -53,8 +57,13 @@ export default function AccountMenu() {
                     initials(user?.name)
                 )}
             </button>
+            <AttentionDot count={unread + chatUnread} className="-end-0.5 -top-0.5" />
             {open ? (
                 <div role="menu" className="absolute end-0 top-12 z-30 flex w-56 flex-col gap-0.5 rounded-2xl border border-line bg-white p-1.5 shadow-nav">
+                    <span className="flex min-w-0 items-center gap-2 px-3 py-2 text-sm font-semibold text-ink">
+                        <span className="truncate">{user?.name}</span>
+                        <PremiumBadge />
+                    </span>
                     <Link role="menuitem" href="/dashboard" className={item} onClick={() => setOpen(false)}>
                         {t('dashboard')}
                     </Link>
@@ -64,8 +73,9 @@ export default function AccountMenu() {
                     <Link role="menuitem" href="/settings/billing" className={item} onClick={() => setOpen(false)}>
                         {t('billing')}
                     </Link>
-                    <Link role="menuitem" href="/support" className={item} onClick={() => setOpen(false)}>
+                    <Link role="menuitem" href="/support" className={`${item} flex items-center justify-between gap-2`} onClick={() => setOpen(false)}>
                         {t('support')}
+                        <CountBadge count={chatUnread} label={t('messagesUnread', { count: chatUnread })} />
                     </Link>
                     <button role="menuitem" type="button" className={`${item} cursor-pointer border-0 bg-transparent text-start`} onClick={() => signOut()}>
                         {t('signOut')}
