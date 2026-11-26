@@ -54,7 +54,7 @@ const ANSWERS = {
     [`GET /resume/resumes/${RESUME_ID}`]: RESUME,
 }
 
-const PUBLIC = ['/', '/auth/signin', '/auth/signup', '/auth/forgot-password', '/terms-conditions']
+const PUBLIC = ['/', '/offres', '/offres/ville/sousse', '/auth/signin', '/auth/signup', '/auth/forgot-password', '/terms-conditions']
 const STUDENT_PAGES = [
     '/jobs',
     `/jobs/${JOBS[0].id}/apply`,

@@ -2306,7 +2306,8 @@
         "nav": {
             "signIn": "تسجيل الدخول",
             "signUp": "إنشاء حساب",
-            "label": "الصفحات"
+            "label": "الصفحات",
+            "offers": "عروض PFE"
         },
         "heroTitle": "اعثر على تربّص ختم الدروس. ترشّح",
         "heroTitleEnd": "بنقرة واحدة.",
@@ -2379,7 +2380,41 @@
             "notice": "البيانات القانونية",
             "contactTitle": "اتصل بنا",
             "place": "صفاقس، تونس",
-            "copyright": "© {year} Lakhal Technologies · 9itchi PFE"
+            "copyright": "© {year} Lakhal Technologies · 9itchi PFE",
+            "offers": "عروض تربص PFE"
+        },
+        "list": {
+            "allTitle": "عروض تربص ختم الدروس (PFE) في تونس",
+            "allIntro": "{count, plural, =0 {لا يوجد عرض مفتوح حاليا.} one {عرض تربص PFE واحد مفتوح، من PFE books الشركات وصفحات التوظيف.} other {# عروض تربص PFE مفتوحة، من PFE books الشركات وصفحات التوظيف.}}",
+            "allDescription": "{count, plural, one {عرض تربص PFE واحد مفتوح} other {# عروض تربص PFE مفتوحة}} في تونس، حسب المدينة وحسب الشركة. أنشئ حسابك وقدّم ترشحك بنقرة واحدة مع 9itchi PFE.",
+            "cityTitle": "تربص PFE في {city}",
+            "cityIntro": "{count, plural, one {عرض تربص PFE واحد مفتوح في {city}.} other {# عروض تربص PFE مفتوحة في {city}.}}",
+            "cityDescription": "{count, plural, one {عرض تربص PFE واحد مفتوح} other {# عروض تربص PFE مفتوحة}} في {city}: المواضيع، المنحة، المدة وآخر أجل. قدّم ترشحك بنقرة واحدة مع 9itchi PFE.",
+            "companyTitle": "تربص PFE لدى {company}",
+            "companyIntro": "{count, plural, one {موضوع تربص PFE واحد مفتوح لدى {company}.} other {# مواضيع تربص PFE مفتوحة لدى {company}.}}",
+            "companyDescription": "{count, plural, one {موضوع تربص PFE واحد مفتوح} other {# مواضيع تربص PFE مفتوحة}} لدى {company}: المنحة، المدة، المكان وآخر أجل. قدّم ترشحك بنقرة واحدة مع 9itchi PFE.",
+            "pageSuffix": "الصفحة {page}",
+            "home": "الرئيسية",
+            "offers": "العروض",
+            "isNew": "جديد",
+            "remote": "عن بعد",
+            "easyApply": "ترشح بنقرة واحدة",
+            "prev": "الصفحة السابقة",
+            "next": "الصفحة التالية",
+            "pageOf": "الصفحة {page} من {pages}",
+            "byCity": "حسب المدينة",
+            "byCompany": "حسب الشركة",
+            "emptyTitle": "لا يوجد عرض مفتوح حاليا",
+            "emptyText": "تصل عروض جديدة كل أسبوع. أنشئ حسابك ليصلك إشعار.",
+            "errorTitle": "تعذّر تحميل العروض",
+            "errorText": "أعد المحاولة بعد لحظة.",
+            "ctaTag": "مجاني للبدء",
+            "ctaTitle": "ترشّح دون إعادة كتابة كل شيء",
+            "ctaText": "حمّل سيرتك الذاتية: يرتّب 9itchi هذه العروض لك، يحضّر رسالتك ويرسلها من Gmail الخاص بك.",
+            "signUp": "إنشاء حسابي",
+            "signIn": "لديك حساب؟ تسجيل الدخول",
+            "moreAt": "عروض أخرى في {city}",
+            "moreFrom": "كل المواضيع لدى {company}"
         }
     }
 }

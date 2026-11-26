@@ -213,3 +213,24 @@ export type PublicJob = {
     // When it was first published (job-api fills it for search engines; absent from an older job-api).
     posted_at?: string
 }
+
+// PublicFacet is a city or a company with how many open offers it has (job-api GET /public/offers).
+export type PublicFacet = { slug: string; name: string; count: number }
+
+// PublicOfferItem is an offer in a public list page: no recruiter address, no source link.
+export type PublicOfferItem = Pick<
+    JobSummary,
+    'id' | 'title' | 'company' | 'location' | 'snippet' | 'posted_at' | 'stipend_tnd' | 'duration_months' | 'work_mode' | 'closes_on' | 'skills' | 'easy_apply'
+>
+
+// PublicOffers is a page of GET /public/offers, for the pages search engines index (all, a city, a company).
+export type PublicOffers = {
+    items: PublicOfferItem[]
+    total: number
+    page: number
+    page_size: number
+    city?: PublicFacet
+    company?: PublicFacet
+    cities: PublicFacet[]
+    companies: PublicFacet[]
+}
