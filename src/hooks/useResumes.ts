@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import ResumeService from '@/services/ResumeService'
 import { allSkills } from '@/components/resume/cvText'
 import { normalize, type Resume } from '@/types/resume'
+import { resumeSlots } from '@/utils/resumeSlots'
+import { useMySubscription } from './usePlans'
 
 export const resumeKeys = {
     list: ['resumes'] as const,
@@ -15,6 +17,13 @@ export const resumeKeys = {
 
 export function useResumes() {
     return useQuery({ queryKey: resumeKeys.list, queryFn: async () => (await ResumeService.listResumes()).data })
+}
+
+// useResumeSlots: how many CVs the student has against what the plan allows (limit null: unlimited).
+export function useResumeSlots() {
+    const total = useResumes().data?.total ?? 0
+    const sub = useMySubscription().data
+    return resumeSlots(total, sub?.plan?.quotas, !!sub?.is_free)
 }
 
 // useResume polls while an uploaded CV is being read (parse_status pending).

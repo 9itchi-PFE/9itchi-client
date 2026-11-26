@@ -10,7 +10,7 @@ import { Modal } from '@/components/ui/Modal'
 import { Segmented } from '@/components/ui/Segmented'
 import { useToast } from '@/components/ui/Toast'
 import { useMySubscription } from '@/hooks/usePlans'
-import { resumeKeys, useAtsCheck, useChooseEditable, useDownloads, usePhoto, useResume, useResumes, useSaveVersion } from '@/hooks/useResumes'
+import { resumeKeys, useAtsCheck, useChooseEditable, useDownloads, usePhoto, useResume, useResumes, useResumeSlots, useSaveVersion } from '@/hooks/useResumes'
 import { useTemplates } from '@/hooks/useTemplates'
 import { cn } from '@/lib/cn'
 import ShowSwitch from './ShowSwitch'
@@ -86,6 +86,7 @@ function Editor({ resume: initial }: { resume: Resume }) {
     const isSubscriber = sub ? !sub.is_free : false
     const downloads = useDownloads().data
     const resumes = useResumes().data
+    const slots = useResumeSlots()
     const photo = usePhoto(id, resume.has_photo).data
     const check = useAtsCheck(id)
     const snapshot = useSaveVersion(id)
@@ -248,8 +249,8 @@ function Editor({ resume: initial }: { resume: Resume }) {
 
     return (
         <div className="mx-auto box-border flex w-full max-w-[1500px] flex-col gap-[22px] px-4 sm:px-8 pb-[72px] pt-4">
-            <div className="flex flex-wrap items-end justify-between gap-4">
-                <div className="flex flex-col gap-1.5">
+            <div className="flex flex-wrap items-start justify-between gap-x-4 gap-y-3 sm:items-end">
+                <div className="flex min-w-0 flex-col gap-1.5">
                     <h1 className="m-0 text-[30px] sm:text-[44px] font-extrabold leading-[1.05]">{t('title')}</h1>
                     <p className="m-0 text-[15px] text-ink-3" aria-live="polite">
                         {t('subtitle', { status })}
@@ -260,6 +261,12 @@ function Editor({ resume: initial }: { resume: Resume }) {
                         <Icon name="history" />
                         {t('versions', { count: resumes?.total ?? 1 })}
                     </Button>
+                    {slots.full ? null : (
+                        <ButtonLink variant="secondary" href="/resumes/import" className="hover:text-ink">
+                            <Icon name="upload" />
+                            {t('import')}
+                        </ButtonLink>
+                    )}
                     <ButtonLink
                         variant="secondary"
                         href={locked ? '#' : `/resumes/templates?cv=${id}`}
@@ -328,7 +335,7 @@ function Editor({ resume: initial }: { resume: Resume }) {
                 </div>
             ) : null}
 
-            <div role="tablist" aria-label={t('tabs.label')} className="flex gap-1 self-start rounded-xl bg-fill-3 p-1">
+            <div role="tablist" aria-label={t('tabs.label')} className="flex w-full gap-1 rounded-xl bg-fill-3 p-1 sm:w-auto sm:self-start">
                 {(['content', 'customize'] as const).map((k) => (
                     <button
                         key={k}
@@ -337,7 +344,7 @@ function Editor({ resume: initial }: { resume: Resume }) {
                         aria-selected={tab === k}
                         onClick={() => setTab(k)}
                         className={cn(
-                            'h-10 cursor-pointer rounded-[9px] border-0 px-5 text-[14.5px] font-semibold',
+                            'h-10 flex-1 cursor-pointer rounded-[9px] border-0 px-5 text-[14.5px] font-semibold sm:flex-none',
                             tab === k ? 'bg-white text-ink shadow-sm' : 'bg-transparent text-ink-3 hover:text-ink',
                         )}
                     >
@@ -440,7 +447,7 @@ function Editor({ resume: initial }: { resume: Resume }) {
 
                 <section
                     aria-label={t('previewAria')}
-                    className="sticky top-4 flex min-w-0 flex-[3_1_560px] flex-col items-center gap-2.5 rounded-[18px] bg-fill-3 p-5"
+                    className="flex min-w-0 flex-[3_1_560px] flex-col items-center gap-2.5 rounded-[18px] bg-fill-3 p-3 sm:p-5 lg:sticky lg:top-4"
                 >
                     <div className="flex w-full items-center justify-between text-[13px] text-ink-3">
                         <span>{t('previewLabel', { pages })}</span>
