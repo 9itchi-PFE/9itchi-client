@@ -13,12 +13,14 @@ import { cn } from '@/lib/cn'
 import AccountMenu from './AccountMenu'
 import LanguageSelect from './LanguageSelect'
 
-// also lists other sections a nav item stays active on (PFE books belong to Offres).
-const nav: { key: 'jobs' | 'cv' | 'applications' | 'outreach'; href: string; icon: IconName; also?: string[] }[] = [
+// also lists other sections a nav item stays active on (PFE books belong to Offres); not lists sub-pages that are
+// items of their own (the email from a link under /outreach).
+const nav: { key: 'jobs' | 'cv' | 'applications' | 'outreach' | 'outreachLink'; href: string; icon: IconName; also?: string[]; not?: string[] }[] = [
     { key: 'jobs', href: '/jobs', icon: 'briefcase', also: ['/books'] },
     { key: 'cv', href: '/resumes', icon: 'file' },
     { key: 'applications', href: '/applications', icon: 'send' },
-    { key: 'outreach', href: '/outreach', icon: 'send' },
+    { key: 'outreach', href: '/outreach', icon: 'radar', not: ['/outreach/link'] },
+    { key: 'outreachLink', href: '/outreach/link', icon: 'link' },
 ]
 
 const countOf = (data: unknown): number | undefined => {
@@ -43,7 +45,8 @@ export default function StudentHeader() {
         window.addEventListener('scroll', on, { passive: true })
         return () => window.removeEventListener('scroll', on)
     }, [editor])
-    const active = (n: (typeof nav)[number]) => [n.href, ...(n.also ?? [])].some((h) => path === h || path.startsWith(h + '/'))
+    const under = (h: string) => path === h || path.startsWith(h + '/')
+    const active = (n: (typeof nav)[number]) => [n.href, ...(n.also ?? [])].some(under) && !(n.not ?? []).some(under)
     return (
         <>
             <header
@@ -66,7 +69,7 @@ export default function StudentHeader() {
                                     href={n.href}
                                     aria-current={on ? 'page' : undefined}
                                     className={cn(
-                                        'flex h-10 items-center gap-2 whitespace-nowrap rounded-full px-4 text-[14.5px] no-underline',
+                                        'flex h-10 items-center gap-1.5 whitespace-nowrap rounded-full px-3 text-[14.5px] no-underline xl:gap-2 xl:px-4',
                                         on ? 'bg-ink font-semibold text-white hover:text-white' : 'font-medium text-ink-2 hover:text-ink',
                                     )}
                                 >

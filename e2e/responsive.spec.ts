@@ -65,6 +65,7 @@ const STUDENT_PAGES = [
     `/resumes/${RESUME_ID}/check`,
     '/applications',
     '/outreach',
+    '/outreach/link',
     '/notifications',
     '/settings',
     '/settings/billing',
