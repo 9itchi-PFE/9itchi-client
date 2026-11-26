@@ -756,18 +756,15 @@ export default function ApplyScreen({ id }: { id: string }) {
                         <label className="flex flex-col gap-1.5 text-[13.5px] font-medium text-ink-2">
                             {t('cvPick')}
                             <span className="flex items-center gap-2">
-                                <select
-                                    value={cv}
-                                    disabled={busy}
-                                    onChange={(e) => choose(e.target.value)}
-                                    className="h-11 min-w-0 flex-1 rounded-xl border border-line-strong bg-white px-3 text-[14.5px] text-ink"
-                                >
-                                    {cvItems.map((r) => (
-                                        <option key={r.id} value={r.id}>
-                                            {r.title}
-                                        </option>
-                                    ))}
-                                </select>
+                                <span className="min-w-0 flex-1">
+                                    <Select value={cv} disabled={busy} onChange={(e) => choose(e.target.value)} className="text-[14.5px]">
+                                        {cvItems.map((r) => (
+                                            <option key={r.id} value={r.id}>
+                                                {r.title}
+                                            </option>
+                                        ))}
+                                    </Select>
+                                </span>
                                 <Link href={`/resumes/${cv}`} className="hit flex-none text-[13.5px] font-medium">
                                     {t('see')}
                                 </Link>
