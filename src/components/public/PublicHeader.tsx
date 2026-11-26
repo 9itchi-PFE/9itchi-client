@@ -17,14 +17,6 @@ export default function PublicHeader({ signInTo }: { signInTo?: string }) {
                 <Link href="/" className="hit no-underline">
                     <Logo />
                 </Link>
-                <nav aria-label={t('label')} className="ms-6 hidden items-center gap-5 md:flex">
-                    <Link href="/#how" className="hit text-[14.5px] font-medium text-ink-2 no-underline hover:text-ink">
-                        {t('how')}
-                    </Link>
-                    <Link href="/#pricing" className="hit text-[14.5px] font-medium text-ink-2 no-underline hover:text-ink">
-                        {t('pricing')}
-                    </Link>
-                </nav>
                 <div className="ms-auto flex items-center gap-2">
                     <span className="hidden sm:inline-block">
                         <LanguageSelect remember={false} />

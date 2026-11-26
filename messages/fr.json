@@ -2085,8 +2085,6 @@
     },
     "public": {
         "nav": {
-            "how": "Comment ça marche",
-            "pricing": "Tarifs",
             "signIn": "Se connecter",
             "signUp": "Créer un compte",
             "label": "Pages"
@@ -2105,27 +2103,6 @@
         "demoAppLabel": "Candidature",
         "demoAppTitle": "Ouverte aujourd’hui à 10:42",
         "demoAppText": "Envoyée depuis ton Gmail · avec ta lettre",
-        "howTitle": "Comment ça marche",
-        "step1Title": "Importe ton CV",
-        "step1Text": "On le lit, on le corrige avec les 24 règles que les recruteurs attendent.",
-        "step2Title": "Vois les offres pour toi",
-        "step2Text": "Toutes les offres PFE et les PFE books des entreprises, au même endroit.",
-        "step3Title": "Postule en un clic",
-        "step3Text": "Avec ta lettre écrite pour l’offre, depuis ton Gmail. Sans abonnement : {count} candidatures avec le CV que tu as importé.",
-        "pricingTitle": "Tarifs",
-        "pricingText": "Un abonnement pour corriger ton CV, écrire tes lettres et postuler vite.",
-        "paidName": "Abonné",
-        "perMonth": "/ mois",
-        "perDays": "/ {count} jours",
-        "paidNote": "Annulable à tout moment · payé sur Flouci",
-        "paidLaunchNote": "Prix de lancement, gardé tant que tu renouvelles · annulable à tout moment · payé sur Flouci",
-        "paid1": "Une lettre écrite pour chaque offre",
-        "paid2": "Envoi en un clic depuis ton Gmail, maintenant ou programmé",
-        "paid3": "Tu sais quand ta candidature est ouverte",
-        "paid4": "CV en PDF ou Word, sans mention, tous les modèles",
-        "paid5": "Plusieurs versions de CV, réécriture par l’IA",
-        "paidCta": "Commencer",
-        "noPlan": "Les prix arrivent bientôt.",
         "faqTitle": "Questions",
         "q1": "Est-ce que je peux postuler sans payer ?",
         "a1": "Oui, {count} fois, avec le CV que tu as importé, tel quel. Tu peux aussi toujours postuler toi-même par le lien de l’offre. L’abonnement ajoute la correction de ton CV, la lettre pour chaque offre, l’envoi en un clic et le suivi.",
@@ -2171,10 +2148,6 @@
             "error": "L’offre n’a pas pu être chargée.",
             "retry": "Réessayer",
             "loading": "Chargement de l’offre"
-        },
-        "freeLine": "Sans abonnement : parcours les offres et envoie {count} candidatures avec le CV que tu as importé, tel quel, pour essayer.",
-        "freeLineCta": "Créer mon compte",
-        "paid0": "Ton CV corrigé avec les 24 règles, et le diagnostic complet",
-        "perYear": "/ an"
+        }
     }
 }

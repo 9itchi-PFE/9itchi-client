@@ -2085,8 +2085,6 @@
     },
     "public": {
         "nav": {
-            "how": "How it works",
-            "pricing": "Pricing",
             "signIn": "Sign in",
             "signUp": "Create an account",
             "label": "Pages"
@@ -2105,27 +2103,6 @@
         "demoAppLabel": "Application",
         "demoAppTitle": "Opened today at 10:42",
         "demoAppText": "Sent from your Gmail · with your letter",
-        "howTitle": "How it works",
-        "step1Title": "Import your CV",
-        "step1Text": "We read it and correct it with the 24 rules recruiters expect.",
-        "step2Title": "See the offers for you",
-        "step2Text": "Every PFE offer and the companies’ PFE books, in one place.",
-        "step3Title": "Apply in one click",
-        "step3Text": "With your letter written for the offer, from your Gmail. Without a subscription: {count} applications with the CV you imported.",
-        "pricingTitle": "Pricing",
-        "pricingText": "One subscription to correct your CV, write your letters and apply fast.",
-        "paidName": "Subscriber",
-        "perMonth": "/ month",
-        "perDays": "/ {count} days",
-        "paidNote": "Cancel any time · paid on Flouci",
-        "paidLaunchNote": "Launch price, kept as long as you renew · cancel any time · paid on Flouci",
-        "paid1": "A letter written for each offer",
-        "paid2": "One-click sending from your Gmail, now or scheduled",
-        "paid3": "You know when your application is opened",
-        "paid4": "CV in PDF or Word, no mention, every template",
-        "paid5": "Several CV versions, AI rewriting",
-        "paidCta": "Get started",
-        "noPlan": "Prices are coming soon.",
         "faqTitle": "Questions",
         "q1": "Can I apply without paying?",
         "a1": "Yes, {count} times, with the CV you imported, as it is. You can also always apply yourself through the offer’s link. The subscription adds the correction of your CV, the letter for each offer, one-click sending and tracking.",
@@ -2171,10 +2148,6 @@
             "error": "The offer could not be loaded.",
             "retry": "Try again",
             "loading": "Loading the offer"
-        },
-        "freeLine": "Without a subscription: browse the offers and send {count} applications with the CV you imported, as it is, to try.",
-        "freeLineCta": "Create my account",
-        "paid0": "Your CV corrected with the 24 rules, and the full check",
-        "perYear": "/ year"
+        }
     }
 }

@@ -1,64 +1,14 @@
 'use client'
 
-import Link from 'next/link'
-import { useLocale, useTranslations } from 'next-intl'
-import { dinars, lengthOf, paidPlans, planText, regularOf } from '@/components/billing/billing'
+import { useTranslations } from 'next-intl'
 import { ButtonLink } from '@/components/ui/Button'
 import { usePlans } from '@/hooks/usePlans'
 import { cn } from '@/lib/cn'
 import type { Plan } from '@/types/plan'
 import PublicHeader, { PublicFooter } from './PublicHeader'
 
-const PAID = ['paid0', 'paid1', 'paid2', 'paid3', 'paid4', 'paid5'] as const
-const STEPS = [1, 2, 3] as const
 const FAQ = [1, 2, 3, 4] as const
 const section = 'mx-auto box-border w-full max-w-[1200px] px-4 sm:px-8'
-
-function Check() {
-    return (
-        <span aria-hidden className="mt-px flex h-[22px] w-[22px] flex-none items-center justify-center rounded-full bg-ok-bg text-xs font-bold text-ink">
-            ✓
-        </span>
-    )
-}
-
-// PlanCard is one paid plan, at the price payments-api gives today (launch price and sale included).
-function PlanCard({ plan }: { plan: Plan }) {
-    const t = useTranslations('public')
-    const locale = useLocale()
-    const text = planText(plan, locale)
-    const regular = regularOf(plan)
-    const span = lengthOf(plan.duration_days)
-    return (
-        <div className="flex flex-col gap-4 rounded-[20px] border-[1.5px] border-ink bg-white p-7 shadow-card">
-            <span className="font-mono text-[11px] font-semibold uppercase tracking-[.08em] text-ink-3">{text.label || t('paidName')}</span>
-            {text.tagline ? <span className="-mt-2 text-sm text-ink-3">{text.tagline}</span> : null}
-            <div className="flex items-baseline gap-2.5">
-                {regular ? <span className="text-lg text-ink-3 line-through">{dinars(regular / 1000, locale)} DT</span> : null}
-                <b className="font-display text-[44px] font-extrabold leading-none">{dinars(plan.price, locale)} DT</b>
-                <span className="text-[15px] text-ink-3">
-                    {span.unit === 'months' && span.count === 1
-                        ? t('perMonth')
-                        : span.unit === 'years' && span.count === 1
-                          ? t('perYear')
-                          : t('perDays', { count: plan.duration_days })}
-                </span>
-            </div>
-            <span className="text-sm text-ink-3">{regular ? t('paidLaunchNote') : t('paidNote')}</span>
-            <ul className="m-0 flex list-none flex-col gap-2.5 p-0">
-                {(text.features.length ? text.features : PAID.map((k) => t(k))).map((f) => (
-                    <li key={f} className="flex gap-2.5 text-[15px] text-ink-2">
-                        <Check />
-                        <span>{f}</span>
-                    </li>
-                ))}
-            </ul>
-            <ButtonLink href="/auth/signup" className="mt-auto">
-                {t('paidCta')}
-            </ButtonLink>
-        </div>
-    )
-}
 
 // freeApplications is how many applications the plan of a student with no subscription sends (Free plan in
 // payments-api, set in the admin); 3 until /plans answers.
@@ -66,11 +16,11 @@ export function freeApplications(plans: Plan[] | undefined): number {
     return plans?.find((p) => p.price <= 0)?.quotas?.free_applications ?? 3
 }
 
-// HomeScreen is the public home page (screen 7.1): what 9itchi does, how it works, the prices, the questions.
+// HomeScreen is the public home page (screen 7.1): what 9itchi does and the common questions. How it works and
+// the prices are left for the student to discover once signed in (the subscription page shows the plans).
 export default function HomeScreen() {
     const t = useTranslations('public')
     const plans = usePlans()
-    const paid = paidPlans(plans.data?.items)
     const count = freeApplications(plans.data?.items)
     return (
         <div className="min-h-screen min-h-dvh bg-page">
@@ -109,48 +59,6 @@ export default function HomeScreen() {
                             <span className="text-sm text-ink-3">{t('demoAppText')}</span>
                         </div>
                     </div>
-                </section>
-
-                <section id="how" aria-labelledby="how-h" className={cn(section, 'flex scroll-mt-24 flex-col gap-6')}>
-                    <h2 id="how-h" className="m-0 font-display text-[32px] font-extrabold sm:text-[40px]">
-                        {t('howTitle')}
-                    </h2>
-                    <ol className="m-0 grid list-none gap-4 p-0 md:grid-cols-3">
-                        {STEPS.map((n) => (
-                            <li key={n} className="flex flex-col gap-2.5 rounded-[20px] border border-line-soft bg-white p-6">
-                                <span className="flex h-9 w-9 items-center justify-center rounded-full bg-ink font-mono text-sm font-semibold text-white">
-                                    {n}
-                                </span>
-                                <h3 className="m-0 text-lg font-extrabold">{t(`step${n}Title`)}</h3>
-                                <p className="m-0 text-[15px] leading-relaxed text-ink-2">{t(`step${n}Text`, { count })}</p>
-                            </li>
-                        ))}
-                    </ol>
-                </section>
-
-                <section id="pricing" aria-labelledby="pricing-h" className={cn(section, 'flex scroll-mt-24 flex-col gap-6')}>
-                    <div className="flex flex-col gap-2">
-                        <h2 id="pricing-h" className="m-0 font-display text-[32px] font-extrabold sm:text-[40px]">
-                            {t('pricingTitle')}
-                        </h2>
-                        <p className="m-0 text-[17px] text-ink-2">{t('pricingText')}</p>
-                    </div>
-                    {/* Only the subscription is a price: without one, a student tries with a few applications. */}
-                    <div className={cn('grid gap-5', paid.length > 1 ? 'md:grid-cols-2' : 'md:grid-cols-[minmax(0,560px)]')}>
-                        {paid.length ? (
-                            paid.map((p) => <PlanCard key={p.id} plan={p} />)
-                        ) : (
-                            <div className="flex items-center justify-center rounded-[20px] border border-dashed border-line-strong p-7 text-[15px] text-ink-3">
-                                {plans.isLoading ? '…' : t('noPlan')}
-                            </div>
-                        )}
-                    </div>
-                    <p className="m-0 flex flex-wrap items-center gap-x-3 gap-y-1 text-[15px] text-ink-2">
-                        {t('freeLine', { count })}
-                        <Link href="/auth/signup" className="hit font-semibold">
-                            {t('freeLineCta')}
-                        </Link>
-                    </p>
                 </section>
 
                 <section aria-labelledby="faq-h" className={cn(section, 'flex max-w-[860px] flex-col gap-4')}>
