@@ -150,8 +150,12 @@ export default function Page() {
                     title: 'Cookies',
                     body: (
                         <p>
-                            We use only strictly necessary cookies: authentication session and security (CSRF, OAuth state) cookies. We do not use advertising
-                            or cross-site tracking cookies.
+                            We use only strictly necessary cookies: authentication session and security (CSRF, OAuth state) cookies, and one that remembers your
+                            language. We do not use advertising or cross-site tracking cookies. The full list is in our{' '}
+                            <a href="/cookies" className="underline">
+                                Cookie Policy
+                            </a>
+                            .
                         </p>
                     ),
                 },

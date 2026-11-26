@@ -1,13 +1,31 @@
 'use client'
 
+import { useState } from 'react'
 import { useFormatter, useTranslations } from 'next-intl'
+import { logoUrl, useLogos } from '@/hooks/useJobs'
 import { Icon } from '@/components/ui/icons'
 import { cn } from '@/lib/cn'
 import type { JobSummary } from '@/types/job'
 import { city, deadline, fresh, initials, match, sourceName, tint } from './offer'
 
-// CompanyBadge is the tinted square with the company initials.
+// CompanyBadge is the company's logo when the team gave one, else the tinted square with its initials. A logo
+// that fails to load falls back to the initials too.
 export function CompanyBadge({ company, size = 52, className }: { company: string; size?: number; className?: string }) {
+    const logos = useLogos()
+    const src = logoUrl(logos.data, company)
+    const [broken, setBroken] = useState('')
+    if (src && broken !== src) {
+        return (
+            <span
+                aria-hidden
+                style={{ width: size, height: size }}
+                className={cn('flex flex-none items-center justify-center overflow-hidden rounded-[14px] border border-line-soft bg-white p-1.5', className)}
+            >
+                {/* eslint-disable-next-line @next/next/no-img-element -- a small logo from job-api, cached by its version */}
+                <img src={src} alt="" className="h-full w-full object-contain" onError={() => setBroken(src)} />
+            </span>
+        )
+    }
     return (
         <span
             aria-hidden

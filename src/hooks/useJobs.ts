@@ -2,6 +2,9 @@ import { errorStatus } from '@/services/ApiService'
 import { keepPreviousData, useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
 import JobService from '@/services/JobService'
 import type { Book, Job, JobList, JobQuery } from '@/types/job'
+import type { CompanyLogo } from '@/types/logo'
+import { getServiceBaseUrl } from '@/configs/services.config'
+import { companyKey } from '@/components/jobs/offer'
 
 export const jobKeys = {
     all: ['jobs'] as const,
@@ -13,6 +16,7 @@ export const jobKeys = {
     similar: (id: string) => ['jobs', 'similar', id] as const,
     books: (page: number) => ['books', page] as const,
     book: (id: string) => ['books', 'one', id] as const,
+    logos: ['logos'] as const,
 }
 
 export function useJobList(q: JobQuery, enabled = true) {
@@ -72,5 +76,42 @@ export function useToggleSave() {
             qc.invalidateQueries({ queryKey: ['jobs', 'list', { tab: 'saved' }] })
             qc.invalidateQueries({ queryKey: ['jobs', 'total', { tab: 'saved' }] })
         },
+    })
+}
+
+const byKey = (items: CompanyLogo[]) => new Map(items.map((l) => [l.key, l]))
+
+// useLogos is every company that has a logo, by key, read once and kept a while: a list of offers shows them
+// without asking for each one.
+export function useLogos() {
+    return useQuery({
+        queryKey: jobKeys.logos,
+        queryFn: async () => (await JobService.logos()).data.items,
+        select: byKey,
+        staleTime: 5 * 60 * 1000,
+        retry: false,
+    })
+}
+
+// logoUrl is the address of a company's logo image, or undefined when it has none.
+export function logoUrl(logos: Map<string, CompanyLogo> | undefined, company: string): string | undefined {
+    const logo = logos?.get(companyKey(company))
+    return logo ? `${getServiceBaseUrl('job')}/public/logos/${encodeURIComponent(logo.key)}?v=${logo.version}` : undefined
+}
+
+// useUploadLogo and useDeleteLogo let the team set a company's logo; every offer of that company shows it.
+export function useUploadLogo() {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: async ({ company, file }: { company: string; file: Blob }) => (await JobService.uploadLogo(company, file)).data,
+        onSuccess: () => qc.invalidateQueries({ queryKey: jobKeys.logos }),
+    })
+}
+
+export function useDeleteLogo() {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: (company: string) => JobService.deleteLogo(company),
+        onSuccess: () => qc.invalidateQueries({ queryKey: jobKeys.logos }),
     })
 }

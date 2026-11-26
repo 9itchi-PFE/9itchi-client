@@ -3,9 +3,9 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useTranslations } from 'next-intl'
-import { signOut } from 'next-auth/react'
 import { useEffect, useRef, useState } from 'react'
 import { useSessionContext } from '@/components/auth/AuthProvider'
+import { SignOutDialog } from '@/components/auth/SignOutDialog'
 import { useChatBadge } from '@/components/chat/useLiveChat'
 import { CountBadge } from '@/components/ui/CountBadge'
 import { Logo } from '@/components/ui/Logo'
@@ -37,6 +37,7 @@ function AdminAccount() {
     const t = useTranslations('admin')
     const { user } = useSessionContext()
     const [open, setOpen] = useState(false)
+    const [leaving, setLeaving] = useState(false)
     const ref = useRef<HTMLDivElement>(null)
     useEffect(() => {
         if (!open) return
@@ -69,12 +70,16 @@ function AdminAccount() {
                         role="menuitem"
                         type="button"
                         className="block cursor-pointer rounded-lg border-0 bg-transparent px-3 py-2 text-start text-sm font-medium text-ink-2 hover:bg-fill hover:text-ink"
-                        onClick={() => signOut()}
+                        onClick={() => {
+                            setOpen(false)
+                            setLeaving(true)
+                        }}
                     >
                         {t('signOut')}
                     </button>
                 </div>
             ) : null}
+            <SignOutDialog open={leaving} onClose={() => setLeaving(false)} />
         </div>
     )
 }

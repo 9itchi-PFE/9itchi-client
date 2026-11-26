@@ -1,3 +1,4 @@
+import type { CompanyLogo } from '@/types/logo'
 import type {
     AdminBook,
     Book,
@@ -35,6 +36,15 @@ const JobService = {
     listJobs: (q: JobQuery = {}) => api('job').get<JobList>(`/jobs`, { params: toParams(q) }),
     counts: () => api('job').get<JobCounts>(`/jobs/counts`),
     recommendedJobs: () => api('job').get<JobList>(`/jobs/recommended`),
+    // Company logos: the list anyone can read, the team's upload and removal. The image itself is logoUrl.
+    logos: () => api('job').get<{ items: CompanyLogo[] }>(`/public/logos`),
+    uploadLogo: (company: string, file: Blob) => {
+        const form = new FormData()
+        form.append('company', company)
+        form.append('file', file)
+        return api('job').put<CompanyLogo>(`/admin/logos`, form)
+    },
+    deleteLogo: (company: string) => api('job').delete(`/admin/logos`, { params: { company } }),
     // publicJob needs no account: the page of an offer shared by link.
     publicJob: (id: string) => api('job').get<PublicJob>(`/public/jobs/${id}`),
     getJob: (id: string) => api('job').get<Job>(`/jobs/${id}`),
@@ -71,12 +81,7 @@ const JobService = {
     retryBook: (id: string) => api('job').post<AdminBook>(`/admin/books/${id}/retry`),
     deleteBook: (id: string) => api('job').delete(`/admin/books/${id}`),
     // The PDF of a book can be several MB and the server sits behind a slow uplink, so it gets far longer than the usual 50 s.
-    bookPdf: (id: string, admin = false, onProgress?: (bytes: number) => void) =>
-        api('job').get<Blob>(`${admin ? '/admin' : ''}/books/${id}/pdf`, {
-            responseType: 'blob',
-            timeout: 5 * 60_000,
-            onDownloadProgress: onProgress ? (e) => onProgress(e.loaded) : undefined,
-        }),
+    bookPdf: (id: string, admin = false) => api('job').get<Blob>(`${admin ? '/admin' : ''}/books/${id}/pdf`, { responseType: 'blob', timeout: 5 * 60_000 }),
     previewPreferences: (p: Preferences) => api('job').post<{ count: number; unanswered: number }>(`/preferences/preview`, p),
 }
 

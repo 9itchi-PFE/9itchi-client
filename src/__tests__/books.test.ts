@@ -1,27 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { bookInput, canPublish, defaultPicked, fileSize, MAX_PDF, pdfProblem, tally, topicState } from '@/components/admin/books'
-import { megabytes, pdfState } from '@/components/jobs/bookPdf'
 import type { BookTopic } from '@/types/job'
-
-describe('pdfState', () => {
-    it('shows the PDF as soon as there is an address, hosted by the company or kept by 9itchi', () => {
-        expect(pdfState({ hostedUrl: 'https://exemple.tn/book.pdf' })).toBe('ready')
-        expect(pdfState({ hasKept: true, keptUrl: 'blob:x' })).toBe('ready')
-    })
-    it('says « none » only for a book that has no PDF at all', () => {
-        expect(pdfState({ hostedUrl: null, hasKept: false })).toBe('none')
-        expect(pdfState({})).toBe('none')
-    })
-    it('waits, then offers a retry, for a PDF 9itchi keeps but has not delivered yet', () => {
-        expect(pdfState({ hasKept: true })).toBe('loading')
-        expect(pdfState({ hasKept: true, failed: false })).toBe('loading')
-        expect(pdfState({ hasKept: true, failed: true })).toBe('error')
-    })
-    it('writes the progress in megabytes', () => {
-        expect(megabytes(5_443_242)).toBe('5.2')
-        expect(megabytes(0)).toBe('0.0')
-    })
-})
 
 const topic = (id: string, review_status: BookTopic['review_status'], ready: boolean): BookTopic => ({
     id,

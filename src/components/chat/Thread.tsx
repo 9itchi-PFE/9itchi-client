@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, type FormEvent, type KeyboardEvent } from 
 import { useFormatter, useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/Button'
 import { TextArea } from '@/components/ui/Field'
+import { Icon } from '@/components/ui/icons'
 import { useMarkRead, useMessages, useSendMessage } from '@/hooks/useChat'
 import { cn } from '@/lib/cn'
 import type { Conversation } from '@/types/chat'
@@ -55,9 +56,29 @@ export function Thread({ conversation, viewer, className }: { conversation: Conv
                 {isLoading ? <div className="sk h-12 w-2/3 rounded-2xl" /> : null}
                 {isError ? <p className="m-0 text-sm text-[#B42318]">{t('loadError')}</p> : null}
                 {messages && count === 0 ? (
-                    <p className="m-auto max-w-[360px] text-center text-[14.5px] leading-[1.5] text-ink-3">
-                        {t(viewer === 'student' ? 'emptyStudent' : 'emptyTeam')}
-                    </p>
+                    // Nothing said yet: the platform's empty state (icon tile, title, text) and, for a student, the
+                    // usual subjects as a first line to start from.
+                    <div className="m-auto flex max-w-[440px] flex-col items-center gap-3 text-center">
+                        <span className="flex h-14 w-14 items-center justify-center rounded-[18px] bg-white shadow-card">
+                            <Icon name="send" size={24} />
+                        </span>
+                        <h2 className="m-0 text-[22px] font-extrabold">{t(viewer === 'student' ? 'emptyStudentTitle' : 'emptyTeamTitle')}</h2>
+                        <p className="m-0 text-[15px] leading-[1.55] text-ink-3">{t(viewer === 'student' ? 'emptyStudent' : 'emptyTeam')}</p>
+                        {viewer === 'student' ? (
+                            <div className="mt-1 flex flex-wrap justify-center gap-2">
+                                {(['cv', 'application', 'payment'] as const).map((k) => (
+                                    <button
+                                        key={k}
+                                        type="button"
+                                        onClick={() => setTyped(t(`starter.${k}`))}
+                                        className="h-9 cursor-pointer rounded-full border border-line-strong bg-white px-3.5 text-[13.5px] font-semibold text-ink-2 hover:border-ink hover:text-ink"
+                                    >
+                                        {t(`topic.${k}`)}
+                                    </button>
+                                ))}
+                            </div>
+                        ) : null}
+                    </div>
                 ) : null}
                 {byDay(messages ?? []).map((day) => (
                     <div key={day.key} className="flex flex-col gap-2.5">

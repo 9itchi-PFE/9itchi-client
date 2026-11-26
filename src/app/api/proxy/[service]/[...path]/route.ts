@@ -2,9 +2,10 @@ import { NextResponse, type NextRequest } from 'next/server'
 import { getServerBaseUrl, serviceNames, type ServiceName } from '@/configs/services.config'
 
 // Production proxy to the backend services. It forwards the method, path, query, body and the few headers
-// the services read (Authorization, Content-Type, Accept); it never logs bodies or tokens.
-const FORWARDED = ['authorization', 'content-type', 'accept', 'accept-language']
-const RETURNED = ['content-type', 'content-disposition', 'cache-control', 'x-content-type-options']
+// the services read (Authorization, Content-Type, Accept, and the byte-range ones a PDF viewer sends); it never
+// logs bodies or tokens.
+const FORWARDED = ['authorization', 'content-type', 'accept', 'accept-language', 'range', 'if-range', 'if-none-match']
+const RETURNED = ['content-type', 'content-disposition', 'cache-control', 'x-content-type-options', 'accept-ranges', 'content-range', 'content-length', 'etag']
 
 async function forward(req: NextRequest, ctx: { params: Promise<{ service: string; path: string[] }> }) {
     const { service, path } = await ctx.params

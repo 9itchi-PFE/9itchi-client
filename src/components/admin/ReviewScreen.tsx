@@ -13,6 +13,7 @@ import { useEditReview, useImportPost, useReviewAction, useReviewJob, useReviewL
 import { cn } from '@/lib/cn'
 import type { JobEdit, Origin, ReviewItem, ReviewJob, ReviewTab } from '@/types/job'
 import { TOPICS, type WorkMode } from '@/types/preferences'
+import LogoField from './LogoField'
 import { apiError, WhenText } from './SourcesScreen'
 import { checks, number, places, status, toEdit, when, type Status } from './collect'
 
@@ -107,6 +108,7 @@ function Detail({ job, onEdit }: { job: ReviewJob; onEdit: () => void }) {
                 </h2>
                 <p className="m-0 text-[15px] text-ink-3">{[job.company, place, pay].filter(Boolean).join(' · ')}</p>
             </div>
+            <LogoField company={job.company} />
             <div>
                 <StatusBadge value={st} />
             </div>

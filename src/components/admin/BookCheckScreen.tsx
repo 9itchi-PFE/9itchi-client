@@ -14,6 +14,7 @@ import { cn } from '@/lib/cn'
 import type { AdminBook, BookTopic } from '@/types/job'
 import { TOPICS, type Topic } from '@/types/preferences'
 import { BookPill, FileLine } from './BooksScreen'
+import LogoField from './LogoField'
 import { EditDrawer } from './ReviewScreen'
 import { apiError } from './SourcesScreen'
 import { bookInput, canPublish, defaultPicked, tally, topicState, type TopicState } from './books'
@@ -132,6 +133,7 @@ function CommonForm({ book }: { book: AdminBook }) {
                 </h2>
                 <span className="text-[14.5px] text-ink-3">{t('bookCommonHint')}</span>
             </div>
+            <LogoField company={book.company} />
             {/* The key puts the stored values back in the fields after a save or a new reading. */}
             <form key={`${book.company}|${book.title}|${book.year}|${JSON.stringify(c)}`} onSubmit={submit} className="flex flex-col gap-3.5">
                 <div className="grid items-end gap-3 sm:grid-cols-2 lg:grid-cols-4">

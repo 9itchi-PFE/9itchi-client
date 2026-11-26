@@ -9,6 +9,7 @@ import { Sk } from '@/components/jobs/OfferStates'
 import { Button, ButtonLink } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/icons'
 import { useToast } from '@/components/ui/Toast'
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
 import { useCheckout, useMySubscription, usePayments, usePlans, useSetRenewal, useValidatePromo, useVerifyPayment } from '@/hooks/usePlans'
 import { cn } from '@/lib/cn'
 import { atKeptPrice, type MySubscription, type Payment, type Plan, type PromoCheck } from '@/types/plan'
@@ -629,26 +630,6 @@ export default function BillingScreen() {
                         </div>
                     ) : null}
                     {own ? null : <p className="m-0 text-sm leading-[1.55] text-ink-2">{t('planGone', { date: shortDate })}</p>}
-                    {confirming ? (
-                        <div
-                            role="alertdialog"
-                            aria-labelledby="stop-h"
-                            className="flex flex-col gap-3 rounded-[14px] border border-[#FCE3CF] bg-[#FFFAF5] p-[18px]"
-                        >
-                            <strong id="stop-h" className="text-base">
-                                {t('stopTitle')}
-                            </strong>
-                            <span className="text-sm leading-[1.55] text-ink-2">{t('stopText', { date: shortDate })}</span>
-                            <div className="flex flex-wrap gap-2">
-                                <Button size="sm" className="h-10 px-4 text-sm" onClick={() => setConfirming(false)}>
-                                    {t('keep')}
-                                </Button>
-                                <Button variant="secondary" size="sm" className="h-10 px-4 text-sm" disabled={renewal.isPending} onClick={() => set(false)}>
-                                    {t('stopYes')}
-                                </Button>
-                            </div>
-                        </div>
-                    ) : null}
                 </section>
             ) : (
                 <section className={panel}>
@@ -662,6 +643,17 @@ export default function BillingScreen() {
                     </Button>
                 </section>
             )}
+            <ConfirmDialog
+                open={confirming}
+                title={t('stopTitle')}
+                confirmLabel={t('stopYes')}
+                cancelLabel={t('keep')}
+                busy={renewal.isPending}
+                onConfirm={() => set(false)}
+                onClose={() => setConfirming(false)}
+            >
+                {t('stopText', { date: shortDate })}
+            </ConfirmDialog>
             {same && adding && subscription.renews ? <Pay plan={same} extending={active} /> : null}
             {others.length ? (
                 <section className={panel}>

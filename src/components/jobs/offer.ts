@@ -16,6 +16,11 @@ export function initials(company: string): string {
     return (words[0][0] + words[1][0]).toUpperCase()
 }
 
+// companyKey is how job-api matches a company to its logo: trimmed, lower case, single spaces.
+export function companyKey(company: string): string {
+    return company.trim().split(/\s+/).join(' ').toLowerCase()
+}
+
 // tint picks the same colour for the same company every time.
 export function tint(company: string): string {
     let h = 0
