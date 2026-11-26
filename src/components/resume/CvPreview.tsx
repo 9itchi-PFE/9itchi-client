@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react'
 import { cn } from '@/lib/cn'
-import { lookCss, mmToPx, resolveLook, type Look } from '@/lib/cvLook'
+import { entryArrangement, lookCss, mmToPx, resolveLook, type EntryArrangement, type Look } from '@/lib/cvLook'
 import { LOC_MARK, visibleEntries, visibleSections, type Layout, type ResumeContent } from '@/types/resume'
 import { Rich } from './RichText'
 import { cvHeadings, dates, join, nonEmpty, shortLink, splitLanguage, type CvLanguage } from './cvText'
@@ -145,6 +145,31 @@ const Row = ({ left, right, className }: { left: ReactNode; right?: ReactNode; c
     </div>
 )
 
+type EntryHeadProps = { arrange: EntryArrangement; title: string; sub: string; kind?: string; url?: string; start?: string; end?: string; location?: string; subClass?: string }
+
+// EntryHead is the head of a job or a study once the style says how the title and the company/school sit: on one line or one above the other, either first.
+// The kind (internship, full-time...) stays with the company, as in the exports.
+function EntryHead({ arrange, title, sub, kind, url, start, end, location, subClass }: EntryHeadProps) {
+    const when = <Meta t={dates(start, end)} />
+    const company = kind ? `${sub} (${kind})` : sub
+    if (arrange.inline) {
+        const text = arrange.subtitleFirst ? join(' — ', company, title) : join(' — ', title, company)
+        const loc = location ? <span data-cv="loc">{`, ${location}`}</span> : null
+        return <Row left={<><Lnk url={url}><strong data-cv="etitle"><Rich text={text} /></strong></Lnk>{loc}</>} right={when} />
+    }
+    const [first, second] = arrange.subtitleFirst ? ([company, title] as const) : ([title, company] as const)
+    const [firstRole, secondRole] = arrange.subtitleFirst ? (['sub', 'etitle'] as const) : (['etitle', 'sub'] as const)
+    const cls = (role: 'sub' | 'etitle') => (role === 'sub' ? subClass : undefined)
+    return (
+        <>
+            <Row left={<Lnk url={url}><strong data-cv={firstRole} className={cls(firstRole)}><Rich text={first} /></strong></Lnk>} right={when} />
+            {second.trim() || location ? (
+                <Row left={<span data-cv={secondRole} className={cls(secondRole)}><Rich text={second} /></span>} right={<Meta t={location} k="loc" />} />
+            ) : null}
+        </>
+    )
+}
+
 const Bullets = ({ lines }: { lines: string[] }) => {
     const { look } = useContext(Ctx)
     const l = nonEmpty(...lines)
@@ -257,6 +282,8 @@ const inOrder = (c: ResumeContent, s: Sections, only?: (k: string) => boolean) =
 
 function Classic({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
     const { look } = useContext(Ctx)
+    const eduArr = entryArrangement('classic', 'education', c.style)
+    const expArr = entryArrangement('classic', 'experience', c.style)
     const head: Heading = (t) => (
         <h3 data-cv="heading" className="m-0 mb-[3px] border-b border-cv-blue pb-px font-cv font-normal uppercase tracking-[.01em] text-cv-blue" style={{ fontSize: look.head }}>
             {t}
@@ -277,8 +304,14 @@ function Classic({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                 {head(h.education)}
                 {c.education.map((e, i) => (
                     <div key={i} className={cn(i > 0 && 'mt-[3px]')}>
-                        <Row left={<Lnk url={e.url}><strong data-cv="etitle"><Rich text={e.degree} /></strong></Lnk>} right={<Meta t={dates(e.start, e.end)} />} />
-                        <Row left={<span data-cv="sub"><Rich text={e.school} /></span>} right={<Meta t={e.location} k="loc" />} />
+                        {eduArr ? (
+                            <EntryHead arrange={eduArr} title={e.degree} sub={e.school} url={e.url} start={e.start} end={e.end} location={e.location} subClass="text-cv-blue" />
+                        ) : (
+                            <>
+                                <Row left={<Lnk url={e.url}><strong data-cv="etitle"><Rich text={e.degree} /></strong></Lnk>} right={<Meta t={dates(e.start, e.end)} />} />
+                                <Row left={<span data-cv="sub"><Rich text={e.school} /></span>} right={<Meta t={e.location} k="loc" />} />
+                            </>
+                        )}
                     </div>
                 ))}
             </Mark>
@@ -289,16 +322,22 @@ function Classic({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                 {head(h.experience)}
                 {c.experience.map((e, i) => (
                     <div key={i} className={cn(i > 0 && 'mt-[3px]')}>
-                        <Row left={<strong data-cv="etitle"><Rich text={e.title} /></strong>} right={<strong><Meta t={dates(e.start, e.end)} /></strong>} />
-                        <Row
-                            left={
-                                <>
-                                    <Lnk url={e.url}><span data-cv="sub" className="text-cv-blue"><Rich text={e.company} /></span></Lnk>
-                                    {e.kind ? ` (${e.kind})` : ''}
-                                </>
-                            }
-                            right={<Meta t={e.location} k="loc" />}
-                        />
+                        {expArr ? (
+                            <EntryHead arrange={expArr} title={e.title} sub={e.company} kind={e.kind} url={e.url} start={e.start} end={e.end} location={e.location} subClass="text-cv-blue" />
+                        ) : (
+                            <>
+                                <Row left={<strong data-cv="etitle"><Rich text={e.title} /></strong>} right={<strong><Meta t={dates(e.start, e.end)} /></strong>} />
+                                <Row
+                                    left={
+                                        <>
+                                            <Lnk url={e.url}><span data-cv="sub" className="text-cv-blue"><Rich text={e.company} /></span></Lnk>
+                                            {e.kind ? ` (${e.kind})` : ''}
+                                        </>
+                                    }
+                                    right={<Meta t={e.location} k="loc" />}
+                                />
+                            </>
+                        )}
                         <Bullets lines={e.description} />
                     </div>
                 ))}
@@ -403,6 +442,8 @@ const SIDE = new Set(['skills', 'languages'])
 
 function Modern({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
     const { look } = useContext(Ctx)
+    const eduArr = entryArrangement('modern', 'education', c.style)
+    const expArr = entryArrangement('modern', 'experience', c.style)
     const sideHead: Heading = (t) => <span className="mt-2 block text-[10px] font-bold uppercase tracking-[.08em]">{t}</span>
     const head: Heading = (t) => (
         <h3 data-cv="heading" className="m-0 mb-1 mt-2 font-cv font-bold text-cv-navy" style={{ fontSize: look.head }}>
@@ -448,8 +489,14 @@ function Modern({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                 {head(h.education)}
                 {c.education.map((e, i) => (
                     <div key={i} className="mb-0.5">
-                        <Row left={<Lnk url={e.url}><strong data-cv="etitle"><Rich text={join(' — ', e.school, e.degree)} /></strong></Lnk>} right={<span className="text-ink-3"><Meta t={dates(e.start, e.end)} /></span>} />
-                        {e.location ? <div data-cv="loc" className="text-ink-3">{e.location}</div> : null}
+                        {eduArr ? (
+                            <EntryHead arrange={eduArr} title={e.degree} sub={e.school} url={e.url} start={e.start} end={e.end} location={e.location} />
+                        ) : (
+                            <>
+                                <Row left={<Lnk url={e.url}><strong data-cv="etitle"><Rich text={join(' — ', e.school, e.degree)} /></strong></Lnk>} right={<span className="text-ink-3"><Meta t={dates(e.start, e.end)} /></span>} />
+                                {e.location ? <div data-cv="loc" className="text-ink-3">{e.location}</div> : null}
+                            </>
+                        )}
                     </div>
                 ))}
             </Mark>
@@ -460,14 +507,20 @@ function Modern({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                 {head(h.experience)}
                 {c.experience.map((e, i) => (
                     <div key={i} className="mb-0.5">
-                        <Row left={<Lnk url={e.url}><strong data-cv="etitle"><Rich text={join(' — ', e.title, e.company)} /></strong></Lnk>} right={<span className="text-ink-3"><Meta t={dates(e.start, e.end)} /></span>} />
-                        {join(' · ', e.kind, e.location) ? (
-                        <div className="text-ink-3">
-                            {e.kind}
-                            {e.kind && e.location ? ' · ' : null}
-                            {e.location ? <span data-cv="loc">{e.location}</span> : null}
-                        </div>
-                    ) : null}
+                        {expArr ? (
+                            <EntryHead arrange={expArr} title={e.title} sub={e.company} kind={e.kind} url={e.url} start={e.start} end={e.end} location={e.location} />
+                        ) : (
+                            <>
+                                <Row left={<Lnk url={e.url}><strong data-cv="etitle"><Rich text={join(' — ', e.title, e.company)} /></strong></Lnk>} right={<span className="text-ink-3"><Meta t={dates(e.start, e.end)} /></span>} />
+                                {join(' · ', e.kind, e.location) ? (
+                                    <div className="text-ink-3">
+                                        {e.kind}
+                                        {e.kind && e.location ? ' · ' : null}
+                                        {e.location ? <span data-cv="loc">{e.location}</span> : null}
+                                    </div>
+                                ) : null}
+                            </>
+                        )}
                         <Bullets lines={e.description} />
                     </div>
                 ))}
@@ -549,6 +602,8 @@ const pairs = (xs: string[]) => {
 
 function Compact({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
     const { look } = useContext(Ctx)
+    const eduArr = entryArrangement('compact', 'education', c.style)
+    const expArr = entryArrangement('compact', 'experience', c.style)
     const head: Heading = (t) => (
         <h3 data-cv="heading" className="m-0 mb-1 mt-1.5 border-b-[1.2px] border-[#111] font-cv font-bold uppercase text-[#111]" style={{ fontSize: look.head }}>
             {t}
@@ -567,9 +622,13 @@ function Compact({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
         s.education = (
             <Mark key="education" k="education">
                 {head(h.education)}
-                {c.education.map((e, i) => (
-                    <Row key={i} left={<Lnk url={e.url}><strong data-cv="etitle"><Rich text={join(' — ', e.school, e.degree)} /></strong></Lnk>} right={<Meta t={dates(e.start, e.end)} />} />
-                ))}
+                {c.education.map((e, i) =>
+                    eduArr ? (
+                        <EntryHead key={i} arrange={eduArr} title={e.degree} sub={e.school} url={e.url} start={e.start} end={e.end} location={e.location} />
+                    ) : (
+                        <Row key={i} left={<Lnk url={e.url}><strong data-cv="etitle"><Rich text={join(' — ', e.school, e.degree)} /></strong></Lnk>} right={<Meta t={dates(e.start, e.end)} />} />
+                    ),
+                )}
             </Mark>
         )
     if (c.experience.length)
@@ -578,15 +637,19 @@ function Compact({ c, h, photoUrl, phonePlaceholder }: BodyProps) {
                 {head(h.experience)}
                 {c.experience.map((e, i) => (
                     <div key={i}>
-                        <Row
-                            left={
-                                <>
-                                    <Lnk url={e.url}><strong data-cv="etitle"><Rich text={join(' : ', e.company, e.title)} /></strong></Lnk>
-                                    {e.location ? <span data-cv="loc">{`, ${e.location}`}</span> : null}
-                                </>
-                            }
-                            right={<Meta t={dates(e.start, e.end)} />}
-                        />
+                        {expArr ? (
+                            <EntryHead arrange={expArr} title={e.title} sub={e.company} kind={e.kind} url={e.url} start={e.start} end={e.end} location={e.location} />
+                        ) : (
+                            <Row
+                                left={
+                                    <>
+                                        <Lnk url={e.url}><strong data-cv="etitle"><Rich text={join(' : ', e.company, e.title)} /></strong></Lnk>
+                                        {e.location ? <span data-cv="loc">{`, ${e.location}`}</span> : null}
+                                    </>
+                                }
+                                right={<Meta t={dates(e.start, e.end)} />}
+                            />
+                        )}
                         <Bullets lines={e.description} />
                     </div>
                 ))}

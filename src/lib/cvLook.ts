@@ -56,6 +56,30 @@ export type Look = {
 const PX_PER_MM = 624 / 210
 export const mmToPx = (mm: number) => mm * PX_PER_MM
 
+export type EntrySection = 'experience' | 'education'
+export type EntryArrangement = { inline: boolean; subtitleFirst: boolean }
+
+// What each template does today for an entry: Classic stacks the title over the company; Modern puts both on one line (title first for jobs,
+// school first for studies); Compact is one line with the company/school first.
+const ENTRY_DEFAULTS: Record<Layout, Record<EntrySection, EntryArrangement>> = {
+    classic: { experience: { inline: false, subtitleFirst: false }, education: { inline: false, subtitleFirst: false } },
+    modern: { experience: { inline: true, subtitleFirst: false }, education: { inline: true, subtitleFirst: true } },
+    compact: { experience: { inline: true, subtitleFirst: true }, education: { inline: true, subtitleFirst: true } },
+}
+
+export const entryDefault = (layout: Layout, section: EntrySection): EntryArrangement => (ENTRY_DEFAULTS[layout] ?? ENTRY_DEFAULTS.classic)[section]
+
+// entryArrangement mirrors resume-api's entry layout: null while the style sets neither field (the template keeps its own head),
+// otherwise the chosen value with the template's default for the one left unset.
+export function entryArrangement(layout: Layout, section: EntrySection, s?: CVStyle): EntryArrangement | null {
+    if (!s?.entry_layout && !s?.entry_order) return null
+    const d = entryDefault(layout, section)
+    return {
+        inline: s.entry_layout ? s.entry_layout === 'inline' : d.inline,
+        subtitleFirst: s.entry_order ? s.entry_order === 'subtitle_first' : d.subtitleFirst,
+    }
+}
+
 const hex = (s?: string) => (s && /^#[0-9a-fA-F]{6}$/.test(s) ? s : undefined)
 
 export function resolveLook(layout: Layout, s: CVStyle = {}): Look {
@@ -107,12 +131,19 @@ export function lookCss(l: Look, explicit: CVStyle = {}): string {
     rule(
         '[data-cv=heading]',
         `font-size:${l.head}px;${explicit.heading_bold === undefined ? '' : `font-weight:${explicit.heading_bold ? 700 : 400};`}${explicit.heading_case ? `text-transform:${l.upper ? 'uppercase' : 'none'};` : ''}` +
-            (explicit.accent ? `color:${l.accents('headings') ? l.accent : 'inherit'};border-color:${l.accents('rules') ? l.accent : 'currentColor'};` : '')
+            (explicit.accent ? `color:${l.accents('headings') ? l.accent : 'inherit'};border-color:${l.accents('rules') ? l.accent : 'currentColor'};` : ''),
     )
     rule('[data-cv=row]', `font-size:${l.entry}px;`)
     if (l.dateBelow) rule('[data-cv=row]', 'flex-direction:column;gap:0;')
     if (l.dateBelow) rule('[data-cv=row] > span:last-child', 'text-align:start;')
-    const ts = (v?: string) => (v === 'bold' ? 'font-weight:700;font-style:normal;' : v === 'italic' ? 'font-style:italic;font-weight:400;' : v === 'normal' ? 'font-style:normal;font-weight:400;' : '')
+    const ts = (v?: string) =>
+        v === 'bold'
+            ? 'font-weight:700;font-style:normal;'
+            : v === 'italic'
+              ? 'font-style:italic;font-weight:400;'
+              : v === 'normal'
+                ? 'font-style:normal;font-weight:400;'
+                : ''
     rule('[data-cv=sub]', ts(explicit.subtitle_style))
     rule('[data-cv=row] > span:last-child', ts(explicit.date_style))
     if (explicit.accent) {

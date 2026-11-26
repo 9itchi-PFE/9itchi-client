@@ -1,6 +1,27 @@
 import { describe, expect, it } from 'vitest'
-import { resolveLook, lookCss } from '@/lib/cvLook'
+import { resolveLook, lookCss, entryArrangement, entryDefault } from '@/lib/cvLook'
 import { emptyContent, sectionOrder, visibleSections } from '@/types/resume'
+describe('entryArrangement', () => {
+    it('leaves each template alone while neither field is set', () => {
+        expect(entryArrangement('classic', 'experience', undefined)).toBeNull()
+        expect(entryArrangement('modern', 'education', { gap: 2 })).toBeNull()
+    })
+    it('uses the chosen value and falls back to the template for the one left unset', () => {
+        expect(entryArrangement('classic', 'experience', { entry_layout: 'inline' })).toEqual({ inline: true, subtitleFirst: false })
+        expect(entryArrangement('compact', 'experience', { entry_layout: 'stacked' })).toEqual({ inline: false, subtitleFirst: true })
+        expect(entryArrangement('modern', 'education', { entry_order: 'title_first' })).toEqual({ inline: true, subtitleFirst: false })
+        expect(entryArrangement('classic', 'education', { entry_layout: 'inline', entry_order: 'subtitle_first' })).toEqual({
+            inline: true,
+            subtitleFirst: true,
+        })
+    })
+    it('mirrors what the templates print today', () => {
+        expect(entryDefault('classic', 'experience')).toEqual({ inline: false, subtitleFirst: false })
+        expect(entryDefault('modern', 'experience')).toEqual({ inline: true, subtitleFirst: false })
+        expect(entryDefault('modern', 'education')).toEqual({ inline: true, subtitleFirst: true })
+        expect(entryDefault('compact', 'experience')).toEqual({ inline: true, subtitleFirst: true })
+    })
+})
 describe('visibleSections', () => {
     it('drops hidden sections but keeps the order', () => {
         const c = { ...emptyContent(), hidden_sections: ['education', 'extra:9'] }

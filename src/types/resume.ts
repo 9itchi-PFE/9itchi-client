@@ -40,6 +40,8 @@ export type CVStyle = {
     heading_bold?: boolean
     heading_case?: 'capitalize' | 'uppercase'
     date_position?: 'right' | 'below'
+    entry_layout?: 'stacked' | 'inline'
+    entry_order?: 'title_first' | 'subtitle_first'
     header_layout?: 'stacked' | 'inline'
     header_valign?: 'top' | 'middle' | 'bottom'
     photo_position?: 'left' | 'right'
