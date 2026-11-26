@@ -10,6 +10,7 @@ import { Field, TextArea, inputClass } from '@/components/ui/Field'
 import { Modal } from '@/components/ui/Modal'
 import { Segmented } from '@/components/ui/Segmented'
 import { useToast } from '@/components/ui/Toast'
+import { Select } from '@/components/ui/Select'
 import {
     useAllPlans,
     useCreatePlan,
@@ -297,13 +298,13 @@ function PlanModal({ plan, plans, onClose }: { plan: Plan | null | undefined; pl
                     </div>
                     <label className="flex flex-col gap-1.5 self-start text-[13.5px] font-medium text-ink-2">
                         {t('planDuration')}
-                        <select name="duration" defaultValue={String(days)} className={inputClass}>
+                        <Select name="duration" defaultValue={String(days)} className={inputClass}>
                             {choices.map((d) => (
                                 <option key={d} value={d}>
                                     {durationLabel(t, d)}
                                 </option>
                             ))}
-                        </select>
+                        </Select>
                     </label>
                 </div>
                 {plan ? (
@@ -439,10 +440,10 @@ function PromoModal({ promo, onClose }: { promo: PromoCode | null | undefined; o
                 <div className="grid grid-cols-2 gap-3">
                     <label className="flex flex-col gap-1.5 text-[13.5px] font-medium text-ink-2">
                         {t('pType')}
-                        <select name="type" defaultValue={promo?.type ?? 'fixed'} className={inputClass}>
+                        <Select name="type" defaultValue={promo?.type ?? 'fixed'} className={inputClass}>
                             <option value="fixed">{t('pFixed')}</option>
                             <option value="percentage">{t('pPercent')}</option>
-                        </select>
+                        </Select>
                     </label>
                     <Field name="value" label={t('pValue')} required inputMode="decimal" dir="ltr" defaultValue={promo ? String(promo.value) : ''} />
                 </div>

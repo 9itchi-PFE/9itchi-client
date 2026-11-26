@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/icons'
 import { useToast } from '@/components/ui/Toast'
+import { Select } from '@/components/ui/Select'
 import { useDraft, useGmailStatus, useRevokeGmail } from '@/hooks/useApplications'
 import { useEmails } from '@/hooks/useEmails'
 import { useResumes } from '@/hooks/useResumes'
@@ -121,21 +122,21 @@ export default function OutreachScreen() {
             <section className="grid gap-4 rounded-[20px] border border-line-soft bg-white p-6 md:grid-cols-3">
                 <label className="flex flex-col gap-1.5 text-sm font-semibold">
                     {t('resume')}
-                    <select className={field} value={resume} onChange={(e) => setResumeId(e.target.value)}>
+                    <Select className={field} value={resume} onChange={(e) => setResumeId(e.target.value)}>
                         {items.map((r) => (
                             <option key={r.id} value={r.id}>
                                 {r.title}
                             </option>
                         ))}
-                    </select>
+                    </Select>
                 </label>
                 <label className="flex flex-col gap-1.5 text-sm font-semibold">
                     {t('language')}
-                    <select className={field} value={language} onChange={(e) => setLanguage(e.target.value as LetterLanguage)}>
+                    <Select className={field} value={language} onChange={(e) => setLanguage(e.target.value as LetterLanguage)}>
                         <option value="en">English</option>
                         <option value="fr">Français</option>
                         <option value="ar">العربية</option>
-                    </select>
+                    </Select>
                 </label>
                 <label className="flex flex-col gap-1.5 text-sm font-semibold">
                     {t('goal')}

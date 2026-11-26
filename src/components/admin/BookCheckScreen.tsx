@@ -8,6 +8,7 @@ import { useRouter } from 'next/navigation'
 import { Button, ButtonLink } from '@/components/ui/Button'
 import { Field, TextArea, inputClass } from '@/components/ui/Field'
 import { useToast } from '@/components/ui/Toast'
+import { Select } from '@/components/ui/Select'
 import { useAdminBook, useBookPdf, useDeleteBook, useEditBook, usePublishBook, useRetryBook } from '@/hooks/useAdminBooks'
 import { useReviewJob } from '@/hooks/useAdminJobs'
 import { cn } from '@/lib/cn'
@@ -148,12 +149,12 @@ function CommonForm({ book }: { book: AdminBook }) {
                     <Field name="location" label={t('bookTopicsPlace')} maxLength={200} defaultValue={c?.location ?? ''} />
                     <label className={label}>
                         {t('eMode')}
-                        <select name="work_mode" defaultValue={c?.work_mode ?? ''} className={inputClass}>
+                        <Select name="work_mode" defaultValue={c?.work_mode ?? ''} className={inputClass}>
                             <option value="">{t('bookKeep')}</option>
                             <option value="on_site">{p('modes.on_site')}</option>
                             <option value="hybrid">{p('modes.hybrid')}</option>
                             <option value="remote">{p('modes.remote')}</option>
-                        </select>
+                        </Select>
                     </label>
                     <Field name="closes_on" type="date" label={t('eCloses')} defaultValue={c?.closes_on ?? ''} />
                 </div>

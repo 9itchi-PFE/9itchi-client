@@ -24,7 +24,8 @@ Next.js 15.1 (App Router, standalone, turbopack dev), React 19, TypeScript, Tail
 
 ## UI style
 - Tokens only from `tailwind.config.ts` (from the canvas): `ink`, `lime`, `violet`, `ember`, `page`, `line`, `fill`, `ok`, `warn`, `cv`; fonts `sans` (Inter), `display` (Bricolage), `mono`; shadows `card`/`pop` (hard offset), `nav`, `paper`, `toast`. No raw hex unless already the pattern nearby.
-- Reuse `src/components/ui/` first (`Button`/`buttonClass`, `Field`, `Modal`, `ConfirmDialog` (use instead of `window.confirm`), `Segmented`, `Toast`, `icons`, `Logo`, `PagePlaceholder`), merge classes with `cn` (`@/lib/cn`); feature components live in `src/components/<feature>/`. Extract a shared component only when a second use appears.
+- Reuse `src/components/ui/` first (`Button`/`buttonClass`, `Field`, `Select`, `Modal`, `ConfirmDialog` (use instead of `window.confirm`), `Segmented`, `Toast`, `icons`, `Logo`, `PagePlaceholder`), merge classes with `cn` (`@/lib/cn`); feature components live in `src/components/<feature>/`. Extract a shared component only when a second use appears.
+- Drop-downs: never a bare `<select>` (its system list is grey and unstyled; ESLint refuses it). `Select` is written like one (`<option>` children, `name`, `value`/`defaultValue`, `onChange(e.target.value)`), looks like a `Field`, opens a list in the account-menu style, flips upward when short of room, works with the keyboard and `required`. In tests choose with `click()` then `getByRole('option', { name })`, not `selectOption`.
 - Simple student flow: one clear primary action per screen, loading/empty/error states, works at 390 px and in `ar` RTL (logical `ms-`/`me-`/`start`/`end`).
 - Mockups: `../9itchi PFE — Web App Design.html` (large: grep the screen id, don't read whole).
 - Prettier: no semicolons, single quotes, 4 spaces, width 160, trailing commas. ESLint `next lint`.

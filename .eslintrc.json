@@ -1,3 +1,13 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"]
+  "extends": ["next/core-web-vitals", "next/typescript"],
+  "rules": {
+    "no-restricted-syntax": [
+      "error",
+      {
+        "selector": "JSXOpeningElement[name.name='select']",
+        "message": "Use <Select> from '@/components/ui/Select': the system <select> opens a grey list that does not match the app."
+      }
+    ]
+  },
+  "overrides": [{ "files": ["src/components/ui/Select.tsx"], "rules": { "no-restricted-syntax": "off" } }]
 }

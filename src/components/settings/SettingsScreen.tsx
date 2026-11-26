@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/Button'
 import { Field, inputClass } from '@/components/ui/Field'
 import { Modal } from '@/components/ui/Modal'
 import { useToast } from '@/components/ui/Toast'
+import { Select } from '@/components/ui/Select'
 import { useDeleteMe, useMe, useUpdateMe } from '@/hooks/useAccount'
 import { cn } from '@/lib/cn'
 import { YEARS } from '@/types/user'
@@ -104,27 +105,27 @@ export default function SettingsScreen() {
                     </div>
                     <label className="flex min-w-0 flex-col gap-1.5 text-[13.5px] font-medium text-ink-2">
                         {t('school')}
-                        <select name="school" defaultValue={user.school ?? ''} className={inputClass}>
+                        <Select name="school" defaultValue={user.school ?? ''} className={inputClass}>
                             <option value="">{ta('schoolPlaceholder')}</option>
                             {schools.map((s) => (
                                 <option key={s} value={s}>
                                     {(SCHOOLS as readonly string[]).includes(s) ? ta(`schools.${s}`) : s}
                                 </option>
                             ))}
-                        </select>
+                        </Select>
                     </label>
                     <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
                         <Field name="speciality" label={t('speciality')} maxLength={120} defaultValue={user.speciality ?? ''} />
                         <label className="flex min-w-0 flex-col gap-1.5 text-[13.5px] font-medium text-ink-2">
                             {t('year')}
-                            <select name="year" defaultValue={user.year ?? ''} className={inputClass}>
+                            <Select name="year" defaultValue={user.year ?? ''} className={inputClass}>
                                 <option value="">{t('yearNone')}</option>
                                 {YEARS.map((y) => (
                                     <option key={y} value={y}>
                                         {t(`years.${y}`)}
                                     </option>
                                 ))}
-                            </select>
+                            </Select>
                         </label>
                         <Field name="city" label={t('city')} maxLength={80} autoComplete="address-level2" defaultValue={user.city ?? ''} />
                         <div className="flex min-w-0 flex-col gap-1.5">

@@ -16,6 +16,7 @@ import { LogoReading } from '@/components/ui/Logo'
 import { Modal } from '@/components/ui/Modal'
 import { Segmented } from '@/components/ui/Segmented'
 import { useToast } from '@/components/ui/Toast'
+import { Select } from '@/components/ui/Select'
 import { useMe } from '@/hooks/useAccount'
 import { useAllowance, useApplications, useApply, useDraft, useGmailStatus } from '@/hooks/useApplications'
 import { useJob, useSimilarJobs } from '@/hooks/useJobs'
@@ -581,7 +582,7 @@ export default function ApplyScreen({ id }: { id: string }) {
                         <div className="flex items-center gap-2">
                             <label>
                                 <span className="sr-only">{t('language')}</span>
-                                <select
+                                <Select
                                     value={language}
                                     disabled={byHand}
                                     onChange={(e) => setLanguage(e.target.value as LetterLanguage)}
@@ -590,7 +591,7 @@ export default function ApplyScreen({ id }: { id: string }) {
                                     <option value="fr">{t('langFr')}</option>
                                     <option value="en">{t('langEn')}</option>
                                     <option value="ar">{t('langAr')}</option>
-                                </select>
+                                </Select>
                             </label>
                             <Button
                                 variant="secondary"
@@ -771,7 +772,7 @@ export default function ApplyScreen({ id }: { id: string }) {
                             {later ? (
                                 <label className="flex flex-col gap-1.5 text-[13.5px] font-medium text-ink-2">
                                     {t('sendOn')}
-                                    <select
+                                    <Select
                                         value={slot}
                                         onChange={(e) => setSlot(e.target.value as typeof slot)}
                                         className="h-11 rounded-xl border border-line-strong bg-white px-3 text-[14.5px] text-ink"
@@ -782,7 +783,7 @@ export default function ApplyScreen({ id }: { id: string }) {
                                             </option>
                                         ))}
                                         <option value="custom">{t('pickTime')}</option>
-                                    </select>
+                                    </Select>
                                     {slot === 'custom' ? (
                                         <input
                                             type="datetime-local"

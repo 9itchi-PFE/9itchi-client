@@ -3,6 +3,7 @@
 import { useTransition } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
+import { Select } from '@/components/ui/Select'
 import { LOCALE_COOKIE, isLocale } from '@/i18n/locales'
 import AccountService from '@/services/AccountService'
 
@@ -20,16 +21,9 @@ export default function LanguageSelect({ remember = true }: { remember?: boolean
     const router = useRouter()
     const [pending, start] = useTransition()
     return (
-        <label className="relative inline-block">
-            <img
-                src={`/img/countries/${flags[locale as keyof typeof flags] ?? 'FR'}.png`}
-                alt=""
-                width={20}
-                height={20}
-                className="pointer-events-none absolute start-3 top-1/2 -translate-y-1/2 rounded-full object-cover"
-            />
+        <label className="inline-block">
             <span className="sr-only">{t('language')}</span>
-            <select
+            <Select
                 value={locale}
                 disabled={pending}
                 onChange={(e) => {
@@ -43,16 +37,17 @@ export default function LanguageSelect({ remember = true }: { remember?: boolean
                         })
                     start(() => router.refresh())
                 }}
-                className="h-10 cursor-pointer rounded-full border border-line bg-white ps-9 pe-2.5 text-[13.5px] font-medium text-ink-2"
+                className="h-10 rounded-full border-line px-3 text-[13.5px] font-medium text-ink-2"
             >
                 {(Object.keys(labels) as (keyof typeof labels)[])
                     .filter((value) => (OFFERED as readonly string[]).includes(value) || value === locale)
                     .map((value) => (
                         <option key={value} value={value}>
+                            <img src={`/img/countries/${flags[value]}.png`} alt="" width={20} height={20} className="rounded-full object-cover" />
                             {labels[value]}
                         </option>
                     ))}
-            </select>
+            </Select>
         </label>
     )
 }
