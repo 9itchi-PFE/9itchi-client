@@ -47,6 +47,7 @@ test('the student picks the CV to send: the letter is written from it and it lea
 
     await page.getByText('J’ai relu ma lettre et elle dit ce que je veux.').click()
     await page.getByRole('button', { name: `Envoyer à ${offer.company}` }).click()
+    await expect(page.getByRole('heading', { name: `Envoyée à ${offer.company}` })).toBeVisible()
     const body = seen.find((r) => r.method === 'POST' && r.path === '/email/applications')?.body
     expect(body).toMatchObject({ job_id: offer.id, resume_id: OTHER_ID })
 })
@@ -66,6 +67,7 @@ test('a letter the student changed is not replaced without asking', async ({ pag
 
     await page.getByText('J’ai relu ma lettre et elle dit ce que je veux.').click()
     await page.getByRole('button', { name: `Envoyer à ${offer.company}` }).click()
+    await expect(page.getByRole('heading', { name: `Envoyée à ${offer.company}` })).toBeVisible()
     const body = seen.find((r) => r.method === 'POST' && r.path === '/email/applications')?.body
     expect(body).toMatchObject({ resume_id: OTHER_ID, body: expect.stringContaining('Ma propre phrase.') })
 })
