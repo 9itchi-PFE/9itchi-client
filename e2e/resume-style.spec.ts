@@ -24,9 +24,9 @@ test('the student chooses how the job title and the company sit, and it is saved
     await panel.getByRole('radio', { name: "Entreprise / école d'abord" }).click()
     await panel.screenshot({ path: 'test-results/style-panel-entries.png' })
 
-    // Same line, company first: one row reads « Entreprise Alpha — Développeur web ».
+    // Same line, company first: one row reads « Entreprise Alpha, Développeur web ».
     const preview = page.getByLabel('Aperçu du CV').first()
-    await expect(preview.getByText('Entreprise Alpha — Développeur web')).toBeVisible()
+    await expect(preview.locator('[data-cv=row]', { hasText: 'Entreprise Alpha, Développeur web' })).toBeVisible()
 
     await expect
         .poll(

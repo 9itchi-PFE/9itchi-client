@@ -61,6 +61,12 @@ export type CVStyle = {
     accent_on?: AccentTarget[]
     show_photo?: boolean
     body_font?: BodyFont
+    education_order?: 'title_first' | 'subtitle_first'
+    heading_rule?: 'none' | 'thin' | 'thick'
+    section_gap?: number
+    skills_style?: 'comma' | 'bullet' | 'bar'
+    languages_style?: 'rows' | 'inline'
+    group_roles?: boolean
 }
 export type BodyFont = 'sourcesans' | 'lato' | 'carlito' | 'tinos' | 'amiri' | 'ptsans' | 'ptserif' | 'crimson'
 export type AccentTarget = 'name' | 'title' | 'headings' | 'rules' | 'dates' | 'location' | 'entry_title' | 'subtitle' | 'links'
@@ -161,7 +167,7 @@ export type ResumeList = { items: ResumeListItem[]; total: number; page: number;
 export type Version = { id: string; version_no: number; label: string; created_at: string }
 export type VersionWithContent = Version & { content: ResumeContent }
 
-export type Layout = 'classic' | 'modern' | 'compact'
+export type Layout = 'classic' | 'modern' | 'compact' | 'sidebar' | 'split' | 'banner'
 export type Template = { id: string; name: string; layout: Layout; preview_url: string; active: boolean }
 // AdminTemplate is a template as the team sees it: published or not, and how many CVs use it.
 export type AdminTemplate = Template & { resumes: number }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { resolveLook, lookCss, entryArrangement, entryDefault } from '@/lib/cvLook'
+import { resolveLook, lookCss, entryArrangement, entryDefault, groupRoles, skillSep } from '@/lib/cvLook'
 import { emptyContent, sectionOrder, visibleSections } from '@/types/resume'
 describe('entryArrangement', () => {
     it('leaves each template alone while neither field is set', () => {
@@ -84,5 +84,75 @@ describe('accent spots', () => {
         expect(css).toContain('[data-cv=loc]{color:inherit;}')
         const none = { accent: '#ff0000', accent_on: [] }
         expect(resolveLook('classic', none).accents('dates')).toBe(false)
+    })
+})
+
+describe('education order', () => {
+    it('overrides entry_order for studies only and counts as a choice', () => {
+        expect(entryArrangement('classic', 'education', { education_order: 'subtitle_first' })).toEqual({ inline: false, subtitleFirst: true })
+        expect(entryArrangement('classic', 'experience', { education_order: 'subtitle_first' })).toBeNull()
+        const both = { entry_order: 'subtitle_first', education_order: 'title_first' } as const
+        expect(entryArrangement('modern', 'education', both)).toEqual({ inline: true, subtitleFirst: false })
+        expect(entryArrangement('modern', 'experience', both)).toEqual({ inline: true, subtitleFirst: true })
+    })
+})
+
+describe('groupRoles', () => {
+    const job = (company: string) => ({ company })
+    it('keeps one job per run while the style does not ask for it', () => {
+        expect(groupRoles([job('A'), job('A')])).toHaveLength(2)
+    })
+    it('groups consecutive jobs at the same company, trimmed and case-insensitive', () => {
+        const runs = groupRoles([job('Acme '), job('acme'), job('Beta'), job('Acme'), job(''), job(' ')], true)
+        expect(runs.map((r) => r.length)).toEqual([2, 1, 1, 1, 1])
+    })
+})
+
+describe('skills separator', () => {
+    it('uses the chosen separator, else the template one', () => {
+        expect(skillSep(undefined, ', ')).toBe(', ')
+        expect(skillSep({}, ' · ')).toBe(' · ')
+        expect(skillSep({ skills_style: 'bullet' }, ', ')).toBe('  •  ')
+        expect(skillSep({ skills_style: 'bar' }, ' · ')).toBe('  |  ')
+        expect(skillSep({ skills_style: 'comma' }, ' · ')).toBe(', ')
+    })
+})
+
+describe('heading rule and section gap', () => {
+    it('adds nothing while unset', () => {
+        const css = lookCss(resolveLook('classic'))
+        expect(css).not.toContain('border-bottom')
+        expect(css).not.toContain('row-gap')
+    })
+    it('draws the chosen rule and replaces the space above headings', () => {
+        const st = { heading_rule: 'thick' as const, section_gap: 20 }
+        const css = lookCss(resolveLook('compact', st), st)
+        expect(css).toContain('border-bottom-width:2px')
+        expect(css).toContain('row-gap:0;')
+        expect(resolveLook('compact', st).sectionGap).toBe(12)
+        expect(lookCss(resolveLook('classic'), { heading_rule: 'none' })).toContain('border-bottom-width:0;')
+    })
+})
+describe('two-column templates', () => {
+    it('have their own look and stack entries like Classic', () => {
+        for (const l of ['sidebar', 'split', 'banner'] as const) {
+            expect(resolveLook(l).upper).toBe(true)
+            expect(resolveLook(l).headBold).toBe(true)
+            expect(entryDefault(l, 'experience')).toEqual({ inline: false, subtitleFirst: false })
+            expect(entryDefault(l, 'education')).toEqual({ inline: false, subtitleFirst: false })
+        }
+        expect(resolveLook('banner').name).toBe(24)
+        expect(resolveLook('sidebar').mx).toBe(8)
+        expect(resolveLook('split').mx).toBe(12)
+    })
+    it('show contact icons by default only in Sidebar', () => {
+        expect(resolveLook('sidebar').icons).toBe(true)
+        expect(resolveLook('split').icons).toBe(false)
+        expect(resolveLook('banner', { separator: 'icon' }).icons).toBe(true)
+    })
+    it('keep filled areas in their own colors when an accent is chosen', () => {
+        const st = { accent: '#AA0000' }
+        expect(lookCss(resolveLook('sidebar', st), st)).toContain('[data-fill] :is([data-cv=name]')
+        expect(lookCss(resolveLook('sidebar', {}), {})).not.toContain('[data-fill]')
     })
 })

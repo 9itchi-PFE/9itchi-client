@@ -14,7 +14,7 @@ import ResumeService from '@/services/ResumeService'
 import { normalize, type Layout, type Template } from '@/types/resume'
 import CvPreview from './CvPreview'
 
-const ORDER: Layout[] = ['classic', 'modern', 'compact']
+const ORDER: Layout[] = ['classic', 'modern', 'compact', 'sidebar', 'split', 'banner']
 
 export default function TemplatePicker() {
     const t = useTranslations('templates')
