@@ -1,17 +1,17 @@
 'use client'
 
-import { useRef, useState, type FormEvent } from 'react'
+import { useRef, useState } from 'react'
 import { isAxiosError } from 'axios'
 import { useFormatter, useTranslations } from 'next-intl'
 import { useRouter } from 'next/navigation'
 import { Button, ButtonLink } from '@/components/ui/Button'
-import { Field, inputClass } from '@/components/ui/Field'
+import { inputClass } from '@/components/ui/Field'
 import { useToast } from '@/components/ui/Toast'
 import { useAdminBooks, useImportBook } from '@/hooks/useAdminBooks'
 import { cn } from '@/lib/cn'
 import type { AdminBook, BookStatus } from '@/types/job'
 import { apiError, WhenText } from './SourcesScreen'
-import { fileSize, pdfProblem } from './books'
+import { addToQueue, fileSize, importFailure, MAX_BATCH, sendable, type QueueItem } from './books'
 import { when } from './collect'
 
 const pill: Record<BookStatus, string> = {
@@ -42,37 +42,66 @@ export function FileLine({ book }: { book: Pick<AdminBook, 'pages' | 'file_size'
     return <>{parts.join(' · ')}</>
 }
 
+// ImportCard takes one or many PDFs of PFE books. They are sent one after the other (job-api reads two at a time);
+// each line says where its file stands, and a file that failed on the way can be sent again.
 function ImportCard() {
     const t = useTranslations('admin')
+    const format = useFormatter()
     const toast = useToast()
     const router = useRouter()
     const imp = useImportBook()
     const input = useRef<HTMLInputElement>(null)
-    const [error, setError] = useState('')
-    const submit = (e: FormEvent<HTMLFormElement>) => {
-        e.preventDefault()
-        const f = new FormData(e.currentTarget)
-        const file = input.current?.files?.[0]
-        const problem = pdfProblem(file)
-        if (problem || !file) {
-            setError(t(({ missing: 'pdfMissing', notPdf: 'pdfNotPdf', tooLarge: 'pdfTooLarge' } as const)[problem ?? 'missing']))
-            return
-        }
-        setError('')
-        imp.mutate(
-            { file, company: String(f.get('company') ?? '').trim() },
-            {
-                onSuccess: (b) => {
-                    toast(t('bookReceived'))
-                    router.push(`/admin/books/${b.id}`)
-                },
-                onError: (err) => {
-                    const status = isAxiosError(err) ? err.response?.status : undefined
-                    setError(status === 422 ? t('pdfScanned') : status === 413 ? t('pdfTooLarge') : (apiError(err) ?? t('stateError')))
-                },
-            },
-        )
+    const [queue, setQueue] = useState<QueueItem<File>[]>([])
+    const [running, setRunning] = useState(false)
+    const [over, setOver] = useState(false)
+    const [notice, setNotice] = useState('')
+
+    const add = (files: FileList | null) => {
+        if (!files?.length) return
+        const { queue: next, overflow } = addToQueue(queue, Array.from(files))
+        setQueue(next)
+        setNotice(overflow ? t('bookBatchOverflow', { count: overflow, max: MAX_BATCH }) : '')
+        if (input.current) input.current.value = ''
     }
+    const patch = (key: string, p: Partial<QueueItem<File>>) => setQueue((q) => q.map((x) => (x.key === key ? { ...x, ...p } : x)))
+    const remove = (key: string) => setQueue((q) => q.filter((x) => x.key !== key))
+    const todo = queue.filter(sendable)
+
+    const run = async () => {
+        if (running || todo.length === 0) return
+        setRunning(true)
+        setNotice('')
+        let received = 0
+        let last = ''
+        for (const item of todo) {
+            patch(item.key, { state: 'sending', error: undefined, message: undefined })
+            try {
+                const b = await imp.mutateAsync({ file: item.file, company: item.company.trim() })
+                patch(item.key, { state: 'sent', bookId: b.id })
+                received++
+                last = b.id
+            } catch (err) {
+                const status = isAxiosError(err) ? err.response?.status : undefined
+                const error = importFailure(status)
+                patch(item.key, { state: 'failed', error, message: error === 'other' ? (apiError(err) ?? undefined) : undefined })
+            }
+        }
+        setRunning(false)
+        if (received === 0) return
+        toast(t('booksReceived', { count: received }))
+        // A single book opens on its check screen, as before; a batch stays here, the list below follows the readings.
+        if (queue.length === 1 && todo.length === 1) router.push(`/admin/books/${last}`)
+    }
+
+    const errorText = (q: QueueItem<File>) =>
+        q.error === 'notPdf'
+            ? t('pdfNotPdf')
+            : q.error === 'tooLarge'
+              ? t('pdfTooLarge')
+              : q.error === 'scanned'
+                ? t('pdfScanned')
+                : (q.message ?? t('bookQueueError'))
+
     return (
         <section aria-labelledby="import-h" className="flex flex-col gap-4 rounded-[22px] border-[1.5px] border-ink bg-white p-5 shadow-card">
             <div className="flex flex-col gap-1">
@@ -81,34 +110,116 @@ function ImportCard() {
                 </h2>
                 <p className="m-0 max-w-[760px] text-[15px] leading-[1.55] text-ink-3">{t('bookImportIntro')}</p>
             </div>
-            <form onSubmit={submit} className="grid items-end gap-3 md:grid-cols-[minmax(0,1.4fr)_minmax(0,1fr)_auto]">
-                <label className="flex flex-col gap-1.5 text-[13.5px] font-medium text-ink-2">
-                    {t('bookFile')}
-                    <input
-                        ref={input}
-                        type="file"
-                        name="file"
-                        accept="application/pdf,.pdf"
-                        required
-                        onChange={() => setError('')}
-                        className={cn(
-                            inputClass,
-                            'cursor-pointer py-2 file:me-3 file:cursor-pointer file:rounded-md file:border-0 file:bg-fill file:px-2.5 file:py-1 file:text-sm file:font-semibold file:text-ink',
-                        )}
-                    />
-                </label>
-                <Field name="company" label={t('bookCompany')} maxLength={200} />
-                <Button type="submit" disabled={imp.isPending}>
-                    {imp.isPending ? t('bookSending') : t('bookImport')}
-                </Button>
-            </form>
-            {error ? (
+            <label
+                onDragOver={(e) => {
+                    e.preventDefault()
+                    setOver(true)
+                }}
+                onDragLeave={() => setOver(false)}
+                onDrop={(e) => {
+                    e.preventDefault()
+                    setOver(false)
+                    if (!running) add(e.dataTransfer.files)
+                }}
+                className={cn(
+                    'flex cursor-pointer flex-col items-center gap-1.5 rounded-2xl border-[1.5px] border-dashed border-line-strong bg-fill px-4 py-6 text-center transition-colors hover:border-ink',
+                    over && 'border-ink bg-violet-soft',
+                    running && 'pointer-events-none opacity-60',
+                )}
+            >
+                <span className="text-[15px] font-semibold text-ink">{t('bookDrop')}</span>
+                <span className="text-[13px] text-ink-3">{t('bookDropHint', { max: MAX_BATCH })}</span>
+                <input
+                    ref={input}
+                    type="file"
+                    name="file"
+                    multiple
+                    accept="application/pdf,.pdf"
+                    disabled={running}
+                    aria-label={t('bookFiles')}
+                    onChange={(e) => add(e.target.files)}
+                    className="sr-only"
+                />
+            </label>
+
+            {queue.length > 0 ? (
+                <ul aria-label={t('bookFiles')} className="m-0 flex list-none flex-col gap-2 p-0">
+                    {queue.map((q) => {
+                        const size = fileSize(q.file.size)
+                        const editable = !running && (q.state === 'waiting' || (q.state === 'failed' && sendable(q)))
+                        return (
+                            <li
+                                key={q.key}
+                                className="grid items-center gap-x-3 gap-y-2 rounded-xl border border-line-soft px-3.5 py-2.5 md:grid-cols-[minmax(0,1.3fr)_minmax(0,1fr)_minmax(0,1.2fr)_2rem]"
+                            >
+                                <span className="min-w-0">
+                                    <span className="block truncate text-[14.5px] font-semibold" dir="ltr" title={q.file.name}>
+                                        {q.file.name}
+                                    </span>
+                                    {size ? (
+                                        <span className="block text-xs text-ink-3">
+                                            {t(size.unit === 'mb' ? 'sizeMb' : 'sizeKb', { value: format.number(size.value, { maximumFractionDigits: 1 }) })}
+                                        </span>
+                                    ) : null}
+                                </span>
+                                <input
+                                    className={cn(inputClass, 'h-10')}
+                                    aria-label={t('bookCompanyOf', { file: q.file.name })}
+                                    placeholder={t('bookCompanyPlaceholder')}
+                                    maxLength={200}
+                                    value={q.company}
+                                    disabled={!editable}
+                                    onChange={(e) => patch(q.key, { company: e.target.value })}
+                                />
+                                <span className="min-w-0 text-[13.5px]" aria-live="polite">
+                                    {q.state === 'waiting' ? <span className="text-ink-3">{t('bookQueueWaiting')}</span> : null}
+                                    {q.state === 'sending' ? <span className="font-semibold text-violet-hover">{t('bookSending')}</span> : null}
+                                    {q.state === 'sent' ? (
+                                        <span className="flex items-center gap-2 font-semibold text-ok-fg">
+                                            {t('bookQueueSent')}
+                                            <ButtonLink href={`/admin/books/${q.bookId}`} variant="link" size="sm" className="hit">
+                                                {t('bookOpen')}
+                                            </ButtonLink>
+                                        </span>
+                                    ) : null}
+                                    {q.state === 'failed' ? <span className="text-[#B42318]">{errorText(q)}</span> : null}
+                                </span>
+                                {q.state !== 'sending' && q.state !== 'sent' && !running ? (
+                                    <button
+                                        type="button"
+                                        onClick={() => remove(q.key)}
+                                        aria-label={t('bookQueueRemove', { file: q.file.name })}
+                                        className="hit flex h-8 w-8 cursor-pointer items-center justify-center justify-self-end rounded-full border-0 bg-fill text-lg text-ink-2"
+                                    >
+                                        ×
+                                    </button>
+                                ) : (
+                                    <span />
+                                )}
+                            </li>
+                        )
+                    })}
+                </ul>
+            ) : null}
+
+            {notice ? (
                 <p role="alert" className="m-0 text-sm text-[#B42318]">
-                    {error}
+                    {notice}
                 </p>
             ) : (
                 <p className="m-0 text-[12.5px] text-ink-3">{t('bookFileHint')}</p>
             )}
+
+            {queue.length > 0 ? (
+                <div className="flex flex-wrap items-center justify-end gap-2">
+                    <Button variant="secondary" disabled={running} onClick={() => setQueue([])}>
+                        {t('bookClear')}
+                    </Button>
+                    <Button disabled={running || todo.length === 0} onClick={run}>
+                        {running ? t('bookSending') : t('bookImportMany', { count: todo.length })}
+                    </Button>
+                </div>
+            ) : null}
         </section>
     )
 }

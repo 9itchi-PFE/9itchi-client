@@ -1760,7 +1760,20 @@
         "logoSaved": "تم حفظ شعار {company}",
         "logoRemoved": "تمت إزالة شعار {company}",
         "logoType": "اختر صورة PNG أو JPEG أو WebP.",
-        "logoTooBig": "الشعار يتجاوز 2 ميغابايت."
+        "logoTooBig": "الشعار يتجاوز 2 ميغابايت.",
+        "bookFiles": "ملفات PDF",
+        "bookDrop": "اختر ملفات PDF أو أفلتها هنا",
+        "bookDropHint": "{max} ملفًا كحد أقصى في كل استيراد، 20 ميغابايت لكل ملف. تُرسل واحدًا تلو الآخر وتُقرأ اثنين اثنين.",
+        "bookCompanyOf": "شركة {file}",
+        "bookCompanyPlaceholder": "الشركة (تُقرأ من الملف إن تُركت فارغة)",
+        "bookQueueWaiting": "جاهز للإرسال",
+        "bookQueueSent": "تم الاستلام، القراءة جارية",
+        "bookQueueRemove": "إزالة {file}",
+        "bookImportMany": "{count, plural, =0 {استيراد} one {استيراد # ملف} other {استيراد # ملفات}}",
+        "bookClear": "إفراغ القائمة",
+        "booksReceived": "{count, plural, one {تم استلام # ملف} other {تم استلام # ملفات}}، القراءة جارية",
+        "bookBatchOverflow": "{count, plural, one {لم يُضف # ملف} other {لم تُضف # ملفات}}: {max} كحد أقصى في كل استيراد.",
+        "bookQueueError": "تعذّر الإرسال. أعد المحاولة."
     },
     "apply": {
         "back": "العودة إلى العرض",
@@ -1900,7 +1913,20 @@
         "signature": "التوقيع",
         "signatureFrom": "تحت رسالتك: معلوماتك من ملفي.",
         "signatureNone": "أضف تخصّصك أو هاتفك أو حسابك على LinkedIn في ملفي: ستظهر تحت رسائلك.",
-        "signatureEdit": "تعديل ملفي"
+        "signatureEdit": "تعديل ملفي",
+        "cvPick": "السيرة الذاتية المرسلة",
+        "cvPickHint": "تُكتب الرسالة انطلاقًا من هذه السيرة.",
+        "cvRewriteTitle": "إعادة كتابة الرسالة بهذه السيرة؟",
+        "cvRewriteText": "لقد عدّلت الرسالة. إعادة كتابتها من السيرة الجديدة ستستبدل تعديلاتك.",
+        "cvRewriteYes": "إعادة كتابة الرسالة",
+        "cvRewriteKeep": "الاحتفاظ برسالتي",
+        "byEmail": "لدي بريد المسؤول عن التوظيف: الإرسال من Gmail",
+        "byEmailBack": "الترشح بدلًا من ذلك على {source}",
+        "toLabel": "بريد المسؤول عن التوظيف",
+        "toPlaceholder": "prenom.nom@entreprise.tn",
+        "toHint": "هذا العرض لا يذكر عنوانًا: الصق العنوان الذي وجدته (الإعلان، صفحة التوظيف).",
+        "toBad": "هذا العنوان غير صالح.",
+        "noteTo": "اكتب بريد المسؤول عن التوظيف للإرسال."
     },
     "applications": {
         "title": "ترشّحاتي",

@@ -48,7 +48,7 @@ export type Application = {
 
 export type ApplicationList = { items: Application[] }
 
-export type ApplyInput = { job_id: string; resume_id?: string; via?: Via; subject?: string; body?: string; scheduled_at?: string }
+export type ApplyInput = { job_id: string; resume_id?: string; via?: Via; to?: string; subject?: string; body?: string; scheduled_at?: string }
 
 export type Tone = 'formal' | 'friendly'
 export type LetterLanguage = 'fr' | 'en' | 'ar'

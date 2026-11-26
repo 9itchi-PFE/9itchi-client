@@ -147,7 +147,23 @@ export function sentThisMonth(items: Application[], now = new Date()): number {
 }
 
 // Pending is the letter kept while the browser goes to Google to connect Gmail and comes back.
-export type Pending = { jobId: string; subject: string; paras: string[]; own: string; tone: Tone; language: LetterLanguage; later: boolean; at: string }
+export type Pending = {
+    jobId: string
+    subject: string
+    paras: string[]
+    own: string
+    tone: Tone
+    language: LetterLanguage
+    later: boolean
+    at: string
+    // The CV chosen and, for an offer without an application address, the recruiter's address typed.
+    cv?: string
+    to?: string
+}
+
+// EMAIL is a plain check of a recruiter's address before sending; email-api checks it again.
+export const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+export const validEmail = (v: string) => v.length <= 254 && EMAIL.test(v.trim())
 
 const KEY = '9itchi:apply'
 

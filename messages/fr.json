@@ -1760,7 +1760,20 @@
         "logoSaved": "Logo de {company} enregistré",
         "logoRemoved": "Logo de {company} retiré",
         "logoType": "Choisis une image PNG, JPEG ou WebP.",
-        "logoTooBig": "Le logo dépasse 2 Mo."
+        "logoTooBig": "Le logo dépasse 2 Mo.",
+        "bookFiles": "Fichiers PDF",
+        "bookDrop": "Choisis des PDF ou dépose-les ici",
+        "bookDropHint": "{max} fichiers au plus par import, 20 Mo chacun. Ils sont envoyés l’un après l’autre et lus deux par deux.",
+        "bookCompanyOf": "Entreprise de {file}",
+        "bookCompanyPlaceholder": "Entreprise (lue dans le PDF si vide)",
+        "bookQueueWaiting": "Prêt à envoyer",
+        "bookQueueSent": "Reçu, lecture en cours",
+        "bookQueueRemove": "Retirer {file}",
+        "bookImportMany": "{count, plural, =0 {Importer} one {Importer # PDF} other {Importer # PDF}}",
+        "bookClear": "Vider la liste",
+        "booksReceived": "{count, plural, one {# PDF reçu} other {# PDF reçus}}, lecture en cours",
+        "bookBatchOverflow": "{count, plural, one {# fichier n’a pas été ajouté} other {# fichiers n’ont pas été ajoutés}} : {max} au plus par import.",
+        "bookQueueError": "Envoi impossible. Réessaie."
     },
     "apply": {
         "back": "Retour à l’offre",
@@ -1900,7 +1913,20 @@
         "signature": "Signature",
         "signatureFrom": "Sous ta lettre : tes infos de Mon profil.",
         "signatureNone": "Ajoute ta spécialité, ton téléphone ou ton LinkedIn dans Mon profil : ils iront sous tes lettres.",
-        "signatureEdit": "Modifier Mon profil"
+        "signatureEdit": "Modifier Mon profil",
+        "cvPick": "CV envoyé",
+        "cvPickHint": "La lettre est écrite à partir de ce CV.",
+        "cvRewriteTitle": "Réécrire la lettre avec ce CV ?",
+        "cvRewriteText": "Tu as modifié la lettre. La réécrire à partir du nouveau CV remplacera tes modifications.",
+        "cvRewriteYes": "Réécrire la lettre",
+        "cvRewriteKeep": "Garder ma lettre",
+        "byEmail": "J’ai l’e-mail du recruteur : envoyer depuis Gmail",
+        "byEmailBack": "Postuler plutôt sur {source}",
+        "toLabel": "E-mail du recruteur",
+        "toPlaceholder": "prenom.nom@entreprise.tn",
+        "toHint": "Cette offre ne donne pas d’adresse : colle celle que tu as trouvée (annonce, page carrières).",
+        "toBad": "Cette adresse n’est pas valide.",
+        "noteTo": "Saisis l’e-mail du recruteur pour envoyer."
     },
     "applications": {
         "title": "Mes candidatures",
