@@ -256,20 +256,32 @@ function Choose({
     )
 }
 
-// Reading shows the three steps filling in while resume-api reads the file (polling parse_status).
+// readingSteps tick at these times (ms) while resume-api reads the file; the last one waits for parse_status, so the
+// list keeps moving through a slow reading (often 20 to 40 s) instead of looking stuck.
+const readingSteps = [
+    { key: 'stepUpload', at: 500 },
+    { key: 'stepText', at: 2000 },
+    { key: 'stepContact', at: 5000 },
+    { key: 'stepExperience', at: 10000 },
+    { key: 'stepEducation', at: 16000 },
+    { key: 'stepSkills', at: 23000 },
+    { key: 'stepOrder', at: 30000 },
+    { key: 'stepCheck', at: Infinity },
+] as const
+const slowAfter = 35000
+
+// Reading shows the steps filling in while resume-api reads the file (polling parse_status).
 function Reading({ fileName, onCancel }: { fileName: string; onCancel: () => void }) {
     const t = useTranslations('import')
     const tc = useTranslations('common')
     const [done, setDone] = useState(0)
+    const [slow, setSlow] = useState(false)
     useEffect(() => {
-        const a = setTimeout(() => setDone(1), 1200)
-        const b = setTimeout(() => setDone(2), 3200)
-        return () => {
-            clearTimeout(a)
-            clearTimeout(b)
-        }
+        const timers = readingSteps.filter((s) => s.at !== Infinity).map((s, i) => setTimeout(() => setDone(i + 1), s.at))
+        timers.push(setTimeout(() => setSlow(true), slowAfter))
+        return () => timers.forEach(clearTimeout)
     }, [])
-    const steps = [t('stepContact'), t('stepEducation'), t('stepSkills')]
+    const steps = readingSteps.map((s) => t(s.key))
     return (
         <div aria-live="polite" className="flex flex-col items-center gap-[22px] rounded-3xl border border-line-soft bg-white px-6 py-14 text-center">
             <LogoReading label={t('readingTitle')} />
@@ -284,6 +296,8 @@ function Reading({ fileName, onCancel }: { fileName: string; onCancel: () => voi
                             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-lime text-ink">
                                 <Icon name="check" size={11} strokeWidth={3.5} />
                             </span>
+                        ) : i === done ? (
+                            <span className="box-border h-5 w-5 animate-spin rounded-full border-[1.5px] border-line-input border-t-ink motion-reduce:animate-none" />
                         ) : (
                             <span className="box-border h-5 w-5 rounded-full border-[1.5px] border-line-input" />
                         )}
@@ -291,6 +305,7 @@ function Reading({ fileName, onCancel }: { fileName: string; onCancel: () => voi
                     </li>
                 ))}
             </ul>
+            {slow && <p className="m-0 max-w-[440px] text-[13px] leading-normal text-ink-3">{t('slowHint')}</p>}
             <Button variant="secondary" className="h-[38px] rounded-lg border-line-input px-3.5 font-medium" onClick={onCancel}>
                 {tc('cancel')}
             </Button>
