@@ -30,17 +30,19 @@ const PLANS = {
     ],
 }
 
-test('the home page shows the subscription as the only price, and the free applications the admin set', async ({ page }) => {
+test('the home page says what 9itchi does, without the steps or the prices, which students find once signed in', async ({ page }) => {
     await mockServices(page, { 'GET /payments/plans': PLANS })
     await page.goto('/')
     await expect(page).toHaveURL(/\/$/)
     await expect(page.getByRole('heading', { name: /Trouve ton PFE/ })).toBeVisible()
-    await expect(page.getByRole('heading', { name: 'Comment ça marche' })).toBeVisible()
-    await expect(page.getByText('35 DT', { exact: true })).toBeVisible()
-    await expect(page.getByText('50 DT', { exact: true })).toBeVisible()
-    await expect(page.getByText(/gardé tant que tu renouvelles/)).toBeVisible()
-    await expect(page.getByText('0 DT', { exact: true })).toHaveCount(0)
-    await expect(page.getByText(/Sans abonnement : parcours les offres et envoie 4 candidatures avec le CV que tu as importé/)).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Questions', exact: true })).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Comment ça marche' })).toHaveCount(0)
+    await expect(page.getByRole('heading', { name: 'Tarifs' })).toHaveCount(0)
+    await expect(page.getByRole('link', { name: 'Tarifs' })).toHaveCount(0)
+    await expect(page.getByText('35 DT', { exact: true })).toHaveCount(0)
+    // The free applications the admin set still answer the first question.
+    await page.getByText('Est-ce que je peux postuler sans payer ?').click()
+    await expect(page.getByText(/Oui, 4 fois, avec le CV que tu as importé/)).toBeVisible()
     await page.getByRole('link', { name: 'Créer mon compte' }).first().click()
     await expect(page).toHaveURL(/\/auth\/signup$/)
 })
