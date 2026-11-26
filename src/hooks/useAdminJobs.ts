@@ -1,10 +1,10 @@
 import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
 import JobService from '@/services/JobService'
-import type { JobEdit, PostImport, ReviewJob, ReviewTab, SourceInput } from '@/types/job'
+import type { JobEdit, PostImport, ReviewFilter, ReviewJob, ReviewTab, SourceInput } from '@/types/job'
 
 export const adminKeys = {
     sources: ['admin', 'sources'] as const,
-    review: (tab: ReviewTab) => ['admin', 'review', tab] as const,
+    review: (tab: ReviewTab, f: ReviewFilter = {}) => ['admin', 'review', tab, f] as const,
     reviewAll: ['admin', 'review'] as const,
     job: (id: string) => ['admin', 'job', id] as const,
     books: ['admin', 'books'] as const,
@@ -44,8 +44,8 @@ export function useRunSource() {
     })
 }
 
-export function useReviewList(tab: ReviewTab) {
-    return useQuery({ queryKey: adminKeys.review(tab), queryFn: async () => (await JobService.listReview(tab)).data })
+export function useReviewList(tab: ReviewTab, f: ReviewFilter = {}) {
+    return useQuery({ queryKey: adminKeys.review(tab, f), queryFn: async () => (await JobService.listReview(tab, f)).data })
 }
 
 export function useReviewJob(id: string | undefined) {

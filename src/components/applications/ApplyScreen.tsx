@@ -757,7 +757,7 @@ export default function ApplyScreen({ id }: { id: string }) {
                             {t('cvPick')}
                             <span className="flex items-center gap-2">
                                 <span className="min-w-0 flex-1">
-                                    <Select value={cv} disabled={busy} onChange={(e) => choose(e.target.value)} className="h-11 rounded-xl text-[14.5px]">
+                                    <Select value={cv} disabled={busy} onChange={(e) => choose(e.target.value)} className="text-[14.5px]">
                                         {cvItems.map((r) => (
                                             <option key={r.id} value={r.id}>
                                                 {r.title}

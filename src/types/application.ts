@@ -24,8 +24,17 @@ export type JobMatch = {
     created_at: string
     limit: number | null
     used: number
+    // origin: a full analysis, or a quick score of the offers list (no advice: the full analysis can still be asked).
+    origin?: 'analysis' | 'score'
 }
 export type MatchInput = { job_id: string; resume_id: string; language: 'fr' | 'en' | 'ar' }
+
+// Quick AI scores of the offers list (email-api /applications/scores). quota: the day's scores are used up.
+export type ScoreStatus = 'ok' | 'cached' | 'quota' | 'error'
+export type ScoreItem = { job_id: string; score: number; level: MatchLevel; reasons: string[]; status: ScoreStatus }
+export type ScoreInput = { resume_id: string; language: 'fr' | 'en' | 'ar'; job_ids: string[] }
+// allowance is the plan's AI scores today (limit null: no limit); only the POST answers it.
+export type ScoreList = { items: ScoreItem[]; allowance?: { limit: number | null; used: number } }
 
 // failed is only shown: a scheduled application whose email could not leave.
 export type ApplicationStatus = 'scheduled' | 'sent' | 'opened' | 'replied' | 'withdrawn' | 'closed' | 'failed'

@@ -25,6 +25,8 @@ export type JobSummary = {
     places: number | null
     topic: Topic | null
     saved: boolean
+    // match_score: how much of the offer the CV's skills cover (0-100), null when the student has no skills.
+    match_score?: number | null
 }
 
 export type BookBrief = { id: string; company: string; sector: string | null; title: string; year: number; open_jobs: number }
@@ -125,7 +127,24 @@ export type BookEdit = { company: string; sector: string | null; city: string | 
 export type BookList = { items: Book[]; total: number; page: number; page_size: number }
 
 // Admin: collection sources and the review queue (job-api /admin/*).
-export type SourceKind = 'lever' | 'lever_eu' | 'greenhouse' | 'recruitee' | 'workable' | 'smartrecruiters' | 'page'
+// BOARD_KINDS are the job boards job-api reads as a whole, not one company's careers page.
+export const BOARD_KINDS = [
+    'tanitjobs',
+    'keejob',
+    'remoteok',
+    'remotive',
+    'himalayas',
+    'jobicy',
+    'arbeitnow',
+    'landingjobs',
+    'weworkremotely',
+    'adzuna',
+    'jsearch',
+    'theirstack',
+    'careerjet',
+] as const
+export type BoardKind = (typeof BOARD_KINDS)[number]
+export type SourceKind = 'lever' | 'lever_eu' | 'greenhouse' | 'recruitee' | 'workable' | 'smartrecruiters' | 'page' | BoardKind
 export type SourceState = 'idle' | 'running' | 'ok' | 'error'
 
 export type Source = {
@@ -143,15 +162,24 @@ export type Source = {
     last_new: number
     last_error: string
     note: string
+    // Boards: paused until blocked_until after fail_count failures; calls_used paid calls this month out of monthly_cap (0: no cap).
+    blocked_until: string | null
+    fail_count: number
+    monthly_cap: number
+    calls_used: number
 }
 
-export type SourceInput = Pick<Source, 'company' | 'careers_url' | 'places' | 'every_hours' | 'enabled' | 'note'>
+// SourceInput replaces the source on PATCH, so monthly_cap is sent back each time. No kind: job-api reads it from the URL.
+export type SourceInput = Pick<Source, 'company' | 'careers_url' | 'places' | 'every_hours' | 'enabled' | 'note' | 'monthly_cap'> & { kind?: SourceKind }
 
 export type CollectStats = { online: number; online_from_book: number; new_24h: number; duplicates_24h: number; expired_24h: number; pending: number }
 
 export type SourceList = { stats: CollectStats; items: Source[] }
 
-export type Origin = 'feed' | 'site' | 'link' | 'book'
+export type Origin = 'feed' | 'site' | 'link' | 'book' | 'board'
+export const ORIGINS: Origin[] = ['feed', 'site', 'link', 'book', 'board']
+// ReviewFilter narrows the review queue, and its tab counts, to one source or one origin.
+export type ReviewFilter = { source_id?: string; origin?: Origin }
 export type ReviewStatus = 'pending' | 'published' | 'hidden'
 export type ReviewTab = 'pending' | 'expired' | 'hidden'
 

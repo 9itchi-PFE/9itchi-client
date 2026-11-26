@@ -10,8 +10,8 @@ import { useToast } from '@/components/ui/Toast'
 import { Select } from '@/components/ui/Select'
 import { useDeleteSource, useRunSource, useSaveSource, useSources } from '@/hooks/useAdminJobs'
 import { cn } from '@/lib/cn'
-import type { Source } from '@/types/job'
-import { places, sourceLook, when, type SourceLook, type When } from './collect'
+import { BOARD_KINDS, type Source, type SourceKind } from '@/types/job'
+import { boardKind, cap, health, KIND_NAMES, places, sourceLook, when, type SourceLook, type When } from './collect'
 
 const EVERY = [6, 12, 24, 168]
 
@@ -67,6 +67,7 @@ function SourceModal({ source, onClose }: { source: Source | null | undefined; o
     const submit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const f = new FormData(e.currentTarget)
+        const kind = String(f.get('kind') ?? '')
         setError('')
         save.mutate(
             {
@@ -78,6 +79,9 @@ function SourceModal({ source, onClose }: { source: Source | null | undefined; o
                     every_hours: Number(f.get('every_hours')),
                     enabled: f.get('enabled') === 'on',
                     note: String(f.get('note')).trim(),
+                    // PATCH replaces the source: the cap is always sent back.
+                    monthly_cap: cap(String(f.get('monthly_cap') ?? '')),
+                    ...(kind ? { kind: kind as SourceKind } : {}),
                 },
             },
             {
@@ -105,6 +109,31 @@ function SourceModal({ source, onClose }: { source: Source | null | undefined; o
                 <div className="flex flex-col gap-1.5">
                     <Field name="careers_url" type="url" label={t('fUrl')} required maxLength={2000} dir="ltr" defaultValue={source?.careers_url} />
                     <span className="text-[12.5px] leading-[1.45] text-ink-3">{t('fUrlHint')}</span>
+                </div>
+                <div className="grid grid-cols-1 items-start gap-3 sm:grid-cols-2">
+                    <label className="flex flex-col gap-1.5 text-[13.5px] font-medium text-ink-2">
+                        {t('fKind')}
+                        <Select name="kind" defaultValue={boardKind(source?.kind)} className={inputClass}>
+                            <option value="">{t('kindAuto')}</option>
+                            {BOARD_KINDS.map((k) => (
+                                <option key={k} value={k}>
+                                    {KIND_NAMES[k]}
+                                </option>
+                            ))}
+                        </Select>
+                    </label>
+                    <div className="flex flex-col gap-1.5">
+                        <Field
+                            name="monthly_cap"
+                            type="number"
+                            min={0}
+                            step={1}
+                            inputMode="numeric"
+                            label={t('fCap')}
+                            defaultValue={source?.monthly_cap ?? 0}
+                        />
+                        <span className="text-[12.5px] leading-[1.45] text-ink-3">{t('fCapHint')}</span>
+                    </div>
                 </div>
                 <div className="flex flex-col gap-1.5">
                     <Field name="places" label={t('fPlaces')} defaultValue={source?.places.join(', ')} />
@@ -155,6 +184,7 @@ function SourceModal({ source, onClose }: { source: Source | null | undefined; o
 // SourcesScreen is « Collectes d'offres »: the KPIs of the last 24 hours and the careers pages job-api reads.
 export default function SourcesScreen() {
     const t = useTranslations('admin')
+    const format = useFormatter()
     const toast = useToast()
     const { data, isLoading } = useSources()
     const run = useRunSource()
@@ -199,6 +229,7 @@ export default function SourcesScreen() {
                     {data && data.items.length === 0 ? <p className="m-0 px-4 py-6 text-sm text-ink-3">{t('noSources')}</p> : null}
                     {data?.items.map((src) => {
                         const look = sourceLook(src)
+                        const h = health(src, now)
                         return (
                             <div role="row" key={src.id} className={cn(cols, 'min-w-[860px] border-b border-line-soft py-3.5 text-[14.5px]')}>
                                 <span role="cell" className="min-w-0">
@@ -228,6 +259,27 @@ export default function SourcesScreen() {
                                             ? src.last_error || t('stateError')
                                             : t(({ ok: 'stateOk', running: 'stateRunning', idle: 'stateIdle', off: 'stateOff' } as const)[look])}
                                     </span>
+                                    {h.blockedUntil ? (
+                                        <span className="block truncate text-xs text-warn-fg">
+                                            {t('blockedUntil', {
+                                                date: format.dateTime(h.blockedUntil, { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }),
+                                            })}
+                                        </span>
+                                    ) : null}
+                                    {h.fails > 0 || h.calls ? (
+                                        <span className="block truncate text-xs tabular-nums text-ink-3">
+                                            {[
+                                                h.fails > 0 ? t('fails', { count: h.fails }) : '',
+                                                h.calls
+                                                    ? h.calls.cap > 0
+                                                        ? t('calls', { used: h.calls.used, cap: h.calls.cap })
+                                                        : t('callsNoCap', { used: h.calls.used })
+                                                    : '',
+                                            ]
+                                                .filter(Boolean)
+                                                .join(' · ')}
+                                        </span>
+                                    ) : null}
                                 </span>
                                 <span role="cell" className="flex justify-end">
                                     <Button
