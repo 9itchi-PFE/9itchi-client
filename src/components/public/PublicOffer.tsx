@@ -29,7 +29,7 @@ export default function PublicOffer({ id }: { id: string }) {
     const inside = `/jobs/${id}`
 
     const shell = (body: React.ReactNode) => (
-        <div className="flex min-h-screen flex-col bg-page">
+        <div className="flex min-h-screen min-h-dvh flex-col bg-page">
             <PublicHeader signInTo={inside} />
             {body}
             <PublicFooter />
@@ -81,7 +81,7 @@ export default function PublicOffer({ id }: { id: string }) {
     return shell(
         <main className={main}>
             <article className="flex min-w-0 flex-1 flex-col gap-6">
-                <Link href="/" className="text-sm font-semibold text-ink-3 no-underline hover:text-ink">
+                <Link href="/" className="hit text-sm font-semibold text-ink-3 no-underline hover:text-ink">
                     <span aria-hidden className="me-1 inline-block rtl:-scale-x-100">
                         ←
                     </span>

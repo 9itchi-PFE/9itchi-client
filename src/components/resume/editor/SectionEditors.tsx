@@ -175,7 +175,7 @@ export function Lines({
                                 <button
                                     type="button"
                                     onClick={() => onChange(list.filter((_, j) => j !== i))}
-                                    className="cursor-pointer border-0 bg-transparent p-0 text-[12.5px] text-ink-3 hover:text-warn-fg"
+                                    className="hit cursor-pointer border-0 bg-transparent p-0 text-[12.5px] text-ink-3 hover:text-warn-fg"
                                 >
                                     {t('removeLine')}
                                 </button>

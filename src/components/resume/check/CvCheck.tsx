@@ -67,7 +67,9 @@ export default function CvCheck({ id }: { id: string }) {
     return (
         <div className="mx-auto box-border flex w-full max-w-[1320px] flex-col gap-[22px] px-4 sm:px-8 pb-16 pt-6">
             <nav aria-label={t('breadcrumbLabel')} className="flex items-center gap-2 text-sm text-ink-3">
-                <Link href={`/resumes/${id}`}>{th('cv')}</Link>
+                <Link href={`/resumes/${id}`} className="hit">
+                    {th('cv')}
+                </Link>
                 <span aria-hidden>/</span>
                 <span className="text-ink">{t('breadcrumb')}</span>
             </nav>

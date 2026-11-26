@@ -14,14 +14,14 @@ export default function PublicHeader({ signInTo }: { signInTo?: string }) {
     return (
         <header className="sticky top-0 z-20 bg-[rgba(250,250,249,.9)] backdrop-blur-[10px]">
             <div className="mx-auto flex max-w-[1320px] items-center gap-3 px-4 py-3 sm:px-8 lg:py-3.5">
-                <Link href="/" className="no-underline">
+                <Link href="/" className="hit no-underline">
                     <Logo />
                 </Link>
                 <div className="ms-auto flex items-center gap-2">
                     <span className="hidden sm:inline-block">
                         <LanguageSelect remember={false} />
                     </span>
-                    <Link href={signIn} className="hidden px-2 text-[14.5px] font-semibold text-ink no-underline hover:text-ink sm:inline">
+                    <Link href={signIn} className="hit hidden px-2 text-[14.5px] font-semibold text-ink no-underline hover:text-ink sm:inline">
                         {t('signIn')}
                     </Link>
                     <ButtonLink href="/auth/signup" size="sm" className="whitespace-nowrap">

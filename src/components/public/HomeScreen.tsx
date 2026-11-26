@@ -23,7 +23,7 @@ export default function HomeScreen() {
     const plans = usePlans()
     const count = freeApplications(plans.data?.items)
     return (
-        <div className="min-h-screen bg-page">
+        <div className="min-h-screen min-h-dvh bg-page">
             <PublicHeader />
             <main className="flex flex-col gap-20 pb-20 pt-10 sm:gap-24 sm:pt-16">
                 <section className={cn(section, 'grid items-center gap-10 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]')}>
@@ -67,7 +67,7 @@ export default function HomeScreen() {
                     </h2>
                     {FAQ.map((n) => (
                         <details key={n} className="group rounded-2xl border border-line-soft bg-white px-5 py-4">
-                            <summary className="cursor-pointer list-none text-base font-semibold marker:hidden">{t(`q${n}`)}</summary>
+                            <summary className="hit cursor-pointer list-none text-base font-semibold marker:hidden">{t(`q${n}`)}</summary>
                             <p className="m-0 mt-3 text-[15px] leading-relaxed text-ink-2">{t(`a${n}`, { count })}</p>
                         </details>
                     ))}

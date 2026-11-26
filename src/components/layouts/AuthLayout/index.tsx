@@ -7,7 +7,7 @@ import { LogoMark } from '@/components/ui/Logo'
 export default async function AuthLayout({ children }: PropsWithChildren) {
     const t = await getTranslations('auth')
     return (
-        <div className="flex min-h-screen flex-wrap">
+        <div className="flex min-h-screen min-h-dvh flex-wrap">
             <section className="box-border flex min-w-0 flex-[1_1_480px] flex-col justify-between gap-7 bg-ink px-6 py-8 text-white md:gap-12 md:px-14 md:py-12">
                 <Link href="/" className="flex items-center gap-2.5 text-white no-underline hover:text-white">
                     <LogoMark size={40} />

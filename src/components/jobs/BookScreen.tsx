@@ -295,11 +295,11 @@ export default function BookScreen({ id }: { id: string }) {
             <section>
                 <div className="mx-auto box-border flex max-w-[1320px] flex-col gap-[22px] px-4 sm:px-8 pb-7 pt-[22px]">
                     <nav aria-label={t('crumbs')} className="flex items-center gap-2 text-sm text-ink-3">
-                        <Link href="/jobs" className="no-underline">
+                        <Link href="/jobs" className="hit no-underline">
                             {t('offers')}
                         </Link>
                         <span aria-hidden>/</span>
-                        <Link href="/books" className="no-underline">
+                        <Link href="/books" className="hit no-underline">
                             {t('books')}
                         </Link>
                         <span aria-hidden>/</span>
@@ -396,6 +396,10 @@ export default function BookScreen({ id }: { id: string }) {
                                 onSelect={() => {
                                     setSelectedId(j.id)
                                     setPage(j.pdf_page ?? undefined)
+                                    // Under 1024px the PDF sits below the topics, out of sight: bring it into view.
+                                    if (window.matchMedia('(max-width: 1023px)').matches) {
+                                        requestAnimationFrame(() => document.getElementById('book-pdf')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+                                    }
                                 }}
                                 onPdf={
                                     source
@@ -414,7 +418,7 @@ export default function BookScreen({ id }: { id: string }) {
                                 <button
                                     type="button"
                                     onClick={() => setAll(true)}
-                                    className="cursor-pointer border-0 bg-transparent p-0 text-[13px] font-semibold text-violet"
+                                    className="hit cursor-pointer border-0 bg-transparent p-0 text-[13px] font-semibold text-violet"
                                 >
                                     {t('showAll')}
                                 </button>

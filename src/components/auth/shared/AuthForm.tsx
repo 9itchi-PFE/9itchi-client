@@ -51,7 +51,7 @@ export function AuthHeading({ title, subtitle, switchLabel, switchHref }: { titl
             <h2 className="m-0 text-[30px] font-extrabold">{title}</h2>
             <p className="m-0 text-[15px] text-ink-3">
                 {subtitle}{' '}
-                <Link href={switchHref} className="font-semibold no-underline">
+                <Link href={switchHref} className="hit font-semibold no-underline">
                     {switchLabel}
                 </Link>
             </p>

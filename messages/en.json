@@ -924,6 +924,7 @@
         "relaxCount": "· {count, plural, one {# topic} other {# topics}}",
         "loading": "Loading offers",
         "showMore": "Show more topics",
+        "backToList": "Back to the offers",
         "moreTitle": "More filters",
         "moreTopic": "Field",
         "moreLength": "Length",

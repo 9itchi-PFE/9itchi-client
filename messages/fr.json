@@ -924,6 +924,7 @@
         "relaxCount": "· {count, plural, one {# sujet} other {# sujets}}",
         "loading": "Chargement des offres",
         "showMore": "Afficher plus de sujets",
+        "backToList": "Retour aux offres",
         "moreTitle": "Plus de filtres",
         "moreTopic": "Domaine",
         "moreLength": "Durée",

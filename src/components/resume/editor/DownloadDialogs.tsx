@@ -110,7 +110,7 @@ export default function DownloadDialogs({
                 <button
                     type="button"
                     onClick={original}
-                    className="cursor-pointer self-center border-0 bg-transparent p-0 text-sm font-semibold text-violet hover:text-violet-hover"
+                    className="hit cursor-pointer self-center border-0 bg-transparent p-0 text-sm font-semibold text-violet hover:text-violet-hover"
                 >
                     {t('payOriginal')}
                 </button>
@@ -124,7 +124,7 @@ export default function DownloadDialogs({
                 <button
                     type="button"
                     onClick={original}
-                    className="cursor-pointer self-center border-0 bg-transparent p-0 text-sm font-semibold text-violet hover:text-violet-hover"
+                    className="hit cursor-pointer self-center border-0 bg-transparent p-0 text-sm font-semibold text-violet hover:text-violet-hover"
                 >
                     {t('payOriginal')}
                 </button>

@@ -63,7 +63,7 @@ const ResetPassword = () => {
                     </button>
                 </form>
             )}
-            <Link href="/auth/signin" className="text-sm font-medium">
+            <Link href="/auth/signin" className="hit text-sm font-medium">
                 {t('back')}
             </Link>
         </>
