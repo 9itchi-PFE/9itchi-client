@@ -641,6 +641,7 @@
         "statusTip": "Conseil",
         "suggesting": "On prépare une proposition…",
         "noSuggestion": "Pas de proposition pour l’instant : corrige-la toi-même.",
+        "noFigure": "L’IA ne connaît pas ton chiffre : ajoute-le toi-même dans la ligne.",
         "warnNewNumbers": "Vérifie les chiffres : la proposition contient un chiffre absent de ton texte",
         "warnTooLong": "Proposition beaucoup plus longue que ton texte, raccourcis si besoin",
         "toastApplied": "Corrigé dans ton CV",

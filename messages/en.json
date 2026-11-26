@@ -641,6 +641,7 @@
         "statusTip": "Tip",
         "suggesting": "Preparing a suggestion…",
         "noSuggestion": "No suggestion for now: fix it yourself.",
+        "noFigure": "The AI can’t know your figure: add it yourself in the line.",
         "warnNewNumbers": "Check the numbers: the proposal contains a number that is not in your text",
         "warnTooLong": "Proposal much longer than your text, shorten it if needed",
         "toastApplied": "Fixed in your CV",
