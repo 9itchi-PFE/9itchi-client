@@ -14,14 +14,14 @@ export default function PublicHeader({ signInTo }: { signInTo?: string }) {
     return (
         <header className="sticky top-0 z-20 bg-[rgba(250,250,249,.9)] backdrop-blur-[10px]">
             <div className="mx-auto flex max-w-[1320px] items-center gap-3 px-4 py-3 sm:px-8 lg:py-3.5">
-                <Link href="/" className="no-underline">
+                <Link href="/" className="hit no-underline">
                     <Logo />
                 </Link>
                 <nav aria-label={t('label')} className="ms-6 hidden items-center gap-5 md:flex">
-                    <Link href="/#how" className="text-[14.5px] font-medium text-ink-2 no-underline hover:text-ink">
+                    <Link href="/#how" className="hit text-[14.5px] font-medium text-ink-2 no-underline hover:text-ink">
                         {t('how')}
                     </Link>
-                    <Link href="/#pricing" className="text-[14.5px] font-medium text-ink-2 no-underline hover:text-ink">
+                    <Link href="/#pricing" className="hit text-[14.5px] font-medium text-ink-2 no-underline hover:text-ink">
                         {t('pricing')}
                     </Link>
                 </nav>
@@ -52,13 +52,13 @@ export function PublicFooter() {
                 <span className="sm:hidden">
                     <LanguageSelect remember={false} />
                 </span>
-                <Link href="/terms-conditions" className="text-ink-3 no-underline hover:text-ink">
+                <Link href="/terms-conditions" className="hit text-ink-3 no-underline hover:text-ink">
                     {t('footTerms')}
                 </Link>
-                <Link href="/privacy-policy" className="text-ink-3 no-underline hover:text-ink">
+                <Link href="/privacy-policy" className="hit text-ink-3 no-underline hover:text-ink">
                     {t('footPrivacy')}
                 </Link>
-                <a href="mailto:contact@9itchi-pfe.com" className="text-ink-3 no-underline hover:text-ink" dir="ltr">
+                <a href="mailto:contact@9itchi-pfe.com" className="hit text-ink-3 no-underline hover:text-ink" dir="ltr">
                     contact@9itchi-pfe.com
                 </a>
             </div>

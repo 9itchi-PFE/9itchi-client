@@ -35,7 +35,7 @@ export default function BooksBand({ books, total }: { books: Book[]; total: numb
                     </strong>
                     <span className="text-[13.5px] text-[#B8BCC6]">{t('booksSubtitle')}</span>
                 </span>
-                <Link href="/books" className="whitespace-nowrap text-sm font-semibold text-lime no-underline hover:text-lime-soft">
+                <Link href="/books" className="hit whitespace-nowrap text-sm font-semibold text-lime no-underline hover:text-lime-soft">
                     {t('booksAll', { count: total })}
                 </Link>
             </div>

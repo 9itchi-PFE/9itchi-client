@@ -155,7 +155,7 @@ function PdfPanel({ book, state, loaded, onRetry, page, onPage }: { book: Book; 
     const arrow =
         'flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-xl border border-line-strong bg-white text-ink-2 disabled:opacity-40'
     return (
-        <aside aria-label={t('pdfTitle')} className="flex min-w-0 flex-[1_1_400px] flex-col overflow-hidden rounded-[18px] border border-line-soft bg-white">
+        <aside id="book-pdf" aria-label={t('pdfTitle')} className="flex min-w-0 scroll-mt-[84px] flex-[1_1_400px] flex-col overflow-hidden rounded-[18px] border border-line-soft bg-white">
             <div className="flex items-center justify-between gap-2 border-b border-line px-4 py-3">
                 <span className="text-sm font-semibold">{t('pdfTitle')}</span>
                 {book.pdf_url && total ? (
@@ -238,11 +238,11 @@ export default function BookScreen({ id }: { id: string }) {
             <section>
                 <div className="mx-auto box-border flex max-w-[1320px] flex-col gap-[22px] px-4 sm:px-8 pb-7 pt-[22px]">
                     <nav aria-label={t('crumbs')} className="flex items-center gap-2 text-sm text-ink-3">
-                        <Link href="/jobs" className="no-underline">
+                        <Link href="/jobs" className="hit no-underline">
                             {t('offers')}
                         </Link>
                         <span aria-hidden>/</span>
-                        <Link href="/books" className="no-underline">
+                        <Link href="/books" className="hit no-underline">
                             {t('books')}
                         </Link>
                         <span aria-hidden>/</span>
@@ -327,6 +327,10 @@ export default function BookScreen({ id }: { id: string }) {
                                 onSelect={() => {
                                     setSelectedId(j.id)
                                     setPage(j.pdf_page ?? undefined)
+                                    // Under 1024px the PDF sits below the topics, out of sight: bring it into view.
+                                    if (window.matchMedia('(max-width: 1023px)').matches) {
+                                        requestAnimationFrame(() => document.getElementById('book-pdf')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+                                    }
                                 }}
                             />
                         ))}
@@ -336,7 +340,7 @@ export default function BookScreen({ id }: { id: string }) {
                                 <button
                                     type="button"
                                     onClick={() => setAll(true)}
-                                    className="cursor-pointer border-0 bg-transparent p-0 text-[13px] font-semibold text-violet"
+                                    className="hit cursor-pointer border-0 bg-transparent p-0 text-[13px] font-semibold text-violet"
                                 >
                                     {t('showAll')}
                                 </button>

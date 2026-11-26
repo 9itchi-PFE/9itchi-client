@@ -52,7 +52,7 @@ const SignIn = () => {
                     required
                     placeholder={t('passwordPlaceholder')}
                 />
-                <Link href="/auth/forgot-password" className="self-end text-sm font-medium underline">
+                <Link href="/auth/forgot-password" className="hit self-end text-sm font-medium underline">
                     {t('forgot')}
                 </Link>
                 <button type="submit" disabled={busy} className={submitClass}>

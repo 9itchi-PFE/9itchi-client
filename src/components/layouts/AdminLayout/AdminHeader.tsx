@@ -87,18 +87,24 @@ export default function AdminHeader() {
     const pending = useReviewList('pending').data?.counts?.pending
     const chatUnread = useChatBadge()
     useTitleCount(chatUnread)
+    // Under 1280px the sections scroll sideways: bring the current one into view so it is never hidden off the edge.
+    const bar = useRef<HTMLElement>(null)
+    useEffect(() => {
+        bar.current?.querySelector('[aria-current="page"]')?.scrollIntoView({ inline: 'center', block: 'nearest' })
+    }, [path])
     return (
         <header className="sticky top-0 z-20 bg-[rgba(242,243,245,.9)] backdrop-blur-[10px]">
             <div className="mx-auto flex max-w-[1376px] flex-wrap items-center gap-x-4 gap-y-2.5 px-4 py-3.5 sm:px-8">
-                <Link href="/admin" className="me-auto no-underline">
+                <Link href="/admin" className="hit me-auto no-underline">
                     <Logo tag="ADMIN" />
                 </Link>
                 {/* Under 1280px the sections take their own line and scroll sideways; the language and the account stay
                     beside the logo. */}
                 <div className="contents">
                     <nav
+                        ref={bar}
                         aria-label={t('nav')}
-                        className="order-last flex basis-full gap-0.5 overflow-x-auto rounded-full border border-line bg-white p-[5px] shadow-nav xl:order-none xl:basis-auto"
+                        className="scroll-hint-x order-last flex basis-full gap-0.5 overflow-x-auto rounded-full border border-line bg-white p-[5px] shadow-nav xl:order-none xl:basis-auto"
                     >
                         {nav.map((n) => {
                             const on = isActive(path, n)

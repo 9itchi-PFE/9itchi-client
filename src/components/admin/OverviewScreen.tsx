@@ -123,7 +123,7 @@ export default function OverviewScreen() {
                         <h2 id="funnel-h" className="m-0 text-xl font-extrabold">
                             {t('funnelTitle')}
                         </h2>
-                        <Link href="/admin/stats" className="text-sm font-medium underline">
+                        <Link href="/admin/stats" className="hit text-sm font-medium underline">
                             {t('funnelMore')}
                         </Link>
                     </div>

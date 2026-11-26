@@ -27,6 +27,16 @@ Next.js 15.1 (App Router, standalone, turbopack dev), React 19, TypeScript, Tail
 - Mockups: `../9itchi PFE — Web App Design.html` (large: grep the screen id, don't read whole).
 - Prettier: no semicolons, single quotes, 4 spaces, width 160, trailing commas. ESLint `next lint`.
 
+## Responsive (every new screen and component)
+- Mobile first: build at 360px, then widen with `sm` 640, `md` 768, `lg` 1024 (the header switches to the pill nav, detail panels sit beside lists), `xl` 1280. Content is at most 1320px wide. On a phone the sections are a bar fixed at the bottom (`StudentLayout` reserves 76px under `main`): never put content or fixed controls beneath it.
+- No fixed widths: `w-full max-w-[…]`, `min-w-0` on flex children, `flex-wrap` / `flex-[1_1_Npx]` columns. A table or wide bar scrolls inside its own `overflow-x-auto` (add `scroll-hint-x` for a visible edge); the page itself never scrolls sideways.
+- Full-height screens use `min-h-screen min-h-dvh` (dvh follows the mobile browser bars). Sticky or fixed panels only from `lg:` (`lg:sticky`). Bottom bars add `pb-[env(safe-area-inset-bottom)]`.
+- Text fields are 16px on phones: `globals.css` forces it, because iOS Safari zooms the page for a smaller field. Do not fight that rule.
+- Touch: a control is at least 32px on its short side. Text links and compact buttons under 44px take the `hit` class (an invisible 44px touch area on touch screens). A field inside a `<label>` counts as the whole label. Keep the visible focus ring (global base rule).
+- When an action changes something out of sight on a small screen (selecting an offer, a topic), bring it into view under 1024px and give a way back: see `OffersScreen.selectOffer` and `#offers-list`.
+- Text: labels and captions 11px at least, body 14px at least; under 10px only for decorative marks.
+- Verify with `npx playwright test e2e/responsive.spec.ts`: it opens public, student and admin pages on a 360px phone and a 768px tablet (touch) and fails on sideways scroll, elements outside the screen, fields under 16px, and tap targets under 32px without `hit`. Add every new route to the lists in that spec. For a visual check, screenshot at 360, 768 and 1280.
+
 ## Tests and CI
 - `npm test` (Vitest, `src/__tests__/`), `npm run e2e` (Playwright, port 3101, `NEXT_PUBLIC_USE_PROXY=false`, services mocked at `http://e2e.test/<svc>` in `e2e/services.ts`).
 - Workflows: `ci.yml` (PR: lint, test, build), `e2e.yml` (PR: Playwright chromium), `build.yml` (main: docker build + push to ghcr, then dispatch; fails at dispatch while `DISPATCH_TOKEN` secret is missing).

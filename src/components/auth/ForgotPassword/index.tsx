@@ -46,8 +46,12 @@ const ForgotPassword = () => {
                 </button>
             </form>
             <div className="flex justify-between text-sm font-medium">
-                <Link href="/auth/signin">{t('back')}</Link>
-                <Link href={`/auth/reset-password${sent ? `?email=${encodeURIComponent(sent)}` : ''}`}>{t('haveCode')}</Link>
+                <Link href="/auth/signin" className="hit">
+                    {t('back')}
+                </Link>
+                <Link href={`/auth/reset-password${sent ? `?email=${encodeURIComponent(sent)}` : ''}`} className="hit">
+                    {t('haveCode')}
+                </Link>
             </div>
         </>
     )

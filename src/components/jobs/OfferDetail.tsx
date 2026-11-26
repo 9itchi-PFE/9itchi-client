@@ -56,10 +56,15 @@ export default function OfferDetail({ summary, cvSkills, hasCv, resumeId }: { su
 
     return (
         <aside
+            id="offer-detail"
             aria-label={t('details')}
-            className="sticky top-[92px] flex min-w-0 flex-[1_1_440px] flex-col overflow-hidden rounded-[20px] border-[1.5px] border-ink bg-white shadow-card"
+            className="scroll-mt-[84px] flex min-w-0 flex-[1_1_440px] flex-col overflow-hidden rounded-[20px] border-[1.5px] border-ink bg-white shadow-card lg:sticky lg:top-[92px]"
         >
             <div className="flex flex-col gap-[18px] px-[26px] pb-[22px] pt-[26px]">
+                {/* Under 1024px the panel sits below the list: a way back to it. */}
+                <a href="#offers-list" className="hit self-start text-[13.5px] font-semibold text-ink-3 no-underline hover:text-ink lg:hidden">
+                    ↑ {t('backToList')}
+                </a>
                 <div className="flex items-center gap-3">
                     <CompanyBadge company={summary.company} size={48} className="text-[15px]" />
                     <div className="flex min-w-0 flex-col">

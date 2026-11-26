@@ -238,7 +238,7 @@ function Pay({ plan, extending, choice }: { plan: Plan; extending: MySubscriptio
                         <span>{t('promoApplied', { code: promo.code, amount: tnd(millimes(promo.check.discount_amount), locale) })}</span>
                         <button
                             type="button"
-                            className="cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold text-ok-fg underline"
+                            className="hit cursor-pointer border-0 bg-transparent p-0 text-sm font-semibold text-ok-fg underline"
                             onClick={() => setPromo(null)}
                         >
                             {t('promoRemove')}

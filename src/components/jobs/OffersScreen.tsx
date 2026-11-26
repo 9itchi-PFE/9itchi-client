@@ -78,6 +78,13 @@ export default function OffersScreen() {
     const [selectedId, setSelectedId] = useState(wanted)
     const linked = useJob(selectedId && !items.some((j) => j.id === selectedId) ? selectedId : undefined).data
     const selected = items.find((j) => j.id === selectedId) ?? (linked && linked.id === selectedId ? { ...linked, snippet: '' } : items[0])
+    // Under 1024px the details sit below the list, out of sight: a tap on an offer brings them into view.
+    const selectOffer = (id: string) => {
+        setSelectedId(id)
+        if (window.matchMedia('(max-width: 1023px)').matches) {
+            requestAnimationFrame(() => document.getElementById('offer-detail')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
+        }
+    }
 
     const [q, setQ] = useState(filters.q)
     const [where, setWhere] = useState(filters.location)
@@ -225,13 +232,13 @@ export default function OffersScreen() {
             ) : list.isError ? (
                 <p role="alert" className="m-0 rounded-2xl bg-white p-8 text-center text-ink-3">
                     {tc('error')}{' '}
-                    <button type="button" className="cursor-pointer border-0 bg-transparent p-0 font-semibold text-violet" onClick={() => list.refetch()}>
+                    <button type="button" className="hit cursor-pointer border-0 bg-transparent p-0 font-semibold text-violet" onClick={() => list.refetch()}>
                         {tc('retry')}
                     </button>
                 </p>
             ) : (
                 <div className="flex flex-wrap items-start gap-7">
-                    <section aria-label={t('tabs')} className="flex min-w-0 flex-[999_1_540px] flex-col gap-3">
+                    <section id="offers-list" aria-label={t('tabs')} className="flex min-w-0 scroll-mt-[84px] flex-[999_1_540px] flex-col gap-3">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                             <div role="tablist" aria-label={t('tabs')} className="flex gap-1 rounded-xl bg-[#EFF0F2] p-1">
                                 {TABS.map((tab, i) => {
@@ -262,7 +269,7 @@ export default function OffersScreen() {
                                     job={job}
                                     cvSkills={cv.skills}
                                     selected={job.id === selected?.id}
-                                    onSelect={() => setSelectedId(job.id)}
+                                    onSelect={() => selectOffer(job.id)}
                                     onToggleSave={() => save.mutate({ id: job.id, saved: !job.saved })}
                                 />
                                 {showBooks && i === bandAfter ? <BooksBand books={bookList} total={books.data?.total ?? bookList.length} /> : null}

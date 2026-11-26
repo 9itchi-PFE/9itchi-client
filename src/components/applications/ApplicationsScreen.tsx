@@ -17,8 +17,8 @@ import type { Application } from '@/types/application'
 import { applyError, bucket, followUpOn, sentAt, sentThisMonth } from './apply'
 
 const card = 'flex flex-col gap-4 rounded-[18px] border border-line-soft bg-white p-5'
-const small = 'h-8 rounded-[10px] px-3 text-[13.5px]'
-const textBtn = 'cursor-pointer border-0 bg-transparent p-0 text-sm font-medium text-violet hover:text-violet-hover'
+const small = 'hit h-8 rounded-[10px] px-3 text-[13.5px]'
+const textBtn = 'hit cursor-pointer border-0 bg-transparent p-0 text-sm font-medium text-violet hover:text-violet-hover'
 
 function Badge({ tone, children }: { tone: 'warn' | 'bad' | 'ok' | 'mute'; children: string }) {
     const tones = { warn: 'bg-warn-bg text-warn-fg', bad: 'bg-[#FEF3F2] text-[#B42318]', ok: 'bg-ok-bg text-ok-fg', mute: 'bg-fill text-ink-3' }
@@ -37,7 +37,7 @@ function Head({ a, meta, children }: { a: Application; meta: string; children?: 
                     {a.company ? ' · ' : ''}
                     {meta}
                 </span>
-                <Link href={`/jobs/${a.job_id}`} className="text-[17px] font-semibold leading-[1.35] text-ink no-underline hover:text-violet">
+                <Link href={`/jobs/${a.job_id}`} className="hit text-[17px] font-semibold leading-[1.35] text-ink no-underline hover:text-violet">
                     {a.job_title || t('offer')}
                 </Link>
             </div>

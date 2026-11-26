@@ -921,6 +921,7 @@
         "relaxCount": "· {count, plural, one {موضوع واحد} two {موضوعان} few {# مواضيع} many {# موضوعًا} other {# موضوع}}",
         "loading": "جارٍ تحميل العروض",
         "showMore": "عرض مواضيع أخرى",
+        "backToList": "العودة إلى العروض",
         "moreTitle": "مرشّحات أخرى",
         "moreTopic": "المجال",
         "moreLength": "المدة",

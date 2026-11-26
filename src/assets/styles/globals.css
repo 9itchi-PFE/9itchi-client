@@ -62,6 +62,26 @@
     a.qf:hover {
         @apply text-ink-2;
     }
+    /* A small control keeps its look but gets a 44px touch area on touch screens. Use it on text links and
+       compact buttons; the responsive e2e guard accepts it in place of a taller box. */
+    @media (pointer: coarse) {
+        .hit {
+            position: relative;
+        }
+        .hit::after {
+            content: '';
+            position: absolute;
+            inset: min(0px, calc((100% - 44px) / 2));
+        }
+    }
+    /* A bar that scrolls sideways shows a soft edge on the side that still has more to reveal. */
+    .scroll-hint-x {
+        background:
+            linear-gradient(to right, #fff 30%, rgba(255, 255, 255, 0)) left center / 28px 100% no-repeat local,
+            linear-gradient(to left, #fff 30%, rgba(255, 255, 255, 0)) right center / 28px 100% no-repeat local,
+            radial-gradient(farthest-side at 0 50%, rgba(16, 24, 40, 0.22), rgba(16, 24, 40, 0)) left center / 10px 100% no-repeat scroll,
+            radial-gradient(farthest-side at 100% 50%, rgba(16, 24, 40, 0.22), rgba(16, 24, 40, 0)) right center / 10px 100% no-repeat scroll;
+    }
     /* Shimmering loading placeholder. */
     .sk {
         background: linear-gradient(90deg, #eceef1 0%, #f7f8f9 45%, #eceef1 90%);
@@ -118,6 +138,15 @@
     }
     svg * {
         animation: none !important;
+    }
+}
+
+/* A phone zooms the whole page when a text field under 16px takes the focus, so every field is 16px there. */
+@media (max-width: 767px) {
+    input:not([type='checkbox']):not([type='radio']):not([type='range']):not([type='color']):not([type='file']):not([type='hidden']),
+    select,
+    textarea {
+        font-size: 16px !important;
     }
 }
 

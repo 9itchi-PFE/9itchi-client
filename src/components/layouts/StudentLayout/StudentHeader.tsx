@@ -53,7 +53,7 @@ export default function StudentHeader() {
                 )}
             >
                 <div className="mx-auto grid max-w-[1320px] grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-4 py-3 sm:px-8 lg:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] lg:gap-4 lg:py-3.5">
-                    <Link href="/jobs" className="justify-self-start no-underline">
+                    <Link href="/jobs" className="hit justify-self-start no-underline">
                         <Logo />
                     </Link>
                     {/* From a laptop up the sections sit in the header; on a phone they are the bar at the bottom. */}
@@ -112,7 +112,7 @@ export default function StudentHeader() {
                             <span className={cn('flex h-7 w-12 items-center justify-center rounded-full', on && 'bg-ink')}>
                                 <Icon name={n.icon} stroke={on ? '#D6F25E' : 'currentColor'} />
                             </span>
-                            <span className="max-w-full truncate">{t(n.key)}</span>
+                            <span className="max-w-full text-center leading-[1.15]">{t(n.key)}</span>
                             {n.key === 'applications' && applications ? (
                                 <span className="absolute start-[calc(50%+14px)] top-1.5 rounded-full bg-violet px-[5px] text-[10px] font-bold leading-[16px] text-white">
                                     {applications}
