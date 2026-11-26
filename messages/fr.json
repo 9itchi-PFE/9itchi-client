@@ -122,7 +122,11 @@
         "errQuota": "Sans abonnement, tu as un seul CV. Abonne-toi pour en avoir plusieurs.",
         "blankTitleDefault": "Mon CV",
         "blankPlan": "Abonnement",
-        "errPlan": "Écrire ton CV dans 9itchi fait partie de l’abonnement. Sans abonnement, importe le CV que tu as déjà."
+        "errPlan": "Écrire ton CV dans 9itchi fait partie de l’abonnement. Sans abonnement, importe le CV que tu as déjà.",
+        "addTitle": "Importe un autre CV",
+        "addLead": "Il est ajouté à tes versions. Tu choisis ensuite lequel envoyer à chaque offre.",
+        "errFull": "Tu as atteint la limite de {limit} CV de ton offre. Passe à une offre supérieure pour en ajouter.",
+        "billingLink": "Voir l’abonnement →"
     },
     "wishes": {
         "title": "Ce que tu veux",
@@ -337,7 +341,8 @@
         "done": "Terminé",
         "scorePlanTitle": "Le diagnostic de ton CV fait partie de l’abonnement",
         "scorePlanText": "Abonne-toi pour voir ta note sur 24 et ce qu’il faut corriger.",
-        "scorePlanCta": "Voir l’abonnement"
+        "scorePlanCta": "Voir l’abonnement",
+        "import": "Importer"
     },
     "download": {
         "payTitle": "Télécharger ton CV, c’est avec l’abonnement",
@@ -423,7 +428,13 @@
         "choose": "Modifier celle-ci à la place",
         "toastChosen": "Tu modifies maintenant « {name} »",
         "planTitle": "Corriger ton CV dans 9itchi fait partie de l’abonnement",
-        "planText": "Sans abonnement, ton CV importé se lit ici et part tel quel avec tes candidatures. Abonne-toi pour le corriger, voir le diagnostic et le télécharger."
+        "planText": "Sans abonnement, ton CV importé se lit ici et part tel quel avec tes candidatures. Abonne-toi pour le corriger, voir le diagnostic et le télécharger.",
+        "importTitle": "Importer un CV",
+        "importCv": "Importer un CV",
+        "slots": "{used} / {limit} CV",
+        "slotsUnlimited": "{used} CV",
+        "importFullFree": "Avec un abonnement, importe plusieurs CV.",
+        "importFull": "Tu as atteint la limite de {limit} CV de ton offre. Passe à une offre supérieure pour en importer un autre."
     },
     "check": {
         "breadcrumb": "Vérification du CV",
