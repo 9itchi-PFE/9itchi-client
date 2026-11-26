@@ -15,7 +15,7 @@ import { cn } from '@/lib/cn'
 import { initials } from '../StudentLayout/AccountMenu'
 import LanguageSelect from '../StudentLayout/LanguageSelect'
 
-type Key = 'navHome' | 'navOffers' | 'navBooks' | 'navStudents' | 'navPlans' | 'navSupport' | 'navStats' | 'navSources' | 'navTemplates'
+type Key = 'navHome' | 'navOffers' | 'navBooks' | 'navStudents' | 'navPlans' | 'navSupport' | 'navStats' | 'navCredits' | 'navSources' | 'navTemplates'
 
 // exact keeps Accueil from lighting up on every admin page; also lists other sections an item stays active on.
 const nav: { key: Key; href: string; exact?: boolean; also?: string[] }[] = [
@@ -26,6 +26,7 @@ const nav: { key: Key; href: string; exact?: boolean; also?: string[] }[] = [
     { key: 'navPlans', href: '/admin/plans', also: ['/admin/promo-codes'] },
     { key: 'navSupport', href: '/admin/support' },
     { key: 'navStats', href: '/admin/stats' },
+    { key: 'navCredits', href: '/admin/credits' },
     { key: 'navSources', href: '/admin/sources' },
     { key: 'navTemplates', href: '/admin/templates' },
 ]

@@ -1,4 +1,4 @@
-import type { Dashboard } from '@/types/statistics'
+import type { Dashboard, Integration, IntegrationUpdate, Integrations } from '@/types/statistics'
 import { api } from './ApiService'
 
 type Range = { from: string; to: string }
@@ -10,6 +10,8 @@ const StatisticsService = {
     emails: (params?: Range) => api('statistics').get<Dashboard>(`/admin/statistics/emails`, { params }),
     subscriptions: (params?: Range) => api('statistics').get<Dashboard>(`/admin/statistics/subscriptions`, { params }),
     revenue: (params?: Range) => api('statistics').get<Dashboard>(`/admin/statistics/revenue`, { params }),
+    integrations: () => api('statistics').get<Integrations>(`/admin/integrations`),
+    updateIntegration: (provider: string, data: IntegrationUpdate) => api('statistics').put<Integration>(`/admin/integrations/${provider}`, data),
 }
 
 export default StatisticsService
