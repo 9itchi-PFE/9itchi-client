@@ -23,6 +23,28 @@ export const users = {
     },
 }
 const PASSWORD = 'MotDePasse123'
+export const SEO_OFFER = {
+    id: '0e2e0000-0000-4000-8000-0000000005e0',
+    title: 'Plateforme de réservation',
+    company: 'Société Exemple',
+    location: 'Sousse',
+    contract_type: 'pfe',
+    source: 'lever',
+    description: 'Concevoir une plateforme de réservation en ligne avec une équipe produit de six personnes.',
+    stipend_tnd: 700,
+    duration_months: 6,
+    work_mode: 'onsite',
+    closes_on: '2027-03-31',
+    starts_on: null,
+    skills: ['React'],
+    pair_ok: false,
+    easy_apply: true,
+    topic: null,
+    book_company: '',
+    book_title: '',
+    closed: false,
+    posted_at: '2026-11-20T09:00:00Z',
+}
 let n = 0
 const byToken = new Map()
 
@@ -41,6 +63,10 @@ http.createServer((req, res) => {
             return { access_token: access, refresh_token: `e2e-refresh-${n}` }
         }
         if (req.url === '/health') return json(200, { status: 'ok' })
+        // job-api's public routes, as the Next server reads them for search engines (seo.spec.ts). Invented offer.
+        if (req.method === 'GET' && req.url === '/job/public/jobs') return json(200, { items: [{ id: SEO_OFFER.id, updated_at: '2026-11-20T09:00:00Z' }] })
+        if (req.method === 'GET' && req.url === `/job/public/jobs/${SEO_OFFER.id}`) return json(200, SEO_OFFER)
+        if (req.method === 'GET' && req.url?.startsWith('/job/')) return json(404, { error: 'job not found' })
         if (req.method === 'POST' && req.url === '/auth/login') {
             const b = JSON.parse(body || '{}')
             const u = users[b.email]

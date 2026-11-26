@@ -210,4 +210,6 @@ export type PublicJob = {
     book_company: string
     book_title: string
     closed: boolean
+    // When it was first published (job-api fills it for search engines; absent from an older job-api).
+    posted_at?: string
 }
