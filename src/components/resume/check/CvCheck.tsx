@@ -291,9 +291,14 @@ function RuleCard({
                     await ResumeService.createVersion(resumeId, 'bullet_rewritten')
                     const { data } = await ResumeService.updateResume(resumeId, { content: next })
                     qc.setQueryData(resumeKeys.one(resumeId), data)
+                    // The fresh check may point this card at another line: wait for the student to ask again
+                    // instead of spending a rewrite on it.
+                    setAsked(false)
                     await qc.invalidateQueries({ queryKey: resumeKeys.check(resumeId) })
                     qc.invalidateQueries({ queryKey: resumeKeys.versions(resumeId) })
                     toast(t('toastApplied'))
+                    // The rewrite keeps [NOMBRE] where the figure is unknown: open that line so the student types it in.
+                    if (rule.id === 'quantified_results') router.push(editHref)
                 } finally {
                     setBusy(false)
                 }
