@@ -21,7 +21,7 @@ export default function PublicHeader({ signInTo }: { signInTo?: string }) {
                     <span className="hidden sm:inline-block">
                         <LanguageSelect remember={false} />
                     </span>
-                    <Link href={signIn} className="hidden px-2 text-[14.5px] font-semibold text-ink no-underline hover:text-ink sm:inline">
+                    <Link href={signIn} className="hit hidden px-2 text-[14.5px] font-semibold text-ink no-underline hover:text-ink sm:inline">
                         {t('signIn')}
                     </Link>
                     <ButtonLink href="/auth/signup" size="sm" className="whitespace-nowrap">
