@@ -7,7 +7,10 @@
         "loading": "Loading…",
         "retry": "Try again",
         "error": "Something went wrong. Try again in a moment.",
-        "of": "{current} of {total}"
+        "of": "{current} of {total}",
+        "signOutTitle": "Sign out?",
+        "signOutText": "You can come back at any time with your email or your Google or LinkedIn account.",
+        "signOutYes": "Sign out"
     },
     "outreach": {
         "title": "AI Outreach",
@@ -1002,9 +1005,9 @@
         "next": "Next page",
         "pdfHint": "Click a topic to go to its page. The PDF is shown as the company published it.",
         "noPdf": "The company attached no PDF to this book.",
-        "pdfLoading": "Loading the PDF… this can take a minute.",
+        "pdfLoading": "Loading the page…",
         "pdfLoaded": "{size} MB received",
-        "pdfError": "The PDF could not be loaded.",
+        "pdfError": "The PDF page could not be shown.",
         "pdfRetry": "Try again",
         "shown": "{shown} of {total} shown",
         "showAll": "Show all",
@@ -1022,7 +1025,9 @@
             "networks": "Networks"
         },
         "closed": "Closed",
-        "see": "See the offer"
+        "see": "See the offer",
+        "pdfOpen": "See page {page} of the PDF",
+        "downloading": "Downloading…"
     },
     "admin": {
         "nav": "Administration",
@@ -1578,7 +1583,17 @@
         "priceZero": "A paid plan costs more than 0 TND.",
         "perYear": "per year",
         "planOffTitle": "Switch off “{name}”?",
-        "durationHeld": "Students hold this plan, so its length can no longer change. Create a new plan with the length you want, then switch this one off."
+        "durationHeld": "Students hold this plan, so its length can no longer change. Create a new plan with the length you want, then switch this one off.",
+        "logoTitle": "Company logo",
+        "logoHint": "Shown on every offer of {company}, from a PFE book, a site or typed by hand. PNG, JPEG or WebP, 2 MB max.",
+        "logoNoCompany": "Give the company name first.",
+        "logoAdd": "Add a logo",
+        "logoChange": "Change the logo",
+        "logoRemove": "Remove",
+        "logoSaved": "Logo of {company} saved",
+        "logoRemoved": "Logo of {company} removed",
+        "logoType": "Choose a PNG, JPEG or WebP image.",
+        "logoTooBig": "The logo is over 2 MB."
     },
     "apply": {
         "back": "Back to the offer",
@@ -2003,7 +2018,7 @@
         "resolved": "Resolved",
         "messages": "Messages",
         "loadError": "The messages could not be read.",
-        "emptyStudent": "Ask your question: a problem with your CV, an application, a payment… We answer here.",
+        "emptyStudent": "A problem with your CV, an application or a payment? Write your question, the team answers here.",
         "emptyTeam": "No message yet. Write the first one.",
         "fromMe": "You:",
         "fromTeam": "The 9itchi team:",
@@ -2011,7 +2026,19 @@
         "write": "Write a message",
         "send": "Send",
         "sendError": "The message was not sent. Try again.",
-        "writeTo": "Write to {name}"
+        "writeTo": "Write to {name}",
+        "emptyStudentTitle": "Write to us",
+        "emptyTeamTitle": "No message yet",
+        "topic": {
+            "cv": "My CV",
+            "application": "An application",
+            "payment": "A payment"
+        },
+        "starter": {
+            "cv": "Hello, I have a problem with my CV: ",
+            "application": "Hello, I have a question about an application: ",
+            "payment": "Hello, I have a question about a payment: "
+        }
     },
     "settings": {
         "title": "Settings",
@@ -2134,8 +2161,6 @@
         "a3": "From companies’ PFE books, imported by our team, and from offers posted on other sites. We always name the source.",
         "q4": "How do I stop the subscription?",
         "a4": "In Settings → Subscription, in one click. No new payment goes out.",
-        "footTerms": "Terms of use",
-        "footPrivacy": "Privacy",
         "offer": {
             "back": "Discover 9itchi PFE",
             "fromBook": "Topic from “{title}”",
@@ -2174,6 +2199,21 @@
         "freeLine": "Without a subscription: browse the offers and send {count} applications with the CV you imported, as it is, to try.",
         "freeLineCta": "Create my account",
         "paid0": "Your CV corrected with the 24 rules, and the full check",
-        "perYear": "/ year"
+        "perYear": "/ year",
+        "footer": {
+            "about": "Every PFE internship offer in Tunisia in one place, a CV that follows recruiters’ rules and a letter for each offer.",
+            "productTitle": "9itchi",
+            "signUp": "Create an account",
+            "signIn": "Sign in",
+            "forgot": "Forgot password",
+            "legalTitle": "Legal",
+            "terms": "Terms of use",
+            "privacy": "Privacy",
+            "cookies": "Cookies",
+            "notice": "Legal notice",
+            "contactTitle": "Contact",
+            "place": "Sfax, Tunisia",
+            "copyright": "© {year} Lakhal Technologies · 9itchi PFE"
+        }
     }
 }

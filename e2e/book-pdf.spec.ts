@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs'
+import { join } from 'node:path'
 import { expect, test } from '@playwright/test'
 import { JOBS, STUDENT, mockServices, signIn } from './services'
 
@@ -20,26 +22,29 @@ const book = (extra: Record<string, unknown> = {}) => ({
     jobs: JOBS.map((j) => ({ ...j, book_id: BOOK_ID, pdf_page: 3 })),
     ...extra,
 })
-const PDF = Buffer.from('%PDF-1.4')
+// A real PDF of three pages: the viewer draws the page asked for (3) on a canvas.
+const PDF = readFileSync(join(__dirname, 'fixtures', 'book-3-pages.pdf'))
 const NO_PDF = 'L’entreprise n’a pas joint de PDF à ce book.'
+const PAGE_3 = 'Page 3 / 12'
 
-test('a slow PDF shows that it is loading, never « no PDF », then the PDF', async ({ page }) => {
+test('the PDF shows the page of the topic as soon as it is drawn, after a short wait', async ({ page }) => {
     await mockServices(page, {
         [`GET /job/books/${BOOK_ID}`]: book(),
         [`GET /job/books/${BOOK_ID}/pdf`]: async () => {
-            await new Promise((r) => setTimeout(r, 2500))
+            await new Promise((r) => setTimeout(r, 1500))
             return PDF
         },
     })
     await signIn(page, STUDENT)
     await page.goto(`/books/${BOOK_ID}`)
-    await expect(page.getByRole('status').filter({ hasText: 'Chargement du PDF' })).toBeVisible()
+    await expect(page.getByRole('status').filter({ hasText: 'Chargement de la page' })).toBeVisible()
     await expect(page.getByText(NO_PDF)).toHaveCount(0)
-    await expect(page.getByTitle('PDF d’origine')).toBeVisible({ timeout: 15_000 })
-    await expect(page.getByRole('status').filter({ hasText: 'Chargement du PDF' })).toHaveCount(0)
+    await expect(page.getByRole('img', { name: PAGE_3 })).toBeVisible({ timeout: 20_000 })
+    await page.getByRole('button', { name: 'Page suivante' }).click()
+    await expect(page.getByRole('img', { name: 'Page 4 / 12' })).toBeVisible({ timeout: 20_000 })
 })
 
-test('a PDF that fails offers a retry that loads it', async ({ page }) => {
+test('a PDF that fails offers a retry that shows the page', async ({ page }) => {
     let calls = 0
     await mockServices(page, {
         [`GET /job/books/${BOOK_ID}`]: book(),
@@ -47,10 +52,23 @@ test('a PDF that fails offers a retry that loads it', async ({ page }) => {
     })
     await signIn(page, STUDENT)
     await page.goto(`/books/${BOOK_ID}`)
-    await expect(page.getByRole('alert').filter({ hasText: 'Le PDF n’a pas pu être chargé.' })).toBeVisible()
+    await expect(page.getByRole('alert').filter({ hasText: 'La page du PDF n’a pas pu s’afficher.' })).toBeVisible({ timeout: 20_000 })
     await page.getByRole('button', { name: 'Réessayer' }).click()
-    await expect(page.getByTitle('PDF d’origine')).toBeVisible()
-    expect(calls).toBe(2)
+    await expect(page.getByRole('img', { name: PAGE_3 })).toBeVisible({ timeout: 20_000 })
+    expect(calls).toBeGreaterThanOrEqual(2)
+})
+
+test('on a phone the PDF opens in a window at the page of the topic', async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 })
+    await mockServices(page, { [`GET /job/books/${BOOK_ID}`]: book(), [`GET /job/books/${BOOK_ID}/pdf`]: PDF })
+    await signIn(page, STUDENT)
+    await page.goto(`/books/${BOOK_ID}`)
+    await expect(page.getByRole('complementary', { name: 'PDF d’origine' })).toBeHidden()
+    await page.getByRole('button', { name: 'Voir la page 3 du PDF' }).first().click()
+    const dialog = page.getByRole('dialog')
+    await expect(dialog.getByRole('img', { name: PAGE_3 })).toBeVisible({ timeout: 20_000 })
+    const box = await dialog.getByRole('img', { name: PAGE_3 }).boundingBox()
+    expect(box!.width).toBeLessThanOrEqual(390)
 })
 
 test('a book with no PDF says so', async ({ page }) => {

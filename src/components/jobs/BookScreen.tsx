@@ -5,8 +5,10 @@ import Link from 'next/link'
 import { useFormatter, useTranslations } from 'next-intl'
 import { isAxiosError } from 'axios'
 import { Bolt, Icon } from '@/components/ui/icons'
-import { Button } from '@/components/ui/Button'
-import { useBookPdf } from '@/hooks/useAdminBooks'
+import { Modal } from '@/components/ui/Modal'
+import { useSessionContext } from '@/components/auth/AuthProvider'
+import { getServiceBaseUrl } from '@/configs/services.config'
+import JobService from '@/services/JobService'
 import { useBook } from '@/hooks/useJobs'
 import { useMyCv } from '@/hooks/useResumes'
 import { cn } from '@/lib/cn'
@@ -14,7 +16,7 @@ import type { Book, JobSummary } from '@/types/job'
 import { TOPICS, type Topic } from '@/types/preferences'
 import { Sk } from './OfferStates'
 import { bookFacts } from './bookFacts'
-import { megabytes, pdfState, type PdfState } from './bookPdf'
+import PdfPage, { type PdfSource } from './PdfPage'
 import { daysLeft, match } from './offer'
 
 const SHOWN = 5
@@ -86,7 +88,19 @@ function Facts({ book }: { book: Book }) {
 }
 
 // TopicCard is one topic of the book: reference, title, summary, skills against the CV, length and places, how to apply, PDF page.
-function TopicCard({ job, cvSkills, selected, onSelect }: { job: JobSummary; cvSkills: string[]; selected: boolean; onSelect: () => void }) {
+function TopicCard({
+    job,
+    cvSkills,
+    selected,
+    onSelect,
+    onPdf,
+}: {
+    job: JobSummary
+    cvSkills: string[]
+    selected: boolean
+    onSelect: () => void
+    onPdf?: () => void
+}) {
     const t = useTranslations('book')
     const to = useTranslations('offers')
     const m = match(job.skills, cvSkills)
@@ -105,7 +119,7 @@ function TopicCard({ job, cvSkills, selected, onSelect }: { job: JobSummary; cvS
         >
             <button type="button" onClick={onSelect} className="flex min-w-0 flex-1 cursor-pointer flex-col gap-2 border-0 bg-transparent p-0 text-start">
                 <span className="flex items-baseline gap-2.5">
-                    {job.ref ? <span className="font-mono text-xs font-semibold text-ink-3">{job.ref}</span> : null}
+                    {job.ref ? <span className="whitespace-nowrap font-mono text-xs font-semibold text-ink-3">{job.ref}</span> : null}
                     <span className="text-base font-semibold leading-[1.35]">{job.title}</span>
                 </span>
                 {job.snippet ? <span className="line-clamp-2 text-sm leading-[1.55] text-ink-2">{job.snippet}</span> : null}
@@ -142,23 +156,53 @@ function TopicCard({ job, cvSkills, selected, onSelect }: { job: JobSummary; cvS
                         {t('see')}
                     </Link>
                 )}
-                {job.pdf_page ? <span className="text-center text-xs text-ink-3">{t('pdfPage', { page: job.pdf_page })}</span> : null}
+                {job.pdf_page ? (
+                    <>
+                        {/* Beside the list (large screens) the PDF follows the topic chosen; below, a window opens it. */}
+                        <span className="hidden text-center text-xs text-ink-3 lg:inline">{t('pdfPage', { page: job.pdf_page })}</span>
+                        {onPdf ? (
+                            <button
+                                type="button"
+                                onClick={onPdf}
+                                className="flex h-10 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-line-strong bg-white px-4 text-sm font-semibold text-ink lg:hidden"
+                            >
+                                <Icon name="file" size={15} />
+                                {t('pdfOpen', { page: job.pdf_page })}
+                            </button>
+                        ) : null}
+                    </>
+                ) : null}
             </div>
         </article>
     )
 }
 
-// PdfPanel shows the book's PDF at the selected topic's page, as the company published it. The PDF can take a minute to arrive, so it also has a wait and a failure state.
-function PdfPanel({ book, state, loaded, onRetry, page, onPage }: { book: Book; state: PdfState; loaded: number; onRetry: () => void; page: number; onPage: (p: number) => void }) {
+// PdfPanel shows the book's PDF at the selected topic's page, as the company published it. A PDF 9itchi keeps is read
+// in byte ranges and drawn page by page (PdfPage), so the page shows without waiting for the whole file; one the
+// company hosts elsewhere is shown as it is.
+function PdfPanel({
+    book,
+    source,
+    page,
+    onPage,
+    className,
+}: {
+    book: Book
+    source: PdfSource | null
+    page: number
+    onPage: (p: number) => void
+    className?: string
+}) {
     const t = useTranslations('book')
-    const total = book.pages ?? 0
+    const [read, setRead] = useState(0)
+    const total = book.pages || read
     const arrow =
         'flex h-[34px] w-[34px] cursor-pointer items-center justify-center rounded-xl border border-line-strong bg-white text-ink-2 disabled:opacity-40'
     return (
-        <aside aria-label={t('pdfTitle')} className="flex min-w-0 flex-[1_1_400px] flex-col overflow-hidden rounded-[18px] border border-line-soft bg-white">
+        <aside aria-label={t('pdfTitle')} className={cn('flex min-w-0 flex-col overflow-hidden rounded-[18px] border border-line-soft bg-white', className)}>
             <div className="flex items-center justify-between gap-2 border-b border-line px-4 py-3">
                 <span className="text-sm font-semibold">{t('pdfTitle')}</span>
-                {book.pdf_url && total ? (
+                {source && total ? (
                     <div className="flex items-center gap-1.5 text-[13px] text-ink-2">
                         <button type="button" aria-label={t('prev')} disabled={page <= 1} onClick={() => onPage(page - 1)} className={arrow}>
                             <Icon name="left" size={16} className="rtl:rotate-180" />
@@ -170,27 +214,17 @@ function PdfPanel({ book, state, loaded, onRetry, page, onPage }: { book: Book; 
                     </div>
                 ) : null}
             </div>
-            <div className="flex justify-center bg-[#EAECF0] p-[22px]">
-                {state === 'ready' ? (
-                    <iframe
-                        key={page}
-                        title={t('pdfTitle')}
-                        src={`${book.pdf_url}#page=${page}&view=FitH&toolbar=0`}
-                        className="aspect-[210/297] w-full max-w-[360px] border-0 bg-white shadow-[0_2px_8px_rgba(16,24,40,.12)]"
+            <div className="flex justify-center bg-[#EAECF0] p-3 sm:p-[22px]">
+                {source ? (
+                    <PdfPage
+                        source={source}
+                        page={page}
+                        onPages={setRead}
+                        label={t('pageOf', { page, total: total || page })}
+                        loadingText={t('pdfLoading')}
+                        errorText={t('pdfError')}
+                        retryText={t('pdfRetry')}
                     />
-                ) : state === 'loading' ? (
-                    <div role="status" className={paperNote}>
-                        <span aria-hidden className="h-6 w-6 animate-spin rounded-full border-2 border-line-strong border-t-ink" />
-                        <span>{t('pdfLoading')}</span>
-                        {loaded > 0 ? <span className="text-[13px]">{t('pdfLoaded', { size: megabytes(loaded) })}</span> : null}
-                    </div>
-                ) : state === 'error' ? (
-                    <div role="alert" className={paperNote}>
-                        <span>{t('pdfError')}</span>
-                        <Button variant="secondary" size="sm" onClick={onRetry}>
-                            {t('pdfRetry')}
-                        </Button>
-                    </div>
                 ) : (
                     <p className={paperNote}>{t('noPdf')}</p>
                 )}
@@ -207,13 +241,15 @@ export default function BookScreen({ id }: { id: string }) {
     const ts = useTranslations('book.topicShort')
     const format = useFormatter()
     const res = useBook(id)
-    // A PDF kept by 9itchi is read with the session; one the company hosts is linked as it is.
-    const kept = useBookPdf(id, !!res.data?.has_pdf && !res.data?.pdf_url)
+    const { token } = useSessionContext()
     const cv = useMyCv()
     const [field, setField] = useState<Topic | 'all'>('all')
     const [selectedId, setSelectedId] = useState<string>()
     const [page, setPage] = useState<number>()
     const [all, setAll] = useState(false)
+    // On a tablet or a phone the PDF opens in a window at the page of the topic.
+    const [pdfOpen, setPdfOpen] = useState(false)
+    const [saving, setSaving] = useState(false)
 
     if (res.isError) {
         const gone = isAxiosError(res.error) && [400, 404].includes(res.error.response?.status ?? 0)
@@ -225,7 +261,28 @@ export default function BookScreen({ id }: { id: string }) {
             </main>
         )
     }
-    const book = res.data ? { ...res.data, pdf_url: res.data.pdf_url ?? kept.url ?? null } : undefined
+    const book = res.data
+    // A PDF the company hosts is read from its address; one 9itchi keeps, from job-api with the session.
+    const source: PdfSource | null = book?.pdf_url
+        ? { url: book.pdf_url }
+        : book?.has_pdf
+          ? { url: `${getServiceBaseUrl('job')}/books/${book.id}/pdf`, token }
+          : null
+    // Downloading a PDF 9itchi keeps fetches it whole only then, with the session.
+    const download = async () => {
+        if (!book) return
+        setSaving(true)
+        try {
+            const blob = (await JobService.bookPdf(book.id)).data
+            const a = document.createElement('a')
+            a.href = URL.createObjectURL(blob)
+            a.download = `${book.company} - ${book.title}.pdf`
+            a.click()
+            setTimeout(() => URL.revokeObjectURL(a.href), 10_000)
+        } finally {
+            setSaving(false)
+        }
+    }
     const topics = book?.jobs ?? []
     const counts = TOPICS.map((tp) => [tp, topics.filter((j) => j.topic === tp).length] as const).filter(([, n]) => n > 0)
     const list = field === 'all' ? topics : topics.filter((j) => j.topic === field)
@@ -277,6 +334,18 @@ export default function BookScreen({ id }: { id: string }) {
                                                 {book.pages ? t('downloadPages', { count: book.pages }) : t('download')}
                                             </a>
                                         </div>
+                                    ) : book.has_pdf ? (
+                                        <div className="mt-1 flex flex-wrap gap-2.5">
+                                            <button
+                                                type="button"
+                                                onClick={download}
+                                                disabled={saving}
+                                                className={cn(btn2, 'cursor-pointer disabled:opacity-60')}
+                                            >
+                                                <Icon name="download" size={16} />
+                                                {saving ? t('downloading') : book.pages ? t('downloadPages', { count: book.pages }) : t('download')}
+                                            </button>
+                                        </div>
                                     ) : null}
                                 </div>
                             </div>
@@ -295,8 +364,8 @@ export default function BookScreen({ id }: { id: string }) {
                 </div>
             </section>
             {book ? (
-                <main className="mx-auto box-border flex w-full max-w-[1320px] flex-wrap items-start gap-7 px-4 sm:px-8 pb-16 pt-7">
-                    <section aria-label={t('topics', { count: topics.length })} className="flex min-w-0 flex-[999_1_560px] flex-col gap-3">
+                <main className="mx-auto box-border flex w-full max-w-[1320px] flex-col items-stretch gap-7 px-4 pb-16 pt-7 sm:px-8 lg:flex-row lg:items-start">
+                    <section aria-label={t('topics', { count: topics.length })} className="flex min-w-0 flex-1 flex-col gap-3">
                         <div className="flex flex-wrap items-center justify-between gap-3">
                             <h2 className="m-0 text-xl font-extrabold">{t('topics', { count: topics.length })}</h2>
                             {counts.length > 1 ? (
@@ -328,6 +397,15 @@ export default function BookScreen({ id }: { id: string }) {
                                     setSelectedId(j.id)
                                     setPage(j.pdf_page ?? undefined)
                                 }}
+                                onPdf={
+                                    source
+                                        ? () => {
+                                              setSelectedId(j.id)
+                                              setPage(j.pdf_page ?? undefined)
+                                              setPdfOpen(true)
+                                          }
+                                        : undefined
+                                }
                             />
                         ))}
                         {list.length > shown.length ? (
@@ -343,14 +421,17 @@ export default function BookScreen({ id }: { id: string }) {
                             </span>
                         ) : null}
                     </section>
+                    {/* Beside the topics, it stays in view while the list scrolls (large screens only). */}
                     <PdfPanel
                         book={book}
-                        state={pdfState({ hostedUrl: res.data?.pdf_url, hasKept: !!res.data?.has_pdf, keptUrl: kept.url, failed: kept.isError })}
-                        loaded={kept.loaded}
-                        onRetry={kept.retry}
+                        source={source}
                         page={current}
                         onPage={setPage}
+                        className="hidden lg:sticky lg:top-24 lg:flex lg:w-[400px] lg:flex-none xl:w-[440px]"
                     />
+                    <Modal open={pdfOpen} onClose={() => setPdfOpen(false)} title={selected?.title ?? t('pdfTitle')} width={640}>
+                        <PdfPanel book={book} source={source} page={current} onPage={setPage} className="border-0" />
+                    </Modal>
                 </main>
             ) : null}
         </>

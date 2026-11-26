@@ -3,7 +3,7 @@
 import { useContext, useEffect, useRef, useState } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
-import { signOut } from 'next-auth/react'
+import { SignOutDialog } from '@/components/auth/SignOutDialog'
 import { useSessionContext } from '@/components/auth/AuthProvider'
 import PremiumBadge from '@/components/billing/PremiumBadge'
 import { AttentionDot, CountBadge } from '@/components/ui/CountBadge'
@@ -26,6 +26,7 @@ export default function AccountMenu() {
     const photo = useProfilePhoto(useMe().data?.has_photo).data
     const { unread, chatUnread } = useContext(NotificationsContext)
     const [open, setOpen] = useState(false)
+    const [leaving, setLeaving] = useState(false)
     const ref = useRef<HTMLDivElement>(null)
     useEffect(() => {
         if (!open) return
@@ -64,9 +65,6 @@ export default function AccountMenu() {
                         <span className="truncate">{user?.name}</span>
                         <PremiumBadge />
                     </span>
-                    <Link role="menuitem" href="/dashboard" className={item} onClick={() => setOpen(false)}>
-                        {t('dashboard')}
-                    </Link>
                     <Link role="menuitem" href="/settings" className={item} onClick={() => setOpen(false)}>
                         {t('settings')}
                     </Link>
@@ -77,11 +75,20 @@ export default function AccountMenu() {
                         {t('support')}
                         <CountBadge count={chatUnread} label={t('messagesUnread', { count: chatUnread })} />
                     </Link>
-                    <button role="menuitem" type="button" className={`${item} cursor-pointer border-0 bg-transparent text-start`} onClick={() => signOut()}>
+                    <button
+                        role="menuitem"
+                        type="button"
+                        className={`${item} cursor-pointer border-0 bg-transparent text-start`}
+                        onClick={() => {
+                            setOpen(false)
+                            setLeaving(true)
+                        }}
+                    >
                         {t('signOut')}
                     </button>
                 </div>
             ) : null}
+            <SignOutDialog open={leaving} onClose={() => setLeaving(false)} />
         </div>
     )
 }

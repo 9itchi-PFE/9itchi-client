@@ -12,6 +12,7 @@ export function ConfirmDialog({
     title,
     children,
     confirmLabel,
+    cancelLabel,
     busy,
     onConfirm,
     onClose,
@@ -20,6 +21,8 @@ export function ConfirmDialog({
     title: ReactNode
     children: ReactNode
     confirmLabel: ReactNode
+    // cancelLabel replaces « Annuler » where that word would read as the action itself (stopping a subscription).
+    cancelLabel?: ReactNode
     busy?: boolean
     onConfirm: () => void
     onClose: () => void
@@ -31,7 +34,7 @@ export function ConfirmDialog({
                 <p className="m-0 text-[14.5px] leading-[1.55] text-ink-2">{children}</p>
                 <div className="flex flex-wrap justify-end gap-2.5">
                     <Button variant="secondary" onClick={onClose} disabled={busy}>
-                        {t('cancel')}
+                        {cancelLabel ?? t('cancel')}
                     </Button>
                     <Button onClick={onConfirm} disabled={busy}>
                         {confirmLabel}

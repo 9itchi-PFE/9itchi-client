@@ -5,13 +5,13 @@ Next.js UI for students (`candidate`) and admins. Owns no data: calls the Go ser
 Next.js 15.1 (App Router, standalone, turbopack dev), React 19, TypeScript, Tailwind 3, NextAuth v5 beta, next-intl 4, TanStack Query 5, Axios, Ably 2, Vitest 3, Playwright.
 
 ## Layout
-- `src/app/`: public `/`, `/offres/[id]` (shared offer), `/privacy-policy`, `/terms-conditions`, `/auth/callback`; `auth/` signin, signup, forgot-password, reset-password; `(onboarding)/` preferences, resumes/upload; `(protected-pages)/` student pages (jobs, books, resumes, applications, outreach, emails/compose, notifications, support, settings/{alerts,billing,gmail}) and `admin/` (books, jobs, plans, promo-codes, sources, stats, support, templates, users).
+- `src/app/`: public `/`, `/offres/[id]` (shared offer), `/privacy-policy`, `/terms-conditions`, `/cookies`, `/auth/callback`, plus `robots.ts`, `sitemap.ts`, `favicon.ico`/`icon.png`/`apple-icon.png` (kept out of the middleware); `auth/` signin, signup, forgot-password, reset-password; `(onboarding)/` preferences, resumes/upload; `(protected-pages)/` student pages (jobs, books, resumes, applications, outreach, emails/compose, notifications, support, settings/{alerts,billing,gmail}) and `admin/` (books, jobs, plans, promo-codes, sources, stats, support, templates, users).
 - `src/app/api/`: `auth/[...nextauth]`, `proxy/[service]/[...path]`.
 - `src/services/` one file per backend (no `AiService`: AI goes through resume/email/job), `src/hooks/use*.ts` (TanStack Query), `src/configs/` (services, routes, auth, navigation), `src/context/`, `src/components/`, `src/i18n/`, `messages/{fr,en,ar}.json`, `src/__tests__/`, `e2e/`, `infra/`.
 
 ## Rules
 - Base URLs only via `configs/services.config.ts`: `NEXT_PUBLIC_USE_PROXY=true` -> `/api/proxy/<svc>`, else `NEXT_PUBLIC_<SVC>_API_BASE_URL`; server side prefers `<SERVICE>_API_URL`.
-- Proxy forwards only `authorization`, `content-type`, `accept`, `accept-language`; 404 on `internal/` paths and unknown services, 502 when a service is down. Never call `/internal/*` from the client.
+- Proxy forwards only `authorization`, `content-type`, `accept`, `accept-language` and the byte-range headers (`range`, `if-range`, `if-none-match`, for the book PDF read page by page); 404 on `internal/` paths and unknown services, 502 when a service is down. Never call `/internal/*` from the client.
 - Auth: two Credentials providers, `credentials` (email/password via account-api) and `tokens` (tokens returned by account-api after Google/LinkedIn). Send the account-api token as `Authorization: Bearer {token}`, not the NextAuth session token. Dedup in-flight refresh in Axios interceptors. `SessionProvider refetchInterval={5*60}`. Read-only consumers use `SessionContext`.
 - Role gating: `src/middleware.ts` + `configs/routes.config` `protectedRoutes`. After login a student lands on jobs (`/dashboard` redirects).
 - i18n: next-intl, no locale in URL; `NEXT_LOCALE` cookie, then `Accept-Language`, else `fr`. `ar` is RTL (`dirOf`). TZ `Africa/Tunis`. Every new string goes in all three `messages/*.json`.

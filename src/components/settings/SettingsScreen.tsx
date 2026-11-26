@@ -4,6 +4,7 @@ import { useState, type FormEvent } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { signOut } from 'next-auth/react'
+import { SignOutDialog } from '@/components/auth/SignOutDialog'
 import { SCHOOLS } from '@/components/auth/SignUp'
 import PremiumBadge from '@/components/billing/PremiumBadge'
 import { Sk } from '@/components/jobs/OfferStates'
@@ -38,6 +39,7 @@ export default function SettingsScreen() {
     const remove = useDeleteMe()
     const [error, setError] = useState('')
     const [deleting, setDeleting] = useState(false)
+    const [leaving, setLeaving] = useState(false)
     const [typed, setTyped] = useState('')
     const [deleteError, setDeleteError] = useState('')
 
@@ -163,7 +165,7 @@ export default function SettingsScreen() {
                     {t('session')}
                 </h2>
                 <div className="flex flex-wrap items-center gap-3">
-                    <Button variant="secondary" onClick={() => signOut()}>
+                    <Button variant="secondary" onClick={() => setLeaving(true)}>
                         {t('signOut')}
                     </Button>
                     <Button
@@ -179,6 +181,7 @@ export default function SettingsScreen() {
                     </Button>
                 </div>
             </section>
+            <SignOutDialog open={leaving} onClose={() => setLeaving(false)} />
             <Modal open={deleting} onClose={() => setDeleting(false)} title={t('deleteTitle')} width={520}>
                 <div className="flex flex-col gap-1.5 text-[14.5px] leading-[1.55] text-ink-2">
                     <strong className="text-ink">{t('deleteGone')}</strong>

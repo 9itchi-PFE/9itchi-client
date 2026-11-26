@@ -1,3 +1,4 @@
+import type { CompanyLogo } from '@/types/logo'
 import type {
     AdminBook,
     Book,
@@ -35,6 +36,15 @@ const JobService = {
     listJobs: (q: JobQuery = {}) => api('job').get<JobList>(`/jobs`, { params: toParams(q) }),
     counts: () => api('job').get<JobCounts>(`/jobs/counts`),
     recommendedJobs: () => api('job').get<JobList>(`/jobs/recommended`),
+    // Company logos: the list anyone can read, the team's upload and removal. The image itself is logoUrl.
+    logos: () => api('job').get<{ items: CompanyLogo[] }>(`/public/logos`),
+    uploadLogo: (company: string, file: Blob) => {
+        const form = new FormData()
+        form.append('company', company)
+        form.append('file', file)
+        return api('job').put<CompanyLogo>(`/admin/logos`, form)
+    },
+    deleteLogo: (company: string) => api('job').delete(`/admin/logos`, { params: { company } }),
     // publicJob needs no account: the page of an offer shared by link.
     publicJob: (id: string) => api('job').get<PublicJob>(`/public/jobs/${id}`),
     getJob: (id: string) => api('job').get<Job>(`/jobs/${id}`),

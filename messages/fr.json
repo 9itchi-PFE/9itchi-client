@@ -7,7 +7,10 @@
         "loading": "Chargement…",
         "retry": "Réessayer",
         "error": "Quelque chose n’a pas marché. Réessaie dans un instant.",
-        "of": "{current} sur {total}"
+        "of": "{current} sur {total}",
+        "signOutTitle": "Te déconnecter ?",
+        "signOutText": "Tu pourras revenir à tout moment avec ton email ou ton compte Google ou LinkedIn.",
+        "signOutYes": "Se déconnecter"
     },
     "outreach": {
         "title": "Prospection IA",
@@ -1002,9 +1005,9 @@
         "next": "Page suivante",
         "pdfHint": "Clique sur un sujet pour aller à sa page. Le PDF est montré tel que l’entreprise l’a publié.",
         "noPdf": "L’entreprise n’a pas joint de PDF à ce book.",
-        "pdfLoading": "Chargement du PDF… cela peut prendre une minute.",
+        "pdfLoading": "Chargement de la page…",
         "pdfLoaded": "{size} Mo reçus",
-        "pdfError": "Le PDF n’a pas pu être chargé.",
+        "pdfError": "La page du PDF n’a pas pu s’afficher.",
         "pdfRetry": "Réessayer",
         "shown": "{shown} sur {total} affichés",
         "showAll": "Tout afficher",
@@ -1022,7 +1025,9 @@
             "networks": "Réseaux"
         },
         "closed": "Fermé",
-        "see": "Voir l’offre"
+        "see": "Voir l’offre",
+        "pdfOpen": "Voir la page {page} du PDF",
+        "downloading": "Téléchargement…"
     },
     "admin": {
         "nav": "Administration",
@@ -1578,7 +1583,17 @@
         "priceZero": "Un plan payant coûte plus de 0 DT.",
         "perYear": "par an",
         "planOffTitle": "Désactiver « {name} » ?",
-        "durationHeld": "Des étudiants ont ce plan : sa durée ne peut plus changer. Crée un nouveau plan avec la durée voulue, puis désactive celui-ci."
+        "durationHeld": "Des étudiants ont ce plan : sa durée ne peut plus changer. Crée un nouveau plan avec la durée voulue, puis désactive celui-ci.",
+        "logoTitle": "Logo de l’entreprise",
+        "logoHint": "Montré sur toutes les offres de {company}, d’un PFE book, d’un site ou saisies à la main. PNG, JPEG ou WebP, 2 Mo maximum.",
+        "logoNoCompany": "Indique d’abord le nom de l’entreprise.",
+        "logoAdd": "Ajouter un logo",
+        "logoChange": "Changer le logo",
+        "logoRemove": "Retirer",
+        "logoSaved": "Logo de {company} enregistré",
+        "logoRemoved": "Logo de {company} retiré",
+        "logoType": "Choisis une image PNG, JPEG ou WebP.",
+        "logoTooBig": "Le logo dépasse 2 Mo."
     },
     "apply": {
         "back": "Retour à l’offre",
@@ -2003,7 +2018,7 @@
         "resolved": "Résolue",
         "messages": "Messages",
         "loadError": "Les messages n’ont pas pu être lus.",
-        "emptyStudent": "Pose ta question : un problème avec ton CV, une candidature, un paiement… On te répond ici.",
+        "emptyStudent": "Un problème avec ton CV, une candidature ou un paiement ? Écris ta question, l’équipe te répond ici.",
         "emptyTeam": "Aucun message pour l’instant. Écris le premier.",
         "fromMe": "Toi :",
         "fromTeam": "L’équipe 9itchi :",
@@ -2011,7 +2026,19 @@
         "write": "Écrire un message",
         "send": "Envoyer",
         "sendError": "Le message n’est pas parti. Réessaie.",
-        "writeTo": "Écrire à {name}"
+        "writeTo": "Écrire à {name}",
+        "emptyStudentTitle": "Écris-nous",
+        "emptyTeamTitle": "Pas encore de message",
+        "topic": {
+            "cv": "Mon CV",
+            "application": "Une candidature",
+            "payment": "Un paiement"
+        },
+        "starter": {
+            "cv": "Bonjour, j’ai un problème avec mon CV : ",
+            "application": "Bonjour, j’ai une question sur une candidature : ",
+            "payment": "Bonjour, j’ai une question sur un paiement : "
+        }
     },
     "settings": {
         "title": "Paramètres",
@@ -2134,8 +2161,6 @@
         "a3": "Des PFE books des entreprises, importés par notre équipe, et d’offres publiées sur d’autres sites. On cite toujours la source.",
         "q4": "Comment j’arrête l’abonnement ?",
         "a4": "Dans Paramètres → Abonnement, en un clic. Aucun nouveau paiement ne part.",
-        "footTerms": "Conditions d’utilisation",
-        "footPrivacy": "Confidentialité",
         "offer": {
             "back": "Découvrir 9itchi PFE",
             "fromBook": "Sujet de « {title} »",
@@ -2174,6 +2199,21 @@
         "freeLine": "Sans abonnement : parcours les offres et envoie {count} candidatures avec le CV que tu as importé, tel quel, pour essayer.",
         "freeLineCta": "Créer mon compte",
         "paid0": "Ton CV corrigé avec les 24 règles, et le diagnostic complet",
-        "perYear": "/ an"
+        "perYear": "/ an",
+        "footer": {
+            "about": "Toutes les offres de stage PFE de Tunisie au même endroit, un CV qui suit les règles des recruteurs et une lettre pour chaque offre.",
+            "productTitle": "9itchi",
+            "signUp": "Créer un compte",
+            "signIn": "Se connecter",
+            "forgot": "Mot de passe oublié",
+            "legalTitle": "Légal",
+            "terms": "Conditions d’utilisation",
+            "privacy": "Confidentialité",
+            "cookies": "Cookies",
+            "notice": "Mentions légales",
+            "contactTitle": "Contact",
+            "place": "Sfax, Tunisie",
+            "copyright": "© {year} Lakhal Technologies · 9itchi PFE"
+        }
     }
 }

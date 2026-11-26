@@ -25,7 +25,7 @@ export function LegalList({ items }: { items: ReactNode[] }) {
 export default function LegalPage({ title, intro, sections }: { title: string; intro: ReactNode; sections: LegalSection[] }) {
     return (
         <main className="mx-auto max-w-3xl px-6 py-12 text-sm leading-relaxed text-gray-700">
-            <Link href="/auth/signin" className="text-xs underline">
+            <Link href="/" className="text-xs underline">
                 ← Back to {LEGAL.app}
             </Link>
             <h1 className="mt-4 text-3xl font-semibold text-gray-900">{title}</h1>
@@ -39,7 +39,7 @@ export default function LegalPage({ title, intro, sections }: { title: string; i
                     <div className="mt-2 space-y-2">{s.body}</div>
                 </section>
             ))}
-            <footer className="mt-12 border-t pt-6 text-xs text-gray-500">
+            <footer id="legal-notice" className="mt-12 scroll-mt-6 border-t pt-6 text-xs text-gray-500">
                 <p className="font-semibold text-gray-700">Legal notice (Mentions légales)</p>
                 <p>Trade name: {LEGAL.company}</p>
                 <p>Registered office: {LEGAL.address}</p>
@@ -56,6 +56,10 @@ export default function LegalPage({ title, intro, sections }: { title: string; i
                     {' · '}
                     <Link href="/privacy-policy" className="underline">
                         Privacy Policy
+                    </Link>
+                    {' · '}
+                    <Link href="/cookies" className="underline">
+                        Cookie Policy
                     </Link>
                 </p>
             </footer>

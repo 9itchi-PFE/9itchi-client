@@ -2,6 +2,7 @@ export const publicRoutes = {
     '/': {},
     '/privacy-policy': {},
     '/terms-conditions': {},
+    '/cookies': {},
     '/auth/callback': {},
 }
 
