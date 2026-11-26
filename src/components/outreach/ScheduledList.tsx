@@ -9,6 +9,7 @@ import { inputClass, TextArea } from '@/components/ui/Field'
 import { Icon } from '@/components/ui/icons'
 import { Modal } from '@/components/ui/Modal'
 import { useToast } from '@/components/ui/Toast'
+import { Select } from '@/components/ui/Select'
 import { useCancelEmail, useEmails, useUpdateEmail } from '@/hooks/useEmails'
 import type { Email } from '@/types/application'
 import type { Resume } from '@/types/resume'
@@ -78,13 +79,13 @@ function EditEmail({ email, resumes, onClose }: { email: Email; resumes: Pick<Re
                     {c('attach')}
                 </label>
                 {attach && resumes.length ? (
-                    <select aria-label={c('attachResume')} className={inputClass} value={resumeId} onChange={(e) => setResumeId(e.target.value)}>
+                    <Select aria-label={c('attachResume')} className={inputClass} value={resumeId} onChange={(e) => setResumeId(e.target.value)}>
                         {resumes.map((r) => (
                             <option key={r.id} value={r.id}>
                                 {r.title}
                             </option>
                         ))}
-                    </select>
+                    </Select>
                 ) : null}
                 <div className="flex flex-wrap justify-end gap-2.5">
                     <Button variant="secondary" onClick={onClose}>

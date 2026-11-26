@@ -1,8 +1,9 @@
 'use client'
 
-import { forwardRef, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from 'react'
+import { forwardRef, type InputHTMLAttributes, type ReactNode } from 'react'
 import Link from 'next/link'
 import { useTranslations } from 'next-intl'
+import { Select, type SelectProps } from '@/components/ui/Select'
 import { cn } from '@/lib/cn'
 
 const control = 'box-border h-12 w-full rounded-xl border border-line-strong bg-white px-3.5 text-[15px] font-normal text-ink placeholder:text-ink-4'
@@ -34,13 +35,13 @@ export const AuthField = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLIn
     )
 })
 
-export function AuthSelect({ label, children, ...rest }: SelectHTMLAttributes<HTMLSelectElement> & { label: ReactNode }) {
+export function AuthSelect({ label, children, className, ...rest }: SelectProps & { label: ReactNode }) {
     return (
         <label className="flex flex-col gap-1.5 text-sm font-medium text-ink-2">
             {label}
-            <select className={cn(control, 'cursor-pointer')} {...rest}>
+            <Select className={cn('h-12 rounded-xl px-3.5 font-normal', className)} {...rest}>
                 {children}
-            </select>
+            </Select>
         </label>
     )
 }

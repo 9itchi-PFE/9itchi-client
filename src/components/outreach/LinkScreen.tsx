@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { inputClass, TextArea } from '@/components/ui/Field'
 import { Icon } from '@/components/ui/icons'
 import { Segmented } from '@/components/ui/Segmented'
+import { Select } from '@/components/ui/Select'
 import { useLinkDraft } from '@/hooks/useRecruiters'
 import { useResumes } from '@/hooks/useResumes'
 import { cn } from '@/lib/cn'
@@ -153,22 +154,22 @@ export default function LinkScreen() {
                     <div className="grid gap-4 sm:grid-cols-2">
                         <label className={label}>
                             {t('resume')}
-                            <select className={inputClass} value={resume} onChange={(e) => setResumeId(e.target.value)}>
+                            <Select className={inputClass} value={resume} onChange={(e) => setResumeId(e.target.value)}>
                                 <option value="">{t('noResume')}</option>
                                 {resumeList.map((r) => (
                                     <option key={r.id} value={r.id}>
                                         {r.title}
                                     </option>
                                 ))}
-                            </select>
+                            </Select>
                         </label>
                         <label className={label}>
                             {t('language')}
-                            <select className={inputClass} value={language} onChange={(e) => setLanguage(e.target.value as LetterLanguage)}>
+                            <Select className={inputClass} value={language} onChange={(e) => setLanguage(e.target.value as LetterLanguage)}>
                                 <option value="fr">Français</option>
                                 <option value="en">English</option>
                                 <option value="ar">العربية</option>
-                            </select>
+                            </Select>
                         </label>
                     </div>
                     <div className={label}>

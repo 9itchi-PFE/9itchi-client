@@ -9,6 +9,7 @@ import { Field, TextArea, inputClass } from '@/components/ui/Field'
 import { Drawer, Modal } from '@/components/ui/Modal'
 import { Segmented } from '@/components/ui/Segmented'
 import { useToast } from '@/components/ui/Toast'
+import { Select } from '@/components/ui/Select'
 import { useEditReview, useImportPost, useReviewAction, useReviewJob, useReviewList } from '@/hooks/useAdminJobs'
 import { cn } from '@/lib/cn'
 import type { JobEdit, Origin, ReviewItem, ReviewJob, ReviewTab } from '@/types/job'
@@ -201,14 +202,14 @@ export function EditDrawer({ job, onClose }: { job: ReviewJob; onClose: () => vo
         )
     }
     const select = (name: string, value: string, options: [string, string][]) => (
-        <select name={name} defaultValue={value} className={inputClass}>
+        <Select name={name} defaultValue={value} className={inputClass}>
             <option value="">{t('none')}</option>
             {options.map(([k, label]) => (
                 <option key={k} value={k}>
                     {label}
                 </option>
             ))}
-        </select>
+        </Select>
     )
     const label = 'flex flex-col gap-1.5 text-[13.5px] font-medium text-ink-2'
     return (

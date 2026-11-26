@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/Button'
 import { inputClass } from '@/components/ui/Field'
 import { Icon } from '@/components/ui/icons'
+import { Select } from '@/components/ui/Select'
 import { cn } from '@/lib/cn'
 import type { Resume } from '@/types/resume'
 import type { RecruiterSearchInput } from '@/types/recruiter'
@@ -86,14 +87,14 @@ export default function SearchPanel({
 
             <label className={label}>
                 {t('resume')}
-                <select className={inputClass} value={resumeId} onChange={(e) => onResume(e.target.value)}>
+                <Select className={inputClass} value={resumeId} onChange={(e) => onResume(e.target.value)}>
                     <option value="">{t('noResume')}</option>
                     {resumes.map((r) => (
                         <option key={r.id} value={r.id}>
                             {r.title}
                         </option>
                     ))}
-                </select>
+                </Select>
             </label>
 
             <div className={label}>

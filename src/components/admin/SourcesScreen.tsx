@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/Button'
 import { Field, TextArea, inputClass } from '@/components/ui/Field'
 import { Modal } from '@/components/ui/Modal'
 import { useToast } from '@/components/ui/Toast'
+import { Select } from '@/components/ui/Select'
 import { useDeleteSource, useRunSource, useSaveSource, useSources } from '@/hooks/useAdminJobs'
 import { cn } from '@/lib/cn'
 import type { Source } from '@/types/job'
@@ -112,13 +113,13 @@ function SourceModal({ source, onClose }: { source: Source | null | undefined; o
                 <div className="grid grid-cols-2 items-end gap-3">
                     <label className="flex flex-col gap-1.5 text-[13.5px] font-medium text-ink-2">
                         {t('fEvery')}
-                        <select name="every_hours" defaultValue={source?.every_hours ?? 24} className={inputClass}>
+                        <Select name="every_hours" defaultValue={source?.every_hours ?? 24} className={inputClass}>
                             {[...new Set([...EVERY, source?.every_hours ?? 24])].map((h) => (
                                 <option key={h} value={h}>
                                     {t('every', { hours: h })}
                                 </option>
                             ))}
-                        </select>
+                        </Select>
                     </label>
                     <label className="flex h-11 items-center gap-2 text-sm font-medium text-ink-2">
                         <input type="checkbox" name="enabled" defaultChecked={source?.enabled ?? true} className="h-4 w-4 accent-ink" />

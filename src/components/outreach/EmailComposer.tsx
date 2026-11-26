@@ -8,6 +8,7 @@ import { inputClass, TextArea } from '@/components/ui/Field'
 import { Icon } from '@/components/ui/icons'
 import { Segmented } from '@/components/ui/Segmented'
 import { useToast } from '@/components/ui/Toast'
+import { Select } from '@/components/ui/Select'
 import { useGmailStatus } from '@/hooks/useApplications'
 import { useSendEmail } from '@/hooks/useEmails'
 import { quotaReason } from '@/utils/quota'
@@ -141,11 +142,11 @@ export default function EmailComposer({
             <div className="flex flex-wrap items-end gap-3">
                 <label className={label}>
                     {t('language')}
-                    <select className={inputClass} value={language} onChange={(e) => setLanguage(e.target.value as LetterLanguage)}>
+                    <Select className={inputClass} value={language} onChange={(e) => setLanguage(e.target.value as LetterLanguage)}>
                         <option value="fr">Français</option>
                         <option value="en">English</option>
                         <option value="ar">العربية</option>
-                    </select>
+                    </Select>
                 </label>
                 <div className={label}>
                     <span>{t('tone')}</span>
@@ -189,13 +190,13 @@ export default function EmailComposer({
                 </label>
                 {attach ? (
                     resumes.length ? (
-                        <select aria-label={t('attachResume')} className={inputClass} value={resumeId} onChange={(e) => setResumeId(e.target.value)}>
+                        <Select aria-label={t('attachResume')} className={inputClass} value={resumeId} onChange={(e) => setResumeId(e.target.value)}>
                             {resumes.map((r) => (
                                 <option key={r.id} value={r.id}>
                                     {r.title}
                                 </option>
                             ))}
-                        </select>
+                        </Select>
                     ) : (
                         <span className="text-[12.5px] text-ink-3">{t('noResume')}</span>
                     )
