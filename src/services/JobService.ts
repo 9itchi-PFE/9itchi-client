@@ -11,6 +11,7 @@ import type {
     JobQuery,
     PostImport,
     ReviewJob,
+    ReviewFilter,
     ReviewList,
     ReviewTab,
     Source,
@@ -61,7 +62,8 @@ const JobService = {
     updateSource: (id: string, s: SourceInput) => api('job').patch<Source>(`/admin/sources/${id}`, s),
     deleteSource: (id: string) => api('job').delete(`/admin/sources/${id}`),
     runSource: (id: string) => api('job').post<Source>(`/admin/sources/${id}/run`),
-    listReview: (tab: ReviewTab, page = 1) => api('job').get<ReviewList>(`/admin/jobs`, { params: { tab, page, page_size: 50 } }),
+    listReview: (tab: ReviewTab, f: ReviewFilter = {}, page = 1) =>
+        api('job').get<ReviewList>(`/admin/jobs`, { params: { tab, page, page_size: 50, source_id: f.source_id || undefined, origin: f.origin || undefined } }),
     getReview: (id: string) => api('job').get<ReviewJob>(`/admin/jobs/${id}`),
     editReview: (id: string, e: JobEdit) => api('job').patch<ReviewJob>(`/admin/jobs/${id}`, e),
     publishJob: (id: string) => api('job').post<ReviewJob>(`/admin/jobs/${id}/publish`),

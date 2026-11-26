@@ -2,6 +2,8 @@ import { useMutation, useQueries, useQuery, useQueryClient } from '@tanstack/rea
 import EmailService from '@/services/EmailService'
 import TrackerService from '@/services/TrackerService'
 import { isAxiosError } from 'axios'
+import { today } from '@/components/admin/plans'
+import { loadScores } from '@/components/jobs/scores'
 import type { Application, ApplicationList, ApplyInput, DraftInput, JobMatch, MatchInput } from '@/types/application'
 
 export const applicationKeys = {
@@ -12,6 +14,8 @@ export const applicationKeys = {
     gmail: ['gmail'] as const,
     email: (id: string) => ['emails', id] as const,
     opens: (id: string) => ['emails', id, 'opens'] as const,
+    // One AI batch per CV and per day in Tunis: the key changes at midnight and the next visit asks again.
+    scores: (resumeId: string, day: string) => ['scores', resumeId, day] as const,
 }
 
 export function useApplications() {
@@ -46,6 +50,19 @@ export function useRunMatch() {
     return useMutation({
         mutationFn: async (input: MatchInput) => (await EmailService.match(input)).data,
         onSuccess: (m, input) => qc.setQueryData(applicationKeys.match(input), m),
+    })
+}
+
+// useScores gives the AI's quick scores of the first offers of « Pour toi »: the ones already made, then the AI
+// scores the first ones without (counted per day by the plan). Read once a day; the list shows without waiting.
+export function useScores(resumeId: string | undefined, jobIds: string[], language: MatchInput['language'], enabled: boolean) {
+    return useQuery({
+        queryKey: applicationKeys.scores(resumeId ?? '', today()),
+        queryFn: () => loadScores({ resume_id: resumeId!, language, job_ids: jobIds }, { cached: EmailService.cachedScores, score: EmailService.scores }),
+        enabled: enabled && !!resumeId && jobIds.length > 0,
+        staleTime: Infinity,
+        gcTime: 24 * 60 * 60_000,
+        retry: false,
     })
 }
 

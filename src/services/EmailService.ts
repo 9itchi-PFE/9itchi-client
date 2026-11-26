@@ -1,4 +1,17 @@
-import type { Allowance, Application, ApplicationList, ApplyInput, Draft, DraftInput, Email, GmailStatus, JobMatch, MatchInput } from '@/types/application'
+import type {
+    Allowance,
+    Application,
+    ApplicationList,
+    ApplyInput,
+    Draft,
+    DraftInput,
+    Email,
+    GmailStatus,
+    JobMatch,
+    MatchInput,
+    ScoreInput,
+    ScoreList,
+} from '@/types/application'
 import type {
     EmailEdit,
     LinkDraft,
@@ -45,6 +58,9 @@ const EmailService = {
     // findMatch is the AI's reading of the CV against an offer already made (404: none); match makes it.
     findMatch: (input: MatchInput) => e().get<JobMatch>(`/applications/match`, { params: input }),
     match: (input: MatchInput) => e().post<JobMatch>(`/applications/match`, input),
+    // cachedScores reads the quick AI scores already made (free); scores makes up to 10, counted per day by the plan.
+    cachedScores: ({ job_ids, ...rest }: ScoreInput) => e().get<ScoreList>(`/applications/scores`, { params: { ...rest, job_ids: job_ids.join(',') } }),
+    scores: (input: ScoreInput) => e().post<ScoreList>(`/applications/scores`, input, { timeout: 90_000 }),
     // userApplications and userGmail are what the team sees of one student (admin): no recipient, no subject, no address.
     userApplications: (userId: string) => e().get<ApplicationList>(`/admin/users/${userId}/applications`),
     // userBuiltSends is how many applications a student sent with the CV built in 9itchi, and the last time (admin).

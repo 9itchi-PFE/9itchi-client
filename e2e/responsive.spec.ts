@@ -71,7 +71,7 @@ const STUDENT_PAGES = [
     '/settings/billing',
     '/support',
 ]
-const ADMIN_PAGES = ['/admin', '/admin/users', '/admin/books', '/admin/plans']
+const ADMIN_PAGES = ['/admin', '/admin/users', '/admin/books', '/admin/plans', '/admin/credits']
 
 // Runs in the page.
 function measure() {
@@ -178,6 +178,14 @@ for (const screen of SCREENS) {
             await mockServices(page, {
                 ...ANSWERS,
                 'GET /account/users/me': { id: ADMIN.id, name: 'Équipe 9itchi', email: ADMIN.email, role: 'admin', status: 'active', language: 'fr' },
+                'GET /statistics/admin/integrations': {
+                    month: '2026-11',
+                    integrations: [
+                        { provider: 'gemini', label: 'Gemini', kind: 'ai', unit: 'tokens', quota: 1000000, used: 420000, remaining: 580000, percent: 42, has_token: true, token_hint: '••••1234' },
+                        { provider: 'openai', label: 'OpenAI', kind: 'ai', unit: 'tokens', quota: 0, used: 0, remaining: 0, percent: 0, has_token: false, token_hint: '' },
+                        { provider: 'llamaindex', label: 'LlamaIndex Extract', kind: 'plugin', unit: 'documents', quota: 100, used: 95, remaining: 5, percent: 95, has_token: false, token_hint: '' },
+                    ],
+                },
             })
             await signIn(page, ADMIN)
             await checkAll(page, ADMIN_PAGES, screen.phone)
