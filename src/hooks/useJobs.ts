@@ -79,21 +79,23 @@ export function useToggleSave() {
     })
 }
 
-// useLogos is every company that has a logo, read once and kept a while: a list of offers shows them without
-// asking for each one.
+const byKey = (items: CompanyLogo[]) => new Map(items.map((l) => [l.key, l]))
+
+// useLogos is every company that has a logo, by key, read once and kept a while: a list of offers shows them
+// without asking for each one.
 export function useLogos() {
     return useQuery({
         queryKey: jobKeys.logos,
         queryFn: async () => (await JobService.logos()).data.items,
+        select: byKey,
         staleTime: 5 * 60 * 1000,
         retry: false,
     })
 }
 
 // logoUrl is the address of a company's logo image, or undefined when it has none.
-export function logoUrl(logos: CompanyLogo[] | undefined, company: string): string | undefined {
-    const key = companyKey(company)
-    const logo = key ? logos?.find((l) => l.key === key) : undefined
+export function logoUrl(logos: Map<string, CompanyLogo> | undefined, company: string): string | undefined {
+    const logo = logos?.get(companyKey(company))
     return logo ? `${getServiceBaseUrl('job')}/public/logos/${encodeURIComponent(logo.key)}?v=${logo.version}` : undefined
 }
 

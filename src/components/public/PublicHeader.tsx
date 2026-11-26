@@ -39,7 +39,7 @@ export default function PublicHeader({ signInTo }: { signInTo?: string }) {
 export function PublicFooter() {
     const t = useTranslations('public.footer')
     const year = new Date().getFullYear()
-    const link = 'text-[14.5px] text-ink-2 no-underline hover:text-ink'
+    const link = 'py-2 text-[14.5px] text-ink-2 no-underline hover:text-ink'
     const head = 'm-0 font-mono text-[11px] font-semibold uppercase tracking-[.1em] text-ink-3'
     return (
         <footer className="border-t border-line-soft bg-white">
@@ -50,7 +50,7 @@ export function PublicFooter() {
                     </Link>
                     <p className="m-0 max-w-[340px] text-[14.5px] leading-[1.55] text-ink-3">{t('about')}</p>
                 </div>
-                <nav aria-label={t('productTitle')} className="flex flex-col gap-2.5">
+                <nav aria-label={t('productTitle')} className="flex flex-col gap-0.5">
                     <h2 className={head}>{t('productTitle')}</h2>
                     <Link href="/auth/signup" className={link}>
                         {t('signUp')}
@@ -62,7 +62,7 @@ export function PublicFooter() {
                         {t('forgot')}
                     </Link>
                 </nav>
-                <nav aria-label={t('legalTitle')} className="flex flex-col gap-2.5">
+                <nav aria-label={t('legalTitle')} className="flex flex-col gap-0.5">
                     <h2 className={head}>{t('legalTitle')}</h2>
                     <Link href="/terms-conditions" className={link}>
                         {t('terms')}
@@ -77,7 +77,7 @@ export function PublicFooter() {
                         {t('notice')}
                     </Link>
                 </nav>
-                <div className="flex flex-col gap-2.5">
+                <div className="flex flex-col gap-0.5">
                     <h2 className={head}>{t('contactTitle')}</h2>
                     <a href="mailto:contact@9itchi-pfe.com" className={link} dir="ltr">
                         contact@9itchi-pfe.com

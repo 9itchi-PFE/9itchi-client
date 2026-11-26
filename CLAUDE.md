@@ -18,6 +18,8 @@ Next.js 15.1 (App Router, standalone, turbopack dev), React 19, TypeScript, Tail
 - Ably: token via `authCallback` from `GET /notifications/ably-token` (channel `user:{id}`) and `GET /chat/ably-token` (channel = conversation id). Clients never publish.
 - Keep backend field names (`id`, `role`, `status`, `tracking_id`). Server components by default; `"use client"` only when needed. Invalidate the right query keys after mutations. No new UI libraries without need.
 - Paywall: 402 from services means quota/subscription; show the subscription UI, don't treat it as an error.
+- Book PDF: `PdfPage` reads it page by page with pdf.js over byte ranges straight from job-api `/books/:id/pdf` (needs job-api `http.ServeContent` and CORS `Range`; the doc cache is keyed by URL + token because pdf.js fixes its headers at open and the access token lives 15 min). Company logos come from job-api `/public/logos` (`useLogos`, `logoUrl`, key = `companyKey`). Both need the job-api `offers/company-logo` branch deployed first; without it logos are absent and the PDF falls back to a full download.
+- Metadata: set `alternates.canonical` per page, never in the root layout (every page would inherit it).
 - Plan texts for students come from `plan.details[locale]` (label, tagline, features) via `planText(plan, locale)` in `components/billing/billing.ts` (fallback fr, then `plan.name`); the admin edits them per language in PlanModal.
 
 ## UI style

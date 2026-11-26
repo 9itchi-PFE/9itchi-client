@@ -2,12 +2,22 @@ import { describe, expect, it } from 'vitest'
 import { bookFacts } from '@/components/jobs/bookFacts'
 import { defaultFilters, filtered, fromSearch, relaxations, searching, toJobQuery, toSearch } from '@/components/jobs/filters'
 import { nextMonths } from '@/components/jobs/MoreFilters'
-import { daysLeft, deadline, fresh, initials, match, sourceName, tint } from '@/components/jobs/offer'
+import { companyKey, daysLeft, deadline, fresh, initials, match, sourceName, tint } from '@/components/jobs/offer'
+import { logoUrl } from '@/hooks/useJobs'
 import { toParams } from '@/services/JobService'
 
 const now = new Date(2026, 10, 23, 15, 0) // 23 Nov 2026, afternoon
 
 describe('offer helpers', () => {
+    it('finds a company logo whatever the spacing or case of its name', () => {
+        expect(companyKey('  Novapay   SYSTEMS ')).toBe('novapay systems')
+        const logos = new Map([['novapay systems', { company: 'Novapay Systems', key: 'novapay systems', version: 3, updated_at: '' }]])
+        expect(logoUrl(logos, 'NovaPay  Systems')).toMatch(/\/public\/logos\/novapay%20systems\?v=3$/)
+        expect(logoUrl(logos, 'Medina')).toBeUndefined()
+        expect(logoUrl(logos, '  ')).toBeUndefined()
+        expect(logoUrl(undefined, 'Novapay')).toBeUndefined()
+    })
+
     it('initials and tint', () => {
         expect(initials('Novapay Systems')).toBe('NS')
         expect(initials('Medina')).toBe('ME')

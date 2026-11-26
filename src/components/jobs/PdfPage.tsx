@@ -7,24 +7,54 @@ import { Button } from '@/components/ui/Button'
 // PdfSource is a PDF to read page by page: its address and, for one 9itchi keeps, the session token.
 export type PdfSource = { url: string; token?: string }
 
+// pdf.js 4 calls Promise.withResolvers (Safari 17.4, Chrome 119, Firefox 121). Older phones get this stand-in. It
+// refers to nothing outside itself, so its source can also go in front of pdf.js' worker, which runs in its own thread.
+function polyfillWithResolvers() {
+    const P = Promise as unknown as { withResolvers?: unknown }
+    if (typeof P.withResolvers === 'function') return
+    P.withResolvers = function () {
+        let resolve!: (value: unknown) => void
+        let reject!: (reason: unknown) => void
+        const promise = new Promise((res, rej) => {
+            resolve = res
+            reject = rej
+        })
+        return { promise, resolve, reject }
+    }
+}
+
 let lib: Promise<typeof import('pdfjs-dist')> | null = null
 
 // pdfjs loads pdf.js the first time a PDF is shown, with its worker (the page is drawn off the main thread).
 function pdfjs() {
     lib ??= import('pdfjs-dist').then((m) => {
-        m.GlobalWorkerOptions.workerSrc = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString()
+        const worker = new URL('pdfjs-dist/build/pdf.worker.min.mjs', import.meta.url).toString()
+        if (typeof (Promise as unknown as { withResolvers?: unknown }).withResolvers === 'function') {
+            m.GlobalWorkerOptions.workerSrc = worker
+        } else {
+            polyfillWithResolvers()
+            const wrapper = new Blob([`(${polyfillWithResolvers.toString()})();import ${JSON.stringify(new URL(worker, location.href).href)};`], {
+                type: 'text/javascript',
+            })
+            m.GlobalWorkerOptions.workerSrc = URL.createObjectURL(wrapper)
+        }
         return m
     })
     return lib
 }
 
-// Documents opened in this tab, by address: going from one topic to the next reuses what was already read.
+// Documents opened in this tab: going from one topic to the next reuses what was already read. A document keeps the
+// session token it was opened with, which lives 15 minutes, so the token is part of the key; only the last few are
+// kept, older ones are released.
 const docs = new Map<string, Promise<PDFDocumentProxy>>()
+const KEPT = 3
+const docKey = (src: PdfSource) => `${src.url}|${src.token ?? ''}`
 
 // openPdf reads a PDF in byte ranges (256 KB at a time, nothing fetched ahead): a page shows once the bytes it
 // needs have arrived, instead of after the whole file (often 20 MB for a PFE book).
 function openPdf(src: PdfSource): Promise<PDFDocumentProxy> {
-    let doc = docs.get(src.url)
+    const key = docKey(src)
+    let doc = docs.get(key)
     if (!doc) {
         doc = pdfjs().then(
             (m) =>
@@ -37,8 +67,15 @@ function openPdf(src: PdfSource): Promise<PDFDocumentProxy> {
                     isEvalSupported: false,
                 }).promise,
         )
-        doc.catch(() => docs.delete(src.url))
-        docs.set(src.url, doc)
+        doc.catch(() => docs.delete(key))
+        docs.set(key, doc)
+        while (docs.size > KEPT) {
+            const [oldest] = docs.keys()
+            docs.get(oldest)
+                ?.then((d) => d.destroy())
+                .catch(() => undefined)
+            docs.delete(oldest)
+        }
     }
     return doc
 }
@@ -62,6 +99,8 @@ export default function PdfPage({ source, page, label, loadingText, errorText, r
     const [width, setWidth] = useState(0)
     const [state, setState] = useState<'loading' | 'ready' | 'error'>('loading')
     const [attempt, setAttempt] = useState(0)
+    // The render in flight: a page asked for while another still draws waits for it, so two renders never share the canvas.
+    const drawing = useRef<Promise<unknown>>(Promise.resolve())
 
     useEffect(() => {
         const el = box.current
@@ -81,6 +120,7 @@ export default function PdfPage({ source, page, label, loadingText, errorText, r
                 if (stop) return
                 onPages?.(doc.numPages)
                 const p = await doc.getPage(Math.min(Math.max(1, page), doc.numPages))
+                await drawing.current
                 if (stop || !canvas.current) return
                 const base = p.getViewport({ scale: 1 })
                 const ratio = window.devicePixelRatio || 1
@@ -91,6 +131,7 @@ export default function PdfPage({ source, page, label, loadingText, errorText, r
                 c.style.width = `${width}px`
                 c.style.height = `${Math.floor(viewport.height / ratio)}px`
                 task = p.render({ canvasContext: c.getContext('2d')!, viewport })
+                drawing.current = task.promise.catch(() => undefined)
                 await task.promise
                 if (!stop) setState('ready')
             })
@@ -107,7 +148,7 @@ export default function PdfPage({ source, page, label, loadingText, errorText, r
     }, [source.url, source.token, page, width, attempt])
 
     const retry = () => {
-        docs.delete(source.url)
+        docs.delete(docKey(source))
         setAttempt((a) => a + 1)
     }
 

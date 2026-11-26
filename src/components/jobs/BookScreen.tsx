@@ -6,6 +6,7 @@ import { useFormatter, useTranslations } from 'next-intl'
 import { isAxiosError } from 'axios'
 import { Bolt, Icon } from '@/components/ui/icons'
 import { Modal } from '@/components/ui/Modal'
+import { useToast } from '@/components/ui/Toast'
 import { useSessionContext } from '@/components/auth/AuthProvider'
 import { getServiceBaseUrl } from '@/configs/services.config'
 import JobService from '@/services/JobService'
@@ -242,6 +243,7 @@ export default function BookScreen({ id }: { id: string }) {
     const format = useFormatter()
     const res = useBook(id)
     const { token } = useSessionContext()
+    const toast = useToast()
     const cv = useMyCv()
     const [field, setField] = useState<Topic | 'all'>('all')
     const [selectedId, setSelectedId] = useState<string>()
@@ -279,6 +281,8 @@ export default function BookScreen({ id }: { id: string }) {
             a.download = `${book.company} - ${book.title}.pdf`
             a.click()
             setTimeout(() => URL.revokeObjectURL(a.href), 10_000)
+        } catch {
+            toast(tc('error'))
         } finally {
             setSaving(false)
         }
@@ -396,10 +400,6 @@ export default function BookScreen({ id }: { id: string }) {
                                 onSelect={() => {
                                     setSelectedId(j.id)
                                     setPage(j.pdf_page ?? undefined)
-                                    // Under 1024px the PDF sits below the topics, out of sight: bring it into view.
-                                    if (window.matchMedia('(max-width: 1023px)').matches) {
-                                        requestAnimationFrame(() => document.getElementById('book-pdf')?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
-                                    }
                                 }}
                                 onPdf={
                                     source

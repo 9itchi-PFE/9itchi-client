@@ -19,12 +19,10 @@ export const metadata: Metadata = {
     title: { default: '9itchi PFE · Trouve ton stage PFE et postule en un clic', template: '%s · 9itchi PFE' },
     description,
     applicationName: '9itchi PFE',
-    alternates: { canonical: '/' },
     openGraph: {
         type: 'website',
         siteName: '9itchi PFE',
         locale: 'fr_TN',
-        url: '/',
         title: '9itchi PFE · Trouve ton stage PFE et postule en un clic',
         description,
         images: [{ url: '/img/9itchi-logo.png', alt: '9itchi PFE' }],

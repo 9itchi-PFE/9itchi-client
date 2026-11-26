@@ -44,6 +44,18 @@ test('the PDF shows the page of the topic as soon as it is drawn, after a short 
     await expect(page.getByRole('img', { name: 'Page 4 / 12' })).toBeVisible({ timeout: 20_000 })
 })
 
+test('a browser without Promise.withResolvers still draws the page', async ({ page }) => {
+    await page.addInitScript(() => {
+        delete (Promise as unknown as { withResolvers?: unknown }).withResolvers
+    })
+    await mockServices(page, { [`GET /job/books/${BOOK_ID}`]: book(), [`GET /job/books/${BOOK_ID}/pdf`]: PDF })
+    await signIn(page, STUDENT)
+    await page.goto(`/books/${BOOK_ID}`)
+    await expect(page.getByRole('img', { name: PAGE_3 })).toBeVisible({ timeout: 20_000 })
+    await page.getByRole('button', { name: 'Page suivante' }).click()
+    await expect(page.getByRole('img', { name: 'Page 4 / 12' })).toBeVisible({ timeout: 20_000 })
+})
+
 test('a PDF that fails offers a retry that shows the page', async ({ page }) => {
     let calls = 0
     await mockServices(page, {

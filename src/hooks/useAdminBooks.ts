@@ -77,17 +77,12 @@ export function useDeleteBook() {
     })
 }
 
-// useBookPdf gives an address for the PDF 9itchi keeps: it is read with the session, then held in memory for as
-// long as the page shows it. url is undefined while it loads or when there is none; loaded counts the bytes received
-// so far, and retry reads it again after a failure (no silent second attempt: the first one can take a minute).
+// useBookPdf gives an address for the whole PDF 9itchi keeps (the admin's check screen shows it in a frame): it is read
+// with the session, then held in memory for as long as the page shows it. undefined while it loads or when there is none.
 export function useBookPdf(id: string | undefined, enabled: boolean, admin = false) {
-    const [loaded, setLoaded] = useState(0)
     const file = useQuery({
         queryKey: ['books', 'pdf', id ?? '', admin],
-        queryFn: async () => {
-            setLoaded(0)
-            return (await JobService.bookPdf(id!, admin, setLoaded)).data
-        },
+        queryFn: async () => (await JobService.bookPdf(id!, admin)).data,
         enabled: !!id && enabled,
         staleTime: 5 * 60 * 1000,
         retry: false,
@@ -102,5 +97,5 @@ export function useBookPdf(id: string | undefined, enabled: boolean, admin = fal
         setUrl(next)
         return () => URL.revokeObjectURL(next)
     }, [file.data])
-    return { url, isLoading: file.isLoading, isError: file.isError, loaded, retry: () => file.refetch() }
+    return { url, isLoading: file.isLoading, isError: file.isError }
 }
