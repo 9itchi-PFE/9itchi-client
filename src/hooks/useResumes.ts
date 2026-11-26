@@ -71,6 +71,13 @@ export function useSaveVersion(id: string) {
     })
 }
 
+// useCvSkills is the skills of one CV, as the offers are ranked by them.
+export function useCvSkills(id: string) {
+    const resume = useResume(id)
+    const content = resume.data ? normalize(resume.data.content) : undefined
+    return { ready: !id || resume.isFetched, skills: content ? allSkills(content) : [] }
+}
+
 // useMyCv is the student's most recent CV as the offers screens use it: its skills, and how many checks it still fails.
 export function useMyCv() {
     const list = useResumes()

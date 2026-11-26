@@ -48,13 +48,13 @@ export type Application = {
 
 export type ApplicationList = { items: Application[] }
 
-export type ApplyInput = { job_id: string; resume_id?: string; via?: Via; subject?: string; body?: string; scheduled_at?: string }
+export type ApplyInput = { job_id: string; resume_id?: string; via?: Via; to?: string; subject?: string; body?: string; scheduled_at?: string }
 
 export type Tone = 'formal' | 'friendly'
 export type LetterLanguage = 'fr' | 'en' | 'ar'
 
 // fresh asks for a new letter (« Réécrire »); otherwise the last one written for the same offer and CV comes back.
-export type DraftInput = { job_id: string; resume_id?: string; language: LetterLanguage; tone: Tone; fresh?: boolean }
+export type DraftInput = { job_id: string; resume_id?: string; language: LetterLanguage; tone: Tone; goal?: string; fresh?: boolean }
 export type Draft = { subject: string; body: string; limit: number | null; used: number }
 
 export type GmailStatus = { connected: boolean; email?: string; connected_at?: string }

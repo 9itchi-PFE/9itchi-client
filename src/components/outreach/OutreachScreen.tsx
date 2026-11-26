@@ -1,26 +1,34 @@
 'use client'
 
 import { useState } from 'react'
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useTranslations } from 'next-intl'
-import { Button } from '@/components/ui/Button'
+import { Button, ButtonLink } from '@/components/ui/Button'
+import { Modal } from '@/components/ui/Modal'
+import { applyError } from '@/components/applications/apply'
+import { match } from '@/components/jobs/offer'
 import { Icon } from '@/components/ui/icons'
 import { useToast } from '@/components/ui/Toast'
-import { useDraft, useGmailStatus, useRevokeGmail } from '@/hooks/useApplications'
+import { useApply, useDraft, useGmailStatus, useRevokeGmail } from '@/hooks/useApplications'
 import { useEmails } from '@/hooks/useEmails'
-import { useResumes } from '@/hooks/useResumes'
+import { useCvSkills, useResumes } from '@/hooks/useResumes'
+import { quotaReason } from '@/utils/quota'
+import { isAxiosError } from 'axios'
 import EmailService from '@/services/EmailService'
 import JobService from '@/services/JobService'
 import type { JobSummary } from '@/types/job'
+import { outreachQuery } from './outreach'
 import type { LetterLanguage } from '@/types/application'
 
 type Letter = { subject: string; body: string; to: string }
 
 const field = 'h-11 w-full rounded-xl border border-line-strong bg-white px-3.5 text-sm outline-none focus:border-ink'
 
-// OutreachScreen lets a student find recruiters for a company or role, have the AI write the email and send it from their own Gmail.
+// OutreachScreen lists the offers that fit the chosen CV best, has the AI write the email around the student's goal, and sends it
+// from their Gmail as an application, to the offer's own address when it has one.
 export default function OutreachScreen() {
     const t = useTranslations('outreach')
+    const ta = useTranslations('apply')
     const toast = useToast()
     const qc = useQueryClient()
     const gmail = useGmailStatus()
@@ -28,8 +36,10 @@ export default function OutreachScreen() {
     const resumes = useResumes()
     const emails = useEmails()
     const draft = useDraft()
+    const apply = useApply()
     const [query, setQuery] = useState('')
-    const [found, setFound] = useState<JobSummary[] | null>(null)
+    const [q, setQ] = useState('')
+    const [planOpen, setPlanOpen] = useState(false)
     const [resumeId, setResumeId] = useState('')
     const [language, setLanguage] = useState<LetterLanguage>('en')
     const [goal, setGoal] = useState(t('goalDefault'))
@@ -41,6 +51,14 @@ export default function OutreachScreen() {
     const connected = !!gmail.data?.connected
     const items = resumes.data?.items ?? []
     const resume = resumeId || items[0]?.id || ''
+    const chosen = items.find((r) => r.id === resume)
+    const cv = useCvSkills(resume)
+    const results = useQuery({
+        queryKey: ['jobs', 'outreach', resume, cv.skills, q],
+        queryFn: async () => (await JobService.listJobs(outreachQuery(q, cv.skills))).data.items,
+        enabled: resumes.isFetched && cv.ready,
+    })
+    const found: JobSummary[] | undefined = results.data
 
     const enable = async () => {
         setBusy(true)
@@ -54,19 +72,16 @@ export default function OutreachScreen() {
         }
     }
 
-    const search = useMutation({
-        mutationFn: async () => (await JobService.listJobs({ q: query.trim(), page_size: 8 })).data.items,
-        onSuccess: setFound,
-    })
-
     const write = async (job: JobSummary) => {
         setOpen(job.id)
         if (letters[job.id]) return
         try {
-            const d = await draft.mutateAsync({ job_id: job.id, resume_id: resume || undefined, language, tone: 'formal' })
-            setLetters((l) => ({ ...l, [job.id]: { subject: d.subject, body: goal ? `${d.body}\n\n${goal}` : d.body, to: '' } }))
-        } catch {
-            toast(t('failed'))
+            const d = await draft.mutateAsync({ job_id: job.id, resume_id: resume || undefined, language, tone: 'formal', goal: goal.trim() || undefined })
+            setLetters((l) => ({ ...l, [job.id]: { subject: d.subject, body: d.body, to: '' } }))
+        } catch (e) {
+            const why = quotaReason(e)
+            setOpen(null)
+            toast(why === 'used' ? ta('draftUsedTitle') : why === 'plan' ? ta('draftPlanTitle') : t('failed'))
         }
     }
 
@@ -78,12 +93,28 @@ export default function OutreachScreen() {
         if (!resume) return toast(t('needResume'))
         setBusy(true)
         try {
-            await EmailService.sendEmail({ job_id: job.id, resume_id: resume, to: l.to.trim(), subject: l.subject.trim(), body: l.body })
+            await apply.mutateAsync({
+                job_id: job.id,
+                resume_id: resume,
+                via: 'gmail',
+                to: job.easy_apply ? undefined : l.to.trim(),
+                subject: l.subject.trim(),
+                body: l.body,
+            })
             setSentIds((s) => ({ ...s, [job.id]: true }))
-            toast(t('sentToast', { email: l.to.trim() }))
+            toast(job.easy_apply ? t('sentTo', { company: job.company }) : t('sentToast', { email: l.to.trim() }))
             qc.invalidateQueries({ queryKey: ['emails'] })
-        } catch {
-            toast(t('failed'))
+        } catch (e) {
+            const kind = applyError(isAxiosError(e) ? e.response?.status : undefined, isAxiosError(e) ? String(e.response?.data?.error ?? '') : '')
+            if (kind === 'plan') setPlanOpen(true)
+            else if (kind === 'gmail') toast(t('needGmail'))
+            else if (kind === 'noFile') toast(ta('noFile'))
+            else if (kind === 'noEmail') toast(t('noEmail'))
+            else if (kind === 'closed') toast(t('closed'))
+            else if (kind === 'already') {
+                setSentIds((s) => ({ ...s, [job.id]: true }))
+                toast(t('already'))
+            } else toast(t('failed'))
         } finally {
             setBusy(false)
         }
@@ -139,34 +170,43 @@ export default function OutreachScreen() {
                 </label>
                 <label className="flex flex-col gap-1.5 text-sm font-semibold">
                     {t('goal')}
-                    <input className={field} value={goal} onChange={(e) => setGoal(e.target.value)} />
+                    <input className={field} value={goal} maxLength={300} placeholder={t('goalHint')} onChange={(e) => setGoal(e.target.value)} />
                 </label>
                 <form
                     className="flex gap-2 md:col-span-3"
                     onSubmit={(e) => {
                         e.preventDefault()
-                        search.mutate()
+                        setQ(query)
                     }}
                 >
                     <input className={field} placeholder={t('search')} value={query} onChange={(e) => setQuery(e.target.value)} />
-                    <Button type="submit" className="flex-none" disabled={search.isPending}>
-                        {search.isPending ? t('searching') : t('find')}
+                    <Button type="submit" className="flex-none" disabled={results.isFetching}>
+                        {results.isFetching ? t('searching') : t('find')}
                     </Button>
                 </form>
             </section>
 
+            {chosen && cv.ready ? (
+                <p className="m-0 text-sm text-ink-3">{cv.skills.length ? t('rankedBy', { title: chosen.title }) : t('rankedByDate')}</p>
+            ) : null}
             {found && found.length === 0 && <p className="m-0 text-sm text-ink-3">{t('noResults')}</p>}
 
             <ul className="m-0 flex list-none flex-col gap-3 p-0">
                 {(found ?? []).map((job) => {
                     const l = letters[job.id]
                     const done = sentIds[job.id]
+                    const m = cv.skills.length ? match(job.skills, cv.skills) : null
                     return (
                         <li key={job.id} className="flex flex-col gap-3 rounded-[16px] border border-line-soft bg-white p-4">
                             <div className="flex flex-wrap items-center gap-3">
                                 <span className="flex min-w-0 flex-1 flex-col">
                                     <strong className="truncate text-base">{job.company}</strong>
                                     <span className="truncate text-sm text-ink-3">{job.title}</span>
+                                    {m && m.fits.length ? (
+                                        <span className="mt-1 self-start whitespace-nowrap rounded-full bg-fill px-2.5 py-0.5 text-xs font-semibold text-ink-2">
+                                            {t('fits', { count: m.fits.length, total: job.skills.length })}
+                                        </span>
+                                    ) : null}
                                 </span>
                                 {done ? (
                                     <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-[#0F8A5F]">
@@ -180,13 +220,24 @@ export default function OutreachScreen() {
                             </div>
                             {l && !done && (
                                 <div className="flex flex-col gap-2.5">
-                                    <input
-                                        className={field}
-                                        type="email"
-                                        placeholder={t('recruiterEmail')}
-                                        value={l.to}
-                                        onChange={(e) => edit(job.id, { to: e.target.value })}
-                                    />
+                                    {job.easy_apply ? (
+                                        <div className="flex flex-col gap-0.5 rounded-xl border border-line-soft bg-fill px-3.5 py-2.5 text-sm">
+                                            <span className="font-semibold">
+                                                {t('recruiterEmail')} : {t('toRecruiter')}
+                                            </span>
+                                            <span className="text-[12.5px] text-ink-3">{t('toRecruiterHint')}</span>
+                                        </div>
+                                    ) : (
+                                        <input
+                                            className={field}
+                                            type="email"
+                                            dir="ltr"
+                                            aria-label={t('recruiterEmail')}
+                                            placeholder={t('recruiterEmail')}
+                                            value={l.to}
+                                            onChange={(e) => edit(job.id, { to: e.target.value })}
+                                        />
+                                    )}
                                     <input
                                         className={field}
                                         placeholder={t('subject')}
@@ -199,7 +250,11 @@ export default function OutreachScreen() {
                                         value={l.body}
                                         onChange={(e) => edit(job.id, { body: e.target.value })}
                                     />
-                                    <Button className="self-end" disabled={busy || !l.to || !l.subject || !l.body} onClick={() => send(job)}>
+                                    <Button
+                                        className="self-end"
+                                        disabled={busy || (!job.easy_apply && !l.to.trim()) || !l.subject.trim() || !l.body.trim()}
+                                        onClick={() => send(job)}
+                                    >
                                         {busy ? t('sending') : t('send')}
                                     </Button>
                                 </div>
@@ -208,6 +263,13 @@ export default function OutreachScreen() {
                     )
                 })}
             </ul>
+
+            <Modal open={planOpen} onClose={() => setPlanOpen(false)} eyebrow={ta('planEyebrow')} title={ta('planTitle')}>
+                <p className="m-0 text-[15px] leading-[1.6] text-ink-3">{ta('planText')}</p>
+                <ButtonLink href="/settings/billing" size="lg" className="w-full">
+                    {ta('planSee')}
+                </ButtonLink>
+            </Modal>
 
             {sent.length > 0 && (
                 <section className="flex flex-col gap-2 rounded-[20px] border border-line-soft bg-white p-5">
