@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { useTranslations } from 'next-intl'
 import { signOut } from 'next-auth/react'
 import { SCHOOLS } from '@/components/auth/SignUp'
+import PremiumBadge from '@/components/billing/PremiumBadge'
 import { Sk } from '@/components/jobs/OfferStates'
 import { Button } from '@/components/ui/Button'
 import { Field, inputClass } from '@/components/ui/Field'
@@ -86,9 +87,12 @@ export default function SettingsScreen() {
                 <p className="m-0 text-[15px] text-ink-3">{t('intro')}</p>
             </div>
             <section aria-labelledby="profile-h" className={card}>
-                <h2 id="profile-h" className="m-0 text-xl font-extrabold">
-                    {t('profile')}
-                </h2>
+                <div className="flex flex-wrap items-center gap-2.5">
+                    <h2 id="profile-h" className="m-0 text-xl font-extrabold">
+                        {t('profile')}
+                    </h2>
+                    <PremiumBadge />
+                </div>
                 <ProfilePhoto hasPhoto={!!user.has_photo} />
                 <form onSubmit={submit} className="flex flex-col gap-3.5" noValidate>
                     <Field name="name" label={t('name')} required maxLength={100} autoComplete="name" defaultValue={user.name} />
