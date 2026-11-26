@@ -280,6 +280,9 @@ function Editor({ resume: initial }: { resume: Resume }) {
                                 'box-border h-[18px] w-3.5 rounded-sm border-[1.5px]',
                                 layout === 'compact' ? 'border-ink' : 'border-cv-blue',
                                 layout === 'modern' && 'bg-cv-navy',
+                                layout === 'sidebar' && 'border-[#1F3A5F] bg-[linear-gradient(to_right,#1F3A5F_35%,transparent_35%)]',
+                                layout === 'split' && 'border-[#2E6B5E]',
+                                layout === 'banner' && 'border-[#7A2E3B] bg-[linear-gradient(#7A2E3B_30%,transparent_30%)]',
                             )}
                         />
                         {templateName}

@@ -19,6 +19,9 @@ export const layoutLooks: Record<Layout, LayoutLook> = {
     classic: { base: 10.5, name: 23, title: 12, head: 13, mx: 14, my: 12, upper: true, nameSerif: false, center: false },
     modern: { base: 10, name: 22, title: 10.5, head: 13, mx: 9, my: 12, upper: false, nameSerif: true, center: false },
     compact: { base: 10, name: 17, title: 10, head: 11, mx: 15, my: 12, upper: true, nameSerif: false, center: true },
+    sidebar: { base: 10, name: 22, title: 11, head: 12, mx: 8, my: 12, upper: true, nameSerif: false, center: false },
+    split: { base: 10, name: 22, title: 11, head: 12, mx: 12, my: 12, upper: true, nameSerif: false, center: false },
+    banner: { base: 10, name: 24, title: 11, head: 12, mx: 10, my: 12, upper: true, nameSerif: false, center: false },
 }
 
 export const DEFAULT_ACCENT_TARGETS = ['title', 'headings', 'rules', 'entry_title', 'subtitle', 'links'] as const
@@ -51,6 +54,7 @@ export type Look = {
     text?: string
     bg?: string
     accents: (target: string) => boolean
+    sectionGap: number | null
 }
 
 const PX_PER_MM = 624 / 210
@@ -60,24 +64,46 @@ export type EntrySection = 'experience' | 'education'
 export type EntryArrangement = { inline: boolean; subtitleFirst: boolean }
 
 // What each template does today for an entry: Classic stacks the title over the company; Modern puts both on one line (title first for jobs,
-// school first for studies); Compact is one line with the company/school first.
+// school first for studies); Compact is one line with the company/school first; Sidebar, Split and Banner stack like Classic.
 const ENTRY_DEFAULTS: Record<Layout, Record<EntrySection, EntryArrangement>> = {
     classic: { experience: { inline: false, subtitleFirst: false }, education: { inline: false, subtitleFirst: false } },
     modern: { experience: { inline: true, subtitleFirst: false }, education: { inline: true, subtitleFirst: true } },
     compact: { experience: { inline: true, subtitleFirst: true }, education: { inline: true, subtitleFirst: true } },
+    sidebar: { experience: { inline: false, subtitleFirst: false }, education: { inline: false, subtitleFirst: false } },
+    split: { experience: { inline: false, subtitleFirst: false }, education: { inline: false, subtitleFirst: false } },
+    banner: { experience: { inline: false, subtitleFirst: false }, education: { inline: false, subtitleFirst: false } },
 }
 
 export const entryDefault = (layout: Layout, section: EntrySection): EntryArrangement => (ENTRY_DEFAULTS[layout] ?? ENTRY_DEFAULTS.classic)[section]
 
 // entryArrangement mirrors resume-api's entry layout: null while the style sets neither field (the template keeps its own head),
 // otherwise the chosen value with the template's default for the one left unset.
+// For studies, education_order wins over entry_order.
 export function entryArrangement(layout: Layout, section: EntrySection, s?: CVStyle): EntryArrangement | null {
-    if (!s?.entry_layout && !s?.entry_order) return null
+    const order = section === 'education' ? (s?.education_order ?? s?.entry_order) : s?.entry_order
+    if (!s?.entry_layout && !order) return null
     const d = entryDefault(layout, section)
     return {
-        inline: s.entry_layout ? s.entry_layout === 'inline' : d.inline,
-        subtitleFirst: s.entry_order ? s.entry_order === 'subtitle_first' : d.subtitleFirst,
+        inline: s?.entry_layout ? s.entry_layout === 'inline' : d.inline,
+        subtitleFirst: order ? order === 'subtitle_first' : d.subtitleFirst,
     }
+}
+
+const SKILL_SEPARATORS = { comma: ', ', bullet: '  •  ', bar: '  |  ' } as const
+
+// skillSep is what sits between two skills: the chosen separator, else the template's own.
+export const skillSep = (s: CVStyle | undefined, fallback: string): string => (s?.skills_style && Object.hasOwn(SKILL_SEPARATORS, s.skills_style) && SKILL_SEPARATORS[s.skills_style]) || fallback
+
+// groupRoles cuts the jobs into runs held at the same company (trimmed, case-insensitive) when the style asks for it; otherwise one job per run.
+export function groupRoles<E extends { company?: string }>(list: E[], on?: boolean): E[][] {
+    const key = (e: E) => (e.company ?? '').trim().toLowerCase()
+    const out: E[][] = []
+    for (const e of list) {
+        const last = out[out.length - 1]
+        if (on && last && key(e) && key(last[0]) === key(e)) last.push(e)
+        else out.push([e])
+    }
+    return out
 }
 
 const hex = (s?: string) => (s && /^#[0-9a-fA-F]{6}$/.test(s) ? s : undefined)
@@ -109,15 +135,23 @@ export function resolveLook(layout: Layout, s: CVStyle = {}): Look {
         showPhoto: s.show_photo !== false,
         photoRight: s.photo_position === 'right',
         valign: s.header_valign ?? 'middle',
-        icons: s.separator ? s.separator === 'icon' : layout === 'classic',
+        icons: s.separator ? s.separator === 'icon' : layout === 'classic' || layout === 'sidebar',
         inlineTitle: s.header_layout !== 'stacked' && !(s.align ? s.align === 'center' : d.center),
         bodyFont: s.body_font && BODY_FONTS[s.body_font] ? s.body_font : 'sourcesans',
         accent,
         text: multi ? hex(s.text) : undefined,
         bg: multi ? hex(s.background) : undefined,
         accents: (t) => !!accent && targets.includes(t),
+        sectionGap: typeof s.section_gap === 'number' ? Math.min(12, Math.max(0, s.section_gap)) : null,
     }
 }
+
+// The rule under section headings; width and style only, so the template (or the accent) keeps its color.
+const HEADING_RULES = {
+    none: 'border-bottom-width:0;',
+    thin: 'border-bottom-width:1px;border-bottom-style:solid;',
+    thick: 'border-bottom-width:2px;border-bottom-style:solid;',
+} as const
 
 // lookCss turns a Look into rules scoped to .cvx; only what the user changed is colored, so untouched CVs keep their template colors.
 export function lookCss(l: Look, explicit: CVStyle = {}): string {
@@ -145,6 +179,7 @@ export function lookCss(l: Look, explicit: CVStyle = {}): string {
                 ? 'font-style:normal;font-weight:400;'
                 : ''
     rule('[data-cv=sub]', ts(explicit.subtitle_style))
+    rule('[data-cv=psub]', ts(explicit.subtitle_style))
     rule('[data-cv=row] > span:last-child', ts(explicit.date_style))
     if (explicit.accent) {
         // a spot that was not picked is neutral, even where the template paints it by itself
@@ -155,10 +190,22 @@ export function lookCss(l: Look, explicit: CVStyle = {}): string {
         spot('[data-cv=sub]', 'subtitle')
     }
     if (l.accents('links')) rule('[data-cv=link]', `color:${l.accent};`)
+    // a filled area (Sidebar's column, Banner's band) keeps its own colors: the accent would vanish into the fill
+    if (explicit.accent)
+        rule(
+            '[data-fill] :is([data-cv=name],[data-cv=title],[data-cv=heading],[data-cv=link],[data-cv=date],[data-cv=loc],[data-cv=etitle],[data-cv=sub])',
+            'color:inherit;border-color:currentColor;',
+        )
     if (explicit.align) {
         rule('[data-cv=head]', `text-align:${l.center ? 'center' : 'start'};align-items:${l.center ? 'center' : 'flex-start'};`)
         rule('[data-cv=head] span', `text-align:${l.center ? 'center' : 'start'};`)
     }
     if (l.gap !== null) rule('[data-sec] > div + div', `margin-top:${mmToPx(l.gap)}px;`)
+    if (explicit.heading_rule && Object.hasOwn(HEADING_RULES, explicit.heading_rule)) rule('[data-cv=heading]', HEADING_RULES[explicit.heading_rule])
+    if (l.sectionGap !== null) {
+        // the chosen space replaces the template's: no flex gap between sections, only the margin above each heading
+        rule('[data-cv=body]:has(> [data-sec] > [data-cv=heading])', 'row-gap:0;')
+        rule('[data-cv=heading]', `margin-top:${mmToPx(l.sectionGap)}px;`)
+    }
     return r.join('')
 }

@@ -26,9 +26,9 @@ export const SAMPLE_CV: ResumeContent = normalize({
     languages: ['Arabe', 'Français', 'Anglais'],
 })
 
-const ORDER = ['classic', 'modern', 'compact']
+const ORDER = ['classic', 'modern', 'compact', 'sidebar', 'split', 'banner']
 
-// ordered lists the templates as the students' gallery does: Classic, Modern, Compact, then by name.
+// ordered lists the templates as the students' gallery does: Classic, Modern, Compact, Sidebar, Split, Banner, then by name.
 export const ordered = <T extends Pick<AdminTemplate, 'layout' | 'name'>>(all: T[]): T[] =>
     [...all].sort((a, b) => ORDER.indexOf(a.layout) - ORDER.indexOf(b.layout) || a.name.localeCompare(b.name))
 

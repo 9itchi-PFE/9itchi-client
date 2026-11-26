@@ -11,7 +11,12 @@ import ShowSwitch from './ShowSwitch'
 
 const TARGETS: AccentTarget[] = ['name', 'title', 'headings', 'rules', 'dates', 'location', 'entry_title', 'subtitle', 'links']
 const DEFAULT_TARGETS: AccentTarget[] = ['title', 'headings', 'rules', 'entry_title', 'subtitle', 'links']
-const ACCENT_DEFAULT: Record<Layout, string> = { classic: '#2F5597', modern: '#1F2A44', compact: '#111111' }
+const ACCENT_DEFAULT: Record<Layout, string> = { classic: '#2F5597', modern: '#1F2A44', compact: '#111111', sidebar: '#1F3A5F', split: '#2E6B5E', banner: '#7A2E3B' }
+// About what each template leaves above a section heading today, in mm.
+const SECTION_GAP_DEFAULT: Record<Layout, number> = { classic: 2.5, modern: 4, compact: 3, sidebar: 4, split: 4, banner: 4 }
+// What each template puts between skills and how it lists languages while the style says nothing (the two-column ones use a middle dot).
+const SKILLS_STYLE_DEFAULT: Record<Layout, 'comma' | 'bullet'> = { classic: 'comma', modern: 'bullet', compact: 'comma', sidebar: 'bullet', split: 'bullet', banner: 'bullet' }
+const LANGUAGES_STYLE_DEFAULT: Record<Layout, 'rows' | 'inline'> = { classic: 'rows', modern: 'rows', compact: 'inline', sidebar: 'rows', split: 'rows', banner: 'rows' }
 
 type Props = { style: CVStyle | undefined; layout: Layout; onChange: (s: CVStyle | undefined) => void }
 
@@ -34,6 +39,7 @@ export default function StylePanel({ style, layout, onChange }: Props) {
     const targets = s.accent_on ?? DEFAULT_TARGETS
     const multi = s.color_mode === 'multi'
     const entry = entryArrangement(layout, 'experience', s) ?? entryDefault(layout, 'experience')
+    const study = entryArrangement(layout, 'education', s) ?? entryDefault(layout, 'education')
 
     return (
         <div className="flex flex-col gap-4 text-[13.5px]" data-testid="style-panel">
@@ -117,6 +123,16 @@ export default function StylePanel({ style, layout, onChange }: Props) {
                             { value: 'serif', label: t('serif') },
                         ]}
                     />
+                    <Pick
+                        label={t('headingRule')}
+                        value={s.heading_rule ?? (layout === 'modern' ? 'none' : 'thin')}
+                        onChange={(v) => set({ heading_rule: v })}
+                        options={[
+                            { value: 'none', label: t('ruleNone') },
+                            { value: 'thin', label: t('ruleThin') },
+                            { value: 'thick', label: t('ruleThick') },
+                        ]}
+                    />
                     <Check checked={look.headBold} onChange={(on) => set({ heading_bold: on })}>
                         {t('headingBold')}
                     </Check>
@@ -126,6 +142,15 @@ export default function StylePanel({ style, layout, onChange }: Props) {
                 <Block title={t('block.spacing')}>
                     <Range label={t('lineHeight')} min={1} max={2} step={0.05} value={look.lineHeight} onChange={(v) => set({ line_height: v })} />
                     <Range label={t('gap')} unit="mm" min={0} max={10} step={0.5} value={look.gap ?? 1} onChange={(v) => set({ gap: v })} />
+                    <Range
+                        label={t('sectionGap')}
+                        unit="mm"
+                        min={0}
+                        max={12}
+                        step={0.5}
+                        value={look.sectionGap ?? SECTION_GAP_DEFAULT[layout]}
+                        onChange={(v) => set({ section_gap: v })}
+                    />
                 </Block>
                 <Block title={t('block.margins')}>
                     <Range label={t('marginX')} unit="mm" min={5} max={30} step={1} value={look.mx} onChange={(v) => set({ margin_x: v })} />
@@ -166,7 +191,40 @@ export default function StylePanel({ style, layout, onChange }: Props) {
                             { value: 'subtitle_first', label: t('companyFirst') },
                         ]}
                     />
+                    <Pick
+                        label={t('educationOrder')}
+                        value={study.subtitleFirst ? 'subtitle_first' : 'title_first'}
+                        onChange={(v) => set({ education_order: v })}
+                        options={[
+                            { value: 'title_first', label: t('degreeFirst') },
+                            { value: 'subtitle_first', label: t('schoolFirst') },
+                        ]}
+                    />
                     <p className="m-0 text-[12.5px] text-ink-3">{t('entryHint')}</p>
+                    <Check checked={!!s.group_roles} onChange={(on) => set({ group_roles: on || undefined })}>
+                        {t('groupRoles')}
+                    </Check>
+                </Block>
+                <Block title={t('block.skillsLanguages')}>
+                    <Pick
+                        label={t('skillsStyle')}
+                        value={s.skills_style ?? SKILLS_STYLE_DEFAULT[layout]}
+                        onChange={(v) => set({ skills_style: v })}
+                        options={[
+                            { value: 'comma', label: t('comma') },
+                            { value: 'bullet', label: '•' },
+                            { value: 'bar', label: '|' },
+                        ]}
+                    />
+                    <Pick
+                        label={t('languagesStyle')}
+                        value={s.languages_style ?? LANGUAGES_STYLE_DEFAULT[layout]}
+                        onChange={(v) => set({ languages_style: v })}
+                        options={[
+                            { value: 'rows', label: t('langRows') },
+                            { value: 'inline', label: t('langInline') },
+                        ]}
+                    />
                 </Block>
                 <Block title={t('block.datesLocation')}>
                     <Pick
@@ -243,7 +301,7 @@ export default function StylePanel({ style, layout, onChange }: Props) {
                 <Block title={t('applyAccent')}>
                     <fieldset className="m-0 grid grid-cols-2 gap-x-3 gap-y-2.5 border-0 p-0">
                         <legend className="sr-only">{t('applyAccent')}</legend>
-                        {TARGETS.filter((k) => k !== 'subtitle' || layout === 'classic').map((k) => (
+                        {TARGETS.filter((k) => k !== 'subtitle' || layout !== 'modern').map((k) => (
                             <Check
                                 key={k}
                                 checked={targets.includes(k)}
@@ -301,11 +359,11 @@ export default function StylePanel({ style, layout, onChange }: Props) {
                 <Block title={t('photo')}>
                     <div className="flex flex-wrap items-center gap-3">
                         <ShowSwitch shown={look.showPhoto} label={t('showPhoto')} onChange={(on) => set({ show_photo: on ? undefined : false })} />
-                        {layout === 'modern' ? null : (
+                        {layout === 'modern' || layout === 'sidebar' ? null : (
                             <Segmented
                                 role="radiogroup"
                                 label={t('photoPosition')}
-                                value={s.photo_position ?? 'left'}
+                                value={s.photo_position ?? (layout === 'banner' ? 'right' : 'left')}
                                 onChange={(v) => set({ photo_position: v })}
                                 options={[
                                     { value: 'left', label: t('photoLeft') },

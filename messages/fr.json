@@ -176,6 +176,7 @@
                 "spacing": "Espacement",
                 "margins": "Marges",
                 "lists": "Listes",
+                "skillsLanguages": "Compétences et langues",
                 "titleCompany": "Intitulés et employeurs",
                 "datesLocation": "Dates et lieu",
                 "entryText": "Texte des entrées",
@@ -267,7 +268,21 @@
             "listStyle": "Style de liste",
             "bullet": "Puce",
             "hyphen": "Tiret",
-            "indentBody": "Indenter le texte"
+            "indentBody": "Indenter le texte",
+            "educationOrder": "Ordre pour la formation",
+            "degreeFirst": "Diplôme d'abord",
+            "schoolFirst": "École d'abord",
+            "groupRoles": "Regrouper les postes occupés dans la même entreprise",
+            "headingRule": "Trait sous les titres",
+            "ruleNone": "Aucun",
+            "ruleThin": "Fin",
+            "ruleThick": "Épais",
+            "sectionGap": "Espace entre les sections",
+            "skillsStyle": "Séparateur des compétences",
+            "comma": "Virgule",
+            "languagesStyle": "Affichage des langues",
+            "langRows": "Une par ligne",
+            "langInline": "Sur une ligne"
         },
         "addSection": "+ Ajouter une section",
         "addSectionTitle": "Ajouter une section",
@@ -688,6 +703,21 @@
                 "name": "Compact",
                 "desc": "Noir et blanc, sans photo, une colonne simple. Pour les entreprises qui trient avec un logiciel, ou pour les États-Unis et le Royaume-Uni.",
                 "chips": "Sans photo|1 page|Logiciels de tri"
+            },
+            "sidebar": {
+                "name": "Colonne latérale",
+                "desc": "Une colonne colorée sur le côté pour la photo, les coordonnées et les compétences ; l’expérience a toute la place.",
+                "chips": "Photo optionnelle|1 page|Colonne colorée"
+            },
+            "split": {
+                "name": "Deux colonnes",
+                "desc": "Deux colonnes sobres : l’expérience à gauche, les études et les compétences à droite. Clair et dense.",
+                "chips": "Photo optionnelle|1 page|Deux colonnes"
+            },
+            "banner": {
+                "name": "Bandeau",
+                "desc": "Un bandeau coloré en haut pour le nom et les coordonnées, puis une colonne claire pour les études et les compétences.",
+                "chips": "Photo optionnelle|1 page|Bandeau coloré"
             }
         }
     },

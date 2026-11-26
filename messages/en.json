@@ -176,6 +176,7 @@
                 "spacing": "Spacing",
                 "margins": "Margins",
                 "lists": "Lists",
+                "skillsLanguages": "Skills & languages",
                 "titleCompany": "Titles & companies",
                 "datesLocation": "Dates & location",
                 "entryText": "Entry text",
@@ -267,7 +268,21 @@
             "listStyle": "List style",
             "bullet": "Bullet",
             "hyphen": "Hyphen",
-            "indentBody": "Indent body"
+            "indentBody": "Indent body",
+            "educationOrder": "Order for education",
+            "degreeFirst": "Degree first",
+            "schoolFirst": "School first",
+            "groupRoles": "Group roles held at the same company",
+            "headingRule": "Line under headings",
+            "ruleNone": "None",
+            "ruleThin": "Thin",
+            "ruleThick": "Thick",
+            "sectionGap": "Space between sections",
+            "skillsStyle": "Skills separator",
+            "comma": "Comma",
+            "languagesStyle": "Languages layout",
+            "langRows": "One per line",
+            "langInline": "On one line"
         },
         "addSection": "+ Add a section",
         "addSectionTitle": "Add a section",
@@ -688,6 +703,21 @@
                 "name": "Compact",
                 "desc": "Black and white, no photo, one simple column. For companies that sort with software, or for the United States and the United Kingdom.",
                 "chips": "No photo|1 page|Screening software"
+            },
+            "sidebar": {
+                "name": "Sidebar",
+                "desc": "A colored column on the side for the photo, contact details and skills; the experience gets all the room.",
+                "chips": "Optional photo|1 page|Colored column"
+            },
+            "split": {
+                "name": "Split",
+                "desc": "Two plain columns: experience on the left, studies and skills on the right. Clean and dense.",
+                "chips": "Optional photo|1 page|Two columns"
+            },
+            "banner": {
+                "name": "Banner",
+                "desc": "A colored band at the top for the name and contacts, then a light column for studies and skills.",
+                "chips": "Optional photo|1 page|Colored band"
             }
         }
     },
