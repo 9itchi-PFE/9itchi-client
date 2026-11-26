@@ -14,6 +14,8 @@ import {
     sentThisMonth,
     slots,
     validTime,
+    overview,
+    rate,
 } from '@/components/applications/apply'
 import type { Application } from '@/types/application'
 
@@ -99,13 +101,14 @@ const email = (status: 'sent' | 'scheduled' | 'cancelled' | 'failed', sent: Date
 })
 
 describe('buckets', () => {
-    it('asks to follow up after 14 days without an answer', () => {
-        const old = app({ created_at: new Date(2026, 10, 9).toISOString() })
+    it('asks to follow up a week without an answer, once', () => {
+        const old = app({ created_at: new Date(2026, 10, 17).toISOString() })
         expect(followUpDue(old, now)).toBe(true)
         expect(bucket(old, now)).toBe('todo')
         expect(followUpDue(app({}), now)).toBe(false)
         expect(followUpDue(app({ status: 'replied', created_at: new Date(2026, 9, 1).toISOString() }), now)).toBe(false)
-        expect(followUpOn(app({})).getDate()).toBe(4)
+        expect(followUpOn(app({})).getDate()).toBe(27)
+        expect(followUpDue({ ...old, follow_up_sent_at: new Date(2026, 10, 24).toISOString() }, now)).toBe(false)
     })
     it('counts from when Gmail sent it, not from when it was scheduled', () => {
         const a = app({ via: 'gmail', created_at: new Date(2026, 10, 1).toISOString(), email: email('sent', new Date(2026, 10, 20)) })
@@ -164,5 +167,21 @@ describe('the signature under the letters', () => {
             'Bonjour,\n\nCordialement,\nPrénom Nom\nENIS · +21620000000',
         )
         expect(compose(['Bonjour,'], '', [])).toBe('Bonjour,')
+    })
+})
+
+describe('overview', () => {
+    it('counts what left, what was opened from Gmail, the answers and the follow-ups to send', () => {
+        const items = [
+            app({ id: 'g1', via: 'gmail', email: { ...email('sent', new Date(2026, 10, 20)), id: 'e1' } }),
+            app({ id: 'g2', via: 'gmail', status: 'replied', email: { ...email('sent', new Date(2026, 10, 1)), id: 'e2' } }),
+            app({ id: 'g3', via: 'gmail', email: { ...email('sent', new Date(2026, 10, 1)), id: 'e3' } }),
+            app({ id: 's1', created_at: new Date(2026, 10, 10).toISOString() }),
+            app({ id: 'x1', via: 'gmail', status: 'scheduled', email: email('scheduled', null) }),
+            app({ id: 'x2', via: 'gmail', status: 'withdrawn', email: email('cancelled', null) }),
+        ]
+        expect(overview(items, { e1: '2026-11-21T10:00:00Z' }, now)).toEqual({ sent: 4, fromGmail: 3, opened: 2, replied: 1, followUps: 2 })
+        expect(rate(1, 4)).toBe(25)
+        expect(rate(0, 0)).toBeNull()
     })
 })

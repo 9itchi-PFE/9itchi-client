@@ -37,15 +37,17 @@ test('the student picks the CV to send: the letter is written from it and it lea
     const seen = await mockServices(page, answers(offer))
     await open(page, offer)
     const pick = page.getByLabel('CV envoyé')
-    await expect(pick).toHaveValue(RESUME_ID)
+    await expect(pick).toHaveText('Mon CV')
     await expect(page.getByLabel('Paragraphe 2')).toHaveValue('Écrite avec Mon CV.')
 
-    await pick.selectOption(OTHER_ID)
+    await pick.click()
+    await page.getByRole('option', { name: 'CV data' }).click()
     await expect(page.getByLabel('Paragraphe 2')).toHaveValue('Écrite avec CV data.')
     expect(drafts(seen)).toEqual([RESUME_ID, OTHER_ID])
 
     await page.getByText('J’ai relu ma lettre et elle dit ce que je veux.').click()
     await page.getByRole('button', { name: `Envoyer à ${offer.company}` }).click()
+    await expect(page.getByRole('heading', { name: `Envoyée à ${offer.company}` })).toBeVisible()
     const body = seen.find((r) => r.method === 'POST' && r.path === '/email/applications')?.body
     expect(body).toMatchObject({ job_id: offer.id, resume_id: OTHER_ID })
 })
@@ -55,7 +57,8 @@ test('a letter the student changed is not replaced without asking', async ({ pag
     const seen = await mockServices(page, answers(offer))
     await open(page, offer)
     await page.getByLabel('Paragraphe 2').fill('Ma propre phrase.')
-    await page.getByLabel('CV envoyé').selectOption(OTHER_ID)
+    await page.getByLabel('CV envoyé').click()
+    await page.getByRole('option', { name: 'CV data' }).click()
     const dialog = page.getByRole('dialog', { name: 'Réécrire la lettre avec ce CV ?' })
     await dialog.getByRole('button', { name: 'Garder ma lettre' }).click()
     await expect(dialog).toBeHidden()
@@ -64,6 +67,7 @@ test('a letter the student changed is not replaced without asking', async ({ pag
 
     await page.getByText('J’ai relu ma lettre et elle dit ce que je veux.').click()
     await page.getByRole('button', { name: `Envoyer à ${offer.company}` }).click()
+    await expect(page.getByRole('heading', { name: `Envoyée à ${offer.company}` })).toBeVisible()
     const body = seen.find((r) => r.method === 'POST' && r.path === '/email/applications')?.body
     expect(body).toMatchObject({ resume_id: OTHER_ID, body: expect.stringContaining('Ma propre phrase.') })
 })

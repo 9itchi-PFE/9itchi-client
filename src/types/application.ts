@@ -42,9 +42,13 @@ export type Application = {
     company: string
     via: Via
     email: EmailBrief | null
+    // follow_up_sent_at is when the follow-up (« relance ») left; null or absent when none was sent.
+    follow_up_sent_at?: string | null
     created_at: string
     updated_at: string
 }
+
+export type FollowUpDraftInput = { language: LetterLanguage; tone?: Tone; fresh?: boolean }
 
 export type ApplicationList = { items: Application[] }
 

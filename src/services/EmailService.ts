@@ -1,4 +1,4 @@
-import type { Allowance, Application, ApplicationList, ApplyInput, Draft, DraftInput, Email, GmailStatus, JobMatch, MatchInput } from '@/types/application'
+import type { Allowance, Application, ApplicationList, ApplyInput, Draft, DraftInput, Email, FollowUpDraftInput, GmailStatus, JobMatch, MatchInput } from '@/types/application'
 import type {
     EmailEdit,
     LinkDraft,
@@ -38,6 +38,9 @@ const EmailService = {
     // draftForRecruiter writes a spontaneous application to one recruiter found by the radar.
     draftForRecruiter: (id: string, data: RecruiterDraftInput) => e().post<Draft>(`/recruiters/${id}/draft`, data, { timeout: 60_000 }),
     apply: (data: ApplyInput) => e().post<Application>(`/applications`, data),
+    // A week without an answer: the AI writes the follow-up, then it leaves from Gmail to the first recipient (402 without a subscription).
+    draftFollowUp: (id: string, data: FollowUpDraftInput) => e().post<Draft>(`/applications/${id}/follow-up/draft`, data, { timeout: 60_000 }),
+    followUp: (id: string, data: { subject: string; body: string }) => e().post<Application>(`/applications/${id}/follow-up`, data),
     listApplications: () => e().get<ApplicationList>(`/applications`),
     // allowance says how the next application leaves (the CV built here, or the imported file without a
     // subscription) and how many are left.
