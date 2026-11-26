@@ -70,7 +70,13 @@ const JobService = {
     publishBook: (id: string, jobIds: string[]) => api('job').post<AdminBook>(`/admin/books/${id}/publish`, { job_ids: jobIds }),
     retryBook: (id: string) => api('job').post<AdminBook>(`/admin/books/${id}/retry`),
     deleteBook: (id: string) => api('job').delete(`/admin/books/${id}`),
-    bookPdf: (id: string, admin = false) => api('job').get<Blob>(`${admin ? '/admin' : ''}/books/${id}/pdf`, { responseType: 'blob' }),
+    // The PDF of a book can be several MB and the server sits behind a slow uplink, so it gets far longer than the usual 50 s.
+    bookPdf: (id: string, admin = false, onProgress?: (bytes: number) => void) =>
+        api('job').get<Blob>(`${admin ? '/admin' : ''}/books/${id}/pdf`, {
+            responseType: 'blob',
+            timeout: 5 * 60_000,
+            onDownloadProgress: onProgress ? (e) => onProgress(e.loaded) : undefined,
+        }),
     previewPreferences: (p: Preferences) => api('job').post<{ count: number; unanswered: number }>(`/preferences/preview`, p),
 }
 
