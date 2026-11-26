@@ -39,12 +39,19 @@ test('the CV rewrite proposes a line to use', async ({ page }) => {
     const seen = await mockServices(page, {
         [`GET /resume/resumes/${RESUME_ID}`]: withLine,
         [`POST /resume/resumes/${RESUME_ID}/ats-check`]: check,
-        [`POST /resume/resumes/${RESUME_ID}/rewrite`]: { suggestions: ['Développé en React le portail des marchands.'], limit: 1, used: 1 },
+        [`POST /resume/resumes/${RESUME_ID}/rewrite`]: {
+            suggestions: ['Développé en React le portail des marchands.'],
+            warnings: ['new_numbers', 'too_long'],
+            limit: 1,
+            used: 1,
+        },
     })
     await signIn(page, STUDENT)
     await page.goto(`/resumes/${RESUME_ID}/check`)
     await page.getByRole('button', { name: 'Proposer une version avec l’IA' }).click()
     await expect(page.getByText('Développé en React le portail des marchands.')).toBeVisible()
+    await expect(page.getByText('Vérifie les chiffres : la proposition contient un chiffre absent de ton texte')).toBeVisible()
+    await expect(page.getByText('Proposition beaucoup plus longue que ton texte, raccourcis si besoin')).toBeVisible()
     expect(seen.find((r) => r.path.endsWith('/rewrite'))?.body).toEqual({ section: 'bullet', text: 'j’ai fait le portail en React', language: 'fr' })
 })
 

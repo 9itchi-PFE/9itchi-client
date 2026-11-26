@@ -13,6 +13,7 @@ import ResumeService from '@/services/ResumeService'
 import { quotaReason } from '@/utils/quota'
 import { normalize, type ResumeContent, type RuleGroup, type RuleResult } from '@/types/resume'
 import { fileBase } from '../editor/fileBase'
+import { warningKeys } from './rewriteWarnings'
 import { itemOfPath, sectionOfPath } from '../editor/sections'
 
 const GROUPS: (RuleGroup | 'all')[] = ['all', 'contact', 'summary', 'experience', 'education', 'skills', 'layout', 'file']
@@ -206,9 +207,12 @@ function RuleCard({
     const [asked, setAsked] = useState(false)
     const suggestion = useQuery({
         queryKey: ['rewrite', resumeId, rule.id, rule.where, rule.was],
-        queryFn: async () =>
-            (await ResumeService.rewrite(resumeId, { section: isSummary ? 'summary' : 'bullet', text: rule.was ?? '', language: lang })).data.suggestions[0] ??
-            '',
+        queryFn: async () => {
+            const { suggestions, warnings } = (
+                await ResumeService.rewrite(resumeId, { section: isSummary ? 'summary' : 'bullet', text: rule.was ?? '', language: lang })
+            ).data
+            return { text: suggestions[0] ?? '', warnings: warningKeys(warnings) }
+        },
         enabled: asked && (isBullet || isSummary) && !!rule.was,
         staleTime: Infinity,
         retry: false,
@@ -268,7 +272,7 @@ function RuleCard({
                         : head
                           ? t(`where.${head === 'skill_groups' ? 'skills' : head}` as 'where.skills')
                           : t('where.layout')
-                const now = isBullet || isSummary ? (suggestion.data ?? '') : ''
+                const now = isBullet || isSummary ? (suggestion.data?.text ?? '') : ''
                 const action = rule.id === 'quantified_results' ? t('actions.useNumber') : isBullet || isSummary ? t('actions.use') : t('actions.edit')
                 return { label, was: rule.was ?? '', now, action }
             }
@@ -340,6 +344,13 @@ function RuleCard({
                             ) : (isBullet || isSummary) && suggestion.isFetched ? (
                                 <span className="text-sm text-ink-3">{t('noSuggestion')}</span>
                             ) : null}
+                            {found.now
+                                ? (suggestion.data?.warnings ?? []).map((k) => (
+                                      <span key={k} role="status" className="rounded-lg bg-warn-bg px-3 py-2 text-[13px] leading-[1.5] text-warn-fg">
+                                          {t(k)}
+                                      </span>
+                                  ))
+                                : null}
                             <div className="flex flex-wrap gap-2">
                                 {(isBullet || isSummary) && !asked ? (
                                     <Button variant="secondary" className="h-9 rounded-lg px-3.5 text-[13.5px]" onClick={() => setAsked(true)}>

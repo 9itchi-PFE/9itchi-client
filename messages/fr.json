@@ -451,6 +451,8 @@
         "statusTip": "Conseil",
         "suggesting": "On prépare une proposition…",
         "noSuggestion": "Pas de proposition pour l’instant : corrige-la toi-même.",
+        "warnNewNumbers": "Vérifie les chiffres : la proposition contient un chiffre absent de ton texte",
+        "warnTooLong": "Proposition beaucoup plus longue que ton texte, raccourcis si besoin",
         "toastApplied": "Corrigé dans ton CV",
         "groups": {
             "all": "Tous",
@@ -915,6 +917,14 @@
             },
             "strengths": "Ce qui colle",
             "gaps": "Ce que ton CV ne montre pas",
+            "keywords": {
+                "title": "Mots-clés de l’offre",
+                "count": "{found} / {total} · {percent} %",
+                "missing": "Mots-clés absents de ton CV",
+                "matched": "Mots-clés présents dans ton CV",
+                "hint": "Ajoute ceux que tu maîtrises vraiment dans ton CV.",
+                "openCv": "Ouvrir mon CV"
+            },
             "madeOn": "Analysé le {date}",
             "left": "{count, plural, =0 {plus aucune analyse ce mois-ci} one {encore # analyse ce mois-ci} other {encore # analyses ce mois-ci}}",
             "seePlans": "Voir les abonnements",

@@ -18,6 +18,9 @@ export type JobMatch = {
     strengths: string[]
     gaps: string[]
     advice: string
+    // keywords of the offer the CV shows or lacks, in the offer's order; absent or empty on analyses made before.
+    keywords?: { matched: string[]; missing: string[] }
+    keyword_coverage?: number
     created_at: string
     limit: number | null
     used: number

@@ -28,6 +28,8 @@ test('the AI analysis is asked on the button, once, and shown', async ({ page })
                 strengths: ['Tu as utilisé React en projet.'],
                 gaps: ['Ton CV ne montre pas Go.'],
                 advice: 'Mets en avant ton projet React.',
+                keywords: { matched: ['React', 'SQL'], missing: ['Go', 'Docker'] },
+                keyword_coverage: 50,
                 created_at: new Date().toISOString(),
                 limit: 5,
                 used: 1,
@@ -42,6 +44,12 @@ test('the AI analysis is asked on the button, once, and shown', async ({ page })
     await expect(panel.getByText('72/100')).toBeVisible()
     await expect(panel.getByText('Bon match')).toBeVisible()
     await expect(panel.getByText('Ton CV ne montre pas Go.')).toBeVisible()
+    await expect(panel.getByText('Mots-clés de l’offre')).toBeVisible()
+    await expect(panel.getByText('2 / 4 · 50 %')).toBeVisible()
+    await expect(panel.getByRole('list', { name: 'Mots-clés absents de ton CV' }).getByRole('listitem')).toHaveText(['Go', 'Docker'])
+    await expect(panel.getByRole('list', { name: 'Mots-clés présents dans ton CV' }).getByRole('listitem')).toHaveText(['React', 'SQL'])
+    await expect(panel.getByText('Ajoute ceux que tu maîtrises vraiment dans ton CV.')).toBeVisible()
+    await expect(panel.getByRole('link', { name: 'Ouvrir mon CV' })).toBeVisible()
     await expect(panel.getByText(/encore 4 analyses ce mois-ci/)).toBeVisible()
     expect(asked).toBe(1)
     const sent = seen.find((r) => r.method === 'POST' && r.path === '/email/applications/match')

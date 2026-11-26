@@ -8,7 +8,7 @@ import { Icon } from '@/components/ui/icons'
 import { useMatch, useRunMatch } from '@/hooks/useApplications'
 import { cn } from '@/lib/cn'
 import type { MatchInput } from '@/types/application'
-import { left, levelTone, matchError } from './aiMatch'
+import { keywordBlock, left, levelTone, matchError } from './aiMatch'
 
 // AiMatch is the AI's reading of the student's CV against one offer, on the offer panel. It is asked only when the
 // student presses the button; a reading already made is shown at once and costs nothing.
@@ -23,6 +23,7 @@ export default function AiMatch({ jobId, resumeId }: { jobId: string; resumeId: 
     const err = run.error
     const why = err ? matchError(isAxiosError(err) ? err.response?.status : undefined, isAxiosError(err) ? String(err.response?.data?.error ?? '') : '') : null
     const remaining = m ? left(m.limit, m.used) : null
+    const kw = m ? keywordBlock(m) : null
 
     return (
         <section aria-labelledby={`ai-${jobId}`} aria-busy={run.isPending} className="flex flex-col gap-3 rounded-2xl bg-[#F6F5FF] px-4 py-4">
@@ -40,6 +41,52 @@ export default function AiMatch({ jobId, resumeId }: { jobId: string; resumeId: 
             </div>
             {m ? (
                 <>
+                    {kw ? (
+                        <div className="flex flex-col gap-2">
+                            <div className="flex items-center justify-between gap-3">
+                                <h4 className="m-0 text-[13.5px] font-semibold">{t('keywords.title')}</h4>
+                                <span className="text-[13px] font-semibold tabular-nums text-ink-2">
+                                    {t('keywords.count', { found: kw.matched.length, total: kw.total, percent: kw.coverage })}
+                                </span>
+                            </div>
+                            <div
+                                role="progressbar"
+                                aria-label={t('keywords.title')}
+                                aria-valuemin={0}
+                                aria-valuemax={100}
+                                aria-valuenow={kw.coverage}
+                                className="h-1.5 overflow-hidden rounded-full bg-white"
+                            >
+                                <div className="h-full rounded-full bg-ok-fg" style={{ width: `${kw.coverage}%` }} />
+                            </div>
+                            {kw.missing.length ? (
+                                <>
+                                    <ul aria-label={t('keywords.missing')} className="m-0 flex list-none flex-wrap gap-1.5 p-0">
+                                        {kw.missing.map((k) => (
+                                            <li key={k} className="rounded-full border border-warn-line px-2.5 py-0.5 text-[13px] font-medium text-warn-fg">
+                                                {k}
+                                            </li>
+                                        ))}
+                                    </ul>
+                                    <p className="m-0 text-[13px] leading-[1.5] text-ink-3">
+                                        {t('keywords.hint')}{' '}
+                                        <Link href={`/resumes/${resumeId}`} className="font-semibold underline">
+                                            {t('keywords.openCv')}
+                                        </Link>
+                                    </p>
+                                </>
+                            ) : null}
+                            {kw.matched.length ? (
+                                <ul aria-label={t('keywords.matched')} className="m-0 flex list-none flex-wrap gap-1.5 p-0">
+                                    {kw.matched.map((k) => (
+                                        <li key={k} className="rounded-full bg-ok-bg px-2.5 py-0.5 text-[13px] font-medium text-ok-fg">
+                                            {k}
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : null}
+                        </div>
+                    ) : null}
                     {m.strengths.length ? (
                         <div className="flex flex-col gap-1.5">
                             <h4 className="m-0 text-[13.5px] font-semibold">{t('strengths')}</h4>

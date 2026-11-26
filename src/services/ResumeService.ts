@@ -18,7 +18,7 @@ const ResumeService = {
     userDownloads: (userId: string) => r().get<LastUse>(`/admin/users/${userId}/downloads`),
     // rewrite asks the AI for a better version of one line (or the summary) of the student's CV, within the plan.
     rewrite: (id: string, data: { section: 'bullet' | 'summary'; text: string; language: 'fr' | 'en' | 'ar'; job_title?: string }) =>
-        r().post<{ suggestions: string[]; limit: number | null; used: number }>(`/resumes/${id}/rewrite`, data),
+        r().post<{ suggestions: string[]; warnings?: string[]; limit: number | null; used: number }>(`/resumes/${id}/rewrite`, data),
     userCV: (userId: string) => r().get<UserCV>(`/admin/users/${userId}/cv`),
     // chooseEditable keeps this CV editable beyond the plan's CV limit; the others become read-only.
     chooseEditable: (id: string) => r().put<Resume>(`/resumes/${id}/editable`),

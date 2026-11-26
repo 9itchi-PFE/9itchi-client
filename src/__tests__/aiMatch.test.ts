@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { left, matchError } from '@/components/jobs/aiMatch'
+import { keywordBlock, left, matchError } from '@/components/jobs/aiMatch'
 
 describe('matchError', () => {
     it('tells a plan without analyses from a monthly limit reached', () => {
@@ -20,5 +20,20 @@ describe('left', () => {
         expect(left(5, 2)).toBe(3)
         expect(left(5, 7)).toBe(0)
         expect(left(null, 9)).toBeNull()
+    })
+})
+
+describe('keywordBlock', () => {
+    it('is hidden when the analysis has no keywords, as the old ones', () => {
+        expect(keywordBlock({})).toBeNull()
+        expect(keywordBlock({ keywords: { matched: [], missing: [] }, keyword_coverage: 0 })).toBeNull()
+    })
+    it('keeps the offer order and counts the coverage', () => {
+        const b = keywordBlock({ keywords: { matched: ['React', 'SQL'], missing: ['Go'] }, keyword_coverage: 67 })
+        expect(b).toEqual({ matched: ['React', 'SQL'], missing: ['Go'], total: 3, coverage: 67 })
+    })
+    it('computes the coverage when the service gives none, and keeps it within 0-100', () => {
+        expect(keywordBlock({ keywords: { matched: ['A'], missing: ['B'] } })?.coverage).toBe(50)
+        expect(keywordBlock({ keywords: { matched: ['A'], missing: [] }, keyword_coverage: 250 })?.coverage).toBe(100)
     })
 })

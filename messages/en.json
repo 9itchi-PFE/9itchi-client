@@ -451,6 +451,8 @@
         "statusTip": "Tip",
         "suggesting": "Preparing a suggestion…",
         "noSuggestion": "No suggestion for now: fix it yourself.",
+        "warnNewNumbers": "Check the numbers: the proposal contains a number that is not in your text",
+        "warnTooLong": "Proposal much longer than your text, shorten it if needed",
         "toastApplied": "Fixed in your CV",
         "groups": {
             "all": "All",
@@ -915,6 +917,14 @@
             },
             "strengths": "What fits",
             "gaps": "What your CV does not show",
+            "keywords": {
+                "title": "Offer keywords",
+                "count": "{found} / {total} · {percent}%",
+                "missing": "Keywords missing from your CV",
+                "matched": "Keywords found in your CV",
+                "hint": "Add the ones you really master to your CV.",
+                "openCv": "Open my CV"
+            },
             "madeOn": "Analysed on {date}",
             "left": "{count, plural, =0 {no analysis left this month} one {# analysis left this month} other {# analyses left this month}}",
             "seePlans": "See the plans",
