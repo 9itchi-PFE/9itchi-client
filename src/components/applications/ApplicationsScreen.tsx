@@ -14,7 +14,8 @@ import { useApplications, useEmail, useOpens, useSendNow, useUpdateApplication }
 import { useJobCounts } from '@/hooks/useJobs'
 import { cn } from '@/lib/cn'
 import type { Application } from '@/types/application'
-import { applyError, bucket, followUpOn, sentAt, sentThisMonth } from './apply'
+import { applyError, bucket, followUpOn, overview, rate, sentAt, sentThisMonth } from './apply'
+import { FollowUpModal } from './FollowUpModal'
 
 const card = 'flex flex-col gap-4 rounded-[18px] border border-line-soft bg-white p-5'
 const small = 'hit h-8 rounded-[10px] px-3 text-[13.5px]'
@@ -85,6 +86,37 @@ function LetterModal({ a, onClose }: { a: Application; onClose: () => void }) {
 }
 
 // Empty is screen EmptyApplications: nothing sent yet, and the three steps that lead here.
+// Overview is the four figures at the top: what left, what was opened, the answers, the follow-ups to send.
+function Overview({ items, opens, now }: { items: Application[]; opens: Record<string, string>; now: Date }) {
+    const t = useTranslations('applications')
+    const o = overview(items, opens, now)
+    const opened = rate(o.opened, o.fromGmail)
+    const replied = rate(o.replied, o.sent)
+    const tiles = [
+        { key: 'sent', label: t('ovSent'), value: o.sent, hint: t('ovSentHint', { count: o.fromGmail }) },
+        { key: 'opened', label: t('ovOpened'), value: o.opened, hint: opened === null ? t('ovOpenedNone') : t('ovOpenedHint', { rate: opened }) },
+        { key: 'replied', label: t('ovReplied'), value: o.replied, hint: replied === null ? '' : t('ovRepliedHint', { rate: replied }) },
+        { key: 'followUps', label: t('ovFollowUps'), value: o.followUps, hint: t('ovFollowUpsHint'), lit: o.followUps > 0 },
+    ]
+    return (
+        <section aria-label={t('ovLabel')} className="grid grid-cols-2 gap-2.5 md:grid-cols-4">
+            {tiles.map((x) => (
+                <div
+                    key={x.key}
+                    className={cn(
+                        'flex min-w-0 flex-col gap-1 rounded-2xl border bg-white px-4 py-3.5',
+                        x.lit ? 'border-[1.5px] border-ink shadow-card' : 'border-line-soft',
+                    )}
+                >
+                    <span className="text-[13px] font-medium text-ink-3">{x.label}</span>
+                    <strong className="font-display text-[28px] font-extrabold leading-none">{x.value}</strong>
+                    {x.hint ? <span className="text-xs leading-[1.4] text-ink-3">{x.hint}</span> : null}
+                </div>
+            ))}
+        </section>
+    )
+}
+
 function Empty() {
     const t = useTranslations('applications')
     return (
@@ -129,13 +161,15 @@ export default function ApplicationsScreen() {
     const update = useUpdateApplication()
     const sendNow = useSendNow()
     const [letter, setLetter] = useState<Application | null>(null)
+    const [followUp, setFollowUp] = useState<Application | null>(null)
 
     const now = new Date()
     const items = list.data?.items ?? []
     const todo = items.filter((a) => bucket(a, now) === 'todo')
     const waiting = items.filter((a) => bucket(a, now) === 'waiting')
     const done = items.filter((a) => bucket(a, now) === 'done')
-    const opens = useOpens(items.filter((a) => a.via === 'gmail' && a.email?.status === 'sent' && bucket(a, now) !== 'done').map((a) => a.email!.id))
+    // Every email that left from Gmail: the overview counts the opens of all of them.
+    const opens = useOpens(items.filter((a) => a.via === 'gmail' && a.email?.status === 'sent').map((a) => a.email!.id))
 
     if (list.isLoading) {
         return (
@@ -172,16 +206,6 @@ export default function ApplicationsScreen() {
                 {t('letter')}
             </button>
         ) : null
-    const answers = (a: Application) => (
-        <div className="flex flex-wrap gap-2">
-            <Button size="sm" className="h-10 px-4 text-sm" disabled={busy} onClick={() => set(a, 'replied')}>
-                {t('theyReplied')}
-            </Button>
-            <Button variant="link" className="px-2 text-sm font-semibold text-ink-3 hover:text-ink" disabled={busy} onClick={() => set(a, 'withdrawn')}>
-                {t('notInterested')}
-            </Button>
-        </div>
-    )
 
     return (
         <main className="mx-auto box-border flex w-full max-w-[1320px] flex-1 flex-wrap items-start gap-8 px-4 sm:px-8 pb-[72px] pt-4">
@@ -193,6 +217,8 @@ export default function ApplicationsScreen() {
                         {t('sentMonth', { count: sentThisMonth(items, now) })}
                     </p>
                 </div>
+
+                <Overview items={items} opens={opens} now={now} />
 
                 <section aria-labelledby="apps-todo" className="flex flex-col gap-3">
                     <div className="flex items-center gap-2.5">
@@ -235,7 +261,29 @@ export default function ApplicationsScreen() {
                                 <>
                                     <p className="m-0 text-[14.5px] leading-[1.6] text-ink-2">{t('followUpText')}</p>
                                     <div className="flex flex-wrap items-center justify-between gap-3">
-                                        {answers(a)}
+                                        <div className="flex flex-wrap items-center gap-2">
+                                            <Button size="sm" className="h-10 gap-2 px-4 text-sm" disabled={busy} onClick={() => setFollowUp(a)}>
+                                                <Icon name="send" size={15} />
+                                                {t('followUpPrepare')}
+                                            </Button>
+                                            <Button
+                                                variant="secondary"
+                                                size="sm"
+                                                className="h-10 px-3.5 text-sm"
+                                                disabled={busy}
+                                                onClick={() => set(a, 'replied')}
+                                            >
+                                                {t('theyReplied')}
+                                            </Button>
+                                            <Button
+                                                variant="link"
+                                                className="px-2 text-sm font-semibold text-ink-3 hover:text-ink"
+                                                disabled={busy}
+                                                onClick={() => set(a, 'withdrawn')}
+                                            >
+                                                {t('notInterested')}
+                                            </Button>
+                                        </div>
                                         {letterLink(a)}
                                     </div>
                                 </>
@@ -314,7 +362,12 @@ export default function ApplicationsScreen() {
                                             ) : null}
                                             <Step on={false}>{t('stepReply')}</Step>
                                         </div>
-                                        {a.via === 'self' ? (
+                                        {a.follow_up_sent_at ? (
+                                            <span className="inline-flex items-center gap-1.5 text-[13px] font-medium text-ink-2">
+                                                <Icon name="check" size={14} />
+                                                {t('followUpDone', { date: day(new Date(a.follow_up_sent_at)) })}
+                                            </span>
+                                        ) : a.via === 'self' ? (
                                             <span className="text-[13px] text-ink-3">{t('selfNote', { date: day(followUpOn(a)) })}</span>
                                         ) : null}
                                         <div className="flex flex-wrap gap-4 text-[13.5px]">
@@ -418,6 +471,7 @@ export default function ApplicationsScreen() {
             </aside>
 
             {letter ? <LetterModal a={letter} onClose={() => setLetter(null)} /> : null}
+            {followUp ? <FollowUpModal a={followUp} onClose={() => setFollowUp(null)} /> : null}
         </main>
     )
 }

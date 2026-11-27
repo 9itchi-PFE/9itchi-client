@@ -111,7 +111,8 @@ export function sending(a: Allowance | undefined): Sending {
     return left > 0 ? { kind: 'built' } : { kind: 'blocked', limit: 0 }
 }
 
-export const FOLLOW_UP_DAYS = 14
+// FOLLOW_UP_DAYS is how long an application waits for an answer before its follow-up is proposed (email-api agrees).
+export const FOLLOW_UP_DAYS = 7
 
 // sentAt is when the application left: when Gmail sent it, or when the student said they sent it.
 export const sentAt = (a: Pick<Application, 'email' | 'created_at'>) => new Date(a.email?.sent_at ?? a.created_at)
@@ -119,8 +120,9 @@ export const sentAt = (a: Pick<Application, 'email' | 'created_at'>) => new Date
 // live says the student has an application to this offer that is waiting to leave, sent or answered.
 export const live = (a: Pick<Application, 'status'>) => ['scheduled', 'sent', 'opened', 'replied'].includes(a.status)
 
-export function followUpDue(a: Pick<Application, 'status' | 'email' | 'created_at'>, now = new Date()): boolean {
-    return (a.status === 'sent' || a.status === 'opened') && now.getTime() - sentAt(a).getTime() >= FOLLOW_UP_DAYS * DAY
+// followUpDue: no answer a week after it left, and no follow-up sent yet (one per application).
+export function followUpDue(a: Pick<Application, 'status' | 'email' | 'created_at' | 'follow_up_sent_at'>, now = new Date()): boolean {
+    return (a.status === 'sent' || a.status === 'opened') && !a.follow_up_sent_at && now.getTime() - sentAt(a).getTime() >= FOLLOW_UP_DAYS * DAY
 }
 
 // followUpOn is the day the student is reminded to follow up.
@@ -129,7 +131,7 @@ export const followUpOn = (a: Pick<Application, 'email' | 'created_at'>) => new 
 // Bucket is the section of « Mes candidatures » an application sits in.
 export type Bucket = 'todo' | 'waiting' | 'done'
 
-export function bucket(a: Pick<Application, 'status' | 'email' | 'created_at'>, now = new Date()): Bucket {
+export function bucket(a: Pick<Application, 'status' | 'email' | 'created_at' | 'follow_up_sent_at'>, now = new Date()): Bucket {
     if (a.status === 'failed' || followUpDue(a, now)) return 'todo'
     if (a.status === 'scheduled' || a.status === 'sent' || a.status === 'opened') return 'waiting'
     return 'done'
@@ -198,3 +200,26 @@ export function takePending(jobId: string): Pending | null {
     }
     return p
 }
+
+// Overview is the summary at the top of « Mes candidatures ». Opens can only be seen for what left from Gmail, so the
+// open rate is over those; the reply rate is over everything that left.
+export type Overview = { sent: number; fromGmail: number; opened: number; replied: number; followUps: number }
+
+const answered = ['replied', 'closed']
+
+export function overview(items: Application[], opens: Record<string, string>, now = new Date()): Overview {
+    const gone = items.filter(
+        (a) => a.status !== 'scheduled' && a.status !== 'failed' && !(a.status === 'withdrawn' && a.via === 'gmail' && a.email?.status !== 'sent'),
+    )
+    const gmail = gone.filter((a) => a.via === 'gmail' && a.email?.status === 'sent')
+    return {
+        sent: gone.length,
+        fromGmail: gmail.length,
+        opened: gmail.filter((a) => a.status === 'opened' || answered.includes(a.status) || (a.email && opens[a.email.id])).length,
+        replied: gone.filter((a) => answered.includes(a.status)).length,
+        followUps: items.filter((a) => followUpDue(a, now)).length,
+    }
+}
+
+// rate is a share as a whole percent, null when there is nothing to divide.
+export const rate = (part: number, whole: number) => (whole > 0 ? Math.round((part / whole) * 100) : null)
