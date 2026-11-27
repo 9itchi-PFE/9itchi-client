@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import PaymentService from '@/services/PaymentService'
-import type { PlanInput, PromoInput, ReceiptIssuer, ReceiptIssuerInput, SaleInput, StudentDiscount } from '@/types/plan'
+import type { FreeGrantInput, PlanInput, PromoInput, ReceiptIssuer, ReceiptIssuerInput, SaleInput, StudentDiscount } from '@/types/plan'
 import { billingKeys } from './usePlans'
 
 export const adminPlanKeys = {
@@ -8,6 +8,7 @@ export const adminPlanKeys = {
     promos: ['admin', 'promo-codes'] as const,
     sales: ['admin', 'sales'] as const,
     student: ['admin', 'student-discount'] as const,
+    grants: ['admin', 'free-grants'] as const,
 }
 
 // useAllPlans lists every plan, the ones that are switched off too.
@@ -121,5 +122,42 @@ export function useSaveStudentDiscount() {
             qc.setQueryData<StudentDiscount>(adminPlanKeys.student, saved)
             qc.invalidateQueries({ queryKey: billingKeys.student })
         },
+    })
+}
+
+// useFreeGrants lists the emails the team gave free usage to, newest first.
+export function useFreeGrants() {
+    return useQuery({
+        queryKey: adminPlanKeys.grants,
+        queryFn: async () => {
+            const { data } = await PaymentService.listFreeGrants()
+            // Anything but a list (an older payments-api, a mock) is read as no grant rather than breaking the Plans screen.
+            return Array.isArray(data) ? data : []
+        },
+    })
+}
+
+export function useGiveFreeGrants() {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: async (input: FreeGrantInput) => (await PaymentService.giveFreeGrants(input)).data,
+        onSuccess: () => qc.invalidateQueries({ queryKey: adminPlanKeys.grants }),
+    })
+}
+
+export function useSaveFreeGrant() {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: async ({ email, quotas, note }: { email: string; quotas: Record<string, number>; note: string }) =>
+            (await PaymentService.updateFreeGrant(email, { quotas, note })).data,
+        onSuccess: () => qc.invalidateQueries({ queryKey: adminPlanKeys.grants }),
+    })
+}
+
+export function useDeleteFreeGrant() {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: (email: string) => PaymentService.deleteFreeGrant(email),
+        onSuccess: () => qc.invalidateQueries({ queryKey: adminPlanKeys.grants }),
     })
 }

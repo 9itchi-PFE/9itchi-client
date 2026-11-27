@@ -30,6 +30,7 @@ import { domainsOf } from '@/components/billing/billing'
 import { useReceiptIssuer } from '@/hooks/usePlans'
 import { cn } from '@/lib/cn'
 import type { Locale, Plan, PromoCode, Sale } from '@/types/plan'
+import FreeGrants from './FreeGrants'
 import { apiError } from './SourcesScreen'
 import {
     ALLOWED,
@@ -961,6 +962,7 @@ export default function PlansScreen() {
                 </div>
             ) : null}
             {plans.data && all.length ? <Limits key={all.map((p) => `${p.id}:${JSON.stringify(p.quotas ?? {})}`).join('|')} plans={all} /> : null}
+            <FreeGrants />
             {plans.data ? <Sales plans={paid} /> : null}
             <section aria-labelledby="promos-h" id="codes" className={card}>
                 <div className="flex items-center justify-between gap-3">
