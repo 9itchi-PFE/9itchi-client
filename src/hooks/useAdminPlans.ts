@@ -127,7 +127,14 @@ export function useSaveStudentDiscount() {
 
 // useFreeGrants lists the emails the team gave free usage to, newest first.
 export function useFreeGrants() {
-    return useQuery({ queryKey: adminPlanKeys.grants, queryFn: async () => (await PaymentService.listFreeGrants()).data })
+    return useQuery({
+        queryKey: adminPlanKeys.grants,
+        queryFn: async () => {
+            const { data } = await PaymentService.listFreeGrants()
+            // Anything but a list (an older payments-api, a mock) is read as no grant rather than breaking the Plans screen.
+            return Array.isArray(data) ? data : []
+        },
+    })
 }
 
 export function useGiveFreeGrants() {
