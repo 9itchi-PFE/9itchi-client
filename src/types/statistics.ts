@@ -17,6 +17,8 @@ export type Integration = {
     percent: number
     has_token: boolean
     token_hint: string
+    // What is left on the provider account right now (all its users, not only 9itchi); null when unknown.
+    balance?: { left: number; limit: number; resets_on: string } | null
 }
 export type Integrations = { month: string; integrations: Integration[] }
 // quota sets the monthly quota (0 = none); token replaces the API token ('' removes it). Send only what changes.

@@ -96,29 +96,38 @@ export default function CreditsScreen() {
                                                 {t('creditsEdit')}
                                             </Button>
                                         </div>
-                                        {i.quota > 0 ? (
-                                            <>
-                                                <Meter percent={i.percent} label={i.label} />
-                                                <div className="flex flex-wrap items-baseline justify-between gap-2 text-[14.5px]">
-                                                    <span>
-                                                        <strong className="tabular-nums">{n(i.used)}</strong> / {n(i.quota)} {t(`unit_${i.unit}`)}
-                                                    </span>
-                                                    <strong className={cn('tabular-nums', levelOf(i.percent) === 'high' && 'text-[#B42318]')}>
-                                                        {i.percent} %
-                                                    </strong>
-                                                </div>
-                                                <span className="text-[13px] text-ink-3">
-                                                    {t('creditsRemaining', { left: n(i.remaining), unit: t(`unit_${i.unit}`) })}
-                                                </span>
-                                            </>
-                                        ) : (
-                                            <>
-                                                <span className="text-[14.5px]">
-                                                    <strong className="tabular-nums">{n(i.used)}</strong> {t(`unit_${i.unit}`)}
-                                                </span>
-                                                <span className="text-[13px] text-ink-3">{t('creditsNoQuota')}</span>
-                                            </>
-                                        )}
+                                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                            <div className={cn('flex min-w-0 flex-col gap-2', !i.balance && 'sm:col-span-2')}>
+                                                {i.quota > 0 ? (
+                                                    <>
+                                                        <Meter percent={i.percent} label={i.label} />
+                                                        <div className="flex flex-wrap items-baseline justify-between gap-2 text-[14.5px]">
+                                                            <span>
+                                                                <strong className="tabular-nums">{n(i.used)}</strong> / {n(i.quota)} {t(`unit_${i.unit}`)}
+                                                            </span>
+                                                            <strong className={cn('tabular-nums', levelOf(i.percent) === 'high' && 'text-[#B42318]')}>
+                                                                {i.percent} %
+                                                            </strong>
+                                                        </div>
+                                                        <span className="text-[13px] text-ink-3">
+                                                            {t('creditsRemaining', { left: n(i.remaining), unit: t(`unit_${i.unit}`) })}
+                                                        </span>
+                                                    </>
+                                                ) : (
+                                                    <>
+                                                        <span className="text-[14.5px]">
+                                                            {t.rich('creditsUsed', {
+                                                                used: n(i.used),
+                                                                unit: t(`unit_${i.unit}`),
+                                                                b: (c) => <strong className="tabular-nums">{c}</strong>,
+                                                            })}
+                                                        </span>
+                                                        <span className="text-[13px] text-ink-3">{t('creditsNoQuota')}</span>
+                                                    </>
+                                                )}
+                                            </div>
+                                            {i.balance ? <BalanceBox integration={i} balance={i.balance} /> : null}
+                                        </div>
                                     </article>
                                 ))}
                         </div>
@@ -126,6 +135,31 @@ export default function CreditsScreen() {
                 ))}
             </div>
             {editing ? <IntegrationModal integration={editing} onClose={() => setEditing(null)} /> : null}
+        </div>
+    )
+}
+
+// BalanceBox is what is left on the provider account, read live by statistics-api: it covers every use of the key,
+// not only 9itchi's, so it sits next to the month's 9itchi use rather than replacing it.
+function BalanceBox({ integration, balance }: { integration: Integration; balance: NonNullable<Integration['balance']> }) {
+    const t = useTranslations('admin')
+    const locale = useLocale()
+    const n = (v: number) => new Intl.NumberFormat(locale).format(v)
+    const resets = balance.resets_on
+        ? new Intl.DateTimeFormat(locale, { dateStyle: 'medium', timeZone: 'UTC' }).format(new Date(`${balance.resets_on}T00:00:00Z`))
+        : ''
+    return (
+        <div className="flex min-w-0 flex-col gap-1 rounded-[14px] bg-fill px-3.5 py-3">
+            <span className="text-[14.5px]">
+                {t.rich('creditsBalance', {
+                    left: n(balance.left),
+                    limit: n(balance.limit),
+                    unit: t(`unit_${integration.unit}`),
+                    b: (c) => <strong className="tabular-nums">{c}</strong>,
+                })}
+            </span>
+            {resets ? <span className="text-[13px] text-ink-3">{t('creditsBalanceResets', { date: resets })}</span> : null}
+            <span className="text-[13px] text-ink-3">{t('creditsBalanceNote', { name: integration.label })}</span>
         </div>
     )
 }
