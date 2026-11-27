@@ -15,7 +15,7 @@ const description =
 
 // What search engines and shared links show: title, description, the site's address and its logo.
 export const metadata: Metadata = {
-    metadataBase: new URL(siteUrl),
+    metadataBase: new URL(siteUrl()),
     title: { default: '9itchi PFE · Trouve ton stage PFE et postule en un clic', template: '%s · 9itchi PFE' },
     description,
     applicationName: '9itchi PFE',
@@ -28,6 +28,8 @@ export const metadata: Metadata = {
         images: [{ url: '/img/9itchi-logo.png', alt: '9itchi PFE' }],
     },
     twitter: { card: 'summary', title: '9itchi PFE', description, images: ['/img/9itchi-logo.png'] },
+    // Google Search Console: the code of the HTML-tag check, when the domain is not checked by DNS.
+    verification: process.env.GOOGLE_SITE_VERIFICATION ? { google: process.env.GOOGLE_SITE_VERIFICATION } : undefined,
 }
 
 export default async function RootLayout({ children }: PropsWithChildren) {
