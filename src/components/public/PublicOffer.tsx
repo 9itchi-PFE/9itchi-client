@@ -10,6 +10,7 @@ import { Button, ButtonLink } from '@/components/ui/Button'
 import { useToast } from '@/components/ui/Toast'
 import { usePublicJob } from '@/hooks/useJobs'
 import { usePlans } from '@/hooks/usePlans'
+import { cityOf, slug } from '@/lib/slug'
 import { errorStatus } from '@/services/ApiService'
 import { freeApplications } from './HomeScreen'
 import PublicHeader, { PublicFooter } from './PublicHeader'
@@ -20,6 +21,7 @@ const main = 'mx-auto box-border flex w-full max-w-[1200px] flex-1 flex-col gap-
 // so the side card leads to sign-up (or sign-in, back to the same offer inside 9itchi).
 export default function PublicOffer({ id }: { id: string }) {
     const t = useTranslations('public.offer')
+    const tl = useTranslations('public.list')
     const tm = useTranslations('prefs.modes')
     const format = useFormatter()
     const toast = useToast()
@@ -143,6 +145,14 @@ export default function PublicOffer({ id }: { id: string }) {
                         {o.book_company ? t('sourceBook', { company: o.book_company }) : t('sourceOther', { source: sourceName(o.source) })}
                     </p>
                 </section>
+                {o.closed ? null : (
+                    <MoreOffers
+                        company={o.company}
+                        city={cityOf(o.location)}
+                        at={(city) => tl('moreAt', { city })}
+                        from={(company) => tl('moreFrom', { company })}
+                    />
+                )}
             </article>
             <aside className="flex w-full flex-none flex-col gap-4 rounded-[20px] border-[1.5px] border-ink bg-white p-6 shadow-card lg:sticky lg:top-[92px] lg:w-[380px]">
                 {o.closed ? null : <span className="self-start rounded-full bg-lime px-2.5 py-1 text-[13px] font-semibold">{t('ctaTag')}</span>}
@@ -159,5 +169,26 @@ export default function PublicOffer({ id }: { id: string }) {
                 </Button>
             </aside>
         </main>,
+    )
+}
+
+// MoreOffers leads from an open offer to the other open offers of its company and its city (their public lists).
+function MoreOffers({ company, city, at, from }: { company: string; city: string; at: (c: string) => string; from: (c: string) => string }) {
+    const links = [
+        slug(company) ? { href: `/offres/entreprise/${slug(company)}`, label: from(company) } : null,
+        slug(city) ? { href: `/offres/ville/${slug(city)}`, label: at(city) } : null,
+    ].filter((l): l is { href: string; label: string } => l !== null)
+    if (links.length === 0) return null
+    return (
+        <nav aria-label={links.map((l) => l.label).join(', ')} className="flex flex-wrap gap-x-5 gap-y-2">
+            {links.map((l) => (
+                <Link key={l.href} href={l.href} className="hit text-[15px] font-semibold">
+                    {l.label}
+                    <span aria-hidden className="ms-1 inline-block rtl:-scale-x-100">
+                        →
+                    </span>
+                </Link>
+            ))}
+        </nav>
     )
 }

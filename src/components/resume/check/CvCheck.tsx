@@ -15,6 +15,7 @@ import { quotaReason } from '@/utils/quota'
 import { normalize, type ResumeContent, type RuleGroup, type RuleResult } from '@/types/resume'
 import { fileBase } from '../editor/fileBase'
 import { warningKeys } from './rewriteWarnings'
+import { usableSuggestion } from './usableSuggestion'
 import { itemOfPath, sectionOfPath } from '../editor/sections'
 
 const GROUPS: (RuleGroup | 'all')[] = ['all', 'contact', 'summary', 'experience', 'education', 'skills', 'layout', 'file']
@@ -209,13 +210,19 @@ function RuleCard({
     // against the plan (resume-api gives back one already made without counting it). Numbers it cannot know stay
     // as [NOMBRE].
     const [asked, setAsked] = useState(false)
+    const needsFigure = rule.id === 'quantified_results'
     const suggestion = useQuery({
         queryKey: ['rewrite', resumeId, rule.id, rule.where, rule.was],
         queryFn: async () => {
             const { suggestions, warnings } = (
-                await ResumeService.rewrite(resumeId, { section: isSummary ? 'summary' : 'bullet', text: rule.was ?? '', language: lang })
+                await ResumeService.rewrite(resumeId, {
+                    section: isSummary ? 'summary' : 'bullet',
+                    text: rule.was ?? '',
+                    language: lang,
+                    ...(needsFigure ? { goal: 'quantify' as const } : {}),
+                })
             ).data
-            return { text: suggestions[0] ?? '', warnings: warningKeys(warnings) }
+            return { text: usableSuggestion(suggestions, rule.was ?? '', needsFigure), warnings: warningKeys(warnings) }
         },
         enabled: asked && (isBullet || isSummary) && !!rule.was,
         staleTime: Infinity,
@@ -351,7 +358,7 @@ function RuleCard({
                                     </Link>
                                 </span>
                             ) : (isBullet || isSummary) && suggestion.isFetched ? (
-                                <span className="text-sm text-ink-3">{t('noSuggestion')}</span>
+                                <span className="text-sm text-ink-3">{t(needsFigure ? 'noFigure' : 'noSuggestion')}</span>
                             ) : null}
                             {found.now
                                 ? (suggestion.data?.warnings ?? []).map((k) => (

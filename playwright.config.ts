@@ -25,6 +25,8 @@ export const e2eEnv = {
     AUTH_SECRET: 'e2e-only-not-a-secret-0123456789abcdef',
     AUTH_TRUST_HOST: 'true',
     NEXTAUTH_URL: baseURL,
+    // What the Next server itself reads of job-api (shared offers' metadata, the sitemap), answered by mock-account.mjs.
+    JOB_API_URL: 'http://localhost:3201/job',
     NEXT_TELEMETRY_DISABLED: '1',
 }
 

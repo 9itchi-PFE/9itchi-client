@@ -4,7 +4,7 @@ import TrackerService from '@/services/TrackerService'
 import { isAxiosError } from 'axios'
 import { today } from '@/components/admin/plans'
 import { loadScores } from '@/components/jobs/scores'
-import type { Application, ApplicationList, ApplyInput, DraftInput, JobMatch, MatchInput } from '@/types/application'
+import type { Application, ApplicationList, ApplyInput, DraftInput, FollowUpDraftInput, JobMatch, MatchInput } from '@/types/application'
 
 export const applicationKeys = {
     list: ['applications'] as const,
@@ -100,6 +100,18 @@ function useSettle() {
 export function useApply() {
     const settle = useSettle()
     return useMutation({ mutationFn: async (input: ApplyInput) => (await EmailService.apply(input)).data, onSuccess: settle })
+}
+
+export function useFollowUpDraft(id: string) {
+    return useMutation({ mutationFn: async (input: FollowUpDraftInput) => (await EmailService.draftFollowUp(id, input)).data })
+}
+
+export function useFollowUp(id: string) {
+    const settle = useSettle()
+    return useMutation({
+        mutationFn: async (data: { subject: string; body: string }) => (await EmailService.followUp(id, data)).data,
+        onSuccess: settle,
+    })
 }
 
 export function useUpdateApplication() {
