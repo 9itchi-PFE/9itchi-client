@@ -553,6 +553,11 @@ export default function BillingScreen() {
                     <h1 className="m-0 max-w-[760px] text-[30px] sm:text-[44px] font-extrabold leading-[1.05]">{t('sellTitle')}</h1>
                     <p className="m-0 max-w-[700px] text-[17px] leading-[1.55] text-ink-3">{t('sellText')}</p>
                 </div>
+                {sub.data.is_free && sub.data.granted ? (
+                    <p role="status" className="m-0 rounded-[14px] bg-ok-bg px-4 py-3 text-[15px] leading-[1.55] text-ok-fg">
+                        {t('granted')}
+                    </p>
+                ) : null}
                 {sub.data.lapsed ? (
                     <p role="status" className="m-0 rounded-[14px] bg-warn-bg px-4 py-3 text-[15px] leading-[1.55] text-warn-fg">
                         {t('lapsed', { date: format.dateTime(new Date(sub.data.lapsed.ends_at), { day: 'numeric', month: 'long', year: 'numeric' }) })}

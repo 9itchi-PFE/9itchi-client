@@ -1,5 +1,7 @@
 import type {
     Checkout,
+    FreeGrant,
+    FreeGrantInput,
     Gift,
     MySubscription,
     Payment,
@@ -34,6 +36,12 @@ const PaymentService = {
     createSale: (data: SaleInput) => api('payments').post<Sale>(`/admin/sales`, data),
     updateSale: (id: string, data: SaleInput) => api('payments').put<Sale>(`/admin/sales/${id}`, data),
     deleteSale: (id: string) => api('payments').delete(`/admin/sales/${id}`),
+    // Free usage the team gives some emails (admin): giving again to an email replaces its quotas.
+    listFreeGrants: () => api('payments').get<FreeGrant[]>(`/admin/free-grants`),
+    giveFreeGrants: (data: FreeGrantInput) => api('payments').post<FreeGrant[]>(`/admin/free-grants`, data),
+    updateFreeGrant: (email: string, data: { quotas: Record<string, number>; note: string }) =>
+        api('payments').put<FreeGrant>(`/admin/free-grants/${encodeURIComponent(email)}`, data),
+    deleteFreeGrant: (email: string) => api('payments').delete(`/admin/free-grants/${encodeURIComponent(email)}`),
     checkout: (data: { plan_id: string; promo_code?: string }) => api('payments').post<Checkout>(`/subscriptions/checkout`, data),
     mySubscription: () => api('payments').get<MySubscription>(`/subscriptions/me`),
     listPayments: () => api('payments').get<{ items: Payment[] }>(`/payments`),

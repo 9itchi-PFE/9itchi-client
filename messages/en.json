@@ -1903,7 +1903,28 @@
         "studentPercentBad": "The percentage goes from 0 to 100.",
         "studentSaved": "Student discount saved",
         "studentOn": "On · −{percent}%",
-        "studentOff": "Off"
+        "studentOff": "Off",
+        "grantsTitle": "Free usage",
+        "grantsIntro": "The Free plan only gives reading the offers. Give free usage to specific emails here: a list of emails with the same amounts, or one email with its own. It replaces the Free plan limits one by one when the student signs in with Google or LinkedIn on that email, while they have no paid subscription. Giving again to an email replaces its amounts.",
+        "grantEmails": "Emails (separated by commas, spaces or lines)",
+        "grantEmailsCount": "{count, plural, =0 {No email} one {# email} other {# emails}}",
+        "grantEmailsNone": "Type at least one email.",
+        "grantEmailsMany": "{max} emails at most at once.",
+        "grantKeepFree": "As the Free plan",
+        "grantQuotasBad": "Fill at least one limit, as a whole number from 0.",
+        "grantNote": "Note (optional)",
+        "grantGive": "Give access",
+        "grantGiven": "{count, plural, one {Access given to # email} other {Access given to # emails}}",
+        "grantSaved": "Free usage saved",
+        "grantDelete": "Remove",
+        "grantDeleteTitle": "Remove the access of {email}?",
+        "grantDeleteText": "This email goes back to the Free plan limits.",
+        "grantDeleted": "Access removed for {email}",
+        "grantsError": "Could not load the free usage.",
+        "noGrants": "No free usage yet.",
+        "colGrantEmail": "Email",
+        "colGrantQuotas": "Limits given",
+        "colGrantDate": "Date"
     },
     "apply": {
         "back": "Back to the offer",
@@ -2294,7 +2315,8 @@
         "switchTo": "Move to {name} · {price}",
         "studentLine": "Student discount (−{percent}%)",
         "promoStudentLine": "Promo code {code} + student discount (−{percent}%)",
-        "studentVerify": "Your {domain} address gives you −{percent}%: sign out, then sign in again with Google or LinkedIn using that address to get it."
+        "studentVerify": "Your {domain} address gives you −{percent}%: sign out, then sign in again with Google or LinkedIn using that address to get it.",
+        "granted": "Access offered by the team: you have free usage on top of the Free plan."
     },
     "notifications": {
         "title": "Notifications",
@@ -2532,7 +2554,8 @@
             "notFoundCta": "Discover 9itchi PFE",
             "error": "The offer could not be loaded.",
             "retry": "Try again",
-            "loading": "Loading the offer"
+            "loading": "Loading the offer",
+            "ctaTextNoFree": "Import your CV and apply to this topic."
         },
         "footer": {
             "about": "Every PFE internship offer in Tunisia in one place, a CV that follows recruiters’ rules and a letter for each offer.",

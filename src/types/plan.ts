@@ -79,6 +79,8 @@ export type MySubscription = {
     // kept_price: the launch price the student keeps when they renew with no gap of more than 7 days (null: none).
     // When it is lower than today's price, plan is already shown at it.
     kept_price?: number | null
+    // granted: on the free view, plan.quotas include usage the team gave this student's verified email.
+    granted?: boolean
 }
 
 // atKeptPrice is plan at the launch price a student keeps, today's price struck through; plan as it is otherwise.
@@ -155,3 +157,15 @@ export type ReceiptIssuer = {
     vat_mention: string
     complete: boolean
 }
+
+// FreeGrant is usage the team gave an email for free: its quotas replace the Free plan ones key by key, once the
+// student signs in with Google or LinkedIn on that email and while they have no paid subscription.
+export type FreeGrant = {
+    email: string
+    quotas: Record<string, number>
+    note: string
+    given_by: string
+    created_at: string
+    updated_at: string
+}
+export type FreeGrantInput = { emails: string[]; quotas: Record<string, number>; note?: string }

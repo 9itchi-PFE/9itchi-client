@@ -11,9 +11,9 @@ const FAQ = [1, 2, 3, 4] as const
 const section = 'mx-auto box-border w-full max-w-[1200px] px-4 sm:px-8'
 
 // freeApplications is how many applications the plan of a student with no subscription sends (Free plan in
-// payments-api, set in the admin); 3 until /plans answers.
+// payments-api, set in the admin); 0 until /plans answers, so nothing free is promised before it does.
 export function freeApplications(plans: Plan[] | undefined): number {
-    return plans?.find((p) => p.price <= 0)?.quotas?.free_applications ?? 3
+    return plans?.find((p) => p.price <= 0)?.quotas?.free_applications ?? 0
 }
 
 // HomeScreen is the public home page (screen 7.1): what 9itchi does and the common questions. How it works and
@@ -65,7 +65,7 @@ export default function HomeScreen() {
                     <h2 id="faq-h" className="m-0 font-display text-[32px] font-extrabold sm:text-[40px]">
                         {t('faqTitle')}
                     </h2>
-                    {FAQ.map((n) => (
+                    {FAQ.filter((n) => n !== 1 || count > 0).map((n) => (
                         <details key={n} className="group rounded-2xl border border-line-soft bg-white px-5 py-4">
                             <summary className="hit cursor-pointer list-none text-base font-semibold marker:hidden">{t(`q${n}`)}</summary>
                             <p className="m-0 mt-3 text-[15px] leading-relaxed text-ink-2">{t(`a${n}`, { count })}</p>

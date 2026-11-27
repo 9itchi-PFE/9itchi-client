@@ -1903,7 +1903,28 @@
         "studentPercentBad": "Le pourcentage va de 0 à 100.",
         "studentSaved": "Réduction étudiant enregistrée",
         "studentOn": "Active · −{percent} %",
-        "studentOff": "Désactivée"
+        "studentOff": "Désactivée",
+        "grantsTitle": "Accès gratuit",
+        "grantsIntro": "Le plan gratuit ne donne que la lecture des offres. Donne ici un usage gratuit à des adresses précises : une liste d’adresses avec les mêmes quantités, ou une seule adresse avec les siennes. Il remplace les limites du plan gratuit une par une quand l’étudiant se connecte avec Google ou LinkedIn sur cette adresse, tant qu’il n’a pas d’abonnement payant. Redonner à une adresse remplace ses quantités.",
+        "grantEmails": "Adresses e-mail (séparées par des virgules, espaces ou lignes)",
+        "grantEmailsCount": "{count, plural, =0 {Aucune adresse} one {# adresse} other {# adresses}}",
+        "grantEmailsNone": "Saisis au moins une adresse e-mail.",
+        "grantEmailsMany": "{max} adresses au plus à la fois.",
+        "grantKeepFree": "Comme le plan gratuit",
+        "grantQuotasBad": "Remplis au moins une limite, en nombre entier à partir de 0.",
+        "grantNote": "Note (facultative)",
+        "grantGive": "Donner l’accès",
+        "grantGiven": "{count, plural, one {Accès donné à # adresse} other {Accès donné à # adresses}}",
+        "grantSaved": "Accès gratuit enregistré",
+        "grantDelete": "Retirer",
+        "grantDeleteTitle": "Retirer l’accès de {email} ?",
+        "grantDeleteText": "Cette adresse retrouve les limites du plan gratuit.",
+        "grantDeleted": "Accès retiré à {email}",
+        "grantsError": "Impossible de charger les accès gratuits.",
+        "noGrants": "Aucun accès gratuit pour l’instant.",
+        "colGrantEmail": "E-mail",
+        "colGrantQuotas": "Limites données",
+        "colGrantDate": "Date"
     },
     "apply": {
         "back": "Retour à l’offre",
@@ -2294,7 +2315,8 @@
         "switchTo": "Passer à {name} · {price}",
         "studentLine": "Réduction étudiant (−{percent} %)",
         "promoStudentLine": "Code promo {code} + réduction étudiant (−{percent} %)",
-        "studentVerify": "Ton adresse {domain} donne droit à −{percent} % : déconnecte-toi puis reconnecte-toi avec Google ou LinkedIn avec cette adresse pour en profiter."
+        "studentVerify": "Ton adresse {domain} donne droit à −{percent} % : déconnecte-toi puis reconnecte-toi avec Google ou LinkedIn avec cette adresse pour en profiter.",
+        "granted": "Accès offert par l’équipe : tu as un usage gratuit en plus du plan gratuit."
     },
     "notifications": {
         "title": "Notifications",
@@ -2532,7 +2554,8 @@
             "notFoundCta": "Découvrir 9itchi PFE",
             "error": "L’offre n’a pas pu être chargée.",
             "retry": "Réessayer",
-            "loading": "Chargement de l’offre"
+            "loading": "Chargement de l’offre",
+            "ctaTextNoFree": "Importe ton CV et postule à ce sujet."
         },
         "footer": {
             "about": "Toutes les offres de stage PFE de Tunisie au même endroit, un CV qui suit les règles des recruteurs et une lettre pour chaque offre.",
