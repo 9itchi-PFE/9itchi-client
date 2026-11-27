@@ -16,8 +16,11 @@ concurrency:
 jobs:
   e2e:
     name: Playwright journeys
-    runs-on: ubuntu-latest
+    runs-on: [self-hosted, 9itchi]
     timeout-minutes: 20
+    container:
+      image: mcr.microsoft.com/playwright:v1.65.1-noble
+      options: --memory=1536m --ipc=host
     env:
       CI: "true"
       NEXT_TELEMETRY_DISABLED: "1"
