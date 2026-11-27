@@ -10,6 +10,7 @@ import { useIntegrations, useUpdateIntegration } from '@/hooks/useAdminIntegrati
 import { cn } from '@/lib/cn'
 import type { Integration } from '@/types/statistics'
 import { groupTotal, levelOf, parseQuota, type Level } from './credits'
+import PoolSection from './PoolSection'
 import { Kpi, apiError } from './SourcesScreen'
 
 const card = 'flex flex-col gap-4 rounded-[22px] border border-line bg-white p-5'
@@ -133,6 +134,7 @@ export default function CreditsScreen() {
                         </div>
                     </section>
                 ))}
+                <PoolSection integrations={items} />
             </div>
             {editing ? <IntegrationModal integration={editing} onClose={() => setEditing(null)} /> : null}
         </div>

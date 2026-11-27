@@ -24,6 +24,7 @@ import type {
     RecruiterSearch,
     RecruiterSearchInput,
 } from '@/types/recruiter'
+import type { ProspectStats } from '@/types/prospects'
 import type { LastUse } from '@/types/user'
 import { api } from './ApiService'
 
@@ -51,6 +52,8 @@ const EmailService = {
     recruiterAllowance: () => e().get<RecruiterAllowance>(`/recruiters/allowance`),
     // draftForRecruiter writes a spontaneous application to one recruiter found by the radar.
     draftForRecruiter: (id: string, data: RecruiterDraftInput) => e().post<Draft>(`/recruiters/${id}/draft`, data, { timeout: 60_000 }),
+    // Admin: the shared contact pool and how often searches are served from it.
+    getProspectStats: () => e().get<ProspectStats>(`/admin/prospects/stats`),
     apply: (data: ApplyInput) => e().post<Application>(`/applications`, data),
     // A week without an answer: the AI writes the follow-up, then it leaves from Gmail to the first recipient (402 without a subscription).
     draftFollowUp: (id: string, data: FollowUpDraftInput) => e().post<Draft>(`/applications/${id}/follow-up/draft`, data, { timeout: 60_000 }),
