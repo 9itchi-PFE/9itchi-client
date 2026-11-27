@@ -46,7 +46,7 @@ const EmailService = {
     // draftFromLink writes an email from an offer link (a 9itchi offer, a company site); 422: paste the offer text.
     draftFromLink: (data: LinkDraftInput) => e().post<LinkDraft>(`/emails/draft-from-link`, data, { timeout: 60_000 }),
     // Recruiter Radar: searches count against the plan's daily limit (402 beyond it, or without a subscription).
-    searchRecruiters: (data: RecruiterSearchInput) => e().post<RecruiterSearch>(`/recruiters/search`, data, { timeout: 30_000 }),
+    searchRecruiters: (data: RecruiterSearchInput) => e().post<RecruiterSearch>(`/recruiters/search`, data, { timeout: 50_000 }),
     listRecruiters: () => e().get<{ items: Recruiter[] }>(`/recruiters`),
     recruiterAllowance: () => e().get<RecruiterAllowance>(`/recruiters/allowance`),
     // draftForRecruiter writes a spontaneous application to one recruiter found by the radar.

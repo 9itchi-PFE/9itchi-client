@@ -52,6 +52,9 @@ export const RECRUITERS = [
         email: 'amira.bensalah@entreprise-alpha.example',
         linkedin_url: 'https://www.linkedin.com/in/amira-ben-salah-0e2e',
         confidence: 86,
+        verified: true,
+        company_summary: 'Éditeur de logiciels de gestion pour les PME.',
+        matched_keywords: ['react', 'data'],
         created_at: new Date().toISOString(),
     },
     {
@@ -63,6 +66,9 @@ export const RECRUITERS = [
         email: '',
         linkedin_url: '',
         confidence: 40,
+        verified: false,
+        company_summary: '',
+        matched_keywords: [],
         created_at: new Date().toISOString(),
     },
 ]
@@ -130,10 +136,10 @@ const defaults = (): Answers => ({
     'GET /email/recruiters/allowance': recruiterAllowance,
     'POST /email/recruiters/search': {
         search_id: '0e2e0000-0000-4000-8000-0000000000f1',
-        provider: 'fake',
         cached: false,
         items: RECRUITERS,
         allowance: recruiterAllowance,
+        stats: { companies_from_pool: 1, companies_discovered: 0, contacts_from_pool: 1, contacts_found: 1 },
     },
     [`POST /email/recruiters/${RECRUITERS[0].id}/draft`]: { subject: 'Candidature spontanée', body: 'Madame, Monsieur,', limit: null, used: 0 },
     'GET /payments/subscriptions/me': { subscription: null, plan: null },

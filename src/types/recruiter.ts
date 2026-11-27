@@ -11,6 +11,11 @@ export type Recruiter = {
     email: string
     linkedin_url: string
     confidence: number
+    // verified: the address was checked as valid. Old rows have no company_summary, matched_keywords, verified.
+    verified?: boolean
+    company_summary?: string
+    // matched_keywords are the words of the search found in the company's text (why this company).
+    matched_keywords?: string[] | null
     created_at: string
 }
 
@@ -18,10 +23,29 @@ export type Recruiter = {
 // next midnight in Tunis.
 export type RecruiterAllowance = { limit: number | null; used: number; remaining: number | null; resets_at: string }
 
-export type RecruiterSearchInput = { resume_id?: string; keywords: string[]; company?: string; domain?: string; location?: string }
+// RecruiterSearchInput: the CV, what the student wants (goal <= 300, contract, keywords <= 10 of <= 40), where
+// (country ISO alpha-2, city <= 80) and how many people (1-10).
+export type RecruiterSearchInput = {
+    resume_id: string
+    goal: string
+    contract: 'pfe' | 'stage' | 'alternance' | 'cdi' | 'cdd' | ''
+    keywords: string[]
+    country: string
+    city?: string
+    contacts: number
+}
 
-// provider 'fake' gives demo people (domains end in .example); cached: the same search was already made today.
-export type RecruiterSearch = { search_id: string; provider: string; cached: boolean; items: Recruiter[]; allowance: RecruiterAllowance }
+// RecruiterSearchStats say where the companies and people came from (the shared pool or a new lookup).
+export type RecruiterSearchStats = { companies_from_pool: number; companies_discovered: number; contacts_from_pool: number; contacts_found: number }
+
+// cached: the same search was already made today (not counted).
+export type RecruiterSearch = {
+    search_id: string
+    cached: boolean
+    items: Recruiter[]
+    allowance: RecruiterAllowance
+    stats?: RecruiterSearchStats
+}
 
 // RecruiterDraftInput asks the AI for a spontaneous application to one recruiter; goal is what the student looks for.
 export type RecruiterDraftInput = { resume_id?: string; language: LetterLanguage; tone: Tone; goal?: string; fresh?: boolean }

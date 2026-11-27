@@ -14,7 +14,7 @@
     },
     "outreach": {
         "title": "Recruiter Radar",
-        "intro": "Find the recruiters of the companies you aim for, let the AI write to each one, and send from your own Gmail.",
+        "intro": "Describe what you are looking for: the radar finds matching companies and the right people, the AI writes, and you send from your own Gmail.",
         "gmailTitle": "Sending from your Gmail",
         "connectedAs": "Connected as {email}",
         "notConnected": "Allow 9itchi to send from your Gmail, only when you click Send. 9itchi cannot read your inbox.",
@@ -24,7 +24,6 @@
         "loading": "Loading…",
         "searchFailed": "The search is unavailable right now. Try again in a moment.",
         "found": "{count, plural, =0 {No recruiter found} one {# recruiter found} other {# recruiters found}}",
-        "demo": "Demo data",
         "cached": "Already searched today: not counted",
         "detail": "Email to the recruiter",
         "back": "Back to the list",
@@ -59,21 +58,29 @@
             }
         },
         "search": {
-            "title": "Scan for recruiters",
+            "title": "Find companies and contacts",
             "resume": "Resume (its skills are searched too)",
-            "noResume": "No resume",
+            "noResume": "No resume yet",
             "goal": "What you are looking for",
-            "goalPlaceholder": "A 6-month PFE internship in data…",
-            "keywords": "Keywords",
-            "keywordsPlaceholder": "React, finance, Sfax… then Enter",
-            "removeKeyword": "Remove {keyword}",
-            "company": "Company",
-            "domain": "Company website",
-            "location": "Location",
-            "locationPlaceholder": "Tunis, Sousse…",
-            "searching": "Scanning…",
-            "find": "Find recruiters",
-            "needOne": "Choose a resume, a keyword or a company."
+            "goalPlaceholder": "6-month PFE in data in Tunis, starting in February",
+            "contract": "Contract",
+            "contracts": {
+                "pfe": "PFE",
+                "stage": "Internship",
+                "alternance": "Work-study",
+                "cdi": "Permanent",
+                "cdd": "Fixed-term"
+            },
+            "keywords": "Keywords (optional)",
+            "keywordsPlaceholder": "React, finance, cybersecurity… then Enter",
+            "keywordsHint": "Up to {max} keywords. Your resume’s skills are added.",
+            "country": "Country",
+            "contacts": "Number of contacts",
+            "contactsCount": "{count, plural, one {# contact} other {# contacts}}",
+            "searching": "Searching…",
+            "find": "Start the search",
+            "needResume": "Import or choose a resume to start the search.",
+            "removeKeyword": "Remove {keyword}"
         },
         "list": {
             "title": "Recruiters found",
@@ -173,6 +180,22 @@
             "another": "Another link",
             "composerTitle": "Your email",
             "toHint": "Find the recruiter’s address in the offer or on the company’s site, and type it here."
+        },
+        "progress": {
+            "title": "Searching",
+            "resume": "Reading your resume",
+            "companies": "Looking for matching companies",
+            "people": "Looking for the right people",
+            "ranking": "Ranking"
+        },
+        "results": {
+            "title": "Results",
+            "why": "Why:",
+            "verified": "Verified address",
+            "noEmail": "No address found: you can type it.",
+            "draft": "Write the email",
+            "emptyTitle": "No contact found this time",
+            "emptyText": "Try broader keywords, another contract or another country."
         }
     },
     "header": {

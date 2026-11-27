@@ -13,8 +13,10 @@ import EmailComposer from './EmailComposer'
 import GmailCard from './GmailCard'
 import Paywall from './Paywall'
 import RecruiterList from './RecruiterList'
+import ResultList from './ResultList'
 import ScheduledList from './ScheduledList'
 import SearchPanel from './SearchPanel'
+import SearchProgress from './SearchProgress'
 
 const small = () => typeof window !== 'undefined' && window.matchMedia('(max-width: 1023px)').matches
 const scrollTo = (id: string) => requestAnimationFrame(() => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' }))
@@ -29,7 +31,7 @@ export default function OutreachScreen() {
     const search = useSearchRecruiters()
     const draft = useRecruiterDraft()
     const [resumeId, setResumeId] = useState<string | null>(null)
-    const [goal, setGoal] = useState('Stage PFE')
+    const [goal, setGoal] = useState('')
     const [selectedId, setSelectedId] = useState<string | null>(null)
     // typed are addresses the student added or changed for a recruiter (this page only).
     const [typed, setTyped] = useState<Record<string, string>>({})
@@ -38,7 +40,9 @@ export default function OutreachScreen() {
     const resumeList = resumes.data?.items ?? []
     const resume = resumeId ?? resumeList[0]?.id ?? ''
     const items = (recruiters.data ?? []).map((r) => (r.id in typed ? { ...r, email: typed[r.id] } : r))
-    const selected = items.find((r) => r.id === selectedId) ?? null
+    const found = (last?.items ?? []).map((r) => (r.id in typed ? { ...r, email: typed[r.id] } : r))
+    // A found person can be picked before the list has been read again.
+    const selected = items.find((r) => r.id === selectedId) ?? found.find((r) => r.id === selectedId) ?? null
 
     // 402 on the allowance, or a limit of 0: the radar is part of the subscription.
     const a = allowance.data
@@ -48,11 +52,16 @@ export default function OutreachScreen() {
         setSelectedId(id)
         if (small()) scrollTo('radar-detail')
     }
+    // draftFor opens the email to a found person, in sight on every screen size.
+    const draftFor = (id: string) => {
+        setSelectedId(id)
+        scrollTo('radar-detail')
+    }
     const run = (input: RecruiterSearchInput) =>
         search.mutate(input, {
             onSuccess: (r) => {
                 setLast(r)
-                if (small()) scrollTo('radar-list')
+                scrollTo('radar-results')
             },
         })
 
@@ -89,12 +98,16 @@ export default function OutreachScreen() {
                     {t('searchFailed')}
                 </p>
             ) : null}
-            {last ? (
-                <div className="flex flex-wrap items-center gap-2 text-[13px] text-ink-3" aria-live="polite">
-                    <span>{t('found', { count: last.items.length })}</span>
-                    {last.provider === 'fake' ? <span className="rounded-full bg-warn-bg px-2.5 py-1 font-semibold text-warn-fg">{t('demo')}</span> : null}
-                    {last.cached ? <span className="rounded-full bg-fill px-2.5 py-1 font-medium text-ink-2">{t('cached')}</span> : null}
-                </div>
+            {search.isPending ? <SearchProgress /> : null}
+            {last && !search.isPending ? (
+                <section id="radar-results" aria-label={t('results.title')} className="flex scroll-mt-[84px] flex-col gap-3">
+                    <div className="flex flex-wrap items-center gap-2" aria-live="polite">
+                        <h2 className="m-0 text-lg font-bold">{t('results.title')}</h2>
+                        <span className="text-[13px] text-ink-3">{t('found', { count: last.items.length })}</span>
+                        {last.cached ? <span className="rounded-full bg-fill px-2.5 py-1 text-[12px] font-medium text-ink-2">{t('cached')}</span> : null}
+                    </div>
+                    <ResultList items={found} selectedId={selectedId} onDraft={draftFor} />
+                </section>
             ) : null}
 
             <div className="flex flex-col gap-5 lg:flex-row lg:items-start">
