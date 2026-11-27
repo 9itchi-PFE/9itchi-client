@@ -12,6 +12,8 @@ import type {
     SaleInput,
     ReceiptIssuer,
     ReceiptIssuerInput,
+    StudentDiscount,
+    MyStudentDiscount,
 } from '@/types/plan'
 import { api } from './ApiService'
 
@@ -46,6 +48,10 @@ const PaymentService = {
     // receiptIssuer is who issues the receipts (legal name, address, tax id, VAT wording), as the admin filled it in.
     receiptIssuer: () => api('payments').get<ReceiptIssuer>(`/receipt-issuer`),
     updateReceiptIssuer: (data: ReceiptIssuerInput) => api('payments').put<ReceiptIssuer>(`/admin/receipt-issuer`, data),
+    // Student discount: the admin sets a percentage and the student email domains; myStudentDiscount says whether it applies.
+    studentDiscount: () => api('payments').get<StudentDiscount>(`/admin/student-discount`),
+    updateStudentDiscount: (data: StudentDiscount) => api('payments').put<StudentDiscount>(`/admin/student-discount`, data),
+    myStudentDiscount: () => api('payments').get<MyStudentDiscount>(`/student-discount/me`),
     // cancel stops the renewal (access lasts until the period ends); resume renews again.
     cancelSubscription: () => api('payments').post<MySubscription>(`/subscriptions/cancel`),
     resumeSubscription: () => api('payments').post<MySubscription>(`/subscriptions/resume`),

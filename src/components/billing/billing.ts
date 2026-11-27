@@ -122,3 +122,19 @@ export function renewal(s: Pick<MySubscription, 'subscription' | 'is_free' | 'la
     }
     return s.lapsed ? { kind: 'lapsed', endedAt: s.lapsed.ends_at } : null
 }
+
+// studentOff is what the student discount takes off an amount in millimes, rounded down like payments-api.
+export function studentOff(due: number, percent: number): number {
+    if (percent <= 0 || due <= 0) return 0
+    return Math.floor((due * Math.min(percent, 100)) / 100)
+}
+
+// domainsOf reads the student domains the admin typed, one per line or separated by commas or spaces.
+export function domainsOf(text: string): string[] {
+    const out: string[] = []
+    for (const raw of text.split(/[\s,;]+/)) {
+        const d = raw.trim().toLowerCase().replace(/^[@.]+/, '')
+        if (d && !out.includes(d)) out.push(d)
+    }
+    return out
+}

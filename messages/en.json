@@ -1831,7 +1831,15 @@
         "filterSource": "Source",
         "allSources": "All sources",
         "filterOrigin": "Origin",
-        "allOrigins": "All origins"
+        "allOrigins": "All origins",
+        "studentTitle": "Student discount",
+        "studentIntro": "A percentage taken off at checkout for students whose email is on one of the domains below (a subdomain counts too). The email must be confirmed by a Google or LinkedIn sign-in: a password signup is not enough. It stacks on top of a sale or a promo code. 0% switches it off.",
+        "studentPercent": "Discount (%)",
+        "studentDomains": "Student domains (one per line)",
+        "studentPercentBad": "The percentage goes from 0 to 100.",
+        "studentSaved": "Student discount saved",
+        "studentOn": "On · −{percent}%",
+        "studentOff": "Off"
     },
     "apply": {
         "back": "Back to the offer",
@@ -2219,7 +2227,10 @@
         "planGone": "This plan is no longer offered: you keep it until {date}, then you can choose another one.",
         "switchTitle": "Change plan",
         "switchText": "The new plan starts when you pay, and the days left on your current plan are added at its end: you lose nothing.",
-        "switchTo": "Move to {name} · {price}"
+        "switchTo": "Move to {name} · {price}",
+        "studentLine": "Student discount (−{percent}%)",
+        "promoStudentLine": "Promo code {code} + student discount (−{percent}%)",
+        "studentVerify": "Your {domain} address gives you −{percent}%: sign out, then sign in again with Google or LinkedIn using that address to get it."
     },
     "notifications": {
         "title": "Notifications",

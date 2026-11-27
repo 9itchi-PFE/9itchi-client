@@ -188,3 +188,20 @@ describe('planText', () => {
         expect(planText({ name: 'M' }, 'fr')).toEqual({ label: 'M', tagline: '', features: [] })
     })
 })
+
+describe('student discount', () => {
+    it('takes the percentage off what is left, rounded down like payments-api', async () => {
+        const { studentOff } = await import('@/components/billing/billing')
+        expect(studentOff(50000, 10)).toBe(5000)
+        expect(studentOff(40000, 10)).toBe(4000)
+        expect(studentOff(33333, 15)).toBe(4999)
+        expect(studentOff(50000, 0)).toBe(0)
+        expect(studentOff(0, 20)).toBe(0)
+        expect(studentOff(50000, 150)).toBe(50000)
+    })
+    it('reads the domains the admin typed', async () => {
+        const { domainsOf } = await import('@/components/billing/billing')
+        expect(domainsOf(' @ENIS.tn\n.enis.tn, etudiant-isi.utm.tn;\n\n')).toEqual(['enis.tn', 'etudiant-isi.utm.tn'])
+        expect(domainsOf('')).toEqual([])
+    })
+})

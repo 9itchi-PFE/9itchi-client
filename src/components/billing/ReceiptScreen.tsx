@@ -142,7 +142,15 @@ export default function ReceiptScreen({ id }: { id: string }) {
                     ) : null}
                     {l.discount > 0 ? (
                         <div className={row}>
-                            <span>{p.promo_code ? t('promoLine', { code: p.promo_code }) : t('discount')}</span>
+                            <span>
+                                {p.promo_code && p.student_percent
+                                    ? t('promoStudentLine', { code: p.promo_code, percent: p.student_percent })
+                                    : p.student_percent
+                                      ? t('studentLine', { percent: p.student_percent })
+                                      : p.promo_code
+                                        ? t('promoLine', { code: p.promo_code })
+                                        : t('discount')}
+                            </span>
                             <span className="tabular-nums">−{tnd(l.discount, locale)}</span>
                         </div>
                     ) : null}
