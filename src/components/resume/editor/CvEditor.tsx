@@ -8,6 +8,7 @@ import { Button, ButtonLink } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/icons'
 import { Modal } from '@/components/ui/Modal'
 import { Segmented } from '@/components/ui/Segmented'
+import { PageSpinner } from '@/components/ui/Spinner'
 import { useToast } from '@/components/ui/Toast'
 import { useMySubscription } from '@/hooks/usePlans'
 import { resumeKeys, useAtsCheck, useChooseEditable, useDownloads, usePhoto, useResume, useResumes, useResumeSlots, useSaveVersion } from '@/hooks/useResumes'
@@ -50,7 +51,7 @@ export default function CvEditor({ id }: { id: string }) {
     if (query.isError) {
         return <p className="mx-auto max-w-[1320px] px-4 sm:px-8 py-16 text-ink-3">{errorStatus(query.error) === 404 ? t('notFound') : tc('error')}</p>
     }
-    if (!query.data) return <p className="mx-auto max-w-[1320px] px-4 sm:px-8 py-16 text-ink-3">{tc('loading')}</p>
+    if (!query.data) return <PageSpinner label={tc('loading')} />
     return <Editor key={query.data.id} resume={query.data} />
 }
 

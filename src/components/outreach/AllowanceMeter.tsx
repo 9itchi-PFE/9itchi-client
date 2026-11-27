@@ -1,6 +1,7 @@
 'use client'
 
 import { useTranslations } from 'next-intl'
+import { Spinner } from '@/components/ui/Spinner'
 import { cn } from '@/lib/cn'
 import type { RecruiterAllowance } from '@/types/recruiter'
 
@@ -13,7 +14,7 @@ export default function AllowanceMeter({ allowance, loading, className }: { allo
         <section className={cn('flex flex-col justify-center gap-2 rounded-[16px] border border-line-soft bg-white p-4', className)} aria-live="polite">
             <strong className="text-[15px]">{t('allowance.title')}</strong>
             {loading || !allowance ? (
-                <span className="text-[13.5px] text-ink-3">{t('loading')}</span>
+                <Spinner label={t('loading')} size={32} />
             ) : limit === null ? (
                 <span className="text-[13.5px] text-ink-3">{t('allowance.unlimited')}</span>
             ) : (

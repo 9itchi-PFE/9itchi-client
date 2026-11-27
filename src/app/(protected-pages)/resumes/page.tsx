@@ -3,6 +3,7 @@
 import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
+import { PageSpinner } from '@/components/ui/Spinner'
 import { useResumes } from '@/hooks/useResumes'
 
 // /resumes opens the CV edited last (one that is not read-only), or the import when there is none yet.
@@ -17,5 +18,6 @@ export default function Page() {
         const last = sorted.find((r) => !r.locked) ?? sorted[0]
         router.replace(last ? `/resumes/${last.id}` : '/resumes/upload')
     }, [data, router])
-    return <p className="mx-auto max-w-[1320px] px-4 sm:px-8 py-16 text-ink-3">{isError ? t('error') : t('loading')}</p>
+    if (isError) return <p className="mx-auto max-w-[1320px] px-4 sm:px-8 py-16 text-ink-3">{t('error')}</p>
+    return <PageSpinner label={t('loading')} />
 }

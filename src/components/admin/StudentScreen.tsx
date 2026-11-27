@@ -9,6 +9,7 @@ import { tnd } from '@/components/billing/billing'
 import { initials } from '@/components/layouts/StudentLayout/AccountMenu'
 import { Button } from '@/components/ui/Button'
 import { TextArea } from '@/components/ui/Field'
+import { Spinner } from '@/components/ui/Spinner'
 import { useToast } from '@/components/ui/Toast'
 import {
     useAdminUser,
@@ -222,6 +223,7 @@ export default function StudentScreen({ id }: { id: string }) {
     const suspend = useSuspendUser()
     const write = useStartConversation()
     const tc = useTranslations('chat')
+    const tl = useTranslations('common')
     const remove = useDeleteUser()
     const [problem, setProblem] = useState('')
     const missing = !studentId(id) || (isAxiosError(error) && error.response?.status === 404)
@@ -301,28 +303,40 @@ export default function StudentScreen({ id }: { id: string }) {
                             <Row label={t('colJoined')}>{day(user.created_at)}</Row>
                             <Row label={t('sLanguage')}>{t(`lang.${user.language === 'en' || user.language === 'ar' ? user.language : 'fr'}`)}</Row>
                             <Row label={t('sPlan')}>
-                                {sub.isLoading
-                                    ? '…'
-                                    : !sub.data
-                                      ? t('sUnknown')
-                                      : !paid
-                                        ? t('sPlanFree')
-                                        : t(paid.renews ? 'sPlanPaid' : 'sPlanStopped', { name: sub.data.plan.name, day: new Date(paid.ends_at) })}
+                                {sub.isLoading ? (
+                                    <Spinner label={tl('loading')} size={24} />
+                                ) : !sub.data ? (
+                                    t('sUnknown')
+                                ) : !paid ? (
+                                    t('sPlanFree')
+                                ) : (
+                                    t(paid.renews ? 'sPlanPaid' : 'sPlanStopped', { name: sub.data.plan.name, day: new Date(paid.ends_at) })
+                                )}
                             </Row>
                             {gifts.data?.length ? (
                                 <Row label={t('sGifts')}>{t('sGiftsValue', { count: gifts.data.length, day: new Date(gifts.data[0].created_at) })}</Row>
                             ) : null}
                             <Row label={t('sCv')}>
-                                {cv.isLoading
-                                    ? '…'
-                                    : cv.isError
-                                      ? t('sUnknown')
-                                      : cv.data
-                                        ? t('sCvScore', { passed: cv.data.passed, total: cv.data.total, count: cv.data.resumes })
-                                        : t('sCvNone')}
+                                {cv.isLoading ? (
+                                    <Spinner label={tl('loading')} size={24} />
+                                ) : cv.isError ? (
+                                    t('sUnknown')
+                                ) : cv.data ? (
+                                    t('sCvScore', { passed: cv.data.passed, total: cv.data.total, count: cv.data.resumes })
+                                ) : (
+                                    t('sCvNone')
+                                )}
                             </Row>
                             <Row label={t('sGmail')}>
-                                {gmail.isLoading ? '…' : !gmail.data ? t('sUnknown') : gmail.data.connected ? t('sGmailOn') : t('sGmailOff')}
+                                {gmail.isLoading ? (
+                                    <Spinner label={tl('loading')} size={24} />
+                                ) : !gmail.data ? (
+                                    t('sUnknown')
+                                ) : gmail.data.connected ? (
+                                    t('sGmailOn')
+                                ) : (
+                                    t('sGmailOff')
+                                )}
                             </Row>
                             {user.role === 'admin' ? <Row label={t('sRole')}>{t('sAdmin')}</Row> : null}
                         </dl>

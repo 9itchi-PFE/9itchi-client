@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/icons'
+import { Spinner } from '@/components/ui/Spinner'
 import { useToast } from '@/components/ui/Toast'
 import { useGmailStatus, useRevokeGmail } from '@/hooks/useApplications'
 import { cn } from '@/lib/cn'
@@ -39,7 +40,13 @@ export default function GmailCard({ back, className }: { back: string; className
             <span className="flex min-w-0 flex-[1_1_180px] flex-col gap-0.5">
                 <strong className="text-[15px]">{t('gmailTitle')}</strong>
                 <span className="break-words text-[13.5px] text-ink-3">
-                    {gmail.isLoading ? t('loading') : connected ? t('connectedAs', { email: gmail.data?.email ?? '' }) : t('notConnected')}
+                    {gmail.isLoading ? (
+                        <Spinner label={t('loading')} size={28} />
+                    ) : connected ? (
+                        t('connectedAs', { email: gmail.data?.email ?? '' })
+                    ) : (
+                        t('notConnected')
+                    )}
                 </span>
             </span>
             {connected ? (

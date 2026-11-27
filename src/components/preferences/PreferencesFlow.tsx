@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useFormatter, useTranslations } from 'next-intl'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { PageSpinner } from '@/components/ui/Spinner'
 import { useResume, useResumes } from '@/hooks/useResumes'
 import { cn } from '@/lib/cn'
 import JobService from '@/services/JobService'
@@ -20,6 +21,7 @@ const SKILL_EXTRAS = ['Docker', 'JavaScript', 'SQL', 'Java', 'Python', 'Git']
 // the two it cannot answer, and the live count of offers that fit.
 export default function PreferencesFlow() {
     const t = useTranslations('prefs')
+    const tl = useTranslations('common')
     const format = useFormatter()
     const router = useRouter()
     const qc = useQueryClient()
@@ -67,7 +69,7 @@ export default function PreferencesFlow() {
 
     const [saving, setSaving] = useState(false)
     const [error, setError] = useState('')
-    if (!prefs) return <p className="mx-auto max-w-[1200px] px-4 sm:px-8 py-16 text-ink-3">…</p>
+    if (!prefs) return <PageSpinner label={tl('loading')} />
 
     const set = <K extends Key>(k: K, v: Preferences[K]) => {
         setPrefs({ ...prefs, [k]: v })
