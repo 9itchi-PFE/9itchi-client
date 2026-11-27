@@ -136,6 +136,17 @@ export function faviconUrl(domain: string): string | null {
     return `https://www.google.com/s2/favicons?domain=${encodeURIComponent(host)}&sz=64`
 }
 
+// logoSources are the images to try for a company, in order: its logo (http(s) only), then the favicon of its domain.
+// None left: the initial is shown.
+export function logoSources(r: Pick<Recruiter, 'logo_url' | 'domain'>): string[] {
+    const out: string[] = []
+    const logo = (r.logo_url ?? '').trim()
+    if (/^https?:\/\/[^/\s]+/i.test(logo)) out.push(logo)
+    const icon = faviconUrl(r.domain)
+    if (icon) out.push(icon)
+    return out
+}
+
 // companyInitial is the letter shown instead of a favicon (company first, then the person).
 export function companyInitial(company: string, name = ''): string {
     const c = (company.trim() || name.trim())[0]

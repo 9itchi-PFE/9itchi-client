@@ -6,19 +6,20 @@ import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/icons'
 import { cn } from '@/lib/cn'
 import type { Recruiter } from '@/types/recruiter'
-import { companyInitial, faviconUrl, whyOf } from './outreach'
+import { companyInitial, logoSources, whyOf } from './outreach'
 
-// CompanyLogo is the company's favicon when it has a domain, else its first letter.
+// CompanyLogo is the company's logo, else its favicon when it has a domain, else its first letter. An image that
+// fails to load falls back to the next one.
 function CompanyLogo({ r }: { r: Recruiter }) {
-    const [broken, setBroken] = useState(false)
-    const src = faviconUrl(r.domain)
+    const [failed, setFailed] = useState(0)
+    const src = logoSources(r)[failed]
     return (
         <span
             aria-hidden="true"
             className="flex h-11 w-11 flex-none items-center justify-center overflow-hidden rounded-xl border border-line-soft bg-violet-soft"
         >
-            {src && !broken ? (
-                <img src={src} alt="" width={28} height={28} loading="lazy" referrerPolicy="no-referrer" onError={() => setBroken(true)} />
+            {src ? (
+                <img key={src} src={src} alt="" width={28} height={28} loading="lazy" referrerPolicy="no-referrer" onError={() => setFailed((n) => n + 1)} />
             ) : (
                 <span className="font-display text-[17px] font-bold text-violet">{companyInitial(r.company, r.name)}</span>
             )}
