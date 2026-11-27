@@ -10,7 +10,7 @@ import { Button, ButtonLink } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/icons'
 import { useToast } from '@/components/ui/Toast'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
-import { useCheckout, useMySubscription, usePayments, usePlans, useSetRenewal, useValidatePromo, useVerifyPayment } from '@/hooks/usePlans'
+import { useCheckout, useMySubscription, useMyStudentDiscount, usePayments, usePlans, useSetRenewal, useValidatePromo, useVerifyPayment } from '@/hooks/usePlans'
 import { cn } from '@/lib/cn'
 import { atKeptPrice, type MySubscription, type Payment, type Plan, type PromoCheck } from '@/types/plan'
 import {
@@ -26,6 +26,7 @@ import {
     perMonth,
     planText,
     promoReason,
+    studentOff,
     regularOf,
     tnd,
     type Return,
@@ -96,6 +97,7 @@ function Pay({ plan, extending, choice }: { plan: Plan; extending: MySubscriptio
     const router = useRouter()
     const validate = useValidatePromo()
     const checkout = useCheckout()
+    const student = useMyStudentDiscount().data
     const [code, setCode] = useState('')
     const [promo, setPromo] = useState<{ code: string; check: PromoCheck } | null>(null)
     const [promoError, setPromoError] = useState('')
@@ -106,7 +108,10 @@ function Pay({ plan, extending, choice }: { plan: Plan; extending: MySubscriptio
     const launchEnd = dayAt(plan.launch_ends_on)
     const sale = plan.sale
     const saleEnd = dayAt(sale?.ends_on)
-    const due = promo ? millimes(promo.check.final_price) : price
+    const afterPromo = promo ? millimes(promo.check.final_price) : price
+    // The student discount comes last, on what is left after the sale and the promo code (as payments-api counts it).
+    const studentPercent = student?.eligible ? student.percent : 0
+    const due = afterPromo - studentOff(afterPromo, studentPercent)
     const amount = `${tnd(due, locale)} TND`
 
     const applyCode = (e: FormEvent) => {
@@ -279,6 +284,12 @@ function Pay({ plan, extending, choice }: { plan: Plan; extending: MySubscriptio
                     </form>
                 )}
 
+                {student?.needs_verified_email ? (
+                    <p className="m-0 rounded-xl bg-violet-soft px-4 py-3 text-[13.5px] leading-[1.5] text-violet-hover">
+                        {t('studentVerify', { percent: student.percent, domain: student.domain ?? '' })}
+                    </p>
+                ) : null}
+
                 <dl className="m-0 flex flex-col gap-2.5 rounded-2xl bg-fill-3 p-4 text-[15px]">
                     <div className="flex justify-between gap-3">
                         <dt>
@@ -297,7 +308,13 @@ function Pay({ plan, extending, choice }: { plan: Plan; extending: MySubscriptio
                     {promo ? (
                         <div className="flex justify-between gap-3 text-ok-fg">
                             <dt>{t('promoLine', { code: promo.code })}</dt>
-                            <dd className="m-0 tabular-nums">−{tnd(price - due, locale)} TND</dd>
+                            <dd className="m-0 tabular-nums">−{tnd(price - afterPromo, locale)} TND</dd>
+                        </div>
+                    ) : null}
+                    {studentPercent > 0 ? (
+                        <div className="flex justify-between gap-3 text-ok-fg">
+                            <dt>{t('studentLine', { percent: studentPercent })}</dt>
+                            <dd className="m-0 tabular-nums">−{tnd(afterPromo - due, locale)} TND</dd>
                         </div>
                     ) : null}
                     <div className="flex justify-between gap-3 border-t border-line pt-2.5 font-semibold">

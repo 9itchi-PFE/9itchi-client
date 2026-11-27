@@ -1,12 +1,13 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import PaymentService from '@/services/PaymentService'
-import type { PlanInput, PromoInput, ReceiptIssuer, ReceiptIssuerInput, SaleInput } from '@/types/plan'
+import type { PlanInput, PromoInput, ReceiptIssuer, ReceiptIssuerInput, SaleInput, StudentDiscount } from '@/types/plan'
 import { billingKeys } from './usePlans'
 
 export const adminPlanKeys = {
     plans: ['admin', 'plans'] as const,
     promos: ['admin', 'promo-codes'] as const,
     sales: ['admin', 'sales'] as const,
+    student: ['admin', 'student-discount'] as const,
 }
 
 // useAllPlans lists every plan, the ones that are switched off too.
@@ -104,5 +105,21 @@ export function useSaveReceiptIssuer() {
     return useMutation({
         mutationFn: async (input: ReceiptIssuerInput) => (await PaymentService.updateReceiptIssuer(input)).data,
         onSuccess: (issuer) => qc.setQueryData<ReceiptIssuer>(billingKeys.issuer, issuer),
+    })
+}
+
+// useStudentDiscount reads the student discount as the admin set it; useSaveStudentDiscount replaces it.
+export function useStudentDiscount() {
+    return useQuery({ queryKey: adminPlanKeys.student, queryFn: async () => (await PaymentService.studentDiscount()).data })
+}
+
+export function useSaveStudentDiscount() {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: async (input: StudentDiscount) => (await PaymentService.updateStudentDiscount(input)).data,
+        onSuccess: (saved) => {
+            qc.setQueryData<StudentDiscount>(adminPlanKeys.student, saved)
+            qc.invalidateQueries({ queryKey: billingKeys.student })
+        },
     })
 }

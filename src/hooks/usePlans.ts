@@ -7,6 +7,7 @@ export const billingKeys = {
     subscription: ['subscription'] as const,
     payments: ['payments'] as const,
     issuer: ['receipt-issuer'] as const,
+    student: ['student-discount'] as const,
 }
 
 export function usePlans() {
@@ -25,6 +26,11 @@ export function usePayments() {
 // useReceiptIssuer reads the legal information of the receipts. It changes rarely: one read is kept for the visit.
 export function useReceiptIssuer() {
     return useQuery({ queryKey: billingKeys.issuer, queryFn: async () => (await PaymentService.receiptIssuer()).data, staleTime: Infinity })
+}
+
+// useMyStudentDiscount says whether the student discount applies to the signed-in student at checkout.
+export function useMyStudentDiscount() {
+    return useQuery({ queryKey: billingKeys.student, queryFn: async () => (await PaymentService.myStudentDiscount()).data })
 }
 
 export function useValidatePromo() {

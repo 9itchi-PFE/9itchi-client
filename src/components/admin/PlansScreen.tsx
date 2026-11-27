@@ -22,8 +22,11 @@ import {
     useSavePromo,
     useSaveReceiptIssuer,
     useSaveSale,
+    useSaveStudentDiscount,
+    useStudentDiscount,
     useSwitchOffPlan,
 } from '@/hooks/useAdminPlans'
+import { domainsOf } from '@/components/billing/billing'
 import { useReceiptIssuer } from '@/hooks/usePlans'
 import { cn } from '@/lib/cn'
 import type { Locale, Plan, PromoCode, Sale } from '@/types/plan'
@@ -717,6 +720,60 @@ function IssuerCard() {
     )
 }
 
+// StudentCard is the student discount: a percentage for a verified email on one of the student domains.
+function StudentCard() {
+    const t = useTranslations('admin')
+    const toast = useToast()
+    const { data, isLoading } = useStudentDiscount()
+    const save = useSaveStudentDiscount()
+    const [error, setError] = useState('')
+
+    const submit = (e: FormEvent<HTMLFormElement>) => {
+        e.preventDefault()
+        const f = new FormData(e.currentTarget)
+        const percent = Number(f.get('percent'))
+        if (!Number.isInteger(percent) || percent < 0 || percent > 100) return setError(t('studentPercentBad'))
+        setError('')
+        save.mutate(
+            { percent, domains: domainsOf(String(f.get('domains') ?? '')) },
+            { onSuccess: () => toast(t('studentSaved')), onError: (err) => setError(apiError(err) ?? t('stateError')) },
+        )
+    }
+    return (
+        <section aria-labelledby="student-h" className={card}>
+            <div className="flex flex-wrap items-center justify-between gap-3">
+                <h2 id="student-h" className="m-0 text-xl font-extrabold">
+                    {t('studentTitle')}
+                </h2>
+                {data ? (
+                    <span className={cn('rounded-full px-2.5 py-[3px] text-[13px] font-semibold', data.percent > 0 ? 'bg-ok-bg text-ok-fg' : 'bg-fill text-ink-3')}>
+                        {data.percent > 0 ? t('studentOn', { percent: data.percent }) : t('studentOff')}
+                    </span>
+                ) : null}
+            </div>
+            <p className="m-0 max-w-[760px] text-[14.5px] leading-[1.55] text-ink-3">{t('studentIntro')}</p>
+            {isLoading ? <div className="sk h-24 rounded-lg" /> : null}
+            {data ? (
+                <form key={`${data.percent}|${data.domains.join(',')}`} onSubmit={submit} className="flex flex-col gap-3.5">
+                    <div className="grid grid-cols-1 gap-3 md:grid-cols-[200px_1fr]">
+                        <Field name="percent" type="number" min={0} max={100} step={1} label={t('studentPercent')} defaultValue={data.percent} />
+                        <label className="flex flex-col gap-1.5 text-[13.5px] font-medium text-ink-2">
+                            {t('studentDomains')}
+                            <TextArea name="domains" rows={4} dir="ltr" placeholder="enis.tn" defaultValue={data.domains.join('\n')} />
+                        </label>
+                    </div>
+                    <Problem>{error}</Problem>
+                    <div>
+                        <Button type="submit" variant="secondary" disabled={save.isPending}>
+                            {t('save')}
+                        </Button>
+                    </div>
+                </form>
+            ) : null}
+        </section>
+    )
+}
+
 // PlansScreen is « Plans et codes promo »: the prices, the limits payments-api checks for each plan, the promo
 // Limits is « Ce que chaque plan permet »: the number limits and the groups of the CV diagnosis each plan shows,
 // for a student with no subscription first. An empty number sets no limit; 0 allows none.
@@ -973,6 +1030,7 @@ export default function PlansScreen() {
                     })}
                 </div>
             </section>
+            <StudentCard />
             <IssuerCard />
             <PromoModal key={editing === undefined ? 'closed' : (editing?.id ?? 'new')} promo={editing} onClose={() => setEditing(undefined)} />
             <PlanModal

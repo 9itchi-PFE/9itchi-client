@@ -137,6 +137,8 @@ const defaults = (): Answers => ({
     },
     [`POST /email/recruiters/${RECRUITERS[0].id}/draft`]: { subject: 'Candidature spontanée', body: 'Madame, Monsieur,', limit: null, used: 0 },
     'GET /payments/subscriptions/me': { subscription: null, plan: null },
+    'GET /payments/student-discount/me': { eligible: false, percent: 0 },
+    'GET /payments/admin/student-discount': { percent: 0, domains: [] },
     'GET /notification/notifications': { items: [], unread: 0 },
 })
 

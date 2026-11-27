@@ -1831,7 +1831,15 @@
         "filterSource": "Source",
         "allSources": "Toutes les sources",
         "filterOrigin": "Origine",
-        "allOrigins": "Toutes les origines"
+        "allOrigins": "Toutes les origines",
+        "studentTitle": "Réduction étudiant",
+        "studentIntro": "Un pourcentage retiré au paiement pour les étudiants dont l’adresse est sur un des domaines ci-dessous (un sous-domaine compte aussi). L’adresse doit être confirmée par une connexion Google ou LinkedIn : une inscription avec mot de passe ne suffit pas. La réduction s’ajoute à une promotion ou un code promo. 0 % la désactive.",
+        "studentPercent": "Réduction (%)",
+        "studentDomains": "Domaines étudiants (un par ligne)",
+        "studentPercentBad": "Le pourcentage va de 0 à 100.",
+        "studentSaved": "Réduction étudiant enregistrée",
+        "studentOn": "Active · −{percent} %",
+        "studentOff": "Désactivée"
     },
     "apply": {
         "back": "Retour à l’offre",
@@ -2219,7 +2227,10 @@
         "planGone": "Ce forfait n’est plus proposé : tu le gardes jusqu’au {date}, puis tu pourras en choisir un autre.",
         "switchTitle": "Changer de forfait",
         "switchText": "Le nouveau forfait commence dès le paiement, et les jours qui te restent sur le forfait actuel s’ajoutent à sa fin : tu ne perds rien.",
-        "switchTo": "Passer à {name} · {price}"
+        "switchTo": "Passer à {name} · {price}",
+        "studentLine": "Réduction étudiant (−{percent} %)",
+        "promoStudentLine": "Code promo {code} + réduction étudiant (−{percent} %)",
+        "studentVerify": "Ton adresse {domain} donne droit à −{percent} % : déconnecte-toi puis reconnecte-toi avec Google ou LinkedIn avec cette adresse pour en profiter."
     },
     "notifications": {
         "title": "Notifications",

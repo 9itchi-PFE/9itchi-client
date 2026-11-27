@@ -120,6 +120,8 @@ export type Payment = {
     regular_millimes?: number | null
     // sale_name: the sale the payment was opened in, when there was one.
     sale_name?: string
+    // student_percent: the student discount taken off after any promo code (part of discount_millimes).
+    student_percent?: number
     promo_code: string
     provider: string
     provider_ref: string
@@ -127,6 +129,22 @@ export type Payment = {
     period_end: string | null
     completed_at: string | null
     created_at: string
+}
+
+// StudentDiscount is the percentage taken off at checkout for a verified email on one of the student domains
+// (a subdomain counts too). 0 switches it off. It stacks on top of a sale or a promo code.
+export type StudentDiscount = {
+    percent: number
+    domains: string[]
+}
+
+// MyStudentDiscount says whether the signed-in student gets it. needs_verified_email: the email is on a student
+// domain but was never confirmed by a Google or LinkedIn sign-in.
+export type MyStudentDiscount = {
+    eligible: boolean
+    percent: number
+    domain?: string
+    needs_verified_email?: boolean
 }
 
 // ReceiptIssuer is the legal information printed on receipts. An empty field is not known yet: the receipt leaves a gap.
