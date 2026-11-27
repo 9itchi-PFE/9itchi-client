@@ -9,6 +9,7 @@ import {
     fromTunisInput,
     initials,
     linkSource,
+    logoSources,
     scheduleOk,
     searchStep,
     tunisInput,
@@ -116,6 +117,16 @@ describe('radar cards', () => {
         expect(companyInitial('entreprise Alpha', 'Amira')).toBe('E')
         expect(companyInitial('', 'amira')).toBe('A')
         expect(companyInitial(' ')).toBe('?')
+    })
+
+    it('tries the logo, then the favicon, then nothing (initial)', () => {
+        const icon = 'https://www.google.com/s2/favicons?domain=exemple.tn&sz=64'
+        expect(logoSources({ logo_url: 'https://cdn.exemple.tn/logo.png', domain: 'exemple.tn' })).toEqual(['https://cdn.exemple.tn/logo.png', icon])
+        expect(logoSources({ logo_url: '', domain: 'exemple.tn' })).toEqual([icon])
+        expect(logoSources({ domain: 'exemple.tn' })).toEqual([icon])
+        expect(logoSources({ logo_url: 'javascript:alert(1)', domain: 'exemple.tn' })).toEqual([icon])
+        expect(logoSources({ logo_url: 'data:image/png;base64,AAAA', domain: '' })).toEqual([])
+        expect(logoSources({ logo_url: 'http://exemple.tn/l.svg', domain: '' })).toEqual(['http://exemple.tn/l.svg'])
     })
 
     it('reads why a company was picked, old rows included', () => {

@@ -16,6 +16,8 @@ export type Recruiter = {
     company_summary?: string
     // matched_keywords are the words of the search found in the company's text (why this company).
     matched_keywords?: string[] | null
+    // logo_url is the company logo (http(s)), '' or absent when unknown.
+    logo_url?: string
     created_at: string
 }
 
