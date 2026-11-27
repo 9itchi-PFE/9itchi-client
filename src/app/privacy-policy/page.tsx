@@ -54,9 +54,11 @@ export default function Page() {
                         <>
                             <LegalList
                                 items={[
-                                    'We request the Gmail send-only permission solely to send, on your instruction, the application emails you create, now or at the time you schedule.',
+                                    'We request only the Gmail send scope (https://www.googleapis.com/auth/gmail.send), solely to send, on your instruction, the application emails you create, now or at the time you schedule.',
                                     'We cannot read, search, list, modify or delete your emails or contacts.',
-                                    'Tokens are stored encrypted (AES-GCM) and used only for the feature above. You can disconnect in the app or revoke access at myaccount.google.com/permissions; stored tokens are then deleted or become unusable.',
+                                    'The Google user data we store is limited to the OAuth tokens and the email address of the connected Google account. We keep no copy of your mailbox; the emails you send from 9itchi stay in your application history, like any other application data.',
+                                    'Tokens are stored encrypted (AES-GCM) and used only for the feature above. You can disconnect in the app or revoke access at myaccount.google.com/permissions; stored tokens are then deleted immediately or become unusable. They are also deleted when you delete your account.',
+                                    'Google user data obtained through Google Workspace APIs is never sent to AI providers, and is never used to develop, improve or train generalized or non-personalized AI or machine-learning models.',
                                     'We do not use Google user data for advertising, do not sell it, and do not transfer it to others except as needed to provide the feature, to comply with law, or with your consent.',
                                     'Humans do not read Google user data unless you ask for support, it is necessary for security or abuse investigation, or the law requires it.',
                                 ]}
@@ -79,7 +81,8 @@ export default function Page() {
                                 the request.
                             </p>
                             <p>
-                                We do not use your resume content to train our own models, and we do not take decisions with legal effect about you based solely
+                                Google user data from your Gmail connection is never part of these requests. We do not use your resume content to train our
+                                own models, and we do not take decisions with legal effect about you based solely
                                 on automated processing; results are suggestions you review.
                             </p>
                         </>

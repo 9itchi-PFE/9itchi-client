@@ -7,7 +7,7 @@ export const LEGAL = {
     company: 'Lakhal Technologies',
     address: 'Rue Liberté aéroport, Sfax, Tunisie',
     email: 'contact@9itchi-pfe.com',
-    updated: 'November 24, 2026',
+    updated: 'November 27, 2026',
 }
 
 export type LegalSection = { title: string; body: ReactNode }
