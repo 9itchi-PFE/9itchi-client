@@ -5,6 +5,7 @@ import { useTranslations } from 'next-intl'
 import { Button } from '@/components/ui/Button'
 import { Icon } from '@/components/ui/icons'
 import { Segmented } from '@/components/ui/Segmented'
+import { Spinner } from '@/components/ui/Spinner'
 import { cn } from '@/lib/cn'
 import type { Recruiter } from '@/types/recruiter'
 import { emailOk, initials } from './outreach'
@@ -95,7 +96,9 @@ export default function RecruiterList({
             </div>
 
             {loading ? (
-                <p className="m-0 rounded-[16px] border border-line-soft bg-white p-4 text-sm text-ink-3">{t('loading')}</p>
+                <div className="flex justify-center rounded-[16px] border border-line-soft bg-white p-6">
+                    <Spinner label={t('loading')} size={48} />
+                </div>
             ) : error ? (
                 <p role="alert" className="m-0 rounded-[16px] border border-warn-line bg-warn-bg p-4 text-sm text-warn-fg">
                     {t('error')}

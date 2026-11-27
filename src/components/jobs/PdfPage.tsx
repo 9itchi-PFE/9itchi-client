@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react'
 import type { PDFDocumentProxy, RenderTask } from 'pdfjs-dist'
 import { Button } from '@/components/ui/Button'
+import { Spinner } from '@/components/ui/Spinner'
 
 // PdfSource is a PDF to read page by page: its address and, for one 9itchi keeps, the session token.
 export type PdfSource = { url: string; token?: string }
@@ -161,12 +162,9 @@ export default function PdfPage({ source, page, label, loadingText, errorText, r
                 className={state === 'ready' ? 'block bg-white shadow-[0_2px_8px_rgba(16,24,40,.12)]' : 'hidden'}
             />
             {state === 'loading' ? (
-                <div
-                    role="status"
-                    className="flex aspect-[210/297] w-full flex-col items-center justify-center gap-3 bg-white p-6 text-center text-sm text-ink-3"
-                >
-                    <span aria-hidden className="h-6 w-6 animate-spin rounded-full border-2 border-line-strong border-t-ink" />
-                    <span>{loadingText}</span>
+                <div className="flex aspect-[210/297] w-full flex-col items-center justify-center gap-3 bg-white p-6 text-center text-sm text-ink-3">
+                    {/* The spinner is the status region: a second one around it would be announced twice. */}
+                    <Spinner label={loadingText} size={56} />
                 </div>
             ) : null}
             {state === 'error' ? (

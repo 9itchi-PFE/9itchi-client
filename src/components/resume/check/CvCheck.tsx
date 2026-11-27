@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation'
 import { useTranslations } from 'next-intl'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { Button, ButtonLink } from '@/components/ui/Button'
+import { PageSpinner } from '@/components/ui/Spinner'
 import { useToast } from '@/components/ui/Toast'
 import { resumeKeys, useAtsCheck, useResume } from '@/hooks/useResumes'
 import { cn } from '@/lib/cn'
@@ -55,7 +56,8 @@ export default function CvCheck({ id }: { id: string }) {
         return m
     }, [rules])
     if (!resume.data || !check.data) {
-        return <p className="mx-auto max-w-[1320px] px-4 sm:px-8 py-16 text-ink-3">{check.isError || resume.isError ? tc('error') : tc('loading')}</p>
+        if (check.isError || resume.isError) return <p className="mx-auto max-w-[1320px] px-4 sm:px-8 py-16 text-ink-3">{tc('error')}</p>
+        return <PageSpinner label={tc('loading')} />
     }
     const { passed, total, to_fix } = check.data
     const locked = new Set<RuleGroup>(check.data.locked_groups ?? [])

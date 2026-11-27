@@ -4,6 +4,7 @@ import { useRef, useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { CompanyBadge } from '@/components/jobs/OfferCard'
 import { Button } from '@/components/ui/Button'
+import { Spinner } from '@/components/ui/Spinner'
 import { useToast } from '@/components/ui/Toast'
 import { logoUrl, useDeleteLogo, useLogos, useUploadLogo } from '@/hooks/useJobs'
 import { apiError } from './SourcesScreen'
@@ -23,6 +24,7 @@ export function logoProblem(file: Pick<File, 'type' | 'size'>): '' | 'logoType' 
 // typed by the team). One logo per company: every offer of that company shows it, else its initials.
 export default function LogoField({ company }: { company: string }) {
     const t = useTranslations('admin')
+    const tl = useTranslations('common')
     const toast = useToast()
     const logos = useLogos()
     const upload = useUploadLogo()
@@ -68,7 +70,7 @@ export default function LogoField({ company }: { company: string }) {
             />
             <div className="flex items-center gap-2">
                 <Button type="button" variant="secondary" size="sm" disabled={!name || upload.isPending} onClick={() => input.current?.click()}>
-                    {upload.isPending ? '…' : has ? t('logoChange') : t('logoAdd')}
+                    {upload.isPending ? <Spinner label={tl('loading')} size={20} /> : has ? t('logoChange') : t('logoAdd')}
                 </Button>
                 {has ? (
                     <Button type="button" variant="link" size="sm" className="text-ink-3" disabled={remove.isPending} onClick={drop}>
