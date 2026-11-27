@@ -142,6 +142,17 @@ const defaults = (): Answers => ({
         stats: { companies_from_pool: 1, companies_discovered: 0, contacts_from_pool: 1, contacts_found: 1 },
     },
     [`POST /email/recruiters/${RECRUITERS[0].id}/draft`]: { subject: 'Candidature spontanée', body: 'Madame, Monsieur,', limit: null, used: 0 },
+    'GET /email/admin/prospects/stats': {
+        pool: { companies: 12, contacts: 48, verified: 30, hr: 18, fresh: 40, by_source: { website: 20, hunter: 15, apollo: 8, offer: 5, import: 0 } },
+        last_30_days: { searches: 10, contacts_shown: 40, contacts_from_pool: 26, pool_hit_rate: 65, pool_only_searches: 4, pool_only_rate: 40 },
+        daily: Array.from({ length: 31 }, (_, i) => ({
+            day: new Date(Date.UTC(2026, 10, 27) - (30 - i) * 86_400_000).toISOString().slice(0, 10),
+            searches: i % 3,
+            contacts_from_pool: i % 4,
+            contacts_found: i % 2,
+            credits: { hunter: i % 2, apollo: 0 },
+        })),
+    },
     'GET /payments/subscriptions/me': { subscription: null, plan: null },
     'GET /payments/student-discount/me': { eligible: false, percent: 0 },
     'GET /payments/admin/student-discount': { percent: 0, domains: [] },
