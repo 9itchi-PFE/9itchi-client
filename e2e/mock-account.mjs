@@ -33,7 +33,7 @@ export const SEO_OFFER = {
     description: 'Concevoir une plateforme de réservation en ligne avec une équipe produit de six personnes.',
     stipend_tnd: 700,
     duration_months: 6,
-    work_mode: 'onsite',
+    work_mode: 'on_site',
     closes_on: '2027-03-31',
     starts_on: null,
     skills: ['React'],
@@ -45,6 +45,48 @@ export const SEO_OFFER = {
     closed: false,
     posted_at: '2026-11-20T09:00:00Z',
 }
+// publicOffers answers job-api GET /public/offers for the public list pages: one city (sousse), one company
+// (societe-exemple), 21 offers in all so the list has a second page; anything else is a 404.
+const SOUSSE = { slug: 'sousse', name: 'Sousse', count: 1 }
+const EXEMPLE = { slug: 'societe-exemple', name: 'Société Exemple', count: 1 }
+const OTHER = { slug: 'atelier-fictif', name: 'Atelier Fictif', count: 20 }
+const item = (o) => ({
+    id: o.id,
+    title: o.title,
+    company: o.company,
+    location: o.location,
+    snippet: o.description,
+    posted_at: o.posted_at,
+    stipend_tnd: o.stipend_tnd,
+    duration_months: o.duration_months,
+    work_mode: o.work_mode,
+    closes_on: o.closes_on,
+    skills: o.skills,
+    easy_apply: o.easy_apply,
+})
+const others = Array.from({ length: 20 }, (_, i) => ({
+    ...item(SEO_OFFER),
+    id: `0e2e0000-0000-4000-8000-0000000006${String(i).padStart(2, '0')}`,
+    title: `Sujet fictif ${i + 1}`,
+    company: 'Atelier Fictif',
+    location: 'Télétravail',
+    work_mode: 'remote',
+}))
+function publicOffers(q) {
+    const base = { page_size: 20, cities: [SOUSSE], companies: [OTHER, EXEMPLE] }
+    const page = Number(q.get('page') || 1)
+    const res = (items, extra) => ({ status: 200, body: { ...base, ...extra, items, total: items.length } })
+    let r
+    if (q.get('city')) r = q.get('city') === 'sousse' ? res([item(SEO_OFFER)], { city: SOUSSE }) : null
+    else if (q.get('company')) r = q.get('company') === 'societe-exemple' ? res([item(SEO_OFFER)], { company: EXEMPLE }) : null
+    else r = res([item(SEO_OFFER), ...others])
+    if (!r) return { status: 404, body: { error: 'not found' } }
+    const all = r.body.items
+    const slice = all.slice((page - 1) * 20, page * 20)
+    if (page > 1 && slice.length === 0) return { status: 404, body: { error: 'page not found' } }
+    return { status: 200, body: { ...r.body, items: slice, page } }
+}
+
 let n = 0
 const byToken = new Map()
 
@@ -66,6 +108,10 @@ http.createServer((req, res) => {
         // job-api's public routes, as the Next server reads them for search engines (seo.spec.ts). Invented offer.
         if (req.method === 'GET' && req.url === '/job/public/jobs') return json(200, { items: [{ id: SEO_OFFER.id, updated_at: '2026-11-20T09:00:00Z' }] })
         if (req.method === 'GET' && req.url === `/job/public/jobs/${SEO_OFFER.id}`) return json(200, SEO_OFFER)
+        if (req.method === 'GET' && req.url?.startsWith('/job/public/offers')) {
+            const r = publicOffers(new URL(req.url, 'http://x').searchParams)
+            return json(r.status, r.body)
+        }
         if (req.method === 'GET' && req.url?.startsWith('/job/')) return json(404, { error: 'job not found' })
         if (req.method === 'POST' && req.url === '/auth/login') {
             const b = JSON.parse(body || '{}')

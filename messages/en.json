@@ -2364,7 +2364,8 @@
         "nav": {
             "signIn": "Sign in",
             "signUp": "Create an account",
-            "label": "Pages"
+            "label": "Pages",
+            "offers": "PFE offers"
         },
         "heroTitle": "Find your PFE. Apply in",
         "heroTitleEnd": "one click.",
@@ -2437,7 +2438,41 @@
             "notice": "Legal notice",
             "contactTitle": "Contact",
             "place": "Sfax, Tunisia",
-            "copyright": "© {year} Lakhal Technologies · 9itchi PFE"
+            "copyright": "© {year} Lakhal Technologies · 9itchi PFE",
+            "offers": "Final-year internships"
+        },
+        "list": {
+            "allTitle": "Final-year internships (PFE) in Tunisia",
+            "allIntro": "{count, plural, =0 {No open offer right now.} one {# open final-year internship, from company PFE books and careers pages.} other {# open final-year internships, from company PFE books and careers pages.}}",
+            "allDescription": "{count, plural, one {# open final-year internship} other {# open final-year internships}} (PFE) in Tunisia, by city and by company. Create your account and apply in one click with 9itchi PFE.",
+            "cityTitle": "Final-year internships in {city}",
+            "cityIntro": "{count, plural, one {# open final-year internship in {city}.} other {# open final-year internships in {city}.}}",
+            "cityDescription": "{count, plural, one {# open final-year internship} other {# open final-year internships}} in {city}: topics, pay, length and deadline. Apply in one click with 9itchi PFE.",
+            "companyTitle": "Final-year internships at {company}",
+            "companyIntro": "{count, plural, one {# open internship topic at {company}.} other {# open internship topics at {company}.}}",
+            "companyDescription": "{count, plural, one {# open internship topic} other {# open internship topics}} at {company}: pay, length, place and deadline. Apply in one click with 9itchi PFE.",
+            "pageSuffix": "page {page}",
+            "home": "Home",
+            "offers": "Offers",
+            "isNew": "New",
+            "remote": "Remote",
+            "easyApply": "One-click application",
+            "prev": "Previous page",
+            "next": "Next page",
+            "pageOf": "Page {page} of {pages}",
+            "byCity": "By city",
+            "byCompany": "By company",
+            "emptyTitle": "No open offer right now",
+            "emptyText": "New offers arrive every week. Create your account to be told.",
+            "errorTitle": "The offers could not be loaded",
+            "errorText": "Try again in a moment.",
+            "ctaTag": "Free to start",
+            "ctaTitle": "Apply without rewriting everything",
+            "ctaText": "Import your CV: 9itchi ranks these offers for you, prepares your letter and sends it from your Gmail.",
+            "signUp": "Create my account",
+            "signIn": "Already have an account? Sign in",
+            "moreAt": "More offers in {city}",
+            "moreFrom": "All topics at {company}"
         }
     }
 }

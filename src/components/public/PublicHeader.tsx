@@ -21,6 +21,9 @@ export default function PublicHeader({ signInTo }: { signInTo?: string }) {
                     <span className="hidden sm:inline-block">
                         <LanguageSelect remember={false} />
                     </span>
+                    <Link href="/offres" className="hit hidden px-2 text-[14.5px] font-semibold text-ink no-underline hover:text-ink md:inline">
+                        {t('offers')}
+                    </Link>
                     <Link href={signIn} className="hit hidden px-2 text-[14.5px] font-semibold text-ink no-underline hover:text-ink sm:inline">
                         {t('signIn')}
                     </Link>
@@ -52,6 +55,9 @@ export function PublicFooter() {
                 </div>
                 <nav aria-label={t('productTitle')} className="flex flex-col gap-0.5">
                     <h2 className={head}>{t('productTitle')}</h2>
+                    <Link href="/offres" className={link}>
+                        {t('offers')}
+                    </Link>
                     <Link href="/auth/signup" className={link}>
                         {t('signUp')}
                     </Link>

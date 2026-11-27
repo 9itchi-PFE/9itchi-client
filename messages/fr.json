@@ -2364,7 +2364,8 @@
         "nav": {
             "signIn": "Se connecter",
             "signUp": "Créer un compte",
-            "label": "Pages"
+            "label": "Pages",
+            "offers": "Offres PFE"
         },
         "heroTitle": "Trouve ton PFE. Postule en",
         "heroTitleEnd": "un clic.",
@@ -2437,7 +2438,41 @@
             "notice": "Mentions légales",
             "contactTitle": "Contact",
             "place": "Sfax, Tunisie",
-            "copyright": "© {year} Lakhal Technologies · 9itchi PFE"
+            "copyright": "© {year} Lakhal Technologies · 9itchi PFE",
+            "offers": "Offres de stage PFE"
+        },
+        "list": {
+            "allTitle": "Offres de stage PFE en Tunisie",
+            "allIntro": "{count, plural, =0 {Aucune offre ouverte pour le moment.} one {# offre de stage PFE ouverte, des PFE books des entreprises et de leurs pages carrières.} other {# offres de stage PFE ouvertes, des PFE books des entreprises et de leurs pages carrières.}}",
+            "allDescription": "{count, plural, one {# offre de stage PFE ouverte} other {# offres de stage PFE ouvertes}} en Tunisie, par ville et par entreprise. Crée ton compte et postule en un clic avec 9itchi PFE.",
+            "cityTitle": "Stage PFE à {city}",
+            "cityIntro": "{count, plural, one {# offre de stage PFE ouverte à {city}.} other {# offres de stage PFE ouvertes à {city}.}}",
+            "cityDescription": "{count, plural, one {# offre de stage PFE ouverte} other {# offres de stage PFE ouvertes}} à {city} : sujets, rémunération, durée et date limite. Postule en un clic avec 9itchi PFE.",
+            "companyTitle": "Stage PFE chez {company}",
+            "companyIntro": "{count, plural, one {# sujet de stage PFE ouvert chez {company}.} other {# sujets de stage PFE ouverts chez {company}.}}",
+            "companyDescription": "{count, plural, one {# sujet de stage PFE ouvert} other {# sujets de stage PFE ouverts}} chez {company} : rémunération, durée, lieu et date limite. Postule en un clic avec 9itchi PFE.",
+            "pageSuffix": "page {page}",
+            "home": "Accueil",
+            "offers": "Offres",
+            "isNew": "Nouveau",
+            "remote": "Télétravail",
+            "easyApply": "Candidature en 1 clic",
+            "prev": "Page précédente",
+            "next": "Page suivante",
+            "pageOf": "Page {page} sur {pages}",
+            "byCity": "Par ville",
+            "byCompany": "Par entreprise",
+            "emptyTitle": "Aucune offre ouverte pour le moment",
+            "emptyText": "De nouvelles offres arrivent chaque semaine. Crée ton compte pour être prévenu.",
+            "errorTitle": "Les offres n’ont pas pu être chargées",
+            "errorText": "Réessaie dans un instant.",
+            "ctaTag": "Gratuit pour commencer",
+            "ctaTitle": "Postule sans tout réécrire",
+            "ctaText": "Importe ton CV : 9itchi classe ces offres pour toi, prépare ta lettre et l’envoie depuis ton Gmail.",
+            "signUp": "Créer mon compte",
+            "signIn": "Déjà un compte ? Se connecter",
+            "moreAt": "Plus d’offres à {city}",
+            "moreFrom": "Tous les sujets chez {company}"
         }
     }
 }

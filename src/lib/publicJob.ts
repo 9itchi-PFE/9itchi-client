@@ -1,5 +1,5 @@
 import { getServerBaseUrl } from '@/configs/services.config'
-import type { PublicJob } from '@/types/job'
+import type { PublicJob, PublicOffers } from '@/types/job'
 
 // Server side only: what search engines need of a shared offer (title, text, dates), fetched from job-api's public
 // route and cached 5 minutes like the route itself. null when it does not exist or job-api does not answer.
@@ -8,6 +8,22 @@ export async function getPublicJob(id: string): Promise<PublicJob | null> {
     try {
         const res = await fetch(`${getServerBaseUrl('job')}/public/jobs/${id}`, { next: { revalidate: 300 } })
         return res.ok ? ((await res.json()) as PublicJob) : null
+    } catch {
+        return null
+    }
+}
+
+// getPublicOffers is a public list page (all offers, one city or one company): 'missing' for an unknown city,
+// company or page (a 404 to search engines), null when job-api does not answer.
+export async function getPublicOffers(q: { city?: string; company?: string; page?: number }): Promise<PublicOffers | 'missing' | null> {
+    const params = new URLSearchParams()
+    if (q.city) params.set('city', q.city)
+    if (q.company) params.set('company', q.company)
+    if (q.page && q.page > 1) params.set('page', String(q.page))
+    try {
+        const res = await fetch(`${getServerBaseUrl('job')}/public/offers?${params}`, { next: { revalidate: 600 } })
+        if (res.status === 404 || res.status === 400) return 'missing'
+        return res.ok ? ((await res.json()) as PublicOffers) : null
     } catch {
         return null
     }
