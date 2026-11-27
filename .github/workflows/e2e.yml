@@ -16,7 +16,7 @@ concurrency:
 jobs:
   e2e:
     name: Playwright journeys
-    runs-on: [self-hosted, 9itchi]
+    runs-on: ubuntu-latest
     timeout-minutes: 20
     container:
       image: mcr.microsoft.com/playwright:v1.65.1-noble
