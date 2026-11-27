@@ -1302,6 +1302,7 @@
         "creditsSaveError": "La modification n’a pas pu être enregistrée.",
         "unit_tokens": "jetons",
         "unit_documents": "documents",
+        "unit_credits": "crédits",
         "kSignups": "Inscrits",
         "kSignupsSub": "Nouveaux comptes",
         "kSent": "Candidatures",

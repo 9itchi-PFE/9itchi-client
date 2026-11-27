@@ -1302,6 +1302,7 @@
         "creditsSaveError": "The change could not be saved.",
         "unit_tokens": "tokens",
         "unit_documents": "documents",
+        "unit_credits": "credits",
         "kSignups": "Sign-ups",
         "kSignupsSub": "New accounts",
         "kSent": "Applications",
