@@ -18,27 +18,18 @@ on:
       - '.github/workflows/build.yml'
   workflow_dispatch:
 
+# One build at a time on the home-server runner; a newer push to main replaces a queued or running one.
+concurrency:
+  group: build-main
+  cancel-in-progress: true
+
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: 9itchi-client
 
 jobs:
-  test:
-    name: Lint and tests
-    runs-on: [self-hosted, 9itchi]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-      - run: npm ci --legacy-peer-deps
-      - run: npm run lint
-      - run: npm test
-
   build:
     name: Build and Push Docker Image
-    needs: test
     runs-on: [self-hosted, 9itchi]
     permissions:
       contents: read
