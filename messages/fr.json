@@ -14,7 +14,7 @@
     },
     "outreach": {
         "title": "Radar recruteurs",
-        "intro": "Trouve les recruteurs des entreprises que tu vises, laisse l’IA écrire à chacun, et envoie depuis ton propre Gmail.",
+        "intro": "Décris ce que tu cherches : le radar trouve les entreprises qui correspondent et les bonnes personnes, l’IA écrit, et tu envoies depuis ton propre Gmail.",
         "gmailTitle": "Envoi depuis ton Gmail",
         "connectedAs": "Connecté en tant que {email}",
         "notConnected": "Autorise 9itchi à envoyer depuis ton Gmail, uniquement quand tu cliques sur Envoyer. 9itchi ne lit pas ta boîte.",
@@ -24,7 +24,6 @@
         "loading": "Chargement…",
         "searchFailed": "La recherche est indisponible pour le moment. Réessaie dans un instant.",
         "found": "{count, plural, =0 {Aucun recruteur trouvé} one {# recruteur trouvé} other {# recruteurs trouvés}}",
-        "demo": "Données de démo",
         "cached": "Déjà cherché aujourd’hui : non compté",
         "detail": "E-mail au recruteur",
         "back": "Retour à la liste",
@@ -59,21 +58,29 @@
             }
         },
         "search": {
-            "title": "Scanner les recruteurs",
+            "title": "Trouver des entreprises et des contacts",
             "resume": "CV (ses compétences sont aussi cherchées)",
-            "noResume": "Sans CV",
+            "noResume": "Aucun CV pour l’instant",
             "goal": "Ce que tu cherches",
-            "goalPlaceholder": "Un stage PFE de 6 mois en data…",
-            "keywords": "Mots-clés",
-            "keywordsPlaceholder": "React, finance, Sfax… puis Entrée",
-            "removeKeyword": "Retirer {keyword}",
-            "company": "Entreprise",
-            "domain": "Site de l’entreprise",
-            "location": "Lieu",
-            "locationPlaceholder": "Tunis, Sousse…",
-            "searching": "Scan en cours…",
-            "find": "Trouver des recruteurs",
-            "needOne": "Choisis un CV, un mot-clé ou une entreprise."
+            "goalPlaceholder": "PFE de 6 mois en data à Tunis, à partir de février",
+            "contract": "Contrat",
+            "contracts": {
+                "pfe": "PFE",
+                "stage": "Stage",
+                "alternance": "Alternance",
+                "cdi": "CDI",
+                "cdd": "CDD"
+            },
+            "keywords": "Mots-clés (facultatif)",
+            "keywordsPlaceholder": "React, finance, cybersécurité… puis Entrée",
+            "keywordsHint": "Jusqu’à {max} mots-clés. Les compétences de ton CV sont ajoutées.",
+            "country": "Pays",
+            "contacts": "Nombre de contacts",
+            "contactsCount": "{count, plural, one {# contact} other {# contacts}}",
+            "searching": "Recherche en cours…",
+            "find": "Lancer la recherche",
+            "needResume": "Importe ou choisis un CV pour lancer la recherche.",
+            "removeKeyword": "Retirer {keyword}"
         },
         "list": {
             "title": "Recruteurs trouvés",
@@ -173,6 +180,22 @@
             "another": "Un autre lien",
             "composerTitle": "Ton e-mail",
             "toHint": "Trouve l’adresse du recruteur dans l’offre ou sur le site de l’entreprise, et tape-la ici."
+        },
+        "progress": {
+            "title": "Recherche en cours",
+            "resume": "Lecture de ton CV",
+            "companies": "Recherche d’entreprises qui correspondent",
+            "people": "Recherche des bonnes personnes",
+            "ranking": "Classement"
+        },
+        "results": {
+            "title": "Résultats",
+            "why": "Pourquoi :",
+            "verified": "Adresse vérifiée",
+            "noEmail": "Pas d’adresse trouvée : tu pourras la taper.",
+            "draft": "Rédiger l’email",
+            "emptyTitle": "Aucun contact trouvé cette fois",
+            "emptyText": "Essaie des mots-clés plus larges, un autre contrat ou un autre pays."
         }
     },
     "header": {
@@ -1279,6 +1302,7 @@
         "creditsSaveError": "La modification n’a pas pu être enregistrée.",
         "unit_tokens": "jetons",
         "unit_documents": "documents",
+        "unit_credits": "crédits",
         "kSignups": "Inscrits",
         "kSignupsSub": "Nouveaux comptes",
         "kSent": "Candidatures",
