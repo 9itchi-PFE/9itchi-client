@@ -76,13 +76,7 @@ export function SsoButtons() {
                     <img src="/img/google.png" alt="" width={20} height={20} />
                     {t('google')}
                 </a>
-                <a href={`${accountUrl()}/auth/linkedin`} className={ssoClass}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#344054" strokeWidth="2" aria-hidden>
-                        <rect x="3" y="3" width="18" height="18" rx="3" />
-                        <path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 0 1 4 0v4" />
-                    </svg>
-                    {t('linkedin')}
-                </a>
+                {/* LinkedIn sign-in is hidden; account-api still serves /auth/linkedin. */}
             </div>
             <div className="flex items-center gap-3 text-[13px] text-ink-3">
                 <span className="h-px flex-1 bg-line" />
