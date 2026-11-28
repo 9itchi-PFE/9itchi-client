@@ -14,6 +14,7 @@ import { cn } from '@/lib/cn'
 import { quotaReason } from '@/utils/quota'
 import type { LetterLanguage, Tone } from '@/types/application'
 import type { LinkDraft } from '@/types/recruiter'
+import CompanyRecruiters from './CompanyRecruiters'
 import EmailComposer, { type DraftAsk } from './EmailComposer'
 import GmailCard from './GmailCard'
 import Paywall from './Paywall'
@@ -101,6 +102,14 @@ export default function LinkScreen() {
                             {t('another')}
                         </Button>
                     </div>
+                    {result.draft.offer.company ? (
+                        <CompanyRecruiters
+                            key={result.url}
+                            company={result.draft.offer.company}
+                            goal={result.draft.offer.title || undefined}
+                            onPick={setTo}
+                        />
+                    ) : null}
                     <EmailComposer
                         heading={<strong className="text-lg">{t('composerTitle')}</strong>}
                         to={to}

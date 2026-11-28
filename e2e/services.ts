@@ -141,6 +141,13 @@ const defaults = (): Answers => ({
         allowance: recruiterAllowance,
         stats: { companies_from_pool: 1, companies_discovered: 0, contacts_from_pool: 1, contacts_found: 1 },
     },
+    'POST /email/recruiters/company': {
+        search_id: '0e2e0000-0000-4000-8000-0000000000f2',
+        cached: false,
+        items: [RECRUITERS[0]],
+        allowance: recruiterAllowance,
+        stats: { companies_from_pool: 1, companies_discovered: 0, contacts_from_pool: 1, contacts_found: 0 },
+    },
     [`POST /email/recruiters/${RECRUITERS[0].id}/draft`]: { subject: 'Candidature spontanée', body: 'Madame, Monsieur,', limit: null, used: 0 },
     'GET /email/admin/prospects/stats': {
         pool: { companies: 12, contacts: 48, verified: 30, hr: 18, fresh: 40, by_source: { website: 20, hunter: 15, apollo: 8, offer: 5, import: 0 } },

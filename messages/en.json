@@ -179,7 +179,17 @@
             "untitled": "Offer",
             "another": "Another link",
             "composerTitle": "Your email",
-            "toHint": "Find the recruiter’s address in the offer or on the company’s site, and type it here."
+            "toHint": "Find the recruiter’s address in the offer or on the company’s site, and type it here.",
+            "recruiter": {
+                "title": "Recruiter at {company}",
+                "cost": "Uses 1 Recruiter Radar search, only if someone is found.",
+                "find": "Find the recruiter",
+                "finding": "Searching…",
+                "nobody": "Nobody found at this company. No search was counted.",
+                "failed": "The search failed. Try again.",
+                "use": "Use this address",
+                "radar": "See them in Recruiter Radar"
+            }
         },
         "progress": {
             "title": "Searching",

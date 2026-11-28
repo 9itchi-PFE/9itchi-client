@@ -37,6 +37,9 @@ export type RecruiterSearchInput = {
     contacts: number
 }
 
+// CompanyRecruiterInput: one company (name <= 120, domain or site optional) and what the student wants there (<= 300).
+export type CompanyRecruiterInput = { company: string; domain?: string; goal?: string }
+
 // RecruiterSearchStats say where the companies and people came from (the shared pool or a new lookup).
 export type RecruiterSearchStats = { companies_from_pool: number; companies_discovered: number; contacts_from_pool: number; contacts_found: number }
 
