@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { isAxiosError } from 'axios'
 import { Button } from '@/components/ui/Button'
@@ -18,12 +18,13 @@ import CompanyRecruiters from './CompanyRecruiters'
 import EmailComposer, { type DraftAsk } from './EmailComposer'
 import GmailCard from './GmailCard'
 import Paywall from './Paywall'
-import { linkSource } from './outreach'
+import { bookmarklet, linkSource, OFFER_TEXT_MAX, offerFromHash, offerLink } from './outreach'
 
 const label = 'flex min-w-0 flex-col gap-1.5 text-[13.5px] font-medium text-ink-2'
 
 // LinkScreen writes an application email from the link of an offer (a 9itchi offer, a company's career page). A
-// page that cannot be read (LinkedIn among them) asks for the offer's text instead. The student finds the address.
+// page that cannot be read (LinkedIn among them) asks for the offer's text instead; the « Send to 9itchi » bookmark
+// brings the link and the text from the student's own browser (after #, read once then cleared).
 export default function LinkScreen() {
     const t = useTranslations('outreach.link')
     const locale = useLocale()
@@ -38,22 +39,37 @@ export default function LinkScreen() {
     const [result, setResult] = useState<{ draft: LinkDraft; url: string; text: string } | null>(null)
     const [to, setTo] = useState('')
     const [appHost, setAppHost] = useState<string | undefined>()
-    useEffect(() => setAppHost(window.location.hostname), [])
+    const button = useRef<HTMLAnchorElement>(null)
+    useEffect(() => {
+        setAppHost(window.location.hostname)
+        // React refuses javascript: links in JSX: the bookmark's link is set on the element.
+        button.current?.setAttribute('href', bookmarklet(window.location.origin))
+        const sent = offerFromHash(window.location.hash)
+        if (!sent) return
+        window.history.replaceState(null, '', window.location.pathname + window.location.search)
+        setUrl(sent.url)
+        if (sent.text) {
+            setText(sent.text)
+            setNeedText(true)
+        }
+    }, [])
 
     const resumeList = resumes.data?.items ?? []
     const resume = resumeId ?? resumeList[0]?.id ?? ''
     const source = linkSource(url, appHost)
     const blocked = quotaReason(draft.error)
     const status = isAxiosError(draft.error) ? draft.error.response?.status : undefined
-    const ready = !!source && (!needText || text.trim().length >= 40)
+    // LinkedIn is never read: its text is asked at once.
+    const askText = needText || source === 'linkedin'
+    const ready = !!source && (!askText || text.trim().length >= 40)
 
     const ask = (a: Pick<DraftAsk, 'language' | 'tone' | 'fresh' | 'resume_id'>, link: string, offerText: string) =>
         draft.mutateAsync({ url: link, offer_text: offerText || undefined, resume_id: a.resume_id, language: a.language, tone: a.tone, fresh: a.fresh })
 
     const submit = async () => {
         if (!ready) return
-        const link = url.trim()
-        const offerText = needText ? text.trim() : ''
+        const link = offerLink(url)
+        const offerText = askText ? text.trim() : ''
         try {
             const d = await ask({ language, tone, fresh: false, resume_id: resume || undefined }, link, offerText)
             setResult({ draft: d, url: link, text: offerText })
@@ -102,14 +118,12 @@ export default function LinkScreen() {
                             {t('another')}
                         </Button>
                     </div>
-                    {result.draft.offer.company ? (
-                        <CompanyRecruiters
-                            key={result.url}
-                            company={result.draft.offer.company}
-                            goal={result.draft.offer.title || undefined}
-                            onPick={setTo}
-                        />
-                    ) : null}
+                    <CompanyRecruiters
+                        key={result.url}
+                        company={result.draft.offer.company ?? ''}
+                        goal={result.draft.offer.title || undefined}
+                        onPick={setTo}
+                    />
                     <EmailComposer
                         heading={<strong className="text-lg">{t('composerTitle')}</strong>}
                         to={to}
@@ -150,13 +164,12 @@ export default function LinkScreen() {
                         />
                     </label>
                     {sourceChip}
-                    {source === 'linkedin' && !needText ? <span className="text-[12.5px] text-ink-3">{t('linkedinNote')}</span> : null}
 
-                    {needText ? (
+                    {askText ? (
                         <label className={label}>
                             {t('pasteTitle')}
-                            <span className="text-[12.5px] font-normal text-ink-3">{t('pasteHint')}</span>
-                            <TextArea className="min-h-[180px]" maxLength={40000} value={text} onChange={(e) => setText(e.target.value)} />
+                            <span className="text-[12.5px] font-normal text-ink-3">{needText ? t('pasteHint') : t('linkedinNote')}</span>
+                            <TextArea className="min-h-[180px]" maxLength={OFFER_TEXT_MAX} value={text} onChange={(e) => setText(e.target.value)} />
                         </label>
                     ) : null}
 
@@ -212,6 +225,21 @@ export default function LinkScreen() {
                         <Icon name="pencil" /> {draft.isPending ? t('writing') : t('write')}
                     </Button>
                 </form>
+            )}
+
+            {result ? null : (
+                <section className="hidden flex-col gap-2 rounded-[16px] border border-line-soft bg-fill-3 p-3.5 sm:flex">
+                    <strong className="text-[15px]">{t('send.title')}</strong>
+                    <span className="text-[13.5px] text-ink-3">{t('send.hint')}</span>
+                    <a
+                        ref={button}
+                        draggable
+                        onClick={(e) => e.preventDefault()}
+                        className="inline-flex h-9 cursor-grab items-center gap-1.5 self-start rounded-full bg-ink px-3.5 text-[13.5px] font-semibold text-lime"
+                    >
+                        <Icon name="link" size={14} /> {t('send.button')}
+                    </a>
+                </section>
             )}
         </main>
     )

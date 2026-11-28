@@ -197,7 +197,14 @@
                 "nobody": "Personne n’a été trouvé dans cette entreprise. Aucune recherche n’a été comptée.",
                 "failed": "La recherche a échoué. Réessayez.",
                 "use": "Utiliser cette adresse",
-                "radar": "Voir dans le Radar recruteurs"
+                "radar": "Voir dans le Radar recruteurs",
+                "titleNone": "Recruteur de l’entreprise",
+                "company": "Entreprise"
+            },
+            "send": {
+                "title": "Bouton « Envoyer à 9itchi »",
+                "hint": "Glissez ce bouton dans votre barre de favoris. Sur n’importe quelle offre (LinkedIn compris), cliquez dessus : l’offre arrive ici avec son texte, prête pour votre email.",
+                "button": "Envoyer à 9itchi"
             }
         },
         "progress": {

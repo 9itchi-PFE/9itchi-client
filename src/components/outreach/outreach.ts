@@ -22,6 +22,44 @@ export function linkSource(raw: string, appHost?: string): LinkSource | null {
     return 'other'
 }
 
+// offerLink is a typed offer link as sent: a LinkedIn search or collection page with a job open (currentJobId) becomes
+// that job's own page.
+export function offerLink(raw: string): string {
+    const s = raw.trim()
+    try {
+        const u = new URL(s)
+        const host = u.hostname.toLowerCase()
+        const id = u.searchParams.get('currentJobId') ?? ''
+        if ((host === 'linkedin.com' || host.endsWith('.linkedin.com')) && /^\d+$/.test(id)) return `https://www.linkedin.com/jobs/view/${id}/`
+    } catch {
+        // not a link yet: kept as typed
+    }
+    return s
+}
+
+export const OFFER_TEXT_MAX = 40000
+
+// offerFromHash reads what the « Send to 9itchi » button put after the # of /outreach/link (never sent to a server):
+// u = the offer's link, t = the text of its page. null when there is no link.
+export function offerFromHash(hash: string): { url: string; text: string } | null {
+    const p = new URLSearchParams(hash.replace(/^#/, ''))
+    const url = (p.get('u') ?? '').trim()
+    if (!url) return null
+    return { url: offerLink(url), text: (p.get('t') ?? '').trim().slice(0, OFFER_TEXT_MAX) }
+}
+
+// bookmarklet is the « Send to 9itchi » bookmark: on any offer page (LinkedIn included) it takes the text the student
+// selected, else the offer's part of the page, and opens /outreach/link of the app with the link and the text after #.
+// It runs in the student's own browser, on the page they opened: 9itchi never fetches the site.
+export function bookmarklet(origin: string): string {
+    const js =
+        "(function(){var s=String(window.getSelection()||'').trim();" +
+        "var m=document.querySelector('.jobs-description,.jobs-search__job-details,.job-view-layout,[class*=job-description],[class*=jobDescription],main,article')||document.body;" +
+        "var t=s.length>200?s:document.title+'\\n\\n'+m.innerText;" +
+        `window.open(${JSON.stringify(origin + '/outreach/link')}+'#u='+encodeURIComponent(location.href)+'&t='+encodeURIComponent(t.slice(0,20000)),'_blank')})()`
+    return 'javascript:' + encodeURIComponent(js)
+}
+
 // Tunis keeps UTC+1 all year (no summer time since 2009): a datetime-local value is read and written at +01:00,
 // whatever the browser's own zone.
 const TUNIS_MS = 60 * 60_000

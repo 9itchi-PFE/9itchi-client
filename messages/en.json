@@ -197,7 +197,14 @@
                 "nobody": "Nobody found at this company. No search was counted.",
                 "failed": "The search failed. Try again.",
                 "use": "Use this address",
-                "radar": "See them in Recruiter Radar"
+                "radar": "See them in Recruiter Radar",
+                "titleNone": "Recruiter at the company",
+                "company": "Company"
+            },
+            "send": {
+                "title": "“Send to 9itchi” button",
+                "hint": "Drag this button to your bookmarks bar. On any offer page (LinkedIn included), click it: the offer comes here with its text, ready to write your email.",
+                "button": "Send to 9itchi"
             }
         },
         "progress": {
