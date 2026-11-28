@@ -1,6 +1,7 @@
 import type { CompanyLogo } from '@/types/logo'
 import type {
     AdminBook,
+    AutoPublishRun,
     Book,
     BookEdit,
     BookList,
@@ -83,6 +84,9 @@ const JobService = {
     publishBook: (id: string, jobIds: string[]) => api('job').post<AdminBook>(`/admin/books/${id}/publish`, { job_ids: jobIds }),
     retryBook: (id: string) => api('job').post<AdminBook>(`/admin/books/${id}/retry`),
     deleteBook: (id: string) => api('job').delete(`/admin/books/${id}`),
+    // Publishes the read books in the background; started is false when a run is already going.
+    startAutoPublish: () => api('job').post<{ started: boolean }>(`/admin/books/auto-publish`),
+    getAutoPublish: () => api('job').get<AutoPublishRun>(`/admin/books/auto-publish`),
     // The PDF of a book can be several MB and the server sits behind a slow uplink, so it gets far longer than the usual 50 s.
     bookPdf: (id: string, admin = false) => api('job').get<Blob>(`${admin ? '/admin' : ''}/books/${id}/pdf`, { responseType: 'blob', timeout: 5 * 60_000 }),
     previewPreferences: (p: Preferences) => api('job').post<{ count: number; unanswered: number }>(`/preferences/preview`, p),

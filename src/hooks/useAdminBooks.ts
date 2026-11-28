@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useMutation, useQuery, useQueryClient, type QueryClient } from '@tanstack/react-query'
+import { autoPublishPoll, runFinished } from '@/components/admin/books'
 import JobService from '@/services/JobService'
 import type { AdminBook, BookEdit } from '@/types/job'
 import { adminKeys } from './useAdminJobs'
@@ -74,6 +75,37 @@ export function useDeleteBook() {
             qc.invalidateQueries({ queryKey: adminKeys.books, exact: true })
             qc.invalidateQueries({ queryKey: adminKeys.reviewAll })
         },
+    })
+}
+
+// useAutoPublish is the last automatic run; it asks again every 3 seconds while one runs, and when it ends the books,
+// the offers queue and what students see are read again.
+export function useAutoPublish() {
+    const qc = useQueryClient()
+    const run = useQuery({
+        queryKey: adminKeys.autoPublish,
+        queryFn: async () => (await JobService.getAutoPublish()).data,
+        refetchInterval: (q) => autoPublishPoll(q.state.data),
+        retry: false,
+    })
+    const was = useRef(run.data?.running)
+    useEffect(() => {
+        if (runFinished(was.current, run.data?.running)) {
+            qc.invalidateQueries({ queryKey: adminKeys.books })
+            qc.invalidateQueries({ queryKey: adminKeys.reviewAll })
+            qc.invalidateQueries({ queryKey: ['jobs'] })
+            qc.invalidateQueries({ queryKey: ['books'] })
+        }
+        was.current = run.data?.running
+    }, [qc, run.data?.running])
+    return run
+}
+
+export function useStartAutoPublish() {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: async () => (await JobService.startAutoPublish()).data,
+        onSuccess: () => qc.invalidateQueries({ queryKey: adminKeys.autoPublish }),
     })
 }
 

@@ -1,4 +1,4 @@
-import type { BookCommon, BookEdit, BookTopic } from '@/types/job'
+import type { AutoPublishRun, BookCommon, BookEdit, BookTopic } from '@/types/job'
 import type { WorkMode } from '@/types/preferences'
 import { number } from './collect'
 
@@ -22,6 +22,12 @@ export const tally = (topics: BookTopic[]) => {
     const waiting = topics.filter(canPublish)
     return { waiting: waiting.length, ready: waiting.filter((t) => t.ready).length, check: waiting.filter((t) => !t.ready).length }
 }
+
+// autoPublishPoll asks for the automatic run again every 3 seconds while it runs.
+export const autoPublishPoll = (run: Pick<AutoPublishRun, 'running'> | undefined) => (run?.running ? 3000 : false)
+
+// runFinished is true when a run seen running is now over: the books list is read again then.
+export const runFinished = (was: boolean | undefined, now: boolean | undefined) => was === true && now === false
 
 // fileSize gives a size in megabytes (one decimal) or kilobytes; the screen writes the unit in its language.
 export function fileSize(bytes: number | null): { value: number; unit: 'mb' | 'kb' } | null {

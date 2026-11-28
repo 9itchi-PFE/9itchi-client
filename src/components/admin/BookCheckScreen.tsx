@@ -275,6 +275,9 @@ function Topics({ book, picked, onToggle, onEdit }: { book: AdminBook; picked: S
                                         >
                                             {t(stateKey[state])}
                                         </span>
+                                        {topic.review_status === 'pending' && topic.review_note ? (
+                                            <span className="mt-1 block max-w-[220px] text-xs text-ink-3">{topic.review_note}</span>
+                                        ) : null}
                                     </td>
                                     <td className={cn(td, 'text-end')}>
                                         <Button variant="secondary" size="sm" onClick={() => onEdit(topic.id)}>
