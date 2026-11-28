@@ -71,7 +71,7 @@ const STUDENT_PAGES = [
     '/settings/billing',
     '/support',
 ]
-const ADMIN_PAGES = ['/admin', '/admin/users', '/admin/books', '/admin/plans', '/admin/credits']
+const ADMIN_PAGES = ['/admin', '/admin/users', '/admin/books', '/admin/plans', '/admin/credits', '/admin/schools']
 
 // Runs in the page.
 function measure() {

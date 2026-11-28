@@ -2,10 +2,9 @@
 
 import { useState, type FormEvent } from 'react'
 import Link from 'next/link'
-import { useTranslations } from 'next-intl'
+import { useLocale, useTranslations } from 'next-intl'
 import { signOut } from 'next-auth/react'
 import { SignOutDialog } from '@/components/auth/SignOutDialog'
-import { SCHOOLS } from '@/components/auth/SignUp'
 import PremiumBadge from '@/components/billing/PremiumBadge'
 import { Sk } from '@/components/jobs/OfferStates'
 import { Button } from '@/components/ui/Button'
@@ -14,7 +13,9 @@ import { Modal } from '@/components/ui/Modal'
 import { useToast } from '@/components/ui/Toast'
 import { Select } from '@/components/ui/Select'
 import { useDeleteMe, useMe, useUpdateMe } from '@/hooks/useAccount'
+import { useSchools } from '@/hooks/useSchools'
 import { cn } from '@/lib/cn'
+import { schoolChoices, schoolLabel } from '@/lib/schools'
 import { YEARS } from '@/types/user'
 import ProfilePhoto from './ProfilePhoto'
 import { confirmed, profileInput } from './profile'
@@ -34,10 +35,12 @@ export default function SettingsScreen() {
     const t = useTranslations('settings')
     const ta = useTranslations('auth')
     const tc = useTranslations('common')
+    const locale = useLocale()
     const toast = useToast()
     const me = useMe()
     const save = useUpdateMe()
     const remove = useDeleteMe()
+    const list = useSchools().data
     const [error, setError] = useState('')
     const [deleting, setDeleting] = useState(false)
     const [leaving, setLeaving] = useState(false)
@@ -65,8 +68,9 @@ export default function SettingsScreen() {
     }
 
     const user = me.data
-    // A school typed before the list existed stays selectable.
-    const schools: string[] = user.school && !(SCHOOLS as readonly string[]).includes(user.school) ? [user.school, ...SCHOOLS] : [...SCHOOLS]
+    // A school the list no longer has stays selectable.
+    const schools = list ?? []
+    const choices = schoolChoices(schools, user.school)
     const submit = (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault()
         const f = new FormData(e.currentTarget)
@@ -105,11 +109,12 @@ export default function SettingsScreen() {
                     </div>
                     <label className="flex min-w-0 flex-col gap-1.5 text-[13.5px] font-medium text-ink-2">
                         {t('school')}
-                        <Select name="school" defaultValue={user.school ?? ''} className={inputClass}>
+                        {/* The key makes the drop-down start again once the list has arrived, so the school shows by name. */}
+                        <Select key={list ? 'ready' : 'loading'} name="school" defaultValue={user.school ?? ''} className={inputClass}>
                             <option value="">{ta('schoolPlaceholder')}</option>
-                            {schools.map((s) => (
+                            {choices.map((s) => (
                                 <option key={s} value={s}>
-                                    {(SCHOOLS as readonly string[]).includes(s) ? ta(`schools.${s}`) : s}
+                                    {schoolLabel(schools, s, locale, ta('schools.OTHER'))}
                                 </option>
                             ))}
                         </Select>

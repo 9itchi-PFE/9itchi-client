@@ -1,3 +1,4 @@
+import type { School, SchoolInput, SchoolNames } from '@/types/school'
 import type { AdminUser, Me, MeInput, UserList, UserNote, UserQuery } from '@/types/user'
 import { api } from './ApiService'
 
@@ -32,6 +33,11 @@ const AccountService = {
     getUserNote: (id: string) => api('account').get<UserNote>(`/admin/users/${id}/note`),
     setUserNote: (id: string, note: string) => api('account').put<UserNote>(`/admin/users/${id}/note`, { note }),
     deleteUser: (id: string) => api('account').delete(`/admin/users/${id}`),
+    // The schools students choose from: the list is public, the team adds, renames and removes them.
+    listSchools: () => api('account').get<{ items: School[] }>(`/schools`),
+    createSchool: (data: SchoolInput) => api('account').post<School>(`/admin/schools`, data),
+    updateSchool: (code: string, data: SchoolNames) => api('account').put<School>(`/admin/schools/${encodeURIComponent(code)}`, data),
+    deleteSchool: (code: string) => api('account').delete(`/admin/schools/${encodeURIComponent(code)}`),
 }
 
 export default AccountService
