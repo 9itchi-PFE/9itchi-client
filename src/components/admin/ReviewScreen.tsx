@@ -62,6 +62,7 @@ function Row({ item, on, onPick }: { item: ReviewItem; on: boolean; onPick: () =
                 <span className="text-[13.5px] text-ink-3">
                     {item.company} · {origin(item.origin)}
                 </span>
+                {item.review_status === 'pending' && item.review_note ? <span className="text-xs text-ink-3">{item.review_note}</span> : null}
             </span>
             <StatusBadge value={status(item)} />
         </button>
@@ -111,8 +112,9 @@ function Detail({ job, onEdit }: { job: ReviewJob; onEdit: () => void }) {
                 <p className="m-0 text-[15px] text-ink-3">{[job.company, place, pay].filter(Boolean).join(' · ')}</p>
             </div>
             <LogoField company={job.company} />
-            <div>
+            <div className="flex flex-wrap items-center gap-2">
                 <StatusBadge value={st} />
+                {job.review_status === 'pending' && job.review_note ? <span className="text-[13px] text-ink-3">{job.review_note}</span> : null}
             </div>
             <section className="flex flex-col gap-3">
                 <h3 className="m-0 font-mono text-[11px] font-semibold uppercase tracking-[.1em] text-ink-3">{t('checks')}</h3>

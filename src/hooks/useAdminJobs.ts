@@ -9,6 +9,7 @@ export const adminKeys = {
     job: (id: string) => ['admin', 'job', id] as const,
     books: ['admin', 'books'] as const,
     book: (id: string) => ['admin', 'books', id] as const,
+    autoPublish: ['admin', 'autoPublish'] as const,
 }
 
 // useSources lists the sources with the KPIs; while one runs, it asks again every 3 seconds.

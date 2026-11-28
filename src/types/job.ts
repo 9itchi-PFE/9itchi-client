@@ -100,6 +100,8 @@ export type BookTopic = {
     pdf_page: number | null
     review_status: ReviewStatus
     ready: boolean
+    // review_note says why the automatic run left it pending (French text from job-api).
+    review_note?: string
 }
 
 // BookCommon is what « Informations communes » applies to the topics not published yet; empty leaves them alone.
@@ -120,6 +122,19 @@ export type AdminBook = Book & {
     counts: { pending: number; published: number; hidden: number }
     topics?: BookTopic[]
     common?: BookCommon | null
+}
+
+// AutoPublishRun is the last automatic publication of the read books (GET /admin/books/auto-publish).
+export type AutoPublishRun = {
+    running: boolean
+    started_at: string | null
+    finished_at: string | null
+    books_published: number
+    topics_published: number
+    topics_left: number
+    offers_published: number
+    retried: number
+    errors: number
 }
 
 export type BookEdit = { company: string; sector: string | null; city: string | null; title: string; summary: string; year: number; topics: BookCommon }
@@ -191,13 +206,20 @@ export type ReviewItem = {
     review_status: ReviewStatus
     closes_on: string | null
     created_at: string
+    review_note?: string
 }
 
 export type ReviewList = { items: ReviewItem[]; total: number; page: number; page_size: number; counts: Record<ReviewTab, number> }
 
 export type CheckKey = 'company_known' | 'deadline_not_passed' | 'subject_and_skills' | 'start_date'
 
-export type ReviewJob = Job & { review_status: ReviewStatus; origin: Origin; apply_email: string | null; checks: { key: CheckKey; ok: boolean }[] }
+export type ReviewJob = Job & {
+    review_status: ReviewStatus
+    origin: Origin
+    apply_email: string | null
+    checks: { key: CheckKey; ok: boolean }[]
+    review_note?: string
+}
 
 export type JobEdit = {
     title: string

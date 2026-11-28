@@ -7,9 +7,9 @@ import { useRouter } from 'next/navigation'
 import { Button, ButtonLink } from '@/components/ui/Button'
 import { inputClass } from '@/components/ui/Field'
 import { useToast } from '@/components/ui/Toast'
-import { useAdminBooks, useImportBook } from '@/hooks/useAdminBooks'
+import { useAdminBooks, useAutoPublish, useImportBook, useStartAutoPublish } from '@/hooks/useAdminBooks'
 import { cn } from '@/lib/cn'
-import type { AdminBook, BookStatus } from '@/types/job'
+import type { AdminBook, AutoPublishRun, BookStatus } from '@/types/job'
 import { apiError, WhenText } from './SourcesScreen'
 import { addToQueue, fileSize, importFailure, MAX_BATCH, sendable, type QueueItem } from './books'
 import { when } from './collect'
@@ -224,6 +224,70 @@ function ImportCard() {
     )
 }
 
+// AutoPublishProgress writes where the automatic run stands: what it published, what is left, and when it ended.
+export function AutoPublishProgress({ run }: { run: AutoPublishRun }) {
+    const t = useTranslations('admin')
+    const counts = [
+        ['autoBooks', run.books_published],
+        ['autoTopics', run.topics_published],
+        ['autoLeft', run.topics_left],
+        ['autoOffers', run.offers_published],
+        ['autoRetried', run.retried],
+        ['autoErrors', run.errors],
+    ] as const
+    return (
+        <div className="flex flex-col gap-2" aria-live="polite">
+            <dl className="m-0 grid grid-cols-2 gap-2 sm:grid-cols-3 lg:grid-cols-6">
+                {counts.map(([key, value]) => (
+                    <div key={key} className="flex flex-col rounded-xl bg-fill px-3 py-2">
+                        <dt className="text-[12.5px] text-ink-3">{t(key)}</dt>
+                        <dd className={cn('m-0 text-lg font-bold tabular-nums', key === 'autoErrors' && value > 0 && 'text-[#B42318]')}>{value}</dd>
+                    </div>
+                ))}
+            </dl>
+            {run.running ? (
+                <p className="m-0 text-[13.5px] font-semibold text-violet-hover">{t('autoRunning')}</p>
+            ) : run.finished_at ? (
+                <p className="m-0 text-[13.5px] text-ink-3">
+                    {t('autoFinished')} <WhenText value={when(run.finished_at)} />
+                </p>
+            ) : null}
+        </div>
+    )
+}
+
+// AutoPublishCard starts the automatic publication of the read books and follows it until it ends.
+function AutoPublishCard() {
+    const t = useTranslations('admin')
+    const toast = useToast()
+    const run = useAutoPublish()
+    const start = useStartAutoPublish()
+    const [already, setAlready] = useState(false)
+    const running = !!run.data?.running
+    const go = () =>
+        start.mutate(undefined, {
+            onSuccess: (r) => setAlready(!r.started),
+            onError: (e) => toast(apiError(e) ?? t('autoError')),
+        })
+    return (
+        <section aria-labelledby="auto-h" className="flex flex-col gap-4 rounded-[18px] border border-line bg-white p-5">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+                <div className="flex min-w-0 flex-[1_1_320px] flex-col gap-1">
+                    <h2 id="auto-h" className="m-0 text-xl font-extrabold">
+                        {t('autoTitle')}
+                    </h2>
+                    <p className="m-0 max-w-[760px] text-[15px] leading-[1.55] text-ink-3">{t('autoIntro')}</p>
+                </div>
+                <Button onClick={go} disabled={start.isPending || running}>
+                    {t('autoStart')}
+                </Button>
+            </div>
+            {already && running ? <p className="m-0 text-sm font-semibold text-warn-fg">{t('autoAlready')}</p> : null}
+            {run.data && (run.data.running || run.data.finished_at) ? <AutoPublishProgress run={run.data} /> : null}
+        </section>
+    )
+}
+
 // BooksScreen is « PFE books » of the admin: drop the PDF of a book, then open it to check its topics and publish.
 export default function BooksScreen() {
     const t = useTranslations('admin')
@@ -236,6 +300,7 @@ export default function BooksScreen() {
                 <p className="m-0 max-w-[760px] text-base leading-[1.55] text-ink-3">{t('booksSubtitle')}</p>
             </div>
             <ImportCard />
+            <AutoPublishCard />
             <section aria-labelledby="books-h" className="flex flex-col gap-4 rounded-[18px] border border-line bg-white p-5">
                 <h2 id="books-h" className="m-0 text-xl font-extrabold">
                     {t('booksList')}
