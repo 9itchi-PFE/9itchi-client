@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { guessFromCv, monthOptions } from '@/components/preferences/guess'
 import { normalize } from '@/types/resume'
+import { allSkills } from '@/components/resume/cvText'
 
 describe('guessFromCv', () => {
     it('reads topics, skills, city, start and length from the CV', () => {
@@ -42,5 +43,15 @@ describe('monthOptions', () => {
         expect(monthOptions('2027-02')).toEqual(['2027-01', '2027-02', '2027-03'])
         expect(monthOptions('2027-01')).toEqual(['2026-12', '2027-01', '2027-02'])
         expect(monthOptions(null, new Date(2026, 10, 1))).toEqual(['2027-01', '2027-02', '2027-03'])
+    })
+})
+
+describe('allSkills', () => {
+    it('splits a skill that is a whole list so the offers query stays valid', () => {
+        const c = normalize({
+            skills: ['Python, LLM, RAG', 'Docker; Kubernetes', 'x'.repeat(51)],
+            skill_groups: [{ label: 'Web', items: ['React, Python'] }],
+        })
+        expect(allSkills(c)).toEqual(['Python', 'LLM', 'RAG', 'Docker', 'Kubernetes', 'React'])
     })
 })

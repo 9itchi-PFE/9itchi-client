@@ -1001,6 +1001,7 @@
         "qPaid": "Paid only?",
         "qTeam": "Alone or in a pair?",
         "whyTopics": "From your projects and internship",
+        "skillsMax": "Up to {max} skills",
         "whySkills": "From your Skills section",
         "whyPlaces": "From your address",
         "whyGuess": "Guessed, check it",

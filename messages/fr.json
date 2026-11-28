@@ -1001,6 +1001,7 @@
         "qPaid": "Payé seulement ?",
         "qTeam": "Seul ou en binôme ?",
         "whyTopics": "D’après tes projets et ton stage",
+        "skillsMax": "Jusqu’à {max} compétences",
         "whySkills": "D’après ta section Compétences",
         "whyPlaces": "D’après ton adresse",
         "whyGuess": "Deviné, vérifie",

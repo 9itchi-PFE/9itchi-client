@@ -49,8 +49,10 @@ export const shortLink = (l: string) =>
         .replace(/^www\./, '')
         .replace(/\/$/, '')
 
-export const allSkills = (c: ResumeContent) => {
-    const out = [...c.skills]
-    for (const g of c.skill_groups ?? []) for (const s of g.items) if (!out.includes(s)) out.push(s)
-    return out
-}
+// allSkills lists the CV skills one by one. A parsed CV may keep a whole list as one skill (« FastAPI, Django, React »):
+// split it, and drop what job-api refuses (a skill over 50 characters), or the offers list answers 400.
+export const allSkills = (c: ResumeContent) =>
+    [...c.skills, ...(c.skill_groups ?? []).flatMap((g) => g.items)]
+        .flatMap((s) => (s ?? '').split(/[,;]/))
+        .map((s) => s.trim())
+        .filter((s, i, a) => s && s.length <= 50 && a.indexOf(s) === i)

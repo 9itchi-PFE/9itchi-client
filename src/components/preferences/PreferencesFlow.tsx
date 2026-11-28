@@ -15,6 +15,8 @@ import { KNOWN_PLACES, guessFromCv, monthOptions } from './guess'
 type Key = keyof Preferences
 type Badge = 'cv' | 'guess' | 'ask' | 'required' | null
 
+// MAX_SKILLS is how many skills the student can pick: the offers are matched on them, a few precise ones match best.
+const MAX_SKILLS = 6
 const SKILL_EXTRAS = ['Docker', 'JavaScript', 'SQL', 'Java', 'Python', 'Git']
 
 // PreferencesFlow is screen 1.3: questions answered from the CV where it can (with where it came from),
@@ -81,6 +83,7 @@ export default function PreferencesFlow() {
     }
     const toggle = (k: 'topics' | 'skills' | 'places', v: string) => {
         const cur = prefs[k] as string[]
+        if (k === 'skills' && !cur.includes(v) && cur.length >= MAX_SKILLS) return
         let next = cur.includes(v) ? cur.filter((x) => x !== v) : [...cur, v]
         if (k === 'places') next = v === 'anywhere' && next.includes('anywhere') ? ['anywhere'] : next.filter((x) => x !== 'anywhere' || v === 'anywhere')
         set(k, next as Preferences[typeof k])
@@ -108,7 +111,7 @@ export default function PreferencesFlow() {
     // notInCv counts the questions the CV could not answer, for the subtitle; it does not change as the student answers.
     const notInCv = (Object.keys(prefs) as Key[]).filter((k) => !guess.fromCv.has(k) && !(k === 'work_modes' && guessedMode)).length
 
-    type Q = { key: Key; title: string; why: string; options: { label: string; on: boolean; pick: () => void }[] }
+    type Q = { key: Key; title: string; why: string; hint?: string; options: { label: string; on: boolean; off?: boolean; pick: () => void }[] }
     const questions: Q[] = [
         {
             key: 'topics',
@@ -120,7 +123,11 @@ export default function PreferencesFlow() {
             key: 'skills',
             title: t('qSkills'),
             why: t('whySkills'),
-            options: skillOptions.map((x) => ({ label: x, on: prefs.skills.includes(x), pick: () => toggle('skills', x) })),
+            hint: t('skillsMax', { max: MAX_SKILLS }),
+            options: skillOptions.map((x) => {
+                const on = prefs.skills.includes(x)
+                return { label: x, on, off: !on && prefs.skills.length >= MAX_SKILLS, pick: () => toggle('skills', x) }
+            }),
         },
         {
             key: 'places',
@@ -226,9 +233,10 @@ export default function PreferencesFlow() {
                                             key={o.label}
                                             type="button"
                                             aria-pressed={o.on}
+                                            disabled={o.off}
                                             onClick={o.pick}
                                             className={cn(
-                                                'h-10 cursor-pointer rounded-full border px-3.5 text-sm',
+                                                'h-10 cursor-pointer rounded-full border px-3.5 text-sm disabled:cursor-not-allowed disabled:opacity-40',
                                                 o.on
                                                     ? 'border-ink bg-ink font-semibold text-white'
                                                     : 'border-line-strong bg-white font-medium text-ink-2 hover:border-ink-4',
@@ -239,6 +247,7 @@ export default function PreferencesFlow() {
                                         </button>
                                     ))}
                                 </div>
+                                {q.hint ? <p className="m-0 text-[12.5px] text-ink-3">{q.hint}</p> : null}
                             </section>
                         )
                     })}
