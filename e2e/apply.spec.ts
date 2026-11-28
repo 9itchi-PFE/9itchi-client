@@ -49,6 +49,7 @@ test('the letter is sent from Gmail once the student says they read it', async (
     await openLetter(page)
     const send = page.getByRole('button', { name: `Envoyer à ${offer.company}` })
     await expect(send).toBeDisabled()
+    await expect(page.getByLabel('Nom de la lettre de motivation')).toHaveValue('Lettre_de_motivation_Prénom_Nom')
 
     await page.getByText('J’ai relu ma lettre et elle dit ce que je veux.').click()
     await send.click()
@@ -57,6 +58,25 @@ test('the letter is sent from Gmail once the student says they read it', async (
     expect(body).toMatchObject({ job_id: offer.id, resume_id: RESUME_ID, subject: letter.subject })
     expect(body.body).toContain('Je vous écris pour le sujet proposé.')
     expect(body.scheduled_at).toBeUndefined()
+    expect(body).toMatchObject({ letter_filename: 'Lettre_de_motivation_Prénom_Nom', attach_letter: true, language: 'fr' })
+})
+
+test('the CV goes under its name and the cover letter under the name the student types', async ({ page }) => {
+    const seen = await mockServices(page, base())
+    await openLetter(page)
+    await expect(page.getByText('CV Prénom Nom.pdf')).toBeVisible()
+    const name = page.getByLabel('Nom de la lettre de motivation')
+    await expect(name).toHaveValue('Lettre_de_motivation_Prénom_Nom')
+    await name.fill('cv prénom nom')
+    await expect(page.getByText('Choisis un nom différent de celui du CV.')).toBeVisible()
+    await name.fill('Lettre PFE Alpha')
+
+    await page.getByText('J’ai relu ma lettre et elle dit ce que je veux.').click()
+    await page.getByRole('button', { name: `Envoyer à ${offer.company}` }).click()
+    await expect(page.getByRole('heading', { name: `Envoyée à ${offer.company}` })).toBeVisible()
+    const body = seen.find((r) => r.method === 'POST' && r.path === '/email/applications')?.body as Record<string, unknown>
+    expect(body).toMatchObject({ letter_filename: 'Lettre PFE Alpha', attach_letter: true })
+    expect(body).not.toHaveProperty('cv_filename')
 })
 
 test('a scheduled application carries its time', async ({ page }) => {

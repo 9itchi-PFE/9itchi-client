@@ -17,8 +17,11 @@ import { Modal } from '@/components/ui/Modal'
 import { Segmented } from '@/components/ui/Segmented'
 import { useToast } from '@/components/ui/Toast'
 import { Select } from '@/components/ui/Select'
+import AttachmentFields from '@/components/outreach/AttachmentFields'
+import { firstChoice, letterFields, letterStem, sameName, type LetterChoice } from '@/components/outreach/attachments'
 import { useMe } from '@/hooks/useAccount'
 import { useAllowance, useApplications, useApply, useDraft, useGmailStatus } from '@/hooks/useApplications'
+import { useAttachmentNames } from '@/hooks/useEmails'
 import { useJob, useSimilarJobs } from '@/hooks/useJobs'
 import { useMyCv, useResume, useResumes } from '@/hooks/useResumes'
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog'
@@ -248,6 +251,7 @@ export default function ApplyScreen({ id }: { id: string }) {
     const { user } = useSessionContext()
     const me = useMe()
     const ts = useTranslations('settings')
+    const tm = useTranslations('outreach.composer')
 
     const jobQ = useJob(id)
     const job = jobQ.data
@@ -284,6 +288,9 @@ export default function ApplyScreen({ id }: { id: string }) {
     // byEmail: an offer with no application address, sent from Gmail to the address the student found.
     const [byEmail, setByEmail] = useState(false)
     const [to, setTo] = useState('')
+    // letter: the cover letter PDF that goes with the email, under the default name until the student types one.
+    const [letter, setLetter] = useState<LetterChoice>(firstChoice)
+    const names = useAttachmentNames(cv, language)
     const edited = useRef(false)
 
     // Back from Google: the letter the student left with is put back instead of being written again.
@@ -310,6 +317,7 @@ export default function ApplyScreen({ id }: { id: string }) {
             setTo(p.to)
             setByEmail(true)
         }
+        if (p.letter) setLetter(p.letter)
         edited.current = true
         if (p.at) {
             setSlot('custom')
@@ -448,7 +456,9 @@ export default function ApplyScreen({ id }: { id: string }) {
     const suggested = slots()
     const at = !later ? null : slot === 'custom' ? (custom ? new Date(custom) : null) : (suggested.find((s) => s.key === slot)?.at ?? null)
     const timeOk = !later || validTime(at)
-    const ready = read && timeOk && !!subject.trim() && paras.some((p) => p.trim()) && (!onSite || validEmail(to))
+    const cvFilename = names.data?.cv_filename ?? ''
+    const letterSame = letter.attach && sameName(letterStem(letter, names.data), cvFilename)
+    const ready = read && timeOk && !!subject.trim() && paras.some((p) => p.trim()) && (!onSite || validEmail(to)) && !letterSame
     const sig = signature(me.data, (y) => ts(`years.${y}` as 'years.l3'))
     const body = compose(paras, own, sig)
     const ownAt = ownIndex(paras)
@@ -467,6 +477,7 @@ export default function ApplyScreen({ id }: { id: string }) {
             allowance.refetch()
             setModal('plan')
         } else if (kind === 'noFile') toast(t('noFile'))
+        else if (kind === 'letterFailed' || kind === 'tooLarge') toast(tm(kind))
         else if (kind === 'gmail') setModal('gmail')
         else if (kind === 'noEmail') {
             setSelf(true)
@@ -489,6 +500,7 @@ export default function ApplyScreen({ id }: { id: string }) {
                 subject: subject.trim(),
                 body,
                 scheduled_at: at ? at.toISOString() : undefined,
+                ...letterFields(letter, names.data, language),
             })
             setSent({ app, later: app.status === 'scheduled' ? at : null })
         } catch (e) {
@@ -510,6 +522,7 @@ export default function ApplyScreen({ id }: { id: string }) {
             at: at && later ? localInput(at) : '',
             cv: letterCv || cv,
             to: onSite ? to.trim() : undefined,
+            letter,
         })
         setBusy(true)
         try {
@@ -850,6 +863,7 @@ export default function ApplyScreen({ id }: { id: string }) {
                                 <Line ok title={t('lineLetter')} hint={t('lineLetterHint')} />
                                 <Line ok={!!sentence(own)} title={t('lineOwn')} hint={sentence(own) ? t('lineOwnDone') : t('lineOwnHint')} />
                             </ul>
+                            <AttachmentFields cvFilename={cvFilename} names={names.data} value={letter} onChange={setLetter} disabled={busy} />
                             <label className="flex cursor-pointer items-start gap-3 rounded-xl bg-fill-3 p-3.5 text-sm leading-[1.5]">
                                 <input
                                     type="checkbox"

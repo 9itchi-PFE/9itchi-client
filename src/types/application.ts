@@ -4,7 +4,23 @@ export type EmailStatus = 'draft' | 'scheduled' | 'sending' | 'sent' | 'failed' 
 
 export type EmailBrief = { id: string; recipient: string; subject: string; status: EmailStatus; scheduled_at: string | null; sent_at: string | null }
 
-export type Email = EmailBrief & { job_id: string | null; resume_id: string | null; body: string; created_at: string }
+// letter_filename is the cover letter's file name stem (null: the default); attach_letter false: no letter PDF.
+export type Email = EmailBrief & {
+    job_id: string | null
+    resume_id: string | null
+    body: string
+    created_at: string
+    letter_filename?: string | null
+    attach_letter?: boolean
+    letter_language?: LetterLanguage | null
+}
+
+// AttachmentNames are the files an email will carry (GET /emails/attachment-names): cv_filename '' without a CV;
+// letter_filename is a stem, the client adds .pdf.
+export type AttachmentNames = { cv_filename: string; letter_filename: string }
+
+// LetterFields go with a send: the cover letter's file name (stem), whether it is attached and the letter's language.
+export type LetterFields = { letter_filename?: string; attach_letter?: boolean; language?: LetterLanguage }
 
 // Allowance is what the plan lets the student send through 9itchi. plan: the CV built in 9itchi, limit per month;
 // original: no subscription, the imported file, limit over the life of the account; none: nothing. limit null: none.
@@ -61,7 +77,7 @@ export type FollowUpDraftInput = { language: LetterLanguage; tone?: Tone; fresh?
 
 export type ApplicationList = { items: Application[] }
 
-export type ApplyInput = { job_id: string; resume_id?: string; via?: Via; to?: string; subject?: string; body?: string; scheduled_at?: string }
+export type ApplyInput = LetterFields & { job_id: string; resume_id?: string; via?: Via; to?: string; subject?: string; body?: string; scheduled_at?: string }
 
 export type Tone = 'formal' | 'friendly'
 export type LetterLanguage = 'fr' | 'en' | 'ar'

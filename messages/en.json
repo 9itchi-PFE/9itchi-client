@@ -100,6 +100,13 @@
                 "low": "Unsure {value}%"
             }
         },
+        "attachments": {
+            "cvName": "Attached CV:",
+            "letterName": "Cover letter file name",
+            "attachLetter": "Attach my cover letter as a PDF",
+            "nameHint": "You rename the CV in the CV section.",
+            "sameName": "Pick a name different from the CV’s."
+        },
         "composer": {
             "to": "To",
             "language": "Language",
@@ -130,7 +137,9 @@
             "sentToast": "Email sent to {email}",
             "scheduledToast": "Email scheduled",
             "sentTitle": "Email sent",
-            "scheduledTitle": "Email scheduled"
+            "scheduledTitle": "Email scheduled",
+            "letterFailed": "The cover letter could not be attached. Try again.",
+            "tooLarge": "The attachments are over Gmail’s limit (25 MB)."
         },
         "scheduled": {
             "title": "Scheduled and sent",

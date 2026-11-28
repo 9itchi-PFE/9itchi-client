@@ -1,5 +1,5 @@
 // email-api: recruiters a student finds (Recruiter Radar) and emails written from an offer link.
-import type { LetterLanguage, Tone } from './application'
+import type { LetterFields, LetterLanguage, Tone } from './application'
 
 export type Recruiter = {
     id: string
@@ -66,8 +66,9 @@ export type LinkDraft = {
     offer: { source: string; title: string; company: string }
 }
 
-// EmailEdit is what changes in a scheduled email (PATCH /emails/:id); absent fields stay as they are.
-export type EmailEdit = { to?: string; subject?: string; body?: string; scheduled_at?: string; attach_cv?: boolean; resume_id?: string }
+// EmailEdit is what changes in a scheduled email (PATCH /emails/:id); absent fields stay as they are,
+// letter_filename '' goes back to the default name.
+export type EmailEdit = LetterFields & { to?: string; subject?: string; body?: string; scheduled_at?: string; attach_cv?: boolean; resume_id?: string }
 
 // OutgoingEmail is POST /emails and /emails/schedule; no resume_id: no CV attached.
-export type OutgoingEmail = { job_id?: string; resume_id?: string; to: string; subject: string; body: string; scheduled_at?: string }
+export type OutgoingEmail = LetterFields & { job_id?: string; resume_id?: string; to: string; subject: string; body: string; scheduled_at?: string }
