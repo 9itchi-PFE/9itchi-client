@@ -26,7 +26,16 @@ const SignIn = () => {
         const form = new FormData(e.currentTarget)
         setBusy(true)
         setError('')
-        const res = await signIn('credentials', { email: form.get('email'), password: form.get('password'), redirect: false })
+        const email = String(form.get('email') ?? '').trim()
+        const res = await signIn('credentials', { email, password: form.get('password'), redirect: false })
+        if (res?.code === 'email_not_verified') {
+            // A fresh code is already on its way: the next screen asks for it, then opens the page asked for.
+            const next = new URLSearchParams({ email })
+            const callback = params.get(REDIRECT_URL_KEY)
+            if (callback) next.set(REDIRECT_URL_KEY, callback)
+            router.push(`/auth/verify-email?${next}`)
+            return
+        }
         if (!res || res.error) {
             setBusy(false)
             setError(res?.error === 'CredentialsSignin' ? t('errCredentials') : t('errGeneric'))

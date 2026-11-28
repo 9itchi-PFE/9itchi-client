@@ -4,13 +4,11 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useLocale, useTranslations } from 'next-intl'
-import { signIn } from 'next-auth/react'
 import axios from 'axios'
 import AuthService from '@/services/AuthService'
 import { useSchools } from '@/hooks/useSchools'
 import { schoolChoices, schoolLabel } from '@/lib/schools'
 import { AuthField, AuthHeading, AuthSelect, FormError, SsoButtons, submitClass } from '../shared/AuthForm'
-import AuthLoading from '../shared/AuthLoading'
 
 // strongPassword mirrors account-api: 8 to 72 characters with an upper case letter, a lower case letter, a digit.
 export const strongPassword = (p: string) => p.length >= 8 && p.length <= 72 && /\p{Lu}/u.test(p) && /\p{Ll}/u.test(p) && /\p{Nd}/u.test(p)
@@ -23,7 +21,6 @@ const SignUp = () => {
     const router = useRouter()
     const [errors, setErrors] = useState<Errors>({})
     const [busy, setBusy] = useState(false)
-    const [opening, setOpening] = useState(false)
     // The list comes from account-api; while it loads (or if it cannot be read) the student can still pick « Other ».
     const schools = useSchools().data ?? []
 
@@ -42,12 +39,9 @@ const SignUp = () => {
         if (Object.keys(next).length) return
         setBusy(true)
         try {
-            const { data } = await AuthService.signUp({ name, email, password, school, language: locale })
-            const res = await signIn('tokens', { access_token: data.access_token, refresh_token: data.refresh_token, redirect: false })
-            if (!res || res.error) throw new Error('sign-in after sign-up')
-            setOpening(true)
-            // A new student starts with the CV (screen 1.2).
-            router.replace('/resumes/upload')
+            await AuthService.signUp({ name, email, password, school, language: locale })
+            // No session yet: account-api emailed a 6-digit code, the next screen asks for it.
+            router.push(`/auth/verify-email?${new URLSearchParams({ email, new: '1' })}`)
         } catch (err) {
             const status = axios.isAxiosError(err) ? err.response?.status : undefined
             const message = axios.isAxiosError(err) ? String(err.response?.data?.error ?? '') : ''
@@ -64,7 +58,6 @@ const SignUp = () => {
         }
     }
 
-    if (opening) return <AuthLoading title={t('signupOpening')} text={t('signupOpeningText')} />
     return (
         <>
             <AuthHeading title={t('signupTitle')} subtitle={t('signupSubtitle')} switchLabel={t('signupSwitch')} switchHref="/auth/signin" />

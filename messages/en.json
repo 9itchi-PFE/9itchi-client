@@ -973,6 +973,14 @@
         "errCode": "This code is not valid or has expired.",
         "back": "Back to sign in",
         "haveCode": "I already have a code",
+        "verifyTitle": "Confirm your email",
+        "verifyText": "We sent a 6-digit code to <b>{email}</b>. Enter it to activate your account. It stays valid for 15 minutes.",
+        "verifyTextNoEmail": "Enter your email and the 6-digit code you received to activate your account.",
+        "verifyButton": "Activate my account",
+        "verifying": "Checking…",
+        "verifyResend": "Send the code again",
+        "verifyResendIn": "Send the code again in {seconds} s",
+        "verifyResent": "A new code is on its way. Check your spam folder too.",
         "schools": {
             "OTHER": "Other school"
         }
