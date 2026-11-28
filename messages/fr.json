@@ -172,6 +172,7 @@
                 "other": "Autre site"
             },
             "linkedinNote": "Les pages LinkedIn ne peuvent pas être lues : tu colleras le texte de l’offre.",
+            "sites": "Lues directement depuis le lien : Tanitjobs, Keejob et les pages carrières des entreprises (Lever, Greenhouse, Workable, SmartRecruiters, Recruitee…). LinkedIn, Indeed et les autres sites : utilise le bouton « Envoyer à 9itchi ».",
             "pasteTitle": "Colle le texte de l’offre",
             "pasteHint": "Cette page n’a pas pu être lue. Copie l’offre et colle-la ici.",
             "resume": "CV",
@@ -204,7 +205,8 @@
             "send": {
                 "title": "Bouton « Envoyer à 9itchi »",
                 "hint": "Glissez ce bouton dans votre barre de favoris. Sur n’importe quelle offre (LinkedIn compris), cliquez dessus : l’offre arrive ici avec son texte, prête pour votre email.",
-                "button": "Envoyer à 9itchi"
+                "button": "Envoyer à 9itchi",
+                "click": "Glisse ce bouton dans ta barre de favoris (Ctrl+Maj+B l’affiche), puis clique dessus sur la page de l’offre."
             }
         },
         "progress": {

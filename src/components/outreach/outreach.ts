@@ -54,7 +54,8 @@ export function offerFromHash(hash: string): { url: string; text: string } | nul
 export function bookmarklet(origin: string): string {
     const js =
         "(function(){var s=String(window.getSelection()||'').trim();" +
-        "var m=document.querySelector('.jobs-description,.jobs-search__job-details,.job-view-layout,[class*=job-description],[class*=jobDescription],main,article')||document.body;" +
+        // LinkedIn's search-results page keeps the offer in #JobDetails_AboutTheJob_<id>, outside its <main> (the list).
+        "var m=document.querySelector('[id^=JobDetails_AboutTheJob],.jobs-description,.jobs-search__job-details,.job-view-layout,[class*=job-description],[class*=jobDescription],main,article')||document.body;" +
         "var t=s.length>200?s:document.title+'\\n\\n'+m.innerText;" +
         `window.open(${JSON.stringify(origin + '/outreach/link')}+'#u='+encodeURIComponent(location.href)+'&t='+encodeURIComponent(t.slice(0,20000)),'_blank')})()`
     return 'javascript:' + encodeURIComponent(js)

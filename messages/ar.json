@@ -172,6 +172,7 @@
                 "other": "موقع آخر"
             },
             "linkedinNote": "لا يمكن قراءة صفحات LinkedIn: ستلصق نص العرض.",
+            "sites": "تُقرأ مباشرة من الرابط: Tanitjobs وKeejob وصفحات التوظيف للشركات (Lever وGreenhouse وWorkable وSmartRecruiters وRecruitee…). LinkedIn وIndeed والمواقع الأخرى: استعمل زر « أرسل إلى 9itchi ».",
             "pasteTitle": "الصق نص العرض",
             "pasteHint": "تعذرت قراءة هذه الصفحة. انسخ العرض منها والصقه هنا.",
             "resume": "السيرة الذاتية",
@@ -204,7 +205,8 @@
             "send": {
                 "title": "زر « أرسل إلى 9itchi »",
                 "hint": "اسحب هذا الزر إلى شريط المفضلة. في أي صفحة عرض (بما فيها LinkedIn)، اضغط عليه: يصل العرض إلى هنا مع نصه، جاهزًا لكتابة رسالتك.",
-                "button": "أرسل إلى 9itchi"
+                "button": "أرسل إلى 9itchi",
+                "click": "اسحب هذا الزر إلى شريط المفضلة (Ctrl+Shift+B يُظهره)، ثم اضغط عليه في صفحة العرض."
             }
         },
         "progress": {

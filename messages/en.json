@@ -172,6 +172,7 @@
                 "other": "Other site"
             },
             "linkedinNote": "LinkedIn pages cannot be read: you will paste the offer text.",
+            "sites": "Read straight from the link: Tanitjobs, Keejob and company career pages (Lever, Greenhouse, Workable, SmartRecruiters, Recruitee…). LinkedIn, Indeed and other sites: use the « Send to 9itchi » button.",
             "pasteTitle": "Paste the offer text",
             "pasteHint": "This page could not be read. Copy the offer from it and paste it here.",
             "resume": "Resume",
@@ -204,7 +205,8 @@
             "send": {
                 "title": "“Send to 9itchi” button",
                 "hint": "Drag this button to your bookmarks bar. On any offer page (LinkedIn included), click it: the offer comes here with its text, ready to write your email.",
-                "button": "Send to 9itchi"
+                "button": "Send to 9itchi",
+                "click": "Drag this button to your bookmarks bar (Ctrl+Shift+B shows it), then click it on the offer page."
             }
         },
         "progress": {
