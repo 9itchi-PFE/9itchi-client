@@ -10,7 +10,7 @@ import { forecast, ownSpend, type Balance, type Forecast } from './forecast'
 import { Kpi } from './SourcesScreen'
 
 const card = 'flex flex-col gap-4 rounded-[22px] border border-line bg-white p-5'
-const SOURCES: ProspectSource[] = ['website', 'hunter', 'apollo', 'offer', 'import']
+const SOURCES: ProspectSource[] = ['website', 'hunter', 'apollo', 'quickenrich', 'offer', 'import']
 // Two series checked with the dataviz validator on white: violet = served from the pool, orange = found by the search.
 const POOL = 'bg-violet'
 const FOUND = 'bg-[#E8703A]'
