@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useLocale, useTranslations } from 'next-intl'
 import { isAxiosError } from 'axios'
 import { Button } from '@/components/ui/Button'
@@ -39,11 +39,9 @@ export default function LinkScreen() {
     const [result, setResult] = useState<{ draft: LinkDraft; url: string; text: string } | null>(null)
     const [to, setTo] = useState('')
     const [appHost, setAppHost] = useState<string | undefined>()
-    const button = useRef<HTMLAnchorElement>(null)
+    const [showHow, setShowHow] = useState(false)
     useEffect(() => {
         setAppHost(window.location.hostname)
-        // React refuses javascript: links in JSX: the bookmark's link is set on the element.
-        button.current?.setAttribute('href', bookmarklet(window.location.origin))
         const sent = offerFromHash(window.location.hash)
         if (!sent) return
         window.history.replaceState(null, '', window.location.pathname + window.location.search)
@@ -164,6 +162,30 @@ export default function LinkScreen() {
                         />
                     </label>
                     {sourceChip}
+                    <p className="m-0 text-[12.5px] text-ink-3">{t('sites')}</p>
+
+                    <div className="hidden flex-col gap-2 rounded-[16px] border border-line-soft bg-fill-3 p-3.5 sm:flex">
+                        <strong className="text-[15px]">{t('send.title')}</strong>
+                        <span className="text-[13.5px] text-ink-3">{t('send.hint')}</span>
+                        <a
+                            // React refuses javascript: links in JSX: the bookmark's link is set on the element, again on each mount.
+                            ref={(a) => a?.setAttribute('href', bookmarklet(window.location.origin))}
+                            draggable
+                            onClick={(e) => {
+                                // Here it only explains itself: it works once dragged to the bookmarks bar, on an offer page.
+                                e.preventDefault()
+                                setShowHow(true)
+                            }}
+                            className="inline-flex h-9 cursor-grab items-center gap-1.5 self-start rounded-full bg-ink px-3.5 text-[13.5px] font-semibold text-lime"
+                        >
+                            <Icon name="link" size={14} /> {t('send.button')}
+                        </a>
+                        {showHow ? (
+                            <span role="status" className="text-[13px] font-medium text-ink-2">
+                                {t('send.click')}
+                            </span>
+                        ) : null}
+                    </div>
 
                     {askText ? (
                         <label className={label}>
@@ -227,20 +249,6 @@ export default function LinkScreen() {
                 </form>
             )}
 
-            {result ? null : (
-                <section className="hidden flex-col gap-2 rounded-[16px] border border-line-soft bg-fill-3 p-3.5 sm:flex">
-                    <strong className="text-[15px]">{t('send.title')}</strong>
-                    <span className="text-[13.5px] text-ink-3">{t('send.hint')}</span>
-                    <a
-                        ref={button}
-                        draggable
-                        onClick={(e) => e.preventDefault()}
-                        className="inline-flex h-9 cursor-grab items-center gap-1.5 self-start rounded-full bg-ink px-3.5 text-[13.5px] font-semibold text-lime"
-                    >
-                        <Icon name="link" size={14} /> {t('send.button')}
-                    </a>
-                </section>
-            )}
         </main>
     )
 }

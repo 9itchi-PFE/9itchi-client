@@ -30,6 +30,18 @@ test('nobody at the company says the search was not counted', async ({ page }) =
     await expect(page.getByText('Personne n’a été trouvé dans cette entreprise. Aucune recherche n’a été comptée.')).toBeVisible()
 })
 
+test('the « Send to 9itchi » button sits under the link field and explains itself when clicked here', async ({ page }) => {
+    await mockServices(page)
+    await signIn(page, STUDENT)
+    await page.goto('/outreach/link')
+    const button = page.getByRole('link', { name: 'Envoyer à 9itchi' })
+    await expect(button).toHaveAttribute('href', /^javascript:/)
+    await expect(page.getByText(/Lues directement depuis le lien/)).toBeVisible()
+    await button.click()
+    await expect(page.getByRole('status').filter({ hasText: 'barre de favoris' })).toBeVisible()
+    await expect(page).toHaveURL(/\/outreach\/link$/)
+})
+
 test('the « Send to 9itchi » button brings the link and the text, and the company can be typed', async ({ page }) => {
     const seen = await mockServices(page)
     await signIn(page, STUDENT)

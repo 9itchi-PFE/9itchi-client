@@ -158,6 +158,7 @@ describe('offerLink and offerFromHash', () => {
         const code = decodeURIComponent(js.slice('javascript:'.length))
         expect(code).toContain('"https://9itchi-pfe.com/outreach/link"')
         expect(code).toContain("'#u='+encodeURIComponent(location.href)")
+        expect(code).toContain('[id^=JobDetails_AboutTheJob]')
         expect(() => new Function(code)).not.toThrow()
     })
 })
