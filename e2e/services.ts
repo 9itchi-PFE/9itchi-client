@@ -112,6 +112,18 @@ const defaults = (): Answers => ({
         school: 'ENIS',
         language: 'fr',
     },
+    'GET /account/schools': {
+        items: [
+            { code: 'ENIS', name_fr: 'ENIS — École Nationale d’Ingénieurs de Sfax', name_en: 'ENIS — National Engineering School of Sfax', name_ar: 'ENIS — المدرسة الوطنية للمهندسين بصفاقس' },
+            {
+                code: 'ENETCOM',
+                name_fr: 'ENET’Com — École Nationale d’Électronique et des Télécommunications de Sfax',
+                name_en: 'ENET’Com — National School of Electronics and Telecoms of Sfax',
+                name_ar: 'ENET’Com — المدرسة الوطنية للإلكترونيك والاتصالات بصفاقس',
+            },
+            { code: 'ENSI', name_fr: 'ENSI — École Nationale des Sciences de l’Informatique', name_en: 'ENSI — National School of Computer Science', name_ar: 'ENSI — المدرسة الوطنية لعلوم الإعلامية' },
+        ],
+    },
     'GET /job/jobs': { items: JOBS, total: JOBS.length, page: 1, page_size: 20 },
     'GET /job/jobs/counts': { open: 2, for_you: 2, saved: 0, new_today: 1 },
     'GET /job/preferences': [404, { error: 'not found' }],

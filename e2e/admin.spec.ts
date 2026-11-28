@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Request } from '@playwright/test'
 import { ADMIN, mockServices, signIn } from './services'
 
 const templates = [
@@ -36,6 +36,44 @@ test('with one template published, it cannot be withdrawn', async ({ page }) => 
     const classic = page.getByRole('listitem').filter({ hasText: 'Classique' })
     await expect(classic.getByRole('button', { name: 'Retirer' })).toBeDisabled()
     await expect(classic.getByText('Dernier modèle publié : il en faut toujours un.')).toBeVisible()
+})
+
+test('the team adds, renames and removes a school', async ({ page }) => {
+    const seen = await mockServices(page, {
+        'POST /account/admin/schools': (req: Request) => req.postDataJSON(),
+        'PUT /account/admin/schools/ENSI': (req: Request) => ({ code: 'ENSI', ...req.postDataJSON() }),
+        'DELETE /account/admin/schools/ENIS': {},
+    })
+    await signIn(page, ADMIN)
+    await page.getByRole('link', { name: 'Écoles' }).click()
+    await expect(page.getByRole('heading', { name: 'Écoles', level: 1 })).toBeVisible()
+    await expect(page.getByText('3 écoles')).toBeVisible()
+    await expect(page.getByText('ENET’Com — École Nationale d’Électronique et des Télécommunications de Sfax')).toBeVisible()
+
+    await page.getByRole('button', { name: 'Ajouter une école' }).click()
+    await page.getByLabel('Code').fill('bad code')
+    await page.getByLabel('Nom en français').fill('Nouvelle école')
+    await page.getByLabel('Nom en anglais').fill('New school')
+    await page.getByLabel('Nom en arabe').fill('مدرسة جديدة')
+    await page.getByRole('button', { name: 'Enregistrer' }).click()
+    await expect(page.getByText('Le code doit faire 2 à 20 caractères')).toBeVisible()
+    expect(seen.filter((r) => r.method === 'POST')).toHaveLength(0)
+    await page.getByLabel('Code').fill('nouv-1')
+    await page.getByRole('button', { name: 'Enregistrer' }).click()
+    await expect(page.getByText('École enregistrée')).toBeVisible()
+    expect(seen.find((r) => r.method === 'POST')?.body).toEqual({ code: 'NOUV-1', name_fr: 'Nouvelle école', name_en: 'New school', name_ar: 'مدرسة جديدة' })
+
+    await page.getByRole('button', { name: 'Modifier ENSI' }).click()
+    await expect(page.getByLabel('Code')).toHaveAttribute('readonly', '')
+    await page.getByLabel('Nom en anglais').fill('National School of Computer Sciences')
+    await page.getByRole('button', { name: 'Enregistrer' }).click()
+    await expect(page.getByText('École enregistrée')).toBeVisible()
+    expect(seen.find((r) => r.method === 'PUT')?.body).toMatchObject({ name_en: 'National School of Computer Sciences' })
+
+    await page.getByRole('button', { name: 'Retirer ENIS' }).click()
+    await page.getByRole('alertdialog').getByRole('button', { name: 'Retirer' }).click()
+    await expect(page.getByText('École retirée')).toBeVisible()
+    expect(seen.some((r) => r.method === 'DELETE' && r.path === '/account/admin/schools/ENIS')).toBe(true)
 })
 
 test('the overview and the statistics show the replies the students marked', async ({ page }) => {
