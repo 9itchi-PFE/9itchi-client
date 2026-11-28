@@ -1,5 +1,37 @@
 import { describe, expect, it } from 'vitest'
-import { PAGE_SIZE, pages, refund, studentId, studentsQuery } from '@/components/admin/students'
+import { PAGE_SIZE, emailUsageRows, pages, refund, resumeUsageRows, studentId, studentsQuery } from '@/components/admin/students'
+
+describe('usage rows', () => {
+    const item = (used: number, limit: number | null) => ({ used, limit })
+
+    it('says how full each limit is', () => {
+        const [resumes, downloads, rewrites] = resumeUsageRows({ resumes: item(1, 3), downloads: item(4, 5), ai_rewrites: item(5, 5) })
+        expect(resumes).toMatchObject({ key: 'resumes', period: 'account', level: 'ok', percent: 33 })
+        expect(downloads).toMatchObject({ key: 'downloads', period: 'subscription', level: 'near', percent: 80 })
+        expect(rewrites).toMatchObject({ key: 'aiRewrites', period: 'month', level: 'full', percent: 100 })
+    })
+
+    it('tells a plan with no limit from one that allows nothing', () => {
+        const [resumes, downloads] = resumeUsageRows({ resumes: item(2, null), downloads: item(0, 0), ai_rewrites: item(0, null) })
+        expect(resumes).toMatchObject({ level: 'unlimited', limit: null, percent: 0 })
+        expect(downloads).toMatchObject({ level: 'none', limit: 0, percent: 0 })
+    })
+
+    it('counts applications over the month with a plan, over the account without one, and none when the plan sends nothing', () => {
+        const rest = { ai_drafts: item(0, 5), ai_matches: item(0, 5), ai_scores: item(0, 15), recruiter_searches: item(0, 6) }
+        const first = (applications: { mode: string; used: number; limit: number | null }) => emailUsageRows({ ...rest, applications })[0]
+        expect(first({ mode: 'plan', used: 3, limit: 30 })).toMatchObject({ period: 'month', limit: 30, level: 'ok' })
+        expect(first({ mode: 'original', used: 3, limit: 3 })).toMatchObject({ period: 'account', level: 'full' })
+        expect(first({ mode: 'none', used: 0, limit: null })).toMatchObject({ level: 'none', limit: 0 })
+        expect(emailUsageRows({ ...rest, applications: { mode: 'plan', used: 0, limit: null } }).map((r) => [r.key, r.period])).toEqual([
+            ['applications', 'month'],
+            ['aiDrafts', 'month'],
+            ['aiMatches', 'month'],
+            ['aiScores', 'day'],
+            ['recruiterSearches', 'day'],
+        ])
+    })
+})
 
 describe('studentsQuery', () => {
     it('asks for students only, with the search trimmed and the filters that are set', () => {

@@ -28,7 +28,7 @@ import type {
     RecruiterSearchInput,
 } from '@/types/recruiter'
 import type { ProspectStats } from '@/types/prospects'
-import type { LastUse } from '@/types/user'
+import type { EmailUsage, LastUse } from '@/types/user'
 import { api } from './ApiService'
 
 const e = () => api('email')
@@ -80,6 +80,8 @@ const EmailService = {
     userApplications: (userId: string) => e().get<ApplicationList>(`/admin/users/${userId}/applications`),
     // userBuiltSends is how many applications a student sent with the CV built in 9itchi, and the last time (admin).
     userBuiltSends: (userId: string) => e().get<LastUse>(`/admin/users/${userId}/sent-with-cv`),
+    // userUsage is how much of the plan a student used here: applications, AI letters, analyses, scores, searches (admin).
+    userUsage: (userId: string) => e().get<EmailUsage>(`/admin/users/${userId}/usage`),
     userGmail: (userId: string) => e().get<GmailStatus>(`/admin/users/${userId}/gmail`),
     updateApplication: (id: string, status: 'sent' | 'replied' | 'withdrawn' | 'closed') => e().patch<Application>(`/applications/${id}`, { status }),
     sendApplicationNow: (id: string) => e().post<Application>(`/applications/${id}/send`),

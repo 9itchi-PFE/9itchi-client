@@ -28,6 +28,24 @@ export type LastUse = { count: number; last_at: string | null }
 // UserCV is where a student's CV stands for the team: counts only (resume-api).
 export type UserCV = { resume_id: string; title: string; resumes: number; version: number; passed: number; total: number; to_fix: number; updated_at: string }
 
+// UsageItem is one limit of the plan and how much of it a student used; limit null: the plan sets none.
+export type UsageItem = { limit: number | null; used: number }
+
+// EmailUsage is a student's use of the plan in email-api. Applications: mode "plan" counts the month, "original"
+// (no subscription) the life of the account, "none" the plan sends nothing (its limit is null). AI scores and
+// recruiter searches count per Tunis day, the rest per month.
+export type EmailUsage = {
+    applications: UsageItem & { mode: 'plan' | 'original' | 'none' | (string & {}) }
+    ai_drafts: UsageItem
+    ai_matches: UsageItem
+    ai_scores: UsageItem
+    recruiter_searches: UsageItem
+}
+
+// ResumeUsage is a student's use of the plan in resume-api: CVs over the life of the account, downloads over the
+// current period of the subscription, AI rewrites per month.
+export type ResumeUsage = { resumes: UsageItem; downloads: UsageItem; ai_rewrites: UsageItem }
+
 // Me is the signed-in student's own account, as account-api returns it.
 export const YEARS = ['l3', 'm1', 'm2', 'ing1', 'ing2', 'ing3', 'other'] as const
 export type Year = (typeof YEARS)[number]

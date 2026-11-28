@@ -1470,6 +1470,28 @@
         "sGiftsValue": "{count} · last on {day, date, ::dMMMy}",
         "sUnknown": "Not read",
         "sSubscriber": "{state} · subscriber",
+        "sUsage": "Usage and limits",
+        "usageHint": "What the student used of what their plan allows. Each count follows the period of its limit.",
+        "usageOf": "{used} of {limit}",
+        "usageUnlimited": "{used} · no limit",
+        "usageFull": "Limit reached",
+        "usageNone": "Not in the plan",
+        "usageKey": {
+            "resumes": "CVs",
+            "downloads": "CV downloads",
+            "aiRewrites": "AI rewrites of a CV line",
+            "applications": "Applications sent from 9itchi",
+            "aiDrafts": "Letters written by the AI",
+            "aiMatches": "AI analyses of an offer",
+            "aiScores": "Quick AI scores of offers",
+            "recruiterSearches": "Recruiter searches"
+        },
+        "usagePeriod": {
+            "month": "This month",
+            "day": "Today (Tunis time)",
+            "account": "Over the life of the account",
+            "subscription": "Current subscription period"
+        },
         "sApplications": "Applications",
         "sNoApplications": "No application yet.",
         "sPartError": "This part could not be read.",

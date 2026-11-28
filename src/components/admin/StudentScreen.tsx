@@ -20,10 +20,12 @@ import {
     useStudentBuiltSends,
     useStudentCV,
     useStudentDownloads,
+    useStudentEmailUsage,
     useStudentGifts,
     useStudentGmail,
     useStudentNote,
     useStudentPayments,
+    useStudentResumeUsage,
     useStudentSubscription,
     useSuspendUser,
 } from '@/hooks/useAdminUsers'
@@ -32,7 +34,7 @@ import { cn } from '@/lib/cn'
 import type { Application, ApplicationStatus } from '@/types/application'
 import { apiError } from './SourcesScreen'
 import { statusPill } from './StudentsScreen'
-import { refund, studentId, type Refund } from './students'
+import { emailUsageRows, refund, resumeUsageRows, studentId, type Refund, type UsageLevel, type UsageRow } from './students'
 
 function Row({ label, children }: { label: string; children: ReactNode }) {
     return (
@@ -60,6 +62,82 @@ const sentOn = (a: Application) => a.email?.sent_at ?? (a.status === 'scheduled'
 const panel = 'flex flex-col gap-4 rounded-[22px] border border-line bg-white p-5'
 const head = 'rounded-[10px] bg-fill-3 py-2.5 text-[13px] font-semibold text-ink-3'
 const line = 'border-b border-line-soft py-3.5 text-[14.5px]'
+
+const barColor: Record<UsageLevel, string> = { unlimited: '', none: '', ok: 'bg-violet', near: 'bg-ember', full: 'bg-[#B42318]' }
+
+function UsageLine({ row }: { row: UsageRow }) {
+    const t = useTranslations('admin')
+    const format = useFormatter()
+    const label = t(`usageKey.${row.key}`)
+    return (
+        <li className="flex flex-col gap-2 border-b border-line-soft py-3.5 last:border-b-0">
+            <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
+                <span className="min-w-0">
+                    <span className="block text-[14.5px] font-bold">{label}</span>
+                    <span className="block text-xs text-ink-3">{t(`usagePeriod.${row.period}`)}</span>
+                </span>
+                <span className="flex flex-wrap items-center justify-end gap-2 text-[14.5px] tabular-nums">
+                    {row.level === 'full' ? (
+                        <span className="rounded-full bg-[#FEF3F2] px-2.5 py-[3px] text-[13px] font-semibold text-[#B42318]">{t('usageFull')}</span>
+                    ) : null}
+                    {row.level === 'none' ? (
+                        <span className="rounded-full bg-fill px-2.5 py-[3px] text-[13px] font-semibold text-ink-3">{t('usageNone')}</span>
+                    ) : null}
+                    <span>
+                        {row.limit === null
+                            ? t('usageUnlimited', { used: format.number(row.used) })
+                            : t('usageOf', { used: format.number(row.used), limit: format.number(row.limit) })}
+                    </span>
+                </span>
+            </div>
+            {row.limit ? (
+                <div
+                    role="progressbar"
+                    aria-label={label}
+                    aria-valuemin={0}
+                    aria-valuemax={row.limit}
+                    aria-valuenow={Math.min(row.used, row.limit)}
+                    className="h-2 overflow-hidden rounded-full bg-fill"
+                >
+                    <div className={cn('h-full rounded-full', barColor[row.level])} style={{ width: `${row.percent}%` }} />
+                </div>
+            ) : null}
+        </li>
+    )
+}
+
+// Usage is how much of what the plan allows the student has used, each number counted over the period of its limit
+// (month, Tunis day, life of the account, subscription period). The two services that count it answer apart: one
+// down leaves the other's lines.
+function Usage({ id }: { id: string }) {
+    const t = useTranslations('admin')
+    const resume = useStudentResumeUsage(id)
+    const email = useStudentEmailUsage(id)
+    const rows = [...(resume.data ? resumeUsageRows(resume.data) : []), ...(email.data ? emailUsageRows(email.data) : [])]
+    return (
+        <section aria-labelledby="usage-h" className={panel}>
+            <div className="flex flex-col gap-1">
+                <h2 id="usage-h" className="m-0 text-xl font-extrabold">
+                    {t('sUsage')}
+                </h2>
+                <p className="m-0 text-[13.5px] leading-[1.55] text-ink-3">{t('usageHint')}</p>
+            </div>
+            {resume.isLoading || email.isLoading ? <div className="sk h-40 rounded-lg" /> : null}
+            {resume.isError || email.isError ? (
+                <p role="alert" className="m-0 text-sm text-[#B42318]">
+                    {t('sPartError')}
+                </p>
+            ) : null}
+            {rows.length ? (
+                <ul className="m-0 flex list-none flex-col p-0">
+                    {rows.map((row) => (
+                        <UsageLine key={row.key} row={row} />
+                    ))}
+                </ul>
+            ) : null}
+        </section>
+    )
+}
 
 // Applications are what the student sent and where each stands; who it was written to stays the student's own.
 function Applications({ id }: { id: string }) {
@@ -386,6 +464,7 @@ export default function StudentScreen({ id }: { id: string }) {
                         </div>
                     </section>
                     <div className="flex min-w-0 flex-col gap-5">
+                        <Usage id={user.id} />
                         <Applications id={user.id} />
                         <Payments id={user.id} />
                         <Note id={user.id} />

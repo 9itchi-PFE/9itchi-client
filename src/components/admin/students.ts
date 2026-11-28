@@ -1,5 +1,5 @@
 import type { Payment } from '@/types/plan'
-import type { UserQuery, UserStatus } from '@/types/user'
+import type { EmailUsage, ResumeUsage, UsageItem, UserQuery, UserStatus } from '@/types/user'
 
 export const PAGE_SIZE = 25
 
@@ -20,6 +20,42 @@ const uuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
 export const studentId = (v: unknown) => (typeof v === 'string' && uuid.test(v) ? v.toLowerCase() : '')
 
 export const REFUND_DAYS = 7
+
+export type UsageKey = 'resumes' | 'downloads' | 'aiRewrites' | 'applications' | 'aiDrafts' | 'aiMatches' | 'aiScores' | 'recruiterSearches'
+// UsagePeriod is what the limit is counted over: the calendar month, the Tunis day, the life of the account, or the
+// current period of the subscription.
+export type UsagePeriod = 'month' | 'day' | 'account' | 'subscription'
+// UsageLevel: "none" the plan allows nothing of it, "near" 80% or more used, "full" the limit is reached.
+export type UsageLevel = 'unlimited' | 'none' | 'ok' | 'near' | 'full'
+export type UsageRow = { key: UsageKey; period: UsagePeriod; used: number; limit: number | null; level: UsageLevel; percent: number }
+
+const usageRow = (key: UsageKey, period: UsagePeriod, item: UsageItem): UsageRow => {
+    const { used, limit } = item
+    if (limit === null) return { key, period, used, limit, level: 'unlimited', percent: 0 }
+    if (limit <= 0) return { key, period, used, limit: 0, level: 'none', percent: used > 0 ? 100 : 0 }
+    const percent = Math.min(100, Math.round((used / limit) * 100))
+    return { key, period, used, limit, level: used >= limit ? 'full' : percent >= 80 ? 'near' : 'ok', percent }
+}
+
+// resumeUsageRows are the rows resume-api counts: CVs, downloads, AI rewrites.
+export const resumeUsageRows = (u: ResumeUsage): UsageRow[] => [
+    usageRow('resumes', 'account', u.resumes),
+    usageRow('downloads', 'subscription', u.downloads),
+    usageRow('aiRewrites', 'month', u.ai_rewrites),
+]
+
+// emailUsageRows are the rows email-api counts. Without a subscription the applications are a few over the life of
+// the account; a plan that sends nothing says it with a limit of 0.
+export const emailUsageRows = (u: EmailUsage): UsageRow[] => {
+    const a = u.applications
+    return [
+        usageRow('applications', a.mode === 'original' ? 'account' : 'month', a.mode === 'none' ? { used: a.used, limit: 0 } : a),
+        usageRow('aiDrafts', 'month', u.ai_drafts),
+        usageRow('aiMatches', 'month', u.ai_matches),
+        usageRow('aiScores', 'day', u.ai_scores),
+        usageRow('recruiterSearches', 'day', u.recruiter_searches),
+    ]
+}
 
 // Refund is where a payment stands with the refund rule: refunded in full within 7 days when nothing was used.
 // "open": still refundable until `until`; "used": something a subscription pays for was used since the payment;
