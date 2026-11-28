@@ -15,7 +15,7 @@ import { quotaReason } from '@/utils/quota'
 import type { LetterLanguage, Tone } from '@/types/application'
 import type { Resume } from '@/types/resume'
 import AttachmentFields from './AttachmentFields'
-import { attachmentError, firstChoice, letterFields, letterStem, sameName, type LetterChoice } from './attachments'
+import { attachmentError } from './attachments'
 import Paywall from './Paywall'
 import { emailOk, fromTunisInput, scheduleOk, tunisInput } from './outreach'
 
@@ -71,16 +71,14 @@ export default function EmailComposer({
     const [writing, setWriting] = useState(false)
     const [blocked, setBlocked] = useState<{ what: 'draft' | 'send'; reason: 'plan' | 'used' } | null>(null)
     const [sent, setSent] = useState<'now' | 'later' | null>(null)
-    const [letter, setLetter] = useState<LetterChoice>(firstChoice)
     const names = useAttachmentNames(attach ? resumeId : '', language)
     const cvFilename = attach ? (names.data?.cv_filename ?? '') : ''
-    const letterSame = letter.attach && sameName(letterStem(letter, names.data), cvFilename)
 
     const written = !!(subject || body)
     const connected = !!gmail.data?.connected
     const time = when === 'later' ? fromTunisInput(at) : null
     const timeOk = when === 'now' || scheduleOk(time)
-    const ready = connected && emailOk(to) && !!subject.trim() && !!body.trim() && timeOk && (!attach || !!resumeId) && !letterSame
+    const ready = connected && emailOk(to) && !!subject.trim() && !!body.trim() && timeOk && (!attach || !!resumeId)
 
     const write = async (fresh: boolean) => {
         setWriting(true)
@@ -109,7 +107,9 @@ export default function EmailComposer({
                 subject: subject.trim(),
                 body,
                 scheduled_at: when === 'later' && time ? time.toISOString() : undefined,
-                ...letterFields(letter, names.data, language),
+                // Outreach emails carry no cover letter (email-api attaches one when attach_letter is absent).
+                attach_letter: false,
+                language,
             })
             setSent(when)
             toast(when === 'later' ? t('scheduledToast') : t('sentToast', { email: to.trim() }))
@@ -211,7 +211,7 @@ export default function EmailComposer({
                 ) : null}
             </div>
 
-            <AttachmentFields cvFilename={cvFilename} names={names.data} value={letter} onChange={setLetter} />
+            <AttachmentFields cvFilename={cvFilename} />
 
             <div className="flex flex-col gap-2">
                 <Segmented

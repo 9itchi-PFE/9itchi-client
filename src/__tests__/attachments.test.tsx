@@ -90,6 +90,19 @@ describe('AttachmentFields', () => {
     it('says when the letter would carry the CV name', () => {
         expect(render({ name: 'cv prénom nom', edited: true, attach: true })).toContain(fr.outreach.attachments.sameName)
     })
+    it('shows only the CV without a letter choice (outreach)', () => {
+        const only = (cv: string) =>
+            renderToStaticMarkup(
+                <NextIntlClientProvider locale="fr" messages={fr} timeZone="Africa/Tunis">
+                    <AttachmentFields cvFilename={cv} />
+                </NextIntlClientProvider>,
+            )
+        const html = only(names.cv_filename)
+        expect(html).toContain('CV Prénom Nom.pdf')
+        expect(html).not.toContain(fr.outreach.attachments.attachLetter)
+        expect(html).not.toContain('<input')
+        expect(only('')).toBe('')
+    })
     it('hides the CV line without a CV and the name without the letter', () => {
         const html = render({ ...firstChoice, attach: false }, '')
         expect(html).not.toContain(fr.outreach.attachments.cvName)
