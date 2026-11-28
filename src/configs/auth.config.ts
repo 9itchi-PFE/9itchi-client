@@ -1,4 +1,5 @@
 import type { NextAuthConfig, User } from 'next-auth'
+import { CredentialsSignin } from 'next-auth'
 import Credentials from 'next-auth/providers/credentials'
 import { getServerBaseUrl } from '@/configs/services.config'
 import { refreshTokens } from '@/utils/refreshToken'
@@ -9,6 +10,12 @@ const ACCESS_TTL_MS = 14 * 60 * 1000
 type ApiUser = { id: string; name: string; email: string; role: 'admin' | 'candidate'; status: string; school?: string }
 
 const account = () => getServerBaseUrl('account').replace(/\/$/, '')
+
+// EmailNotVerified: the password is right but the account has not entered its emailed code yet. account-api has just
+// sent a fresh code; the sign-in page sends the student to /auth/verify-email (signIn result `code`).
+export class EmailNotVerified extends CredentialsSignin {
+    code = 'email_not_verified'
+}
 
 const toUser = (u: ApiUser, access: string, refresh: string): User => ({
     id: u.id,
@@ -43,6 +50,10 @@ export default {
                     body: JSON.stringify({ email, password }),
                     cache: 'no-store',
                 })
+                if (res.status === 403) {
+                    const body = (await res.json().catch(() => ({}))) as { error?: string }
+                    if (body.error === 'email not verified') throw new EmailNotVerified()
+                }
                 if (!res.ok) return null
                 const data = (await res.json()) as { user: ApiUser; access_token: string; refresh_token: string }
                 return toUser(data.user, data.access_token, data.refresh_token)

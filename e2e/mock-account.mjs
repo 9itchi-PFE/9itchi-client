@@ -22,6 +22,17 @@ export const users = {
         language: 'fr',
     },
 }
+// An account that signed up but has not entered its emailed code: login answers 403 like account-api.
+export const UNVERIFIED = {
+    id: '0e2e0000-0000-4000-8000-000000000003',
+    name: 'Nouvel Étudiant',
+    email: 'nouveau@exemple.tn',
+    role: 'candidate',
+    status: 'active',
+    language: 'fr',
+}
+// VERIFIED_ACCESS is the token e2e/services.ts hands back for POST /auth/verify-email.
+export const VERIFIED_ACCESS = 'e2e-access-verified'
 const PASSWORD = 'MotDePasse123'
 export const SEO_OFFER = {
     id: '0e2e0000-0000-4000-8000-0000000005e0',
@@ -88,7 +99,7 @@ function publicOffers(q) {
 }
 
 let n = 0
-const byToken = new Map()
+const byToken = new Map([[VERIFIED_ACCESS, UNVERIFIED]])
 
 http.createServer((req, res) => {
     let body = ''
@@ -115,6 +126,7 @@ http.createServer((req, res) => {
         if (req.method === 'GET' && req.url?.startsWith('/job/')) return json(404, { error: 'job not found' })
         if (req.method === 'POST' && req.url === '/auth/login') {
             const b = JSON.parse(body || '{}')
+            if (b.email === UNVERIFIED.email && b.password === PASSWORD) return json(403, { error: 'email not verified' })
             const u = users[b.email]
             return u && b.password === PASSWORD ? json(200, { user: u, ...tokens(u) }) : json(401, { error: 'invalid credentials' })
         }
