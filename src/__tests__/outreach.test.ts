@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
     addKeyword,
+    bookmarklet,
     buildSearch,
     companyInitial,
     countryName,
@@ -9,6 +10,8 @@ import {
     fromTunisInput,
     initials,
     linkSource,
+    offerFromHash,
+    offerLink,
     logoSources,
     scheduleOk,
     searchStep,
@@ -133,5 +136,28 @@ describe('radar cards', () => {
         expect(whyOf({ matched_keywords: ['react', '', 'data'] })).toEqual(['react', 'data'])
         expect(whyOf({ matched_keywords: null })).toEqual([])
         expect(whyOf({})).toEqual([])
+    })
+})
+
+describe('offerLink and offerFromHash', () => {
+    it('turns a LinkedIn search with a job open into the job page', () => {
+        expect(offerLink(' https://www.linkedin.com/jobs/search/?currentJobId=4486555367&keywords=dev ')).toBe('https://www.linkedin.com/jobs/view/4486555367/')
+        expect(offerLink('https://www.linkedin.com/jobs/collections/recommended/?currentJobId=12')).toBe('https://www.linkedin.com/jobs/view/12/')
+        expect(offerLink('https://exemple.tn/jobs?currentJobId=12')).toBe('https://exemple.tn/jobs?currentJobId=12')
+        expect(offerLink('pas un lien')).toBe('pas un lien')
+    })
+    it('reads the link and text the button sent', () => {
+        const hash = '#u=' + encodeURIComponent('https://www.linkedin.com/jobs/search/?currentJobId=7') + '&t=' + encodeURIComponent(' Stage PFE & data ')
+        expect(offerFromHash(hash)).toEqual({ url: 'https://www.linkedin.com/jobs/view/7/', text: 'Stage PFE & data' })
+        expect(offerFromHash('')).toBeNull()
+        expect(offerFromHash('#t=x')).toBeNull()
+    })
+    it('builds a bookmark that opens the link page with the page after #', () => {
+        const js = bookmarklet('https://9itchi-pfe.com')
+        expect(js.startsWith('javascript:')).toBe(true)
+        const code = decodeURIComponent(js.slice('javascript:'.length))
+        expect(code).toContain('"https://9itchi-pfe.com/outreach/link"')
+        expect(code).toContain("'#u='+encodeURIComponent(location.href)")
+        expect(() => new Function(code)).not.toThrow()
     })
 })

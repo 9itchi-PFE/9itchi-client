@@ -1,8 +1,10 @@
 'use client'
 
+import { useState } from 'react'
 import { useTranslations } from 'next-intl'
 import { isAxiosError } from 'axios'
 import { Button, ButtonLink } from '@/components/ui/Button'
+import { inputClass } from '@/components/ui/Field'
 import { Icon } from '@/components/ui/icons'
 import { useCompanyRecruiters } from '@/hooks/useRecruiters'
 import { quotaReason } from '@/utils/quota'
@@ -10,27 +12,50 @@ import Paywall from './Paywall'
 import { initials } from './outreach'
 
 // CompanyRecruiters finds the recruiter at the company of an offer read from a link. It costs one Recruiter Radar
-// search only when someone is found; the people found join the radar list. Choosing one fills the recipient.
+// search only when someone is found; the people found join the radar list. Choosing one fills the recipient. The
+// company read from the offer can be corrected, or typed when the offer did not name it.
 export default function CompanyRecruiters({ company, goal, onPick }: { company: string; goal?: string; onPick: (email: string) => void }) {
     const t = useTranslations('outreach.link.recruiter')
     const find = useCompanyRecruiters()
     const blocked = quotaReason(find.error)
     const status = isAxiosError(find.error) ? find.error.response?.status : undefined
     const items = find.data?.items ?? []
+    const [name, setName] = useState(company)
+    const typed = name.trim()
 
     return (
         <section className="flex flex-col gap-3 rounded-[16px] border border-line-soft bg-white p-3.5">
             <div className="flex flex-wrap items-center gap-2">
                 <span className="flex min-w-0 flex-[1_1_220px] flex-col">
-                    <strong className="text-[15px]">{t('title', { company })}</strong>
+                    <strong className="text-[15px]">{typed ? t('title', { company: typed }) : t('titleNone')}</strong>
                     <span className="text-[12.5px] text-ink-3">{t('cost')}</span>
                 </span>
-                {find.isSuccess ? null : (
-                    <Button variant="secondary" size="sm" disabled={find.isPending} onClick={() => find.mutate({ company, goal })}>
+            </div>
+            {find.isSuccess ? null : (
+                <form
+                    className="flex flex-wrap items-end gap-2"
+                    onSubmit={(e) => {
+                        e.preventDefault()
+                        if (typed) find.mutate({ company: typed, goal })
+                    }}
+                >
+                    <label className="flex min-w-0 flex-[1_1_220px] flex-col gap-1.5 text-[13.5px] font-medium text-ink-2">
+                        {t('company')}
+                        <input
+                            className={inputClass}
+                            maxLength={120}
+                            value={name}
+                            onChange={(e) => {
+                                setName(e.target.value)
+                                find.reset()
+                            }}
+                        />
+                    </label>
+                    <Button type="submit" variant="secondary" size="sm" disabled={!typed || find.isPending}>
                         <Icon name="radar" size={14} /> {find.isPending ? t('finding') : t('find')}
                     </Button>
-                )}
-            </div>
+                </form>
+            )}
 
             {blocked ? <Paywall what="search" reason={blocked} /> : null}
             {find.isError && !blocked ? (
