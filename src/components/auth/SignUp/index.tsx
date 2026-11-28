@@ -6,9 +6,9 @@ import { useRouter } from 'next/navigation'
 import { useLocale, useTranslations } from 'next-intl'
 import axios from 'axios'
 import AuthService from '@/services/AuthService'
+import { useSchools } from '@/hooks/useSchools'
+import { schoolChoices, schoolLabel } from '@/lib/schools'
 import { AuthField, AuthHeading, AuthSelect, FormError, SsoButtons, submitClass } from '../shared/AuthForm'
-
-export const SCHOOLS = ['ENIS', 'ENIT', 'INSAT', 'ENSI', 'SUPCOM', 'ESPRIT', 'ENISO', 'ENIM', 'ENIG', 'ENICARTHAGE', 'ISIMM', 'ISI', 'FST', 'OTHER'] as const
 
 // strongPassword mirrors account-api: 8 to 72 characters with an upper case letter, a lower case letter, a digit.
 export const strongPassword = (p: string) => p.length >= 8 && p.length <= 72 && /\p{Lu}/u.test(p) && /\p{Ll}/u.test(p) && /\p{Nd}/u.test(p)
@@ -21,6 +21,8 @@ const SignUp = () => {
     const router = useRouter()
     const [errors, setErrors] = useState<Errors>({})
     const [busy, setBusy] = useState(false)
+    // The list comes from account-api; while it loads (or if it cannot be read) the student can still pick « Other ».
+    const schools = useSchools().data ?? []
 
     const submit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -95,9 +97,9 @@ const SignUp = () => {
                 />
                 <AuthSelect label={t('school')} name="school" defaultValue="">
                     <option value="">{t('schoolPlaceholder')}</option>
-                    {SCHOOLS.map((s) => (
+                    {schoolChoices(schools, undefined).map((s) => (
                         <option key={s} value={s}>
-                            {t(`schools.${s}`)}
+                            {schoolLabel(schools, s, locale, t('schools.OTHER'))}
                         </option>
                     ))}
                 </AuthSelect>

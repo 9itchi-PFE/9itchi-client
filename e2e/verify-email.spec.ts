@@ -1,4 +1,4 @@
-import { expect, test } from '@playwright/test'
+import { expect, test, type Request } from '@playwright/test'
 import { mockServices } from './services'
 
 // Invented account, the one e2e/mock-account.mjs keeps unverified (login answers 403 email not verified).
@@ -12,7 +12,7 @@ const verified = {
 test('a new account enters its emailed code, then starts with its CV', async ({ page }) => {
     const seen = await mockServices(page, {
         'POST /account/auth/signup': [201, { email: NEW.email, verification_required: true }],
-        'POST /account/auth/verify-email': (req) =>
+        'POST /account/auth/verify-email': (req: Request) =>
             (req.postDataJSON() as { code: string }).code === '123456' ? verified : [400, { error: 'invalid or expired code' }],
         'GET /account/users/me': verified.user,
         'GET /resume/resumes': { items: [], total: 0, page: 1, page_size: 100 },
