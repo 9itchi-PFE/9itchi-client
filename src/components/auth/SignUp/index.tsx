@@ -4,11 +4,9 @@ import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { useLocale, useTranslations } from 'next-intl'
-import { signIn } from 'next-auth/react'
 import axios from 'axios'
 import AuthService from '@/services/AuthService'
 import { AuthField, AuthHeading, AuthSelect, FormError, SsoButtons, submitClass } from '../shared/AuthForm'
-import AuthLoading from '../shared/AuthLoading'
 
 export const SCHOOLS = ['ENIS', 'ENIT', 'INSAT', 'ENSI', 'SUPCOM', 'ESPRIT', 'ENISO', 'ENIM', 'ENIG', 'ENICARTHAGE', 'ISIMM', 'ISI', 'FST', 'OTHER'] as const
 
@@ -23,7 +21,6 @@ const SignUp = () => {
     const router = useRouter()
     const [errors, setErrors] = useState<Errors>({})
     const [busy, setBusy] = useState(false)
-    const [opening, setOpening] = useState(false)
 
     const submit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault()
@@ -40,12 +37,9 @@ const SignUp = () => {
         if (Object.keys(next).length) return
         setBusy(true)
         try {
-            const { data } = await AuthService.signUp({ name, email, password, school, language: locale })
-            const res = await signIn('tokens', { access_token: data.access_token, refresh_token: data.refresh_token, redirect: false })
-            if (!res || res.error) throw new Error('sign-in after sign-up')
-            setOpening(true)
-            // A new student starts with the CV (screen 1.2).
-            router.replace('/resumes/upload')
+            await AuthService.signUp({ name, email, password, school, language: locale })
+            // No session yet: account-api emailed a 6-digit code, the next screen asks for it.
+            router.push(`/auth/verify-email?${new URLSearchParams({ email, new: '1' })}`)
         } catch (err) {
             const status = axios.isAxiosError(err) ? err.response?.status : undefined
             const message = axios.isAxiosError(err) ? String(err.response?.data?.error ?? '') : ''
@@ -62,7 +56,6 @@ const SignUp = () => {
         }
     }
 
-    if (opening) return <AuthLoading title={t('signupOpening')} text={t('signupOpeningText')} />
     return (
         <>
             <AuthHeading title={t('signupTitle')} subtitle={t('signupSubtitle')} switchLabel={t('signupSwitch')} switchHref="/auth/signin" />
