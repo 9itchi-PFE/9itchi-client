@@ -16,8 +16,8 @@ const SignIn = () => {
     const t = useTranslations('auth')
     const router = useRouter()
     const params = useSearchParams()
-    const oauth = params.get('error')?.match(/^(google|linkedin)_failed$/)?.[1]
-    const [error, setError] = useState(oauth ? t('errOauth', { provider: providers[oauth] }) : '')
+    const oauth = params.get('error')?.match(/^(google|linkedin|microsoft)_failed$/)?.[1]
+    const [error, setError] = useState(oauth === 'microsoft' ? t('errMicrosoft') : oauth ? t('errOauth', { provider: providers[oauth] }) : '')
     const [busy, setBusy] = useState(false)
     const [opening, setOpening] = useState(false)
 
