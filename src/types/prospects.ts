@@ -1,6 +1,6 @@
 // email-api GET /admin/prospects/stats: the shared contact pool built by Recruiter Radar, how often a search is
 // served from it (no Hunter/Apollo credit spent), and the credits 9itchi spent per provider each UTC day.
-export type ProspectSource = 'website' | 'hunter' | 'apollo' | 'offer' | 'import'
+export type ProspectSource = 'website' | 'hunter' | 'apollo' | 'quickenrich' | 'offer' | 'import'
 
 export type ProspectPool = {
     companies: number
