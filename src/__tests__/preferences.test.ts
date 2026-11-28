@@ -25,6 +25,13 @@ describe('guessFromCv', () => {
         expect([...g.fromCv].sort()).toEqual(['durations', 'places', 'skills', 'start_month', 'topics'])
         expect(g.prefs.work_modes).toEqual([])
     })
+    it('splits a skill that is a whole list and drops the ones job-api refuses', () => {
+        const c = normalize({
+            skills: ['FastAPI, Django, Spring Boot', 'Docker; Kubernetes', 'React', 'x'.repeat(51)],
+            skill_groups: [{ label: 'Web', items: ['React, Next.js'] }],
+        })
+        expect(guessFromCv(c).prefs.skills).toEqual(['FastAPI', 'Django', 'Spring Boot', 'Docker', 'Kubernetes', 'React'])
+    })
     it('asks everything without a CV', () => {
         expect(guessFromCv(undefined).fromCv.size).toBe(0)
     })

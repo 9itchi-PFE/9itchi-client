@@ -46,13 +46,21 @@ const monthNames: Record<string, number> = {
 
 export const KNOWN_PLACES = ['Sfax', 'Tunis', 'Sousse', 'remote', 'France', 'anywhere']
 
+// SKILL_MAX is job-api's limit on one skill of the preferences.
+const SKILL_MAX = 50
+
 export type Guess = { prefs: Preferences; fromCv: Set<keyof Preferences> }
 
 export function guessFromCv(c: ResumeContent | undefined): Guess {
     const prefs: Preferences = { topics: [], skills: [], places: [], work_modes: [], start_month: null, durations: [] }
     const fromCv = new Set<keyof Preferences>()
     if (!c) return { prefs, fromCv }
-    const skills = [...c.skills, ...(c.skill_groups ?? []).flatMap((g) => g.items)].filter((s, i, a) => s && a.indexOf(s) === i)
+    // A parsed CV may keep a whole list as one skill (« FastAPI, Django, React »): split it, and drop what job-api
+    // refuses (a skill over 50 characters), or the preferences cannot be saved.
+    const skills = [...c.skills, ...(c.skill_groups ?? []).flatMap((g) => g.items)]
+        .flatMap((s) => (s ?? '').split(/[,;]/))
+        .map((s) => s.trim())
+        .filter((s, i, a) => s && s.length <= SKILL_MAX && a.indexOf(s) === i)
     const text = ` ${[
         ...skills,
         ...(c.projects ?? []).flatMap((p) => [p.name, p.tech, ...p.description]),
