@@ -63,9 +63,21 @@ export function AuthHeading({ title, subtitle, switchLabel, switchHref }: { titl
 const ssoClass =
     'flex h-12 w-full items-center justify-center gap-2.5 rounded-xl border border-line-strong bg-white text-[15px] font-semibold text-ink-2 no-underline hover:bg-fill-3 hover:text-ink-2'
 
-// accountUrl is the public account-api address: Google and LinkedIn sign-in must reach it directly
+// accountUrl is the public account-api address: Google, Microsoft and LinkedIn sign-in must reach it directly
 // (its state cookie and callback live there, never behind the proxy).
 const accountUrl = () => (process.env.NEXT_PUBLIC_ACCOUNT_API_BASE_URL ?? '').replace(/\/$/, '')
+
+// MicrosoftLogo is the four-square Microsoft mark (brand colours, hence the raw hex).
+function MicrosoftLogo() {
+    return (
+        <svg width={20} height={20} viewBox="0 0 21 21" aria-hidden="true">
+            <rect x="1" y="1" width="9" height="9" fill="#f25022" />
+            <rect x="11" y="1" width="9" height="9" fill="#7fba00" />
+            <rect x="1" y="11" width="9" height="9" fill="#00a4ef" />
+            <rect x="11" y="11" width="9" height="9" fill="#ffb900" />
+        </svg>
+    )
+}
 
 export function SsoButtons() {
     const t = useTranslations('auth')
@@ -75,6 +87,10 @@ export function SsoButtons() {
                 <a href={`${accountUrl()}/auth/google`} className={ssoClass}>
                     <img src="/img/google.png" alt="" width={20} height={20} />
                     {t('google')}
+                </a>
+                <a href={`${accountUrl()}/auth/microsoft`} className={ssoClass}>
+                    <MicrosoftLogo />
+                    {t('microsoft')}
                 </a>
                 {/* LinkedIn sign-in is hidden; account-api still serves /auth/linkedin. */}
             </div>
