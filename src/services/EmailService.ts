@@ -20,6 +20,7 @@ import type {
     OutgoingEmail,
     Recruiter,
     RecruiterAllowance,
+    CompanyRecruiterInput,
     RecruiterDraftInput,
     RecruiterSearch,
     RecruiterSearchInput,
@@ -48,6 +49,8 @@ const EmailService = {
     draftFromLink: (data: LinkDraftInput) => e().post<LinkDraft>(`/emails/draft-from-link`, data, { timeout: 60_000 }),
     // Recruiter Radar: searches count against the plan's daily limit (402 beyond it, or without a subscription).
     searchRecruiters: (data: RecruiterSearchInput) => e().post<RecruiterSearch>(`/recruiters/search`, data, { timeout: 50_000 }),
+    // companyRecruiters finds the people at one company (an offer read from a link); counted only when found.
+    companyRecruiters: (data: CompanyRecruiterInput) => e().post<RecruiterSearch>(`/recruiters/company`, data, { timeout: 50_000 }),
     listRecruiters: () => e().get<{ items: Recruiter[] }>(`/recruiters`),
     recruiterAllowance: () => e().get<RecruiterAllowance>(`/recruiters/allowance`),
     // draftForRecruiter writes a spontaneous application to one recruiter found by the radar.

@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import EmailService from '@/services/EmailService'
-import type { LinkDraftInput, RecruiterDraftInput, RecruiterSearchInput } from '@/types/recruiter'
+import type { CompanyRecruiterInput, LinkDraftInput, RecruiterDraftInput, RecruiterSearchInput } from '@/types/recruiter'
 
 export const recruiterKeys = {
     list: ['recruiters'] as const,
@@ -26,6 +26,19 @@ export function useSearchRecruiters() {
             qc.invalidateQueries({ queryKey: recruiterKeys.list })
         },
         // A 402 can mean the day's searches ran out meanwhile.
+        onError: () => qc.invalidateQueries({ queryKey: recruiterKeys.allowance }),
+    })
+}
+
+// useCompanyRecruiters finds the people at one company; like a search, they join the list and the allowance updates.
+export function useCompanyRecruiters() {
+    const qc = useQueryClient()
+    return useMutation({
+        mutationFn: async (input: CompanyRecruiterInput) => (await EmailService.companyRecruiters(input)).data,
+        onSuccess: (r) => {
+            qc.setQueryData(recruiterKeys.allowance, r.allowance)
+            qc.invalidateQueries({ queryKey: recruiterKeys.list })
+        },
         onError: () => qc.invalidateQueries({ queryKey: recruiterKeys.allowance }),
     })
 }

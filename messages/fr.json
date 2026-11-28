@@ -179,7 +179,17 @@
             "untitled": "Offre",
             "another": "Un autre lien",
             "composerTitle": "Ton e-mail",
-            "toHint": "Trouve l’adresse du recruteur dans l’offre ou sur le site de l’entreprise, et tape-la ici."
+            "toHint": "Trouve l’adresse du recruteur dans l’offre ou sur le site de l’entreprise, et tape-la ici.",
+            "recruiter": {
+                "title": "Recruteur chez {company}",
+                "cost": "Utilise 1 recherche du Radar recruteurs, seulement si quelqu’un est trouvé.",
+                "find": "Trouver le recruteur",
+                "finding": "Recherche…",
+                "nobody": "Personne n’a été trouvé dans cette entreprise. Aucune recherche n’a été comptée.",
+                "failed": "La recherche a échoué. Réessayez.",
+                "use": "Utiliser cette adresse",
+                "radar": "Voir dans le Radar recruteurs"
+            }
         },
         "progress": {
             "title": "Recherche en cours",
