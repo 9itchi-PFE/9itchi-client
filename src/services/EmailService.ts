@@ -2,6 +2,7 @@ import type {
     Allowance,
     Application,
     ApplicationList,
+    AttachmentNames,
     ApplyInput,
     Draft,
     DraftInput,
@@ -9,6 +10,7 @@ import type {
     FollowUpDraftInput,
     GmailStatus,
     JobMatch,
+    LetterLanguage,
     MatchInput,
     ScoreInput,
     ScoreList,
@@ -40,6 +42,9 @@ const EmailService = {
     sendEmail: (data?: OutgoingEmail) => e().post(`/emails`, data),
     scheduleEmail: (data?: OutgoingEmail) => e().post(`/emails/schedule`, data),
     listEmails: () => e().get<Email[]>(`/emails`),
+    // attachmentNames are the files an email will carry: the CV's name (its title, read-only here) and the letter's default.
+    attachmentNames: (resumeId: string, language: LetterLanguage) =>
+        e().get<AttachmentNames>(`/emails/attachment-names`, { params: { resume_id: resumeId || undefined, language } }),
     getEmail: (id: string) => e().get<Email>(`/emails/${id}`),
     cancelEmail: (id: string) => e().delete(`/emails/${id}`),
     // updateEmail changes a scheduled email (recipient, text, time, CV); 409 once it has left.

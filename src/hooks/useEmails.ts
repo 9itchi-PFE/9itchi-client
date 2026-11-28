@@ -1,6 +1,16 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import EmailService from '@/services/EmailService'
+import type { LetterLanguage } from '@/types/application'
 import type { EmailEdit, OutgoingEmail } from '@/types/recruiter'
+
+// useAttachmentNames reads the CV and cover-letter file names for a CV ('' : none) and a letter language.
+export function useAttachmentNames(resumeId: string, language: LetterLanguage) {
+    return useQuery({
+        queryKey: ['attachment-names', resumeId, language],
+        queryFn: async () => (await EmailService.attachmentNames(resumeId, language)).data,
+        staleTime: 5 * 60_000,
+    })
+}
 
 export function useEmails() {
     return useQuery({

@@ -100,6 +100,13 @@
                 "low": "Incertain {value} %"
             }
         },
+        "attachments": {
+            "cvName": "CV joint :",
+            "letterName": "Nom de la lettre de motivation",
+            "attachLetter": "Joindre ma lettre de motivation en PDF",
+            "nameHint": "Le nom du CV se change dans la section CV.",
+            "sameName": "Choisis un nom différent de celui du CV."
+        },
         "composer": {
             "to": "À",
             "language": "Langue",
@@ -130,7 +137,9 @@
             "sentToast": "E-mail envoyé à {email}",
             "scheduledToast": "E-mail programmé",
             "sentTitle": "E-mail envoyé",
-            "scheduledTitle": "E-mail programmé"
+            "scheduledTitle": "E-mail programmé",
+            "letterFailed": "La lettre de motivation n’a pas pu être jointe. Réessaie.",
+            "tooLarge": "Les pièces jointes dépassent la limite de Gmail (25 Mo)."
         },
         "scheduled": {
             "title": "Programmés et envoyés",

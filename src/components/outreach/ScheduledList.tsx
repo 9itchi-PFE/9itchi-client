@@ -10,9 +10,11 @@ import { Icon } from '@/components/ui/icons'
 import { Modal } from '@/components/ui/Modal'
 import { useToast } from '@/components/ui/Toast'
 import { Select } from '@/components/ui/Select'
-import { useCancelEmail, useEmails, useUpdateEmail } from '@/hooks/useEmails'
+import { useAttachmentNames, useCancelEmail, useEmails, useUpdateEmail } from '@/hooks/useEmails'
 import type { Email } from '@/types/application'
 import type { Resume } from '@/types/resume'
+import AttachmentFields from './AttachmentFields'
+import { choiceOf, letterEdit, letterStem, sameName, type LetterChoice } from './attachments'
 import { emailOk, fromTunisInput, scheduleOk, tunisInput } from './outreach'
 
 const label = 'flex min-w-0 flex-col gap-1.5 text-[13.5px] font-medium text-ink-2'
@@ -30,8 +32,12 @@ function EditEmail({ email, resumes, onClose }: { email: Email; resumes: Pick<Re
     const [at, setAt] = useState(email.scheduled_at ? tunisInput(new Date(email.scheduled_at)) : '')
     const [attach, setAttach] = useState(!!email.resume_id)
     const [resumeId, setResumeId] = useState(email.resume_id ?? resumes[0]?.id ?? '')
+    const [letter, setLetter] = useState<LetterChoice>(() => choiceOf(email))
+    const names = useAttachmentNames(attach ? resumeId : '', email.letter_language ?? 'fr')
+    const cvFilename = attach ? (names.data?.cv_filename ?? '') : ''
+    const letterSame = letter.attach && sameName(letterStem(letter, names.data), cvFilename)
     const time = fromTunisInput(at)
-    const ok = emailOk(to) && !!subject.trim() && !!body.trim() && scheduleOk(time) && (!attach || !!resumeId)
+    const ok = emailOk(to) && !!subject.trim() && !!body.trim() && scheduleOk(time) && (!attach || !!resumeId) && !letterSame
 
     const save = async () => {
         if (!ok || !time) return
@@ -45,6 +51,7 @@ function EditEmail({ email, resumes, onClose }: { email: Email; resumes: Pick<Re
                     scheduled_at: time.toISOString(),
                     attach_cv: attach,
                     resume_id: attach ? resumeId : undefined,
+                    ...letterEdit(letter, email),
                 },
             })
             toast(t('saved'))
@@ -87,6 +94,7 @@ function EditEmail({ email, resumes, onClose }: { email: Email; resumes: Pick<Re
                         ))}
                     </Select>
                 ) : null}
+                <AttachmentFields cvFilename={cvFilename} names={names.data} value={letter} onChange={setLetter} />
                 <div className="flex flex-wrap justify-end gap-2.5">
                     <Button variant="secondary" onClick={onClose}>
                         {t('close')}

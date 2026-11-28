@@ -1,3 +1,4 @@
+import { attachmentError, type LetterChoice } from '@/components/outreach/attachments'
 import type { Allowance, Application, LetterLanguage, Tone } from '@/types/application'
 
 const DAY = 86_400_000
@@ -84,10 +85,13 @@ export function validTime(at: Date | null, now = new Date()): at is Date {
 }
 
 // ApplyError is what went wrong when sending, as the screen reacts to it.
-export type ApplyError = 'gmail' | 'plan' | 'already' | 'closed' | 'noEmail' | 'noFile' | 'other'
+export type ApplyError = 'gmail' | 'plan' | 'already' | 'closed' | 'noEmail' | 'noFile' | 'letterFailed' | 'tooLarge' | 'other'
 
 export function applyError(status: number | undefined, message = ''): ApplyError {
     if (status === 402) return 'plan'
+    // The cover letter PDF could not be made, or the files are over Gmail's 25 MB.
+    const attachment = attachmentError(status, message)
+    if (attachment) return attachment
     // 422 is also a CV with no imported file, when the application would leave with it (no subscription).
     if (status === 422) return /imported file/i.test(message) ? 'noFile' : 'noEmail'
     if (status === 409) {
@@ -161,6 +165,8 @@ export type Pending = {
     // The CV chosen and, for an offer without an application address, the recruiter's address typed.
     cv?: string
     to?: string
+    // The cover letter's name typed and whether it goes (absent on letters kept before).
+    letter?: LetterChoice
 }
 
 // EMAIL is a plain check of a recruiter's address before sending; email-api checks it again.

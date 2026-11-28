@@ -123,6 +123,7 @@ const defaults = (): Answers => ({
     'GET /email/applications/allowance': { mode: 'plan', limit: null, used: 0 },
     'GET /email/applications/match': [404, { error: 'no analysis yet' }],
     'GET /email/emails': [],
+    'GET /email/emails/attachment-names': { cv_filename: 'CV Prénom Nom.pdf', letter_filename: 'Lettre_de_motivation_Prénom_Nom' },
     [`PATCH /email/emails/${EMAIL_ID}`]: { id: EMAIL_ID, status: 'scheduled' },
     'POST /email/emails/draft-from-link': {
         subject: 'Candidature : Stage PFE',
