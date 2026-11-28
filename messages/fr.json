@@ -1478,6 +1478,28 @@
         "sGiftsValue": "{count} · dernier le {day, date, ::dMMMy}",
         "sUnknown": "Non lu",
         "sSubscriber": "{state} · abonné",
+        "sUsage": "Utilisation et limites",
+        "usageHint": "Ce que l’étudiant a utilisé de ce que son offre permet. Chaque compte suit la période de sa limite.",
+        "usageOf": "{used} sur {limit}",
+        "usageUnlimited": "{used} · sans limite",
+        "usageFull": "Limite atteinte",
+        "usageNone": "Pas dans l’offre",
+        "usageKey": {
+            "resumes": "CV",
+            "downloads": "Téléchargements de CV",
+            "aiRewrites": "Reformulations IA d’une ligne du CV",
+            "applications": "Candidatures envoyées depuis 9itchi",
+            "aiDrafts": "Lettres écrites par l’IA",
+            "aiMatches": "Analyses IA d’une offre",
+            "aiScores": "Scores IA rapides d’offres",
+            "recruiterSearches": "Recherches de recruteurs"
+        },
+        "usagePeriod": {
+            "month": "Ce mois-ci",
+            "day": "Aujourd’hui (heure de Tunis)",
+            "account": "Sur la vie du compte",
+            "subscription": "Période d’abonnement en cours"
+        },
         "sApplications": "Candidatures",
         "sNoApplications": "Aucune candidature pour l’instant.",
         "sPartError": "Cette partie n’a pas pu être lue.",

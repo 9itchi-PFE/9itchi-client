@@ -1478,6 +1478,28 @@
         "sGiftsValue": "{count} · آخرها في {day, date, ::dMMMy}",
         "sUnknown": "لم يُقرأ",
         "sSubscriber": "{state} · مشترك",
+        "sUsage": "الاستخدام والحدود",
+        "usageHint": "ما استخدمه الطالب مما تتيحه خطته. كل عدّاد يتبع فترة حدّه.",
+        "usageOf": "{used} من {limit}",
+        "usageUnlimited": "{used} · دون حدّ",
+        "usageFull": "بلغ الحدّ",
+        "usageNone": "غير مشمول في الخطة",
+        "usageKey": {
+            "resumes": "السير الذاتية",
+            "downloads": "تنزيلات السيرة الذاتية",
+            "aiRewrites": "إعادة صياغة سطر من السيرة بالذكاء الاصطناعي",
+            "applications": "الترشّحات المرسلة من 9itchi",
+            "aiDrafts": "رسائل كتبها الذكاء الاصطناعي",
+            "aiMatches": "تحليلات عرض بالذكاء الاصطناعي",
+            "aiScores": "تقييمات سريعة للعروض بالذكاء الاصطناعي",
+            "recruiterSearches": "عمليات البحث عن مسؤولي التوظيف"
+        },
+        "usagePeriod": {
+            "month": "هذا الشهر",
+            "day": "اليوم (بتوقيت تونس)",
+            "account": "على امتداد عمر الحساب",
+            "subscription": "فترة الاشتراك الحالية"
+        },
         "sApplications": "الترشّحات",
         "sNoApplications": "لا توجد ترشّحات بعد.",
         "sPartError": "تعذّرت قراءة هذا الجزء.",

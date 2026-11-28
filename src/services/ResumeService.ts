@@ -1,6 +1,6 @@
 import type { AdminTemplate, ATSCheck, Downloads, Resume, ResumeContent, ResumeFile, ResumeList, Template, Version, VersionWithContent } from '@/types/resume'
 import { api } from './ApiService'
-import type { LastUse, UserCV } from '@/types/user'
+import type { LastUse, ResumeUsage, UserCV } from '@/types/user'
 
 const r = () => api('resume')
 
@@ -16,6 +16,8 @@ const ResumeService = {
     // userCV is where a student's CV stands with the 24 rules, for the team (admin). 404: no CV.
     // userDownloads is how many CV downloads a student made and when the last one was (admin).
     userDownloads: (userId: string) => r().get<LastUse>(`/admin/users/${userId}/downloads`),
+    // userUsage is how much of the plan a student used here: CVs, downloads, AI rewrites (admin).
+    userUsage: (userId: string) => r().get<ResumeUsage>(`/admin/users/${userId}/usage`),
     // rewrite asks the AI for a better version of one line (or the summary) of the student's CV, within the plan.
     rewrite: (id: string, data: { section: 'bullet' | 'summary'; text: string; language: 'fr' | 'en' | 'ar'; job_title?: string; goal?: 'quantify' }) =>
         r().post<{ suggestions: string[]; warnings?: string[]; limit: number | null; used: number }>(`/resumes/${id}/rewrite`, data),

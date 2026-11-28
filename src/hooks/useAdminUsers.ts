@@ -10,8 +10,10 @@ export const adminUserKeys = {
     all: ['admin', 'users'] as const,
     list: (query: UserQuery) => ['admin', 'users', 'list', query] as const,
     one: (id: string) => ['admin', 'users', 'one', id] as const,
-    part: (id: string, what: 'subscription' | 'payments' | 'applications' | 'gmail' | 'cv' | 'note' | 'gifts' | 'downloads' | 'sent-with-cv') =>
-        ['admin', 'users', 'one', id, what] as const,
+    part: (
+        id: string,
+        what: 'subscription' | 'payments' | 'applications' | 'gmail' | 'cv' | 'note' | 'gifts' | 'downloads' | 'sent-with-cv' | 'email-usage' | 'resume-usage',
+    ) => ['admin', 'users', 'one', id, what] as const,
 }
 
 // useAdminUsers lists the students; while a new page or search loads, the rows already shown stay.
@@ -95,6 +97,21 @@ export function useStudentBuiltSends(id: string) {
     return useQuery({
         queryKey: adminUserKeys.part(id, 'sent-with-cv'),
         queryFn: async () => (await EmailService.userBuiltSends(id)).data,
+        enabled: !!id,
+        retry: 1,
+    })
+}
+
+// useStudentEmailUsage and useStudentResumeUsage read how much of the plan the student used in each service that
+// counts it; the limits come with the numbers, from the same plan the services enforce.
+export function useStudentEmailUsage(id: string) {
+    return useQuery({ queryKey: adminUserKeys.part(id, 'email-usage'), queryFn: async () => (await EmailService.userUsage(id)).data, enabled: !!id, retry: 1 })
+}
+
+export function useStudentResumeUsage(id: string) {
+    return useQuery({
+        queryKey: adminUserKeys.part(id, 'resume-usage'),
+        queryFn: async () => (await ResumeService.userUsage(id)).data,
         enabled: !!id,
         retry: 1,
     })
