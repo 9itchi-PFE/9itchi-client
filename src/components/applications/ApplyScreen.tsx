@@ -18,6 +18,7 @@ import { Segmented } from '@/components/ui/Segmented'
 import { useToast } from '@/components/ui/Toast'
 import { Select } from '@/components/ui/Select'
 import AttachmentFields from '@/components/outreach/AttachmentFields'
+import CompanyRecruiters from '@/components/outreach/CompanyRecruiters'
 import { firstChoice, letterFields, letterStem, sameName, type LetterChoice } from '@/components/outreach/attachments'
 import { useMe } from '@/hooks/useAccount'
 import { useAllowance, useApplications, useApply, useDraft, useGmailStatus } from '@/hooks/useApplications'
@@ -288,6 +289,8 @@ export default function ApplyScreen({ id }: { id: string }) {
     // byEmail: an offer with no application address, sent from Gmail to the address the student found.
     const [byEmail, setByEmail] = useState(false)
     const [to, setTo] = useState('')
+    // toMode: the student types the recruiter's address, or finds the recruiter at the company (Recruiter Radar).
+    const [toMode, setToMode] = useState<'type' | 'find'>('type')
     // letter: the cover letter PDF that goes with the email, under the default name until the student types one.
     const [letter, setLetter] = useState<LetterChoice>(firstChoice)
     const names = useAttachmentNames(cv, language)
@@ -837,6 +840,27 @@ export default function ApplyScreen({ id }: { id: string }) {
                         <>
                             {onSite ? (
                                 <div className="flex flex-col gap-1.5">
+                                    <Segmented
+                                        label={t('toHow')}
+                                        role="radiogroup"
+                                        value={toMode}
+                                        onChange={setToMode}
+                                        itemClassName="flex-1"
+                                        options={[
+                                            { value: 'type', label: t('toType') },
+                                            { value: 'find', label: t('toFind') },
+                                        ]}
+                                    />
+                                    {toMode === 'find' ? (
+                                        <CompanyRecruiters
+                                            company={job.company}
+                                            goal={job.title || undefined}
+                                            onPick={(email) => {
+                                                setTo(email)
+                                                setToMode('type')
+                                            }}
+                                        />
+                                    ) : null}
                                     <label className="flex flex-col gap-1.5 text-[13.5px] font-medium text-ink-2">
                                         {t('toLabel')}
                                         <input
